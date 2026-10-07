@@ -1,0 +1,1244 @@
+{
+  "audit_date": "2026-10-07",
+  "status": "Review findings; source documents unchanged",
+  "scope": {
+    "docx_count": 23,
+    "markdown_count": 21,
+    "pdf_representations": 26,
+    "primary_pdf_pages": 576,
+    "method": "Full corpus text/registry extraction, targeted semantic cross-checks, selective PDF visual inspection, primary-source verification. Not exhaustive independent verification of every sentence or a running application."
+  },
+  "finding_priority_counts": {
+    "Tinggi": 9,
+    "Sedang": 6,
+    "Rendah": 1
+  },
+  "findings": [
+    {
+      "id": "A01",
+      "priority": "Tinggi",
+      "kind": "Klaim kesiapan / tata kelola",
+      "title": "Normative baseline tidak sama dengan baseline yang telah divalidasi",
+      "description": "Sejumlah dokumen dan jawaban pengantar memakai istilah approved, implementable, resmi, atau siap engineering handoff. Paket berisi persyaratan, template, dan kriteria penerimaan; tidak berisi bukti adopsi bernama, hasil uji implementasi CS-AML, atau audit independen yang memenuhi kriteria itu. Ini terutama koreksi atas tingkat kepastian jawaban saya sebelumnya. Bukan berarti semua dokumen mengaku sebagai standar FATF: parent framework justru memuat disclaimer yang benar.",
+      "evidence": [
+        {
+          "file": "CS-AML_Framework_v0.1_Expanded.docx",
+          "section": "40. Annex H — External Standards Mapping",
+          "record": "P0791",
+          "excerpt": "The mapping is informative. Compliance with CS-AML does not imply compliance with FATF Recommendations, national AML law, regulated-entity obligations, or professional standards."
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "Front matter",
+          "record": "P0004",
+          "excerpt": "Document statusNormative software baseline for MVP 0.1 implementation. This SRS translates the approved PRD, Product & Feature Specification, Data Model Specification, Control Implementation Guide, Investigation Methodology, and Technology Architecture into testable software requirements."
+        },
+        {
+          "file": "CS-AML_Component_Inventory_and_Storybook_Implementation_Specification_v0.1.docx",
+          "section": "18. Security and Privacy in Storybook",
+          "record": "P0283",
+          "excerpt": "CISB-082 — Authorization behavior MAY be simulated through safe decorators/fixtures, but Storybook SHALL NOT be treated as proof of server-side authorization."
+        }
+      ],
+      "impact": "Tim dapat menyamakan selesai menulis dengan selesai memvalidasi. Hal ini membuat keputusan domain dan keamanan yang masih terbuka terlihat sudah disahkan.",
+      "recommended_correction": "Gunakan status Draft for Review atau Proposed Internal Baseline sampai ada owner, tanggal keputusan, reviewer, dan evidence penerimaan. Bedakan specification, implementation, dan verified implementation di register dokumen. Pertahankan disclaimer bahwa CS-AML bukan standar atau sertifikasi eksternal.",
+      "verification_after_correction": "Periksa bahwa setiap klaim approved/conformant mempunyai record persetujuan atau hasil uji yang dirujuk; jika tidak, ubah statusnya. Tidak diperlukan dokumen teori baru.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A02",
+      "priority": "Tinggi",
+      "kind": "Ketidakmutakhiran rekomendasi teknologi",
+      "title": "MinIO Community direkomendasikan tanpa caveat maintenance",
+      "description": "Technical Stack menggunakan MinIO sebagai reference object store dan menampilkan layanan itu dalam deployment. Pada tanggal audit, repositori upstream minio/minio telah diarsipkan sejak 25 April 2026 dan README menyatakan tidak lagi dipelihara. Kapabilitas S3-compatible tetap masuk akal; rekomendasi default produk perlu dievaluasi ulang.",
+      "evidence": [
+        {
+          "file": "CS-AML_Technical_Stack_and_Repository_Specification_v0.1.docx",
+          "section": "3. MVP Reference Stack",
+          "record": "P0038",
+          "excerpt": "Object storage | S3-compatible store (MinIO reference) | Original/derivative evidence objects, versioning | Required capability"
+        },
+        {
+          "file": "CS-AML_Technical_Stack_and_Repository_Specification_v0.1.docx",
+          "section": "18. Container and Runtime Topology",
+          "record": "P0150",
+          "excerpt": "compose project (reference deployment)├── nginx├── web          (Django/Gunicorn)├── worker       (Celery)├── scheduler    (Celery beat, only if required)├── postgres├── redis├── object-store (MinIO reference / external S3 supported)└── telemetry    (deployment-specific collectors)External or separately managed:└── Keycloak / OIDC IdP"
+        }
+      ],
+      "impact": "Pemilihan penyimpanan evidence dapat dimulai dari komponen dengan jalur maintenance yang tidak lagi sesuai asumsi. Ini tidak membuktikan instance pengguna rentan; tidak ada instance yang diuji.",
+      "recommended_correction": "Pertahankan requirement S3-compatible, tetapi jangan mengunci MinIO Community sebagai default production tanpa keputusan risiko/maintenance. Evaluasi penyedia/implementasi yang dipelihara, versi, lisensi, migrasi, dan dukungan. Bedakan MinIO Community dengan AIStor atau produk lain.",
+      "verification_after_correction": "ADR penyimpanan memuat rilis yang dipilih, status maintenance, jalur patch, bukti compatibility test, dan restore test.",
+      "external_references": [
+        "S04"
+      ],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A03",
+      "priority": "Sedang",
+      "kind": "Dependensi / lisensi",
+      "title": "Redis 7.x terlalu luas untuk baseline open-source",
+      "description": "Redis 7.x dijadikan required reference. Rentang ini mencakup batas lisensi yang berbeda: versi 7.2 dan 7.4 tidak mempunyai pilihan lisensi yang sama. Ini bukan library fiktif, tetapi spesifikasi versi dan lisensinya belum cukup pasti.",
+      "evidence": [
+        {
+          "file": "CS-AML_Technical_Stack_and_Repository_Specification_v0.1.docx",
+          "section": "3. MVP Reference Stack",
+          "record": "P0037",
+          "excerpt": "Broker/cache | Redis 7.x | Task broker, bounded cache, transient coordination | Required reference"
+        }
+      ],
+      "impact": "Engineer dapat memilih minor release yang memenuhi teks spesifikasi tetapi tidak memenuhi keputusan lisensi organisasi.",
+      "recommended_correction": "Tetapkan release line dan pilihan lisensi eksplisit; simpan dalam dependency manifest/ADR. Jangan mengartikan semua 7.x sebagai BSD atau menyamakan source-available dengan open-source tanpa memeriksa lisensinya.",
+      "verification_after_correction": "Dependency manifest, image digest, SBOM dan catatan lisensi merujuk versi yang sama.",
+      "external_references": [
+        "S05"
+      ],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A04",
+      "priority": "Tinggi",
+      "kind": "Kontradiksi teknis",
+      "title": "If-Match gagal: 409 pada contoh, 412 pada tabel",
+      "description": "API section 9 menyebut 412 untuk kegagalan If-Match/ETag, tetapi section 10 menunjukkan If-Match: \"7\" terhadap versi 8 menghasilkan 409 VERSION_CONFLICT. Dua engineer dapat menerapkan perilaku berbeda berdasarkan dokumen yang sama.",
+      "evidence": [
+        {
+          "file": "CS-AML_API_Specification_v0.1.docx",
+          "section": "9. Error Model",
+          "record": "P0086",
+          "excerpt": "412 | PRECONDITION_FAILED | If-Match/ETag failed."
+        },
+        {
+          "file": "CS-AML_API_Specification_v0.1.docx",
+          "section": "10. Concurrency and Record Versioning",
+          "record": "P0098",
+          "excerpt": "PATCH /api/v1/assessments/{id}If-Match: \"7\"{ \"record_version\": 7, \"judgement\": \"...\" }→ 409 VERSION_CONFLICT if current version is 8"
+        }
+      ],
+      "impact": "Frontend conflict handling, generated client, dan contract test tidak memiliki satu expected response.",
+      "recommended_correction": "Untuk penolakan stale HTTP If-Match tetapkan 412 PRECONDITION_FAILED. Cadangkan 409 untuk konflik workflow atau body-version aplikasi sesuai kontrak. Definisikan urutan pemeriksaan jika body dan header sama-sama ada. RFC melarang penerapan method saat If-Match false dan mempunyai pengecualian untuk request yang aksinya sudah terpenuhi; kontrak harus menangani hal tersebut secara konsisten.",
+      "verification_after_correction": "Contract tests: stale header -> 412; konflik business state -> 409; tidak ada silent overwrite. Contoh, tabel, frontend error mapping dan OpenAPI harus sama.",
+      "external_references": [
+        "S06"
+      ],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A05",
+      "priority": "Tinggi",
+      "kind": "Traceability drift",
+      "title": "F-ASM-003 berganti arti pada SRS",
+      "description": "Feature catalogue memberi F-ASM-003 arti Disconfirming search record. SRS-FR-ASM-003 berjudul Backward traceability tetapi dipetakan ke F-ASM-003. Kedua kebutuhan penting, namun tidak ekuivalen.",
+      "evidence": [
+        {
+          "file": "CS-AML_Product_and_Feature_Specification_v0.1.docx",
+          "section": "CAP-09 — Hypothesis & Assessment",
+          "record": "P0171",
+          "excerpt": "F-ASM-003 | Disconfirming search record | P0 | Reviewer | Document what was done to search for evidence that weakens adverse findings. | Review,Hypothesis | HYP-02,QUA-01 | High-impact product cannot pass review if no disconfirmation record/rationale."
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "SRS-FR-ASM-003 — Backward traceability",
+          "record": "P0327",
+          "excerpt": "SRS-FR-ASM-003 — Backward traceability"
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "SRS-FR-ASM-003 — Backward traceability",
+          "record": "P0328",
+          "excerpt": "Requirement | The system SHALL allow a reviewer to traverse an assessment backward through hypotheses/indicators/facts/evidence/sources."
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "SRS-FR-ASM-003 — Backward traceability",
+          "record": "P0332",
+          "excerpt": "Traceability | F-ASM-003"
+        }
+      ],
+      "impact": "Checklist coverage dapat tampak lengkap walaupun kewajiban mencari bukti yang melemahkan hipotesis belum diimplementasikan atau dites.",
+      "recommended_correction": "Pertahankan stable meaning F-ASM-003; buat requirement SRS yang secara eksplisit menguji disconfirming search. Beri backward traceability ID tersendiri atau mapping lain yang benar. Jangan mengganti arti ID lama diam-diam.",
+      "verification_after_correction": "Satu test menolak review adverse/high-impact tanpa catatan disconfirmation yang diperlukan; test terpisah menelusuri assessment ke evidence. Traceability membedakan kedua test.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A06",
+      "priority": "Sedang",
+      "kind": "Scope drift",
+      "title": "Enam template pada SRS, tiga pada breakdown MVP",
+      "description": "Feature catalogue dan SRS mensyaratkan enam template: Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report. ST-E8-01 pada engineering breakdown hanya merinci tiga. Dalam paket yang diperiksa tidak ada perubahan scope eksplisit yang menghubungkan pengurangan ini.",
+      "evidence": [
+        {
+          "file": "CS-AML_Product_and_Feature_Specification_v0.1.docx",
+          "section": "CAP-11 — Intelligence Products & Review",
+          "record": "P0182",
+          "excerpt": "F-PRD-001 | Intelligence product templates | P0 | Analyst | Generate Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package and Case Report. | IntelligenceProduct | ASM-01,DIS-01 | Product embeds version, classification, author/reviewer and evidence index."
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "SRS-FR-PRD-001 — Product templates",
+          "record": "P0354",
+          "excerpt": "Requirement | The system SHALL generate Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, and Case Report from canonical objects."
+        },
+        {
+          "file": "CS-AML_MVP_Engineering_Breakdown_v0.1.docx",
+          "section": "ST-E8-01 — Intelligence product templates",
+          "record": "P0440",
+          "excerpt": "Templates: Financial Intelligence Note, Referral Package, Case Report"
+        }
+      ],
+      "impact": "MVP dapat dinyatakan selesai berdasarkan backlog, tetapi belum memenuhi SRS yang dijadikan acuan penerimaan.",
+      "recommended_correction": "Putuskan scope enam atau tiga melalui change record. Bila tiga dipilih, ubah prioritas/template scope pada Feature, PRD, SRS dan acceptance matrix; jangan sekadar mengubah backlog.",
+      "verification_after_correction": "Jumlah dan nama template sama pada requirement, backlog, screen create-product dan acceptance tests.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A07",
+      "priority": "Sedang",
+      "kind": "Tabrakan identifier",
+      "title": "Namespace CAP-10 dipakai untuk capability berbeda",
+      "description": "Technology Architecture menggunakan CAP-10 untuk Hypothesis & assessment. Product & Feature Specification memakai CAP-10 untuk Search / Graph / Analytics. Perubahan grouping boleh dilakukan, tetapi penggunaan ID sama tanpa namespace atau crosswalk tidak aman untuk traceability otomatis.",
+      "evidence": [
+        {
+          "file": "CS-AML_Technology_Architecture_v0.1.docx",
+          "section": "4. Capability Architecture",
+          "record": "P0106",
+          "excerpt": "CAP-10 | Hypothesis & assessment | Competing hypotheses, support/contradiction, gaps, confidence"
+        },
+        {
+          "file": "CS-AML_Product_and_Feature_Specification_v0.1.docx",
+          "section": "7. Product Capability Map",
+          "record": "P0093",
+          "excerpt": "CAP-10 | Search / Graph / Analytics | Full-text, faceted search, graph navigation, paths, clusters, network analytics"
+        }
+      ],
+      "impact": "Pemetaan capability ke feature/story dapat menunjuk fungsi yang salah meskipun identifier tampak cocok.",
+      "recommended_correction": "Pilih satu capability registry bersama atau pisahkan namespace TA-CAP dan PROD-CAP dengan crosswalk eksplisit. Bekukan makna ID saat dijadikan referensi lintas dokumen.",
+      "verification_after_correction": "Validator menolak satu global ID dengan lebih dari satu makna; migration/crosswalk mencakup semua referensi CAP lama.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A08",
+      "priority": "Tinggi",
+      "kind": "Ketidakjelasan policy model",
+      "title": "Klasifikasi informasi belum mempunyai mapping lintas dokumen",
+      "description": "Framework Expanded menyarankan PUBLIC, INTERNAL, RESTRICTED, HIGHLY RESTRICTED. Data Model memakai PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE-PROTECTED. Keduanya boleh sebagai desain lokal, tetapi mapping dan aturan konflik belum dikunci. Source protection juga bukan otomatis sekadar level tertinggi dalam satu urutan.",
+      "evidence": [
+        {
+          "file": "CS-AML_Framework_v0.1_Expanded.docx",
+          "section": "6.4 Case sensitivity",
+          "record": "P0208",
+          "excerpt": "Public: information safe for broad release;"
+        },
+        {
+          "file": "CS-AML_Framework_v0.1_Expanded.docx",
+          "section": "6.4 Case sensitivity",
+          "record": "P0209",
+          "excerpt": "Internal: routine investigative material;"
+        },
+        {
+          "file": "CS-AML_Framework_v0.1_Expanded.docx",
+          "section": "6.4 Case sensitivity",
+          "record": "P0210",
+          "excerpt": "Restricted: sensitive personal, legal, partner, or unpublished material;"
+        },
+        {
+          "file": "CS-AML_Framework_v0.1_Expanded.docx",
+          "section": "6.4 Case sensitivity",
+          "record": "P0211",
+          "excerpt": "Highly Restricted: source-identifying information, severe physical-security risk, legally privileged material, or comparable sensitivity."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "16. Privacy, Classification, and Access-Control Metadata",
+          "record": "P0424",
+          "excerpt": "PUBLIC | Suitable for public release after normal review."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "16. Privacy, Classification, and Access-Control Metadata",
+          "record": "P0425",
+          "excerpt": "INTERNAL | Routine internal operational information."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "16. Privacy, Classification, and Access-Control Metadata",
+          "record": "P0426",
+          "excerpt": "SENSITIVE | Could create privacy, reputational, safety, or investigative harm if disclosed."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "16. Privacy, Classification, and Access-Control Metadata",
+          "record": "P0427",
+          "excerpt": "RESTRICTED | High-risk information requiring named-role or case-specific authorization."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "16. Privacy, Classification, and Access-Control Metadata",
+          "record": "P0428",
+          "excerpt": "SOURCE-PROTECTED | Information whose disclosure could identify or endanger a confidential source."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "16. Privacy, Classification, and Access-Control Metadata",
+          "record": "P0429",
+          "excerpt": "Access labels MAY add purpose, jurisdiction, source-protection, embargo, legal-review, or compartment restrictions. Implementations SHALL enforce the most restrictive applicable label."
+        }
+      ],
+      "impact": "Authorization, pewarisan label, export, dan retention dapat berbeda antar-engineer. Ini adalah risiko spesifikasi, bukan bukti bypass pada aplikasi yang belum diuji.",
+      "recommended_correction": "Tetapkan model klasifikasi yang authoritative. Pisahkan level sensitivitas dari compartment/source-protection bila dipilih. Buat mapping eksplisit untuk label lama; jangan otomatis mengubah HIGHLY RESTRICTED menjadi SOURCE-PROTECTED.",
+      "verification_after_correction": "Policy tests mencakup case/entity/evidence lintas label, sumber terlindungi, export turunan, dan perubahan akses. Unknown label fail-closed sesuai kontrak.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A09",
+      "priority": "Tinggi",
+      "kind": "Kontrak data / serialisasi",
+      "title": "Flow class dan confidence tidak konsisten",
+      "description": "Data Model mewajibkan kelas flow uppercase pada teks, tetapi tabel field, Annex A dan contoh JSON menggunakan lowercase. SRS/API menggunakan uppercase. Data Model confidence.level hanya low/moderate/high, sementara SRS dan Design System mempunyai Insufficient Basis. Ini memerlukan satu schema wire dan mapping, bukan sekadar penyamaan label visual.",
+      "evidence": [
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "11. Value-Flow Model",
+          "record": "P0285",
+          "excerpt": "Mandatory distinction / Every ValueFlow SHALL carry an epistemic class: DIRECT, DOCUMENTED, RECONSTRUCTED, or HYPOTHETICAL. Systems SHALL preserve this distinction in storage, APIs, exports, and visualizations."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "11.1 ValueFlow",
+          "record": "P0289",
+          "excerpt": "flow_class | enum | Y | 1 | direct, documented, reconstructed, hypothetical"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "14.1 Confidence",
+          "record": "P0384",
+          "excerpt": "level | enum | Y | 1 | low, moderate, high"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "Annex A. Controlled Enumerations (Baseline)",
+          "record": "P0525",
+          "excerpt": "flow_class | direct, documented, reconstructed, hypothetical"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "Annex A. Controlled Enumerations (Baseline)",
+          "record": "P0526",
+          "excerpt": "confidence.level | low, moderate, high"
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "SRS-FR-ASM-002 — Confidence model",
+          "record": "P0322",
+          "excerpt": "Requirement | The system SHALL support High, Moderate, Low, and Insufficient Basis (or configured equivalent) with rationale."
+        },
+        {
+          "file": "CS-AML_UI_Design_System_Specification_v0.1.docx",
+          "section": "10.2 Confidence",
+          "record": "P0166",
+          "excerpt": "Insufficient basis | Neutral warning-style label | Must not look like adverse result"
+        }
+      ],
+      "impact": "Enum validation dapat gagal; keadaan insufficient-basis dapat hilang atau terpaksa diubah menjadi low, padahal maknanya berbeda.",
+      "recommended_correction": "Bekukan machine enum dan versioning dalam schema. Tetapkan bagaimana Insufficient Basis direpresentasikan, termasuk null/unknown jika relevan. Pisahkan label terjemahan dari nilai wire. Generate referensi enum dokumen dari registry yang sama.",
+      "verification_after_correction": "Round-trip semua kelas dan confidence melalui DB/API/UI/export. Test menolak normalisasi yang menaikkan kepastian; unknown tidak menjadi low atau zero tanpa aturan eksplisit.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A10",
+      "priority": "Tinggi",
+      "kind": "Kelengkapan handoff",
+      "title": "Claim dan Fact belum punya jalur implementasi eksplisit yang lengkap",
+      "description": "Data Model mendefinisikan Claim dan Fact, dan keduanya pusat rantai analitis. Breakdown menyebut link extract ke claims/facts, tetapi tidak merinci lifecycle verifikasi/promosi sebagai story tersendiri. API mencantumkan banyak endpoint namun tidak menjelaskan kontrak create/read/update/verify/supersede untuk Claim/Fact, baik sebagai resource sendiri maupun embedded command. Tidak disimpulkan bahwa implementasi mustahil; kontraknya belum tertulis.",
+      "evidence": [
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "7.4 Claim",
+          "record": "P0159",
+          "excerpt": "7.4 Claim"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "7.4 Claim",
+          "record": "P0160",
+          "excerpt": "Represents a proposition asserted by a source or person. A Claim is not automatically accepted as fact."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "7.5 Fact",
+          "record": "P0172",
+          "excerpt": "7.5 Fact"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "7.5 Fact",
+          "record": "P0178",
+          "excerpt": "fact_status | enum | Y | 1 | provisional, established, superseded, disputed"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "Normative rules:",
+          "record": "P0182",
+          "excerpt": "Fact status SHALL be revisable when materially new evidence emerges."
+        },
+        {
+          "file": "CS-AML_MVP_Engineering_Breakdown_v0.1.docx",
+          "section": "ST-E3-04 — Evidence extracts and citations",
+          "record": "P0212",
+          "excerpt": "Link extract to claims/facts"
+        },
+        {
+          "file": "CS-AML_MVP_Engineering_Breakdown_v0.1.docx",
+          "section": "ST-E8-02 — Evidence index generation",
+          "record": "P0448",
+          "excerpt": "Generate index from linked facts/assessments"
+        }
+      ],
+      "impact": "Tim dapat kembali menyimpan klaim/fakta dalam notes atau mempromosikan extract menjadi fact tanpa keputusan yang dapat direview.",
+      "recommended_correction": "Tambahkan requirement, task, endpoint atau command eksplisit untuk provenance-backed claim/fact lifecycle. Tetapkan siapa boleh memverifikasi, apa bukti keputusan, dan bagaimana koreksi mempengaruhi assessment/product terdahulu.",
+      "verification_after_correction": "Pilot: source claim dibuat; diterima sementara; dibantah; fact berubah disputed/superseded; produk terdampak ditandai tanpa kehilangan riwayat.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A11",
+      "priority": "Tinggi",
+      "kind": "Kelengkapan kontrak implementasi",
+      "title": "API masih baseline naratif, belum kontrak executable penuh",
+      "description": "Dokumen API berisi konvensi dan endpoint catalogue yang berguna, tetapi belum menyediakan schema request/response lengkap per operasi dan artefak OpenAPI. OIDC session/bearer masih alternatif. Idempotency memuat REQUIRED/recommended tanpa scope key, TTL, payload conflict dan race semantics yang terkunci. Sejumlah aksi seperti task update, komentar review dan lifecycle jobs masih perlu kontrak rinci. Hal ini harus disebut gap, bukan dianggap fitur sudah berfungsi.",
+      "evidence": [
+        {
+          "file": "CS-AML_API_Specification_v0.1.docx",
+          "section": "28. API Schema and OpenAPI Requirements",
+          "record": "P0273",
+          "excerpt": "An OpenAPI 3.1-equivalent schema SHOULD be generated/published for v1."
+        },
+        {
+          "file": "CS-AML_API_Specification_v0.1.docx",
+          "section": "4. Authentication and Principal Context",
+          "record": "P0041",
+          "excerpt": "Authentication | OIDC-authenticated session/bearer mechanism approved by security architecture."
+        },
+        {
+          "file": "CS-AML_API_Specification_v0.1.docx",
+          "section": "11. Idempotency",
+          "record": "P0103",
+          "excerpt": "Evidence ingest finalization | Idempotency key REQUIRED/recommended to avoid duplicate completion after retry."
+        }
+      ],
+      "impact": "Backend/frontend belum dapat sepenuhnya bekerja independen dengan generated client dan contract tests yang deterministik.",
+      "recommended_correction": "Lengkapi OpenAPI/schema P0 dari keputusan domain yang sudah diselaraskan. Kunci model login browser, respons error, nullability, pagination envelope, upload/job/approval preconditions dan policy response. Gunakan mock API berbasis schema; bukan menambah daftar endpoint generik saja.",
+      "verification_after_correction": "Lint/validate OpenAPI, generated TypeScript, request/response contract suite, concurrent mutation tests, serta negative authorization tests berjalan terhadap implementation atau contract mock yang jelas diberi label.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A12",
+      "priority": "Sedang",
+      "kind": "Document control",
+      "title": "Banyak Markdown adalah companion, bukan salinan penuh",
+      "description": "Terdapat 21 companion Markdown untuk 23 DOCX. SRS Markdown sekitar 148 kata, API sekitar 171, Data Model sekitar 405; beberapa berisi See normative DOCX/PDF for full requirements. Ini bukan kesalahan karena banyak memang disebut companion. Kesalahannya terjadi jika file ringkas itu dipakai seolah seluruh specification atau dianggap setara dengan DOCX saat membuat dokumen turunan.",
+      "evidence": [
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.md",
+          "section": "Seluruh file",
+          "record": "MD",
+          "excerpt": "Requirement families dan MVP release gate; tidak memuat seluruh requirement rinci DOCX."
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.md",
+          "section": "Bagian-bagian field model",
+          "record": "MD",
+          "excerpt": "See normative DOCX/PDF for full field-level requirements."
+        }
+      ],
+      "impact": "Detail guardrails dan acceptance criteria dapat hilang pada handoff atau penggunaan coding agent; koreksi pada DOCX belum tentu sampai ke companion.",
+      "recommended_correction": "Pilih satu canonical source. Generate DOCX/PDF/MD penuh dari sumber yang sama, atau beri nama *.summary.md dan larang penggunaannya sebagai satu-satunya input implementasi. Manifest menyimpan hashes, versi dan status legacy/current.",
+      "verification_after_correction": "CI dokumentasi membandingkan ID requirement dan enum pada semua format; companion jelas dikecualikan dari klaim full specification.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A13",
+      "priority": "Sedang",
+      "kind": "Sumber / verifikasi metodologis",
+      "title": "Referensi nyata belum selalu mempunyai dukungan per klaim",
+      "description": "FATF, Wolfsberg dan PPATK yang utama terverifikasi. Namun beberapa entri katalog hanya menunjuk FATF Methods and Trends atau PPATK risk assessments tanpa halaman/section/versi spesifik. Link UNODC yang dikutip terindeks di domain resmi, tetapi pembukaan PDF penuh gagal pada alat audit, sehingga wording dan lokasi halaman klaim spesifik belum dikukuhkan. Kegagalan akses tidak dinyatakan sebagai sumber palsu.",
+      "evidence": [
+        {
+          "file": "CS-AML_Typology_Catalogue_v0.1.docx",
+          "section": "Primary reference lineage",
+          "record": "P0239",
+          "excerpt": "FATF Methods and Trends"
+        },
+        {
+          "file": "CS-AML_Typology_Catalogue_v0.1.docx",
+          "section": "Primary reference lineage",
+          "record": "P0423",
+          "excerpt": "FATF Methods and Trends case studies"
+        },
+        {
+          "file": "CS-AML_Framework_v0.1_Expanded.docx",
+          "section": "42. Annex J — Normative and Informative References",
+          "record": "P0820",
+          "excerpt": "4. UNODC, Civil Society Guide to the United Nations Convention against Corruption, including civil-society roles in asset tracing, public information, financial investigation, forensic auditing, and legal analysis.  "
+        }
+      ],
+      "impact": "Daftar pustaka yang valid dapat memberi kesan setiap indikator, ambang penilaian dan kewajiban lokal berasal langsung dari otoritas, padahal sebagian adalah desain CS-AML.",
+      "recommended_correction": "Buat pemetaan klaim/indikator -> sumber -> section/halaman -> catatan adaptasi. Labeli keputusan lokal, contoh hipotetis, dan klaim belum terverifikasi. Untuk sumber yang tidak dapat dibuka, simpan status pending-verification dan jangan menguatkan klaim.",
+      "verification_after_correction": "Reviewer dapat menelusuri tiap klaim eksternal material tanpa menebak dokumen atau paragraf; sampel indikator dinilai oleh investigator/AML specialist.",
+      "external_references": [
+        "S01",
+        "S02",
+        "S03",
+        "S10"
+      ],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A14",
+      "priority": "Sedang",
+      "kind": "Kesalahan contoh / visual",
+      "title": "DIRECTOR_OF terbalik pada contoh Data Model",
+      "description": "Section 19 benar menampilkan Person -> DIRECTOR_OF -> Organization. Annex D justru memulai hubungan Company A --DIRECTOR_OF--> Person B. Render PDF juga membuat susunan dua kolom contoh sulit dibaca. Ini kesalahan contoh yang nyata; skema relasi yang benar ada di bagian lain.",
+      "evidence": [
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "19. Canonical Graph Mapping",
+          "record": "P0470",
+          "excerpt": "(:Person)-[:DIRECTOR_OF {relationship_id,...}]->(:Organization)(:Person)-[:BENEFICIAL_OWNER_OF {ownership_interest_id,...}]->(:Organization)(:Organization)-[:AWARDED_CONTRACT]->(:Contract)(:Organization)-[:ACQUIRED]->(:Asset)(:Entity)-[:VALUE_FLOW {value_flow_id, flow_class,...}]->(:Entity)"
+        },
+        {
+          "file": "CS-AML_Data_Model_Specification_v0.1.docx",
+          "section": "Annex D. Example Analytical Chain",
+          "record": "P0554",
+          "excerpt": "SOURCE  Government procurement portal       |       vEVIDENCE  Contract award record       |       vFACT  Company A received Contract X on 12 May       |       +---------------------------+       |                           |       v                           vENTITY / RELATIONSHIP          EVENT  Company A --DIRECTOR_OF-->   Contract award  Person B       |       vINDICATOR  Related entity acquired property shortly after award       |       vHYPOTHESIS  Value may have been diverted through related entity       |       vVALUE FLOW (RECONSTRUCTED)  Contract -> Company A -> related entity -> asset       |       vASSESSMENT  Pattern is consistent with procurement-value diversion;  settlement route remains unknown.       |       vINTELLIGENCE PRODUCT"
+        }
+      ],
+      "impact": "Contoh yang dipakai sebagai fixture atau petunjuk graph dapat menghasilkan edge terbalik dan salah arti.",
+      "recommended_correction": "Perbaiki contoh menjadi Person B --DIRECTOR_OF--> Company A, atau gunakan inverse relation yang eksplisit. Rapikan diagram menjadi bentuk yang tidak menukar endpoint dengan Event.",
+      "verification_after_correction": "Validator domain/range relasi menguji contoh; review visual halaman contoh memastikan arah dan endpoint tidak ambigu.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A15",
+      "priority": "Rendah",
+      "kind": "Inkonsistensi pemetaan UI",
+      "title": "Case Register memakai pattern detail",
+      "description": "Wireframe section 3 mendefinisikan WF-PAT-01 sebagai Register/List dan WF-PAT-02 sebagai Canonical Object Detail. Mapping SCR-CASE-001 Case Register memakai WF-PAT-02. Screen yang sama pada HiFi dijelaskan sebagai register/list.",
+      "evidence": [
+        {
+          "file": "CS-AML_Wireframe_Specification_v0.1.docx",
+          "section": "4. Wireframe Pattern Library",
+          "record": "P0027",
+          "excerpt": "WF-PAT-01 | Register/List | Header + filters + sortable result list/table + empty state + primary create action."
+        },
+        {
+          "file": "CS-AML_Wireframe_Specification_v0.1.docx",
+          "section": "4. Wireframe Pattern Library",
+          "record": "P0028",
+          "excerpt": "WF-PAT-02 | Canonical Object Detail | Context header + summary block + local tabs + main object facts + provenance rail + backlinks."
+        },
+        {
+          "file": "CS-AML_Wireframe_Specification_v0.1.docx",
+          "section": "5. Screen-to-Wireframe Mapping",
+          "record": "P0037",
+          "excerpt": "SCR-CASE-001 | Case Register | WF-PAT-02 | default, empty, no-access, filtered"
+        }
+      ],
+      "impact": "Perbedaan pola dapat menyebabkan desain/frontend mengikuti template yang salah.",
+      "recommended_correction": "Ubah mapping Case Register ke WF-PAT-01 atau dokumentasikan pengecualian yang benar-benar disengaja. Tidak perlu membuat screen ID baru.",
+      "verification_after_correction": "Screen -> pattern mapping tervalidasi lintas inventory, wireframe, HiFi dan component composition.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    },
+    {
+      "id": "A16",
+      "priority": "Tinggi",
+      "kind": "Governance release / kontradiksi keselamatan",
+      "title": "Pengecualian release bisa terbaca terlalu luas",
+      "description": "Sprint Plan menyatakan unresolved high-severity security/data-integrity defects memblokir promotion. Namun tabel High memasukkan export without approval, flow-class confusion dan broken audit history, lalu mengizinkan fixed or formally waived. Sebagian adalah pelanggaran invariant inti, bukan kekurangan kosmetik. Teks perlu membedakan waiver aman dari kondisi yang tidak boleh dirilis.",
+      "evidence": [
+        {
+          "file": "CS-AML_Sprint_and_Milestone_Plan_v0.1.docx",
+          "section": "1.1 Planning principles",
+          "record": "P0018",
+          "excerpt": "Unresolved high-severity security or data-integrity defects block promotion to the next release milestone."
+        },
+        {
+          "file": "CS-AML_Sprint_and_Milestone_Plan_v0.1.docx",
+          "section": "7.2 Release-blocking defect classes",
+          "record": "P0304",
+          "excerpt": "Critical | Authorization bypass; source identity exposure; evidence corruption; unrecoverable DB/evidence mismatch | Immediate block"
+        },
+        {
+          "file": "CS-AML_Sprint_and_Milestone_Plan_v0.1.docx",
+          "section": "7.2 Release-blocking defect classes",
+          "record": "P0305",
+          "excerpt": "High | Incorrect merge/unmerge; direct/reconstructed flow confusion; export without approval; broken audit history | Block M4 until fixed or formally waived by accountable authority"
+        },
+        {
+          "file": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+          "section": "SRS-FR-DIS-001 — Dissemination approval",
+          "record": "P0378",
+          "excerpt": "Requirement | The system SHALL block external export until required handling classification, recipient, purpose, and approval are recorded."
+        }
+      ],
+      "impact": "Keputusan administratif dapat terlihat membolehkan release dengan kontrol pengungkapan atau integritas analitis yang gagal.",
+      "recommended_correction": "Definisikan non-waivable invariants: akses tanpa izin, exposure sumber, hilangnya provenance/integrity kritis, certainty promotion, approval bypass. Untuk fitur berbahaya yang dinonaktifkan sebagai mitigasi, bukti non-reachability harus ada; ini bukan membiarkan cacat tetap dapat digunakan.",
+      "verification_after_correction": "Uji bahwa release gate gagal saat invariant dilanggar. Exception hanya lulus untuk batasan yang tidak mengaktifkan jalur bahaya dan mempunyai compensating control teruji.",
+      "external_references": [],
+      "finding_confidence": "Tinggi",
+      "status": "TERBUKA - belum mengubah dokumen sumber"
+    }
+  ],
+  "design_notes": [
+    {
+      "id": "N01",
+      "title": "Konvensi CS-AML adalah desain lokal, bukan otomatis standar internasional",
+      "note": "G0-G6, A-F/1-6, keluarga 20 tipologi, empat kelas value flow, maturity levels, dan pemisahan state UI dapat berguna. Keputusan-keputusan ini perlu rationale, owner, versioning dan uji penerapan. Tidak ada alasan menyebutnya halusinasi hanya karena baru kita desain; yang tidak boleh adalah mengatribusikannya sebagai kewajiban FATF tanpa sumber."
+    },
+    {
+      "id": "N02",
+      "title": "Rantai analitis jangan dipaksakan menjadi mekanisme kenaikan kepastian",
+      "note": "Parent Expanded mengatakan tidak ada tahap yang boleh dilewati pada kesimpulan material. Data Model Assessment mengizinkan supporting_refs langsung ke facts/indicators/evidence. Selaraskan ini sebagai provenance graph dan workflow yang bisa berulang, bukan mesin yang menjadikan setiap claim pasti fact atau memaksa setiap assessment melalui tipologi. Ini catatan desain yang memerlukan keputusan domain, bukan koreksi fakta eksternal."
+    },
+    {
+      "id": "N03",
+      "title": "Kontrak per-leg perlu dipertegas, tanpa menghapus field yang sudah ada",
+      "note": "Common Object Envelope sudah mempunyai confidence conditional; jadi tidak benar mengatakan Data Model sama sekali tidak mempunyai confidence untuk leg. Namun section ValueFlowLeg tidak menjelaskan kondisi kewajiban per kelas, sedangkan SRS meminta confidence/evidence per leg. Tambahkan invariant eksplisit tentang direct/documented/reconstructed/hypothetical leg, reconstruction basis dan inheritance, lalu tes mixed-class chain."
+    },
+    {
+      "id": "N04",
+      "title": "Kontrak/award tidak sama dengan settlement",
+      "note": "Data Model sudah menyatakan DOCUMENTED dapat membuktikan obligation tanpa settlement. Pertahankan pembedaan tersebut sampai UI, kalkulasi dan export. Jangan menjumlahkan contract award sebagai pembayaran aktual atau menyimpulkan asal dana pembelian dari urutan waktu semata."
+    },
+    {
+      "id": "N05",
+      "title": "Hash bukan validasi kebenaran isi",
+      "note": "Hash dan immutability berguna untuk mendeteksi perubahan terhadap bytes yang dicatat. Catatan asal, autentisitas, atribusi, keterbatasan dan review tetap dibutuhkan. Jangan menampilkan hash verified sebagai fact verified. Ini penegasan interpretasi, bukan tuduhan bahwa seluruh dokumen telah menyamakan keduanya."
+    },
+    {
+      "id": "N06",
+      "title": "Estimasi sprint/latensi adalah target, bukan hasil pengukuran",
+      "note": "Sprint Plan menandai kapasitas dan cadence sebagai asumsi. Itu wajar untuk perencanaan, bukan halusinasi. Tanpa estimasi tugas, velocity, benchmark dan profil beban nyata, waktunya tidak boleh dipresentasikan sebagai janji tervalidasi. Begitu pula RPO/RTO, latensi dan accessibility adalah target sampai diuji."
+    },
+    {
+      "id": "N07",
+      "title": "Spesifikasi UI bukan mockup atau implementasi",
+      "note": "Dokumen HiFi berisi aturan komposisi dan ukuran. Component/Storybook berisi requirements, bukan bukti bahwa 65 komponen telah dibuat. Target WCAG, pemeriksaan render dokumen dan test suite aplikasi harus dipisahkan. Audit ini tidak menguji aplikasi atau Storybook yang berjalan."
+    },
+    {
+      "id": "N08",
+      "title": "Riwayat versi perlu satu authority",
+      "note": "Terdapat Framework original dan Expanded dengan versi sama-sama 0.1. Tiga judul juga mempunyai dua PDF di lokasi berbeda. Dua pasang PDF mempunyai text digest sama; HiFi berbeda dalam page breaks/repeated headers. Jangan menyimpulkan perubahan substansi dari hash file saja. Tetapkan canonical file, supersedes, release manifest dan tanggal review."
+    }
+  ],
+  "document_manifest": [
+    {
+      "key": "core",
+      "document": "CS-AML_Framework_v0.1.docx",
+      "docx_sha256": "7240e78823f365ea2c7351ab4f35aaa1f42a2b8c37426e95f64cf31d6daedfc2",
+      "docx_words": 5426,
+      "pages": 30,
+      "markdown_words": 185,
+      "markdown_placeholder_sections": 0,
+      "status": "Arsipkan sebagai legacy setelah keputusan eksplisit",
+      "review_note": "Ada Expanded dengan versi sama; jangan menjadi baseline paralel. A01, A12, A13.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_render2/CS-AML_Framework_v0.1.pdf",
+          "pages": 30,
+          "sha256": "aabeb581ab0ca516f37b92f14239e96873b747724879a777dd321d800ccc9c59",
+          "text_sha256": "6d5afb277a9f3a05d4090b3af5c590f14e109c9cbe1b14a83305b412841a1896"
+        }
+      ]
+    },
+    {
+      "key": "expanded",
+      "document": "CS-AML_Framework_v0.1_Expanded.docx",
+      "docx_sha256": "87f883bece8465f0e21aec46bcfdb936eedcc6b8990e2238802f802e587c5926",
+      "docx_words": 8664,
+      "pages": 36,
+      "markdown_words": 8807,
+      "markdown_placeholder_sections": 0,
+      "status": "Pertahankan dengan koreksi",
+      "review_note": "Prinsip cukup jelas dan disclaimer eksternal sudah ada; selaraskan klasifikasi, strict chain dan source lineage. A01, A08, A13; N01-N02.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Framework_v0.1_Expanded.pdf",
+          "pages": 36,
+          "sha256": "593a47abe6c3bc0833df1b6cdb224fba2a4b23a2359a4b667d1ac49aab71eb48",
+          "text_sha256": "198e0d2c104f6e67033dd8983fda9ac27be63cf9dc4a00c4d87ecf2c18aa0259"
+        }
+      ]
+    },
+    {
+      "key": "goals",
+      "document": "CS-AML_Framework_Goals_and_Non-Goals_v0.1.docx",
+      "docx_sha256": "efc97973a60a65816ba07a997c46b97f8601b916717d9a9d75bc1a1dab5a32b6",
+      "docx_words": 1601,
+      "pages": 8,
+      "markdown_words": null,
+      "markdown_placeholder_sections": null,
+      "status": "Pertahankan; validasi outcome",
+      "review_note": "Tidak ditemukan kesalahan faktual spesifik pada goals dalam audit ini. Goal adalah niat produk, bukan efektivitas terukur. A01; N06.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_goals_render/CS-AML_Framework_Goals_and_Non-Goals_v0.1.pdf",
+          "pages": 8,
+          "sha256": "b6e0f4d02cb695f216dad690ab4787c3af852aab70dc60af7e17cf504de2039f",
+          "text_sha256": "f0a5ad05197dca95fa2fe88d27882a4f6dcaf8ba9ed45f1d2cb0ac72815ad15c"
+        }
+      ]
+    },
+    {
+      "key": "typology",
+      "document": "CS-AML_Typology_Catalogue_v0.1.docx",
+      "docx_sha256": "fa0a8e50fc602d2a3c8016cdc0144f9167f74fdf84b31e2c957ce9a1898d2aa7",
+      "docx_words": 7848,
+      "pages": 54,
+      "markdown_words": null,
+      "markdown_placeholder_sections": null,
+      "status": "Review sumber dan domain",
+      "review_note": "20 ID valid dihitung; mapping per indikator/halaman dan empirical calibration belum tervalidasi. A13; N01.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_typology_render/CS-AML_Typology_Catalogue_v0.1.pdf",
+          "pages": 54,
+          "sha256": "fabb24092ba511a93d22298190c554b1e54dbe4d7cda64b172766b9784b66720",
+          "text_sha256": "443b0ad1d0a4a53d25a055af1fdf84919064f9080dbc681f6155442af302db2f"
+        }
+      ]
+    },
+    {
+      "key": "method",
+      "document": "CS-AML_Investigation_Methodology_v0.1.docx",
+      "docx_sha256": "a4a95ae2d1debf9c0b7a7efab86a53d05d1d7f19a58ed3ad36b699fafc4649d9",
+      "docx_words": 6195,
+      "pages": 29,
+      "markdown_words": 7281,
+      "markdown_placeholder_sections": 0,
+      "status": "Pertahankan; harmonisasi",
+      "review_note": "Peran non-koersif dan disclaimer ada. Verifikasi rujukan rinci dan selaraskan state/evidence/flow. A08-A09, A13; N02-N05.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Investigation_Methodology_v0.1.pdf",
+          "pages": 29,
+          "sha256": "8bffffd0080f23d564530327f3d968ea15b8043221519070ca95006d7c0a6700",
+          "text_sha256": "4a219402627343b8eb06cd55dc7d9e2f5d3768545bf43460f2d9c7aa8e763f25"
+        }
+      ]
+    },
+    {
+      "key": "data",
+      "document": "CS-AML_Data_Model_Specification_v0.1.docx",
+      "docx_sha256": "f14e97c233261fd29f5f3fe936e7797bbc36f89216364532d80a286d33ccb2de",
+      "docx_words": 5695,
+      "pages": 33,
+      "markdown_words": 405,
+      "markdown_placeholder_sections": 26,
+      "status": "Prioritas perbaikan",
+      "review_note": "Authority model belum konsisten pada enum/confidence/classification; contoh edge salah; lifecycle perlu lengkap. A08-A10, A14; N03.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_data_model_render/CS-AML_Data_Model_Specification_v0.1.pdf",
+          "pages": 33,
+          "sha256": "909bb7631bf4eb8d1e838d447a431958ba37a03347a9fd7c3b226b5d4d0d15bc",
+          "text_sha256": "779f52ddedbc2f7408b3a97484110afbef8070a4392eb1c2b7d2893c7d561466"
+        }
+      ]
+    },
+    {
+      "key": "control",
+      "document": "CS-AML_Control_Implementation_Guide_v0.1.docx",
+      "docx_sha256": "a522d7b40da1365333edff412c2a391bca1991b84b6a313845a8f05875f3159e",
+      "docx_words": 7699,
+      "pages": 41,
+      "markdown_words": 3645,
+      "markdown_placeholder_sections": 0,
+      "status": "Perbaiki policy exceptions",
+      "review_note": "Owner/evidence/test distinctions baik. Control efficacy belum dibuktikan; pengecualian release harus dibatasi. A01, A16.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_control_guide_render/CS-AML_Control_Implementation_Guide_v0.1.pdf",
+          "pages": 41,
+          "sha256": "1ce1e127cee3f68a1ed9ecd492be1c906ddd89cd0b8d72281cd89281f259eb16",
+          "text_sha256": "ea6a63925223b357be1c1a6b16ac4356dbb22cf63a7b4d900db5d69380cab2b9"
+        }
+      ]
+    },
+    {
+      "key": "tech",
+      "document": "CS-AML_Technology_Architecture_v0.1.docx",
+      "docx_sha256": "d099761886c7ffa9479f72d90d4b7c37f5c00c3965596aba0ba98a26d6120b03",
+      "docx_words": 5927,
+      "pages": 26,
+      "markdown_words": 706,
+      "markdown_placeholder_sections": 30,
+      "status": "Harmonisasi registry",
+      "review_note": "Canonical versus derived konsisten. Capability namespace bertabrakan dengan Feature. A07, A08; N01.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_tech_arch_render/CS-AML_Technology_Architecture_v0.1.pdf",
+          "pages": 26,
+          "sha256": "2afab2d521f8ba1b43063b2f9d8abf99edae40e388241fae4c7d3351dfdd06cf",
+          "text_sha256": "06beb0add37e0a26cebbb274695a1cbf59c818528054f414f870a70f33162928"
+        }
+      ]
+    },
+    {
+      "key": "feature",
+      "document": "CS-AML_Product_and_Feature_Specification_v0.1.docx",
+      "docx_sha256": "bf3ea00e1b6be69e10486fa95a32b2365b15d87008df4dd2abcf40dec3eb44d7",
+      "docx_words": 6661,
+      "pages": 25,
+      "markdown_words": 4026,
+      "markdown_placeholder_sections": 0,
+      "status": "Perbaiki traceability downstream",
+      "review_note": "87 fitur = 54 P0 + 26 P1 + 7 P2 terkonfirmasi. F-ASM-003 dan template perlu dipertahankan maknanya. A05-A07.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_product_spec_render/CS-AML_Product_and_Feature_Specification_v0.1.pdf",
+          "pages": 25,
+          "sha256": "932b6b1534690383f25b7a4498c4c17398dc24320cff5e2364b1ef0911a2e737",
+          "text_sha256": "c6b8fe782c3cca535cbab99702899f100951f7b4ff3fa91430dbd1913a10f9e5"
+        }
+      ]
+    },
+    {
+      "key": "prd",
+      "document": "CS-AML_Product_Requirements_Document_PRD_v0.1.docx",
+      "docx_sha256": "3c3c6fe3290dbcb0641a794c81a8baebdc99ceeae871038c36dac739b6945d01",
+      "docx_words": 4478,
+      "pages": 24,
+      "markdown_words": 423,
+      "markdown_placeholder_sections": 21,
+      "status": "Tetap baseline rencana",
+      "review_note": "Arah dan non-goals jelas; problem/JTBD/outcome belum hasil user research. Samakan scope dengan SRS/backlog. A01, A05-A06, A12.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_prd_render/CS-AML_Product_Requirements_Document_PRD_v0.1.pdf",
+          "pages": 24,
+          "sha256": "d5ffa5bd45ee40f649c90310d5f5f9cf6f27da67cdc2eb0f03072540279b085c",
+          "text_sha256": "1db9a1fb7ba01f576f5a21892bb4ed4784322af143dd178459e05bdb6fdb9dc3"
+        }
+      ]
+    },
+    {
+      "key": "srs",
+      "document": "CS-AML_Software_Requirements_Specification_SRS_v0.1.docx",
+      "docx_sha256": "bcaa5266d8f8816e6e597ee6c6ed8755e2826a3d8384c783e6216e850ea08271",
+      "docx_words": 6300,
+      "pages": 36,
+      "markdown_words": 148,
+      "markdown_placeholder_sections": 0,
+      "status": "Prioritas perbaikan",
+      "review_note": "Requirement IDs berguna, tetapi F-ASM mapping, enum dan output scope belum konsisten. A04-A06, A08-A11, A16.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/csaml_srs_render/CS-AML_Software_Requirements_Specification_SRS_v0.1.pdf",
+          "pages": 36,
+          "sha256": "1bea47707696c604d97671efb7826573942cc6e4c69341e2d1545dfcc9cd3ce9",
+          "text_sha256": "eb46f136dfa0667115e01ae31046c4fb4f0250be1e6cd4209f2ab69418d31831"
+        }
+      ]
+    },
+    {
+      "key": "mvp",
+      "document": "CS-AML_MVP_Engineering_Breakdown_v0.1.docx",
+      "docx_sha256": "8dd69f6596abca3c3e42a5ff143afc8115a8e1c2943ac707f9669e56074d7323",
+      "docx_words": 4263,
+      "pages": 25,
+      "markdown_words": 3145,
+      "markdown_placeholder_sections": 0,
+      "status": "Perbaiki sebelum estimasi rinci",
+      "review_note": "Story breakdown belum menutup Claim/Fact; template hanya tiga. A05-A06, A10; N06.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_MVP_Engineering_Breakdown_v0.1.pdf",
+          "pages": 25,
+          "sha256": "16dbc9f302f1a48ec159dba171b5c45d35ee9e2c66ca9b0036eb8ffecd564389",
+          "text_sha256": "91d2a167838b34a6ab97ec33e54e62c230da96fe4683461f179eff1c0bebb04c"
+        },
+        {
+          "path": "/mnt/data/csaml_mvp_breakdown_render/CS-AML_MVP_Engineering_Breakdown_v0.1.pdf",
+          "pages": 25,
+          "sha256": "2b8c331e9c55f509e866289581adf1bf104135a119c31a57192b2ff6782476b0",
+          "text_sha256": "91d2a167838b34a6ab97ec33e54e62c230da96fe4683461f179eff1c0bebb04c"
+        }
+      ]
+    },
+    {
+      "key": "stack",
+      "document": "CS-AML_Technical_Stack_and_Repository_Specification_v0.1.docx",
+      "docx_sha256": "8ff755d7ea528301b46251b7f9a299d3e267032955049c6ca0b0b4c15df8e5a9",
+      "docx_words": 4648,
+      "pages": 23,
+      "markdown_words": 231,
+      "markdown_placeholder_sections": 0,
+      "status": "Revalidasi dependency baseline",
+      "review_note": "MinIO Community maintenance dan Redis release/licence harus diputuskan ulang; model auth browser belum final. A02-A03, A11.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Technical_Stack_and_Repository_Specification_v0.1.pdf",
+          "pages": 23,
+          "sha256": "eadcf5cd4e75580d072e5a934ec5dda09b460b4f449c9d7d6a23bb11399893be",
+          "text_sha256": "f06f1f2d4a1a4b7534d62fb1c6426b1410827cd882652593734e493b8c0aa1cb"
+        },
+        {
+          "path": "/mnt/data/csaml_stack_repo_render/CS-AML_Technical_Stack_and_Repository_Specification_v0.1.pdf",
+          "pages": 23,
+          "sha256": "d3df62472fb04848aa7c1f78e902ae5fc6b770ad82f29ffb91d413c6759ce7d4",
+          "text_sha256": "f06f1f2d4a1a4b7534d62fb1c6426b1410827cd882652593734e493b8c0aa1cb"
+        }
+      ]
+    },
+    {
+      "key": "sprint",
+      "document": "CS-AML_Sprint_and_Milestone_Plan_v0.1.docx",
+      "docx_sha256": "fe6057d1065d45fdec4284fd316572adf6abb43c1d3ed5739dca06d9089b0a50",
+      "docx_words": 3039,
+      "pages": 16,
+      "markdown_words": 315,
+      "markdown_placeholder_sections": 0,
+      "status": "Rebaseline setelah koreksi scope",
+      "review_note": "Cadence adalah asumsi, bukan guarantee; waiver high-risk tidak boleh melemahkan invariant. A06, A16; N06.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Sprint_and_Milestone_Plan_v0.1.pdf",
+          "pages": 16,
+          "sha256": "e49dd4a873c3174040c1972e1082170faca3b999920063287a6a2fa08aa3f74c",
+          "text_sha256": "232748530ff7b5a886ea3876b3634772b8de31605ef4ce2af57034c99df32e7e"
+        }
+      ]
+    },
+    {
+      "key": "ux",
+      "document": "CS-AML_UX_Specification_v0.1.docx",
+      "docx_sha256": "60fec2ecff22a5cc567e43671ace427d7774baa5b06ecd4ada8e429c3d74dfa3",
+      "docx_words": 4772,
+      "pages": 20,
+      "markdown_words": 222,
+      "markdown_placeholder_sections": 0,
+      "status": "Pertahankan; belum uji pengguna",
+      "review_note": "Uncertainty dan safety principles kuat; butuh prototype/usability/accessibility evidence, bukan tambah klaim lulus. A01, A08-A09; N07.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_UX_Specification_v0.1.pdf",
+          "pages": 20,
+          "sha256": "e7d5a3c810f3e1f941e4a9b9977eb11802f40043baaf9935e5c96be36e71aee8",
+          "text_sha256": "1387685898cdef708f8d7a52f444f24f46c6b0bdfbb7c4cc1bbee0a7dd3fe993"
+        }
+      ]
+    },
+    {
+      "key": "ia",
+      "document": "CS-AML_Information_Architecture_Specification_v0.1.docx",
+      "docx_sha256": "e5fdc99da76fbd92df322c7bd1716caf6e38025326705aaf856dc0c6038c83d1",
+      "docx_words": 4498,
+      "pages": 22,
+      "markdown_words": 301,
+      "markdown_placeholder_sections": 0,
+      "status": "Harmonisasi identifiers/labels",
+      "review_note": "Case-as-context dan permission-aware findability baik; normalisasi canonical enums, mapping role/classification. A07-A09.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Information_Architecture_Specification_v0.1.pdf",
+          "pages": 22,
+          "sha256": "78fa5ac65a95ffe67d2a8bad806c5a592d77681ccfa49bba5649e5aff76da3a2",
+          "text_sha256": "b164c0bc1765c325e8680e7031cd7bce984e38ec233de95f49bc2a4b19429eff"
+        }
+      ]
+    },
+    {
+      "key": "screen",
+      "document": "CS-AML_Screen_Inventory_v0.1.docx",
+      "docx_sha256": "53b0db3332c9d1241e90cb2b77fcc7355de08f35eacb050c7527c1b479b6a129",
+      "docx_words": 3819,
+      "pages": 23,
+      "markdown_words": 970,
+      "markdown_placeholder_sections": 0,
+      "status": "Pertahankan angka aktual",
+      "review_note": "53 ID terdiri 50 screen kerja + 3 system-state screens. Klaim chat 50 total harus diberi batas hitung. A15; N07.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Screen_Inventory_v0.1.pdf",
+          "pages": 23,
+          "sha256": "a9a95124bb4e3fe1f1d7384bf1a3785052c85ffdf817e2973d8b71e78777baed",
+          "text_sha256": "f68190b985ef801efacc1c3a2472905a8206d6ab5f9929da2560939d45addb3f"
+        }
+      ]
+    },
+    {
+      "key": "wire",
+      "document": "CS-AML_Wireframe_Specification_v0.1.docx",
+      "docx_sha256": "94f35fb48eaf8ea40177afb321a3c8661f0928e1b8ab4bc5f63da48de4c141e8",
+      "docx_words": 2461,
+      "pages": 11,
+      "markdown_words": 451,
+      "markdown_placeholder_sections": 0,
+      "status": "Koreksi mapping spesifik",
+      "review_note": "Case Register salah pattern detail. Review screen-pattern links sebelum implementasi. A15.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Wireframe_Specification_v0.1.pdf",
+          "pages": 11,
+          "sha256": "4d53235ba19b843796beaa88054e75e310396f648954caaad635fad250a99f58",
+          "text_sha256": "8e54d4320a31d94960801d3892393e548cd19f8b3f7657c7443b8ff8d45ded33"
+        }
+      ]
+    },
+    {
+      "key": "ds",
+      "document": "CS-AML_UI_Design_System_Specification_v0.1.docx",
+      "docx_sha256": "15ae0394e757921a7206e1d15f3126eef3a72bf4a1d12bfeaf662e711d4a3caf",
+      "docx_words": 4868,
+      "pages": 25,
+      "markdown_words": 388,
+      "markdown_placeholder_sections": 0,
+      "status": "Pertahankan; selaraskan schema",
+      "review_note": "No guilt-by-color dan non-color cues konsisten; Insufficient Basis harus didukung model. Belum klaim WCAG conformance. A09; N07.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_UI_Design_System_Specification_v0.1.pdf",
+          "pages": 25,
+          "sha256": "80119905b15beea71679f1a92dc3b4adac3e757afa6f89d7fd294f9dad08e56f",
+          "text_sha256": "14649872ae8c3007b7f817a9cbeb3aa6a923b3b55e78c8ca0eab3d30c0d76917"
+        }
+      ]
+    },
+    {
+      "key": "hifi",
+      "document": "CS-AML_High-Fidelity_UI_Specification_v0.1.docx",
+      "docx_sha256": "488ad8e067e3f52136d2e75da8bc89699ae4b658332ab52c78cea7c387bde1f8",
+      "docx_words": 3732,
+      "pages": 20,
+      "markdown_words": 302,
+      "markdown_placeholder_sections": 0,
+      "status": "Reference komposisi, bukan UI jadi",
+      "review_note": "Jangan menganggap prose layout sebagai completed mockup/testing. Selaraskan canonical states dan versi PDF. A01, A09, A15; N07-N08.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_High-Fidelity_UI_Specification_v0.1.pdf",
+          "pages": 20,
+          "sha256": "9635f651769d50ebb9959c42fc73952cc1ffa1cfb7835a1ac28cd670fe42ba21",
+          "text_sha256": "403116ec050e0f942eba1fdea6a6d0a3953fe2527527aa6bc760eb9bd8654b49"
+        },
+        {
+          "path": "/mnt/data/csaml_hifi_ui_render/CS-AML_High-Fidelity_UI_Specification_v0.1.pdf",
+          "pages": 20,
+          "sha256": "f9d0223e65874a1322c629fffe86c0fd1f92056c11fd557dc6e28fc0b34c5ad5",
+          "text_sha256": "58e0b14f38f09114fe74e09aa9743d33e6bdb21a0a19b96a3807cc66114a10b5"
+        }
+      ]
+    },
+    {
+      "key": "component",
+      "document": "CS-AML_Component_Inventory_and_Storybook_Implementation_Specification_v0.1.docx",
+      "docx_sha256": "874eebc80508fe6acfcd44e264d3a58dcccf47117f4bad0e647cf51cd3aacebd",
+      "docx_words": 3177,
+      "pages": 17,
+      "markdown_words": 151,
+      "markdown_placeholder_sections": 0,
+      "status": "Inventory valid; implementasi belum dibuktikan",
+      "review_note": "65 ID benar. Storybook security disclaimer baik. Tidak ada hasil code/interaction/axe/visual regression dalam corpus. A01; N07.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Component_Inventory_and_Storybook_Implementation_Specification_v0.1.pdf",
+          "pages": 17,
+          "sha256": "b3574eed753e4f63721d35aec3274e03eaa1a19032aee57fa222fa46da3605f3",
+          "text_sha256": "892a2983cca974603b1ae902a6b9bf5a0c0aae13a94bcfe634e4bdbe902ee546"
+        }
+      ]
+    },
+    {
+      "key": "frontend",
+      "document": "CS-AML_Frontend_Architecture_and_State_Management_Specification_v0.1.docx",
+      "docx_sha256": "fea5b06c7627cf3547e22c0f02c00934aac50e85b2a6d49562fce408c4448a98",
+      "docx_words": 3097,
+      "pages": 15,
+      "markdown_words": 189,
+      "markdown_placeholder_sections": 0,
+      "status": "Lengkapi kontrak lintas tim",
+      "review_note": "State ownership baik; login model, cache-revocation behavior dan API conflict semantics belum locked. A04, A08-A09, A11.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_Frontend_Architecture_and_State_Management_Specification_v0.1.pdf",
+          "pages": 15,
+          "sha256": "849c24d9c1a2e5a27e902d09e2c5f3f035fb94ef55d564f9b2cb4ddfcfd8628d",
+          "text_sha256": "d0b3a00f9fe156e567bfb8930de41cdabcc506964b6e75467ee9227c4ff7a1e3"
+        }
+      ]
+    },
+    {
+      "key": "api",
+      "document": "CS-AML_API_Specification_v0.1.docx",
+      "docx_sha256": "861e8decb5622a5d3df1d8c9d9f82baeb7e5573adc70a2eb337a271f09d7cb07",
+      "docx_words": 2919,
+      "pages": 17,
+      "markdown_words": 171,
+      "markdown_placeholder_sections": 0,
+      "status": "Prioritas perbaikan",
+      "review_note": "409/412 konflik nyata; schema/operasi/Claim-Fact/auth-idempotency belum kontrak executable lengkap. A04, A08-A11.",
+      "pdf_representations": [
+        {
+          "path": "/mnt/data/CS-AML_API_Specification_v0.1.pdf",
+          "pages": 17,
+          "sha256": "2a9d0148eaade22a4943e48d8ec063cb17aeb2959e513aa189a7adb263d3a855",
+          "text_sha256": "221deef3682a23121a76f11374aca501543f300c0af5399f44a8d7d50bd7246c"
+        }
+      ]
+    }
+  ],
+  "historical_input": {
+    "file": "AML-brainstrom.md",
+    "sha256": "716e69083cbfd3e3fc33bc1718375e4264aed781b373a9f5b73ab51a8072b6dc",
+    "words": 2440,
+    "status": "Bahan historis brainstorming, bukan spesifikasi normatif",
+    "review_note": "PPATK, UU PDP, AHU dan portal KPK ditemukan; angka/aset contoh bukan temuan kasus. Detail UNODC masih partial verification; data AHU yang dikutip bertanggal 16 Desember 2025."
+  },
+  "external_sources": {
+    "S01": {
+      "title": "FATF Recommendations",
+      "url": "https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html",
+      "status": "Terverifikasi: halaman resmi mencantumkan amended June 2026.",
+      "scope": "Keberadaan/versi standar dan konteks risk-based approach; bukan validasi semua kontrol CS-AML."
+    },
+    "S02": {
+      "title": "Wolfsberg Guidance on the Risk-Based Approach, June 2026",
+      "url": "https://wolfsberg-group.org/resources/202/205",
+      "status": "Terverifikasi: guidance resmi Juni 2026.",
+      "scope": "Proportionality, prioritisation, effectiveness; ditujukan kepada financial institutions, diadaptasi oleh CS-AML."
+    },
+    "S03": {
+      "title": "PPATK Klinik Dumas Special Edition",
+      "url": "https://www.ppatk.go.id/news/read/1570/klinik-dumas-special-edition-ppatk-dan-ngocso-perkuat-aduan-tppu-melalui-peluncuran-laporppatkgoid.html",
+      "status": "Terverifikasi: publikasi 26 November 2025; acara 25 November 2025.",
+      "scope": "Peran informasi NGO/CSO dan kualitas pendukung pengaduan; tidak membuktikan adanya persetujuan PPATK terhadap framework kita."
+    },
+    "S04": {
+      "title": "MinIO upstream repository",
+      "url": "https://github.com/minio/minio",
+      "status": "Terverifikasi: diarsipkan 25 April 2026; README menyatakan tidak lagi dipelihara.",
+      "scope": "Repositori MinIO Community yang dirujuk; bukan pernyataan bahwa seluruh produk/vendor MinIO berhenti beroperasi."
+    },
+    "S05": {
+      "title": "Redis licenses",
+      "url": "https://redis.io/legal/licenses/",
+      "status": "Terverifikasi: batas versi mengubah pilihan lisensi.",
+      "scope": "Redis <=7.2 BSD-3; Redis 7.4 RSALv2/SSPLv1; Redis 8 menambah pilihan AGPLv3. Bukan pendapat hukum lisensi implementasi tertentu."
+    },
+    "S06": {
+      "title": "RFC 9110, HTTP Semantics, section 13.1.1",
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html#section-13.1.1",
+      "status": "Terverifikasi: conditional request If-Match dan penanganan precondition.",
+      "scope": "False If-Match tidak boleh diterapkan; 412 adalah respons kegagalan precondition yang relevan. RFC memuat pengecualian respons sukses untuk aksi yang sudah terpenuhi; jangan mengganti semua konflik aplikasi menjadi 412."
+    },
+    "S07": {
+      "title": "FATF Non-Profit Organisations",
+      "url": "https://www.fatf-gafi.org/en/topics/non-profit-organisations.html",
+      "status": "Terverifikasi: pendekatan targeted, proportionate, risk-based.",
+      "scope": "Mendukung guardrail terhadap over-application AML/CFT, tidak menetapkan taxonomy atau maturity CS-AML."
+    },
+    "S08": {
+      "title": "FATF Investigating Professional Money Laundering, Underground Banking, Hawala and HOSSPs",
+      "url": "https://www.fatf-gafi.org/en/publications/Methodsandtrends/pml-underground-banking-hawala-hossps.html",
+      "status": "Terverifikasi: publikasi 2026 memang ada.",
+      "scope": "Keberadaan dan ruang lingkup laporan, bukan validasi indikator lokal per entri."
+    },
+    "S09": {
+      "title": "FATF Cyber-Enabled Fraud",
+      "url": "https://www.fatf-gafi.org/en/publications/Methodsandtrends/cyber-enabled-fraud-digitalisation-ml-tf-pf-risks.html",
+      "status": "Terverifikasi pada sumber resmi: publikasi 2026 ada.",
+      "scope": "Tidak semua narasi angka/kasus pada chat terdahulu diaudit dalam pemeriksaan dokumen ini."
+    },
+    "S10": {
+      "title": "UNODC civil-society/UNCAC guide, URL yang dikutip",
+      "url": "https://www.unodc.org/documents/NGO/Corruption/251113-CSU-UNCAC_Guide-Web.pdf",
+      "status": "Parsial: URL dan teks terindeks ditemukan pada domain resmi; pembukaan langsung gagal pada alat audit.",
+      "scope": "Judul bibliografis serta lokasi halaman untuk klaim spesifik tentang asset tracing, forensic auditing, dan legal analysis belum dapat dikukuhkan dari PDF penuh. Ini bukan bukti sumber fiktif."
+    },
+    "S11": {
+      "title": "UU No. 27 Tahun 2022, JDIH BPK",
+      "url": "https://peraturan.bpk.go.id/Details/229798/uu-no-27-tahun-2022",
+      "status": "Terverifikasi: peraturan ada; abstrak memuat catatan kejahatan dan data keuangan pribadi sebagai data spesifik.",
+      "scope": "Tidak merupakan legal opinion tentang dasar pemrosesan kasus tertentu atau audit kepatuhan penuh CS-AML."
+    },
+    "S12": {
+      "title": "AHU, Penguatan Transparansi Pemilik Manfaat Korporasi",
+      "url": "https://portal.ahu.go.id/id/detail/75-berita-lainnya/6150-ditjen-ahu-dorong-penguatan-transparansi-pemilik-manfaat-korporasi",
+      "status": "Terverifikasi: artikel 16 Desember 2025 memuat keterbatasan jumlah/kualitas pelaporan dan self-declaration.",
+      "scope": "Catatan historis, bukan statistik terbaru 2026. Klaim jumlah absolut harus disertai sumber jumlah, bukan disimpulkan dari persentase saja."
+    },
+    "S13": {
+      "title": "AHU pencarian profil pemilik manfaat",
+      "url": "https://www.ahu.go.id/pencarian/profil-pemilik-manfaat",
+      "status": "Terverifikasi: halaman pencarian tersedia dan menjelaskan asal data pelaporan.",
+      "scope": "Tidak berarti izin scraping massal atau jaminan kebenaran setiap laporan."
+    },
+    "S14": {
+      "title": "KPK e-LHKPN portal/FAQ",
+      "url": "https://elhkpn.kpk.go.id/portal",
+      "status": "Terverifikasi: pengumuman dan pencarian tahun lapor tersedia bagi masyarakat melalui e-Announcement.",
+      "scope": "Akses/form/captcha tetap berlaku; adanya sumber publik tidak membuktikan akses otomatis atau atribut aset lengkap."
+    },
+    "S15": {
+      "title": "OWASP ASVS",
+      "url": "https://owasp.org/projects/asvs",
+      "status": "Terverifikasi: versi stabil 5.0.0 ditampilkan.",
+      "scope": "Rujukan valid; tidak ada bukti pengujian aplikasi CS-AML terhadap ASVS dalam paket yang diperiksa."
+    },
+    "S16": {
+      "title": "SLSA v1.2",
+      "url": "https://slsa.dev/spec/v1.2/",
+      "status": "Terverifikasi: versi 1.2 berstatus approved.",
+      "scope": "Rujukan valid; bukan bukti build CS-AML memenuhi level SLSA."
+    },
+    "S17": {
+      "title": "Django downloads/support schedule",
+      "url": "https://www.djangoproject.com/download/",
+      "status": "Terverifikasi: Django 5.2 adalah LTS dengan extended support sampai April 2028.",
+      "scope": "Pemilihan lini LTS bukan kesalahan hanya karena ada versi fitur lebih baru; patch/dependency tetap perlu dipatok dan diuji."
+    },
+    "S18": {
+      "title": "WCAG 2.2",
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "status": "Rujukan resmi dapat diperiksa.",
+      "scope": "Target aksesibilitas dalam spesifikasi bukan bukti pemenuhan kriteria aktual."
+    }
+  },
+  "validated_counts": {
+    "features": 87,
+    "P0": 54,
+    "P1": 26,
+    "P2": 7,
+    "screen_ids": 53,
+    "ordinary_screens": 50,
+    "system_state_screens": 3,
+    "component_ids": 65,
+    "typology_ids": 20
+  }
+}
