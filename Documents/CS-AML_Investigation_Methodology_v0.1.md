@@ -1,13 +1,20 @@
-# CS-AML Investigation Methodology v0.1
+**CS-AML  
+INVESTIGATION METHODOLOGY**
+
+Official Derived Methodology · Version 0.1
+
+Civil Society Anti-Money Laundering & Financial Intelligence Framework
+
+Normative Draft · October 2026
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework — Official Derived Methodology
 
-Status: Normative Draft / Derived Standard | Version: 0.1 | Date: October 2026
+Status: Normative Draft / Derived Standard \| Version: 0.1 \| Date: October 2026
 
 # 0. Document Control
 
-| Field | Value |
-| --- | --- |
+| **Field** | **Value** |
+|----|----|
 | Document title | CS-AML Investigation Methodology v0.1 |
 | Parent standard | CS-AML Framework v0.1 |
 | Companion standard | CS-AML Typology Catalogue v0.1 |
@@ -18,7 +25,7 @@ Status: Normative Draft / Derived Standard | Version: 0.1 | Date: October 2026
 
 This methodology specifies HOW a CS-AML investigation SHALL be conducted. It operationalises the parent framework’s analytical chain and translates the Typology Catalogue into a controlled case workflow.
 
-> **Normative analytical chain:** SOURCE → EVIDENCE → CLAIM → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INTELLIGENCE PRODUCT
+**Normative analytical chain:** SOURCE → EVIDENCE → CLAIM → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INTELLIGENCE PRODUCT
 
 A material allegation, referral, or publication decision SHALL NOT bypass the stages needed to demonstrate provenance, corroboration, competing explanations, confidence, and uncertainty.
 
@@ -33,14 +40,23 @@ The primary goal is to convert lawfully obtained information into decision-usefu
 ## 1.2 Operational objectives
 
 - Frame investigations around answerable questions rather than predetermined guilt narratives.
+
 - Prioritise collection according to analytical value, legality, proportionality, and risk.
+
 - Preserve source provenance and evidence integrity sufficiently for peer review and referral.
+
 - Resolve identities and relationships before relying on network patterns.
+
 - Reconstruct economic value flows when direct transaction data are unavailable.
+
 - Use AML typologies as analytical lenses rather than proof templates.
+
 - Test competing hypotheses and actively search for disconfirming evidence.
+
 - State confidence, uncertainty, and intelligence gaps explicitly.
+
 - Separate internal analytical judgements from externally publishable allegations.
+
 - Create outputs that can be understood and re-evaluated by another qualified analyst.
 
 ## 1.3 Methodological boundaries
@@ -51,8 +67,8 @@ This methodology does not authorise hacking, covert interception, credential the
 
 CS-AML adopts a risk-based and evidence-based approach. FATF standards treat understanding of money-laundering risk as central to prioritising resources. FATF financial-investigation guidance recognises financial investigation and asset tracing as core operational elements for competent authorities, while UNODC recognises that civil society can support asset tracing through open-source investigation, financial investigation, forensic auditing, and legal analysis. PPATK has publicly recognised that information from NGO/CSO and the public can support early detection and financial-intelligence analysis. CS-AML adapts these ideas to a non-coercive civil-society setting.
 
-| Reference lineage | Methodological implication |
-| --- | --- |
+| **Reference lineage** | **Methodological implication** |
+|----|----|
 | FATF Recommendations (amended June 2026) | Risk-based proportionality; focus resources on higher-risk areas; distinguish technical controls from effectiveness. |
 | FATF Money Laundering National Risk Assessment Guidance (updated 2025) | Use structured, evidence-based, dynamic risk understanding; document assumptions and changing context. |
 | FATF Financial Investigations Guidance | Treat financial investigation and asset tracing as structured operational disciplines; maintain links between evidence, proceeds, assets, and offences. |
@@ -61,12 +77,12 @@ CS-AML adopts a risk-based and evidence-based approach. FATF standards treat und
 
 # 3. Investigation Lifecycle
 
-> **Standard lifecycle:** INTAKE → TRIAGE → CHARTER → RISK REVIEW → COLLECTION PLAN → COLLECTION → STRUCTURE → ANALYSIS → HYPOTHESIS TESTING → ASSESSMENT → REVIEW → DISSEMINATION → CLOSURE / MONITORING
+**Standard lifecycle:** INTAKE → TRIAGE → CHARTER → RISK REVIEW → COLLECTION PLAN → COLLECTION → STRUCTURE → ANALYSIS → HYPOTHESIS TESTING → ASSESSMENT → REVIEW → DISSEMINATION → CLOSURE / MONITORING
 
 The lifecycle is iterative. Analysts MAY return to earlier stages when new information changes scope or hypotheses. However, material decisions SHALL pass the applicable control gate before proceeding.
 
-| Gate | Decision | Minimum evidence of readiness |
-| --- | --- | --- |
+| **Gate** | **Decision** | **Minimum evidence of readiness** |
+|----|----|----|
 | G0 Intake legitimacy | Is the matter suitable for CS-AML work? | Trigger, public-interest rationale, preliminary legal/safety concerns, no prohibited purpose. |
 | G1 Charter approval | Is the investigation question bounded and proportionate? | Approved charter, scope, subjects, period, jurisdictions, initial hypotheses, expected outputs. |
 | G2 Collection approval | May planned data be collected and retained? | Collection plan, data classes, lawful basis/access route, necessity, safeguards, source-risk assessment. |
@@ -84,18 +100,25 @@ A case may originate from a whistleblower report, media investigation, public da
 ## 4.2 Intake record requirements
 
 - Unique intake identifier and date/time.
+
 - Origin and channel.
+
 - Raw allegation or question preserved separately from analyst interpretation.
+
 - Named subjects or entities, if any.
+
 - Immediate safety, privacy, source-protection, or legal concerns.
+
 - Initial public-interest rationale.
+
 - Initial data sensitivity classification.
+
 - Disposition: reject, hold, preliminary research, or open case.
 
 ## 4.3 Triage questions
 
-| Question | Why it matters |
-| --- | --- |
+| **Question** | **Why it matters** |
+|----|----|
 | What exactly is being alleged or questioned? | Prevents scope drift and conflation of separate allegations. |
 | What would make the issue a financial-intelligence matter? | Ensures there is an ownership, asset, contract, value-flow, proceeds, or control dimension. |
 | What is already known from credible sources? | Avoids duplicating basic validation work. |
@@ -115,23 +138,34 @@ Every Investigation or Network Investigation SHALL have an Investigation Charter
 
 The investigation question SHALL be answerable through evidence and SHALL NOT presuppose criminal guilt. Preferred formulations ask who controls, who benefits, what changed, where value moved, whether declared and observed structures are consistent, and what explanations fit the evidence.
 
-> **Poor question:** “How is Person X laundering money?”
+**Poor question:** “How is Person X laundering money?”
 
-> **Preferred question:** “What ownership, control, asset, contract, and value-flow relationships link Person X and the identified entities during the defined period, and which legitimate or illicit explanations are consistent with the evidence?”
+**Preferred question:** “What ownership, control, asset, contract, and value-flow relationships link Person X and the identified entities during the defined period, and which legitimate or illicit explanations are consistent with the evidence?”
 
 ## 5.2 Charter fields
 
 - Case ID and title.
+
 - Public-interest purpose.
+
 - Primary and secondary investigation questions.
+
 - Subjects and excluded subjects.
+
 - Time period.
+
 - Jurisdictions.
+
 - Predicate issue(s), if any, described as alleged or established.
+
 - Initial hypotheses, including at least one non-criminal alternative when plausible.
+
 - Expected data classes and high-risk data classes.
+
 - Expected outputs and intended audiences.
+
 - Risk classification and required reviewers.
+
 - Stop conditions and review date.
 
 ## 5.3 Scope change control
@@ -142,8 +176,8 @@ Material expansion to new persons, jurisdictions, sensitive data classes, or all
 
 Risk assessment in CS-AML concerns both the subject matter and the conduct of the investigation. It SHALL NOT be reduced to “risk of money laundering”.
 
-| Risk domain | Examples | Required response |
-| --- | --- | --- |
+| **Risk domain** | **Examples** | **Required response** |
+|----|----|----|
 | Legal/regulatory | Privacy, defamation, secrecy restrictions, court orders, cross-border data law | Legal review, narrower scope, controlled access, jurisdictional analysis. |
 | Source safety | Whistleblower exposure, retaliation, coercion | Need-to-know identity access, secure channels, source-risk plan. |
 | Subject harm | Reputational harm, vulnerable persons, mistaken identity | Higher verification threshold, minimisation, redaction, right-of-reply review. |
@@ -160,8 +194,8 @@ Organisations SHOULD classify investigation risk as Low, Moderate, High, or Crit
 
 Collection SHALL be driven by analytical requirements, not by curiosity or tool availability. The Collection Plan links each information requirement to a lawful source strategy.
 
-| Collection-plan field | Required content |
-| --- | --- |
+| **Collection-plan field** | **Required content** |
+|----|----|
 | Information Requirement (IR) | Specific question whose answer changes an analytical judgement. |
 | Priority | Critical / High / Normal / Low. |
 | Target entity/event/value flow | What the IR concerns. |
@@ -180,8 +214,8 @@ Priority SHOULD consider analytical value × urgency × source volatility × ris
 
 ## 8.1 Source classes
 
-| Class | Examples | Default posture |
-| --- | --- | --- |
+| **Class** | **Examples** | **Default posture** |
+|----|----|----|
 | Authoritative public records | Court decisions, government registries, procurement, official disclosures | High utility; verify currency, scope, self-reporting limitations. |
 | Corporate/public disclosures | Annual reports, websites, ownership statements, filings | Useful; distinguish self-assertion from independently verified fact. |
 | Professional journalism / research | Investigative reporting, NGO reports, academic work | Use as lead and secondary corroboration; inspect underlying evidence where possible. |
@@ -194,14 +228,23 @@ Priority SHOULD consider analytical value × urgency × source volatility × ris
 ## 8.2 Collection record
 
 - Source ID.
+
 - Collector.
+
 - Date/time and method.
+
 - Original URL/location or providing source.
+
 - Access conditions and licence/terms where relevant.
+
 - Original file or snapshot hash where material.
+
 - Sensitivity and handling marking.
+
 - Preservation action.
+
 - Legal/access note.
+
 - Related Information Requirements.
 
 ## 8.3 Web preservation
@@ -212,23 +255,23 @@ Material web evidence SHOULD be preserved with URL, access time, full-page or do
 
 The methodology separates source reliability from information credibility. A reliable institution can publish incomplete or self-reported data; an unknown source can provide a document later independently verified.
 
-| Source reliability | Meaning |
-| --- | --- |
-| A | Highly reliable |
-| B | Generally reliable |
-| C | Mixed or variable |
-| D | Generally unreliable |
-| E | Unreliable |
-| F | Unknown / cannot yet be assessed |
+| **Source reliability** | **Meaning**                      |
+|------------------------|----------------------------------|
+| A                      | Highly reliable                  |
+| B                      | Generally reliable               |
+| C                      | Mixed or variable                |
+| D                      | Generally unreliable             |
+| E                      | Unreliable                       |
+| F                      | Unknown / cannot yet be assessed |
 
-| Information credibility | Meaning |
-| --- | --- |
-| 1 | Independently confirmed / directly supported |
-| 2 | Probably true; strong corroboration |
-| 3 | Possibly true; plausible but incomplete |
-| 4 | Doubtful; material conflicts or weak support |
-| 5 | Improbable |
-| 6 | Cannot yet be assessed |
+| **Information credibility** | **Meaning**                                  |
+|-----------------------------|----------------------------------------------|
+| 1                           | Independently confirmed / directly supported |
+| 2                           | Probably true; strong corroboration          |
+| 3                           | Possibly true; plausible but incomplete      |
+| 4                           | Doubtful; material conflicts or weak support |
+| 5                           | Improbable                                   |
+| 6                           | Cannot yet be assessed                       |
 
 Ratings SHALL be justified in notes for material evidence. A rating such as A1 or F3 is an analytical aid, not a mathematical truth.
 
@@ -243,15 +286,25 @@ Civil-society intelligence is not automatically courtroom evidence. Nevertheless
 ## 10.1 Evidence object minimum fields
 
 - Evidence ID.
+
 - Source ID.
+
 - Description.
+
 - File/object location.
+
 - Acquisition date/time.
+
 - Original/derivative status.
+
 - Cryptographic hash for material digital files where feasible.
+
 - Extractor/analyst.
+
 - Sensitivity.
+
 - Authentication/verification status.
+
 - Related claims, entities, relationships, events, and hypotheses.
 
 ## 10.2 Original and derivative separation
@@ -266,8 +319,8 @@ Where an evidence item may be referred to authorities or contested, the organisa
 
 Analytical discipline requires separating what a source says from what the investigation accepts as established.
 
-| State | Definition | Example |
-| --- | --- | --- |
+| **State** | **Definition** | **Example** |
+|----|----|----|
 | Claim | A proposition asserted by a source or person. | “Person A controls Company X.” |
 | Corroborated claim | A claim supported by multiple or stronger sources but not yet adopted as fact. | Registry + contract signature + official profile point to same role. |
 | Fact | A proposition sufficiently established for the current analytical purpose. | Person A is listed as director of Company X on date Y. |
@@ -284,19 +337,27 @@ Entity resolution SHALL precede high-impact graph conclusions. Name similarity a
 ## 12.1 Resolution dimensions
 
 - Stable identifiers: registration numbers, national/company identifiers where lawfully available.
+
 - Names and aliases.
+
 - Date/place of birth or incorporation where lawfully available.
+
 - Addresses.
+
 - Phone/email/domain identifiers.
+
 - Directors/shareholders/beneficial owners.
+
 - Shared documents and signatures.
+
 - Temporal consistency.
+
 - Known relationships and operational context.
 
 ## 12.2 Resolution outcomes
 
-| Outcome | Meaning |
-| --- | --- |
+| **Outcome** | **Meaning** |
+|----|----|
 | MERGED | Records represent the same entity with sufficient confidence. |
 | LINKED-POSSIBLE | Likely or possible same entity; keep separate records with candidate link. |
 | SEPARATE | Evidence indicates distinct entities. |
@@ -305,11 +366,17 @@ Entity resolution SHALL precede high-impact graph conclusions. Name similarity a
 ## 12.3 Merge decision record
 
 - Candidate records.
+
 - Matching and conflicting attributes.
+
 - Evidence.
+
 - Analyst decision.
+
 - Confidence.
+
 - Reviewer for high-impact merges.
+
 - Reversal history if later split.
 
 A mistaken entity merge can contaminate every downstream relationship. High-impact merges SHOULD be peer reviewed.
@@ -318,8 +385,8 @@ A mistaken entity merge can contaminate every downstream relationship. High-impa
 
 Relationships SHALL be represented as typed, dated, evidence-linked propositions. Graph proximity is not equivalent to control or wrongdoing.
 
-| Relationship class | Examples |
-| --- | --- |
+| **Relationship class** | **Examples** |
+|----|----|
 | Legal ownership | OWNS, SHAREHOLDER_OF, BENEFICIAL_OWNER_OF |
 | Governance/control | DIRECTOR_OF, CONTROLS, AUTHORIZED_SIGNATORY_OF |
 | Economic | PAID_BY, CONTRACTED_BY, SUPPLIER_TO, LENDER_TO, BORROWER_FROM |
@@ -339,19 +406,29 @@ Timeline analysis is mandatory when sequence materially affects interpretation. 
 ## 14.1 Event object
 
 - Event ID and type.
+
 - Date or date range with precision flag.
+
 - Entities involved.
+
 - Location/jurisdiction if relevant.
+
 - Evidence links.
+
 - Status: confirmed / probable / possible / disputed.
+
 - Analytical relevance.
 
 ## 14.2 Timeline techniques
 
 - Compare appointments, incorporation, procurement awards, payments, loans, property acquisitions, disposals, litigation, and ownership changes.
+
 - Mark known versus estimated dates.
+
 - Identify events that precede or follow value creation.
+
 - Test whether alleged causal narratives remain plausible under the actual sequence.
+
 - Record missing periods and unknown dates as intelligence gaps.
 
 # 15. Asset Tracing and Asset Attribution
@@ -361,17 +438,23 @@ Asset tracing under CS-AML seeks to identify assets, ownership, control, acquisi
 ## 15.1 Asset classes
 
 - Real property.
+
 - Vehicles, vessels, aircraft.
+
 - Corporate shares and beneficial interests.
+
 - Securities/investments where lawfully observable.
+
 - Crypto-assets/wallets where lawfully attributable.
+
 - Precious metals, art, luxury goods, portable stores of value.
+
 - Intellectual property or contractual rights when economically material.
 
 ## 15.2 Attribution states
 
-| State | Meaning |
-| --- | --- |
+| **State** | **Meaning** |
+|----|----|
 | LEGAL_OWNER | Ownership supported by authoritative or strong documentary evidence. |
 | BENEFICIAL_INTEREST | Evidence indicates economic benefit/control distinct from legal title. |
 | CONTROL/USE | Subject appears to control or use asset; ownership unproven. |
@@ -384,8 +467,8 @@ Observed associated assets SHALL NOT be described as “hidden wealth” unless 
 
 Follow-the-value is the central analytical adaptation for civil society. A value flow may be direct, documentary, or reconstructed. The method SHALL preserve that distinction.
 
-| Flow class | Evidence threshold | Example |
-| --- | --- | --- |
+| **Flow class** | **Evidence threshold** | **Example** |
+|----|----|----|
 | DIRECT | Direct transaction/account/blockchain record lawfully available. | Account A → Account B, amount/date supported by record. |
 | DOCUMENTED ECONOMIC | Contract, invoice, loan, dividend, asset sale, grant, procurement payment documented. | Agency awards Rp X contract to Company A. |
 | RECONSTRUCTED | Sequence inferred from multiple economic events without direct transfer record. | Contract revenue precedes related entity property acquisition; causal link not directly proven. |
@@ -394,14 +477,23 @@ Follow-the-value is the central analytical adaptation for civil society. A value
 ## 16.1 Value-flow record
 
 - Origin entity.
+
 - Destination entity or asset.
+
 - Value and currency if known.
+
 - Date/range.
+
 - Mechanism.
+
 - Flow class.
+
 - Evidence links.
+
 - Confidence.
+
 - Assumptions.
+
 - Alternative explanations.
 
 ## 16.2 Reconstruction rule
@@ -414,14 +506,14 @@ The CS-AML Typology Catalogue is an analytical reference, not a guilt classifier
 
 ## 17.1 Typology workflow
 
-```text
+``` text
 Observed facts → Indicators → Candidate typology → Mechanism test → Alternative explanations → Evidence gaps → Consistency assessment
 ```
 
 ## 17.2 Indicator classes
 
-| Class | Meaning |
-| --- | --- |
+| **Class** | **Meaning** |
+|----|----|
 | M | Mechanism-specific indicator: closely tied to the typology mechanism. |
 | C | Corroborating indicator: increases plausibility but is not distinctive alone. |
 | K | Contextual indicator: provides environment/background. |
@@ -430,8 +522,8 @@ Observed facts → Indicators → Candidate typology → Mechanism test → Alte
 
 ## 17.3 Typology consistency levels
 
-| Level | Meaning |
-| --- | --- |
+| **Level** | **Meaning** |
+|----|----|
 | No analytical basis | Evidence does not meaningfully support the mechanism. |
 | Weak consistency | Some indicators exist but plausible benign explanations dominate or corroboration is weak. |
 | Plausible consistency | Multiple relevant indicators; mechanism is credible but important gaps remain. |
@@ -450,8 +542,8 @@ For material cases, analysts SHOULD maintain: (1) the principal suspected explan
 
 ## 18.2 Hypothesis matrix
 
-| Evidence / observation | H1 suspected mechanism | H2 legitimate explanation | H3 alternative mechanism | Notes |
-| --- | --- | --- | --- | --- |
+| **Evidence / observation** | **H1 suspected mechanism** | **H2 legitimate explanation** | **H3 alternative mechanism** | **Notes** |
+|----|----|----|----|----|
 | Common director across companies | Supports | Neutral | Supports | Not distinctive alone. |
 | No observable operations | Supports | Weakens | Supports | Could reflect holding company. |
 | Direct legitimate commercial contract | Neutral | Supports | Neutral | Need pricing/related-party context. |
@@ -464,9 +556,13 @@ Analysts SHALL deliberately search for evidence that would weaken the leading hy
 ## 18.4 Hypothesis status
 
 - OPEN — actively tested.
+
 - SUPPORTED — evidence currently favours the hypothesis.
+
 - WEAKENED — contradicting evidence materially reduces plausibility.
+
 - REJECTED — evidence is inconsistent with the hypothesis.
+
 - INCONCLUSIVE — evidence is insufficient or balanced.
 
 # 19. Structured Analytical Techniques
@@ -476,38 +572,52 @@ Analysts MAY use structured techniques provided the method is transparent and do
 ## 19.1 Recommended techniques
 
 - Chronology/timeline analysis.
+
 - Entity-link and ownership mapping.
+
 - Value-flow reconstruction.
+
 - Comparison of declared versus observed relationships.
+
 - Pattern and typology mapping.
+
 - Competing-hypothesis matrix.
+
 - Source cross-validation.
+
 - Peer-group or baseline comparison when a defensible baseline exists.
+
 - Cross-case correlation.
+
 - Gap analysis and collection requirements.
 
 ## 19.2 Prohibited analytical shortcuts
 
 - Treating network centrality as guilt.
+
 - Treating PEP status, religion, ethnicity, nationality, activism, NPO status, or political association as a standalone AML indicator.
+
 - Treating secrecy, privacy, offshore use, cash use, remittance, or crypto use as inherently illicit.
+
 - Using opaque AI scores as final findings.
+
 - Converting a weak match into an entity merge to “complete” the graph.
+
 - Conflating correlation, sequence, opportunity, and causation.
 
 # 20. Confidence and Uncertainty
 
 Confidence describes the analyst’s confidence in an assessment given evidence quality, consistency, independence, coverage, and unresolved alternatives. It does not describe the probability that a person is guilty.
 
-| Confidence | Typical conditions |
-| --- | --- |
+| **Confidence** | **Typical conditions** |
+|----|----|
 | LOW | Material evidence is limited, conflicting, weakly corroborated, or core identity/value-flow questions remain unresolved. |
 | MODERATE | Multiple evidence lines support the judgement, but important gaps or viable alternatives remain. |
 | HIGH | Multiple independent, strong evidence lines converge; key alternatives have been tested and materially weakened; critical gaps are limited. |
 
 ## 20.1 Confidence statement format
 
-> **Required pattern:** Assessment + confidence + principal basis + principal caveat.
+**Required pattern:** Assessment + confidence + principal basis + principal caveat.
 
 Example: “Available evidence supports with MODERATE confidence that Companies A and B were under common operational control during 2025, based on overlapping directors, authorised signatories, address infrastructure, and contract execution. Beneficial ownership remains unresolved and no direct financial transfer between the companies has been established.”
 
@@ -519,8 +629,8 @@ Percent probabilities SHOULD NOT be used unless the organisation has a validated
 
 An intelligence gap is a material unknown that affects interpretation, confidence, or actionability. Gaps SHALL be visible, not hidden in prose.
 
-| Gap ID | Question | Impact | Priority | Collection option | Status |
-| --- | --- | --- | --- | --- | --- |
+| **Gap ID** | **Question** | **Impact** | **Priority** | **Collection option** | **Status** |
+|----|----|----|----|----|----|
 | G-01 | Who beneficially controls Company B? | High — affects ownership hypothesis | Critical | BO registry, filings, contracts, interviews | Open |
 | G-02 | What consideration was paid for Property X? | Medium — affects value-flow reconstruction | High | Property record, court file, seller source | Open |
 
@@ -533,17 +643,25 @@ Reusable entity records permit cross-case intelligence, but cross-case correlati
 ## 22.1 Cross-case rules
 
 - A cross-case link SHALL identify its evidence basis and source cases.
+
 - Case access restrictions SHALL carry into cross-case views where appropriate.
+
 - Analysts SHALL NOT expose a sensitive case merely because a shared entity appears in another case.
+
 - Cross-case correlation MAY create a new Network Investigation when the relationship is analytically material.
+
 - Automated similarity suggestions SHALL be treated as leads until reviewed.
 
 ## 22.2 Network investigation triggers
 
 - Repeated beneficial-owner or nominee pattern across unrelated cases.
+
 - Shared intermediaries, addresses, professionals, wallets, companies, or assets across cases.
+
 - Recurring procurement/vendor pattern.
+
 - Repeated asset-conversion sequence.
+
 - Recurring typology with common infrastructure.
 
 # 23. Assessment Writing
@@ -556,9 +674,9 @@ A final product SHOULD begin with a small number of Key Judgements. Each judgeme
 
 ## 23.2 Language discipline
 
-| Avoid | Prefer |
-| --- | --- |
-| “X laundered money.” | “The observed structure is consistent with [typology] to [level], but direct evidence of laundering has not been established.” |
+| **Avoid** | **Prefer** |
+|----|----|
+| “X laundered money.” | “The observed structure is consistent with \[typology\] to \[level\], but direct evidence of laundering has not been established.” |
 | “X owns the villa.” | “The villa is legally owned by Company Y; available evidence indicates X may exercise control/use. Beneficial ownership is unresolved.” |
 | “Money flowed from contract to property.” | “The property acquisition followed the contract award and is linked through related entities; the intervening financial transfer is reconstructed, not directly evidenced.” |
 | “Suspicious company.” | “The company exhibits the following documented indicators...” |
@@ -574,14 +692,23 @@ Review is a substantive analytical control, not copy-editing.
 ## 24.1 Peer reviewer questions
 
 - Can every key judgement be traced to evidence?
+
 - Are identity merges defensible?
+
 - Are facts time-bounded?
+
 - Are graph relationships typed accurately?
+
 - Is a reconstructed flow clearly distinguished from a direct flow?
+
 - Were benign alternatives tested?
+
 - What evidence most strongly contradicts the assessment?
+
 - Does confidence match evidence quality and gaps?
+
 - Is personal data necessary and proportionate?
+
 - Could wording imply guilt beyond the evidence?
 
 ## 24.2 Red-team review triggers
@@ -591,17 +718,21 @@ High/Critical cases, major public allegations, cases involving vulnerable person
 ## 24.3 Review outcomes
 
 - APPROVE.
+
 - APPROVE WITH CONDITIONS.
+
 - RETURN FOR ANALYSIS.
+
 - NARROW OR REDACT.
+
 - DO NOT DISSEMINATE.
 
 # 25. Dissemination, Referral, and Publication
 
 The same analysis may require different products for internal decision-makers, trusted partners, competent authorities, or public publication. Dissemination SHALL be purpose-limited.
 
-| Product | Typical audience | Characteristics |
-| --- | --- | --- |
+| **Product** | **Typical audience** | **Characteristics** |
+|----|----|----|
 | Analytical Note | Internal team | Rapid, clearly caveated, may contain unresolved leads. |
 | Investigation Brief | Management/partner | Structured findings, graph/timeline, confidence, gaps. |
 | Financial Intelligence Package | Competent authority / trusted specialist | Evidence index, entity profiles, source provenance, value-flow analysis, typology/hypothesis assessment, handling caveats. |
@@ -611,9 +742,13 @@ The same analysis may require different products for internal decision-makers, t
 ## 25.1 Dissemination classification
 
 - INTERNAL — organisation only.
+
 - RESTRICTED — named project/partner group.
+
 - CONFIDENTIAL — need-to-know, sensitive sources or data.
+
 - REFERRAL — prepared for competent authority or designated recipient.
+
 - PUBLIC — approved for public release.
 
 ## 25.2 Referral threshold
@@ -631,22 +766,35 @@ Cases SHALL be closed, suspended, converted to monitoring, or escalated; they SH
 ## 26.1 Closure reasons
 
 - Question answered.
+
 - Hypothesis rejected or unsupported.
+
 - Insufficient lawful evidence and no proportionate collection path.
+
 - Referred to competent authority or partner.
+
 - Merged into network investigation.
+
 - Risk exceeds organisational capacity.
+
 - Public-interest rationale no longer sufficient.
 
 ## 26.2 Closure record
 
 - Disposition.
+
 - Final key judgement.
+
 - Confidence.
+
 - Unresolved gaps.
+
 - Disseminations/referrals.
+
 - Retention/destruction decision.
+
 - Monitoring triggers, if any.
+
 - Lessons learned and typology updates.
 
 ## 26.3 Reopening triggers
@@ -660,24 +808,37 @@ Quality assurance assesses whether the methodology was followed and whether anal
 ## 27.1 Minimum QA checks
 
 - Case charter completeness.
+
 - Source and provenance completeness.
+
 - Evidence integrity.
+
 - Fact/claim separation.
+
 - Entity-resolution decisions.
+
 - Relationship evidence links.
+
 - Value-flow classification.
+
 - Typology use and caveats.
+
 - Hypothesis testing.
+
 - Confidence calibration.
+
 - Gap visibility.
+
 - Peer review.
+
 - Dissemination approval.
+
 - Retention compliance.
 
 ## 27.2 Effectiveness metrics
 
-| Metric family | Examples |
-| --- | --- |
+| **Metric family** | **Examples** |
+|----|----|
 | Quality | % key judgements with direct evidence links; peer-review rework rate; identity-merge reversal rate. |
 | Timeliness | Time from intake to triage; time to first analytical assessment; referral preparation time. |
 | Actionability | % referrals acknowledged; partner feedback; information requests generated by product. |
@@ -692,20 +853,35 @@ Metrics SHALL NOT reward volume of suspects, allegations, or personal data colle
 Technology supports methodology; it does not replace analyst judgement. Any CS-AML platform SHOULD implement the following methodological controls.
 
 - Case and scope management.
+
 - Source registry and immutable provenance fields.
+
 - Evidence repository with hashing/versioning.
+
 - Claim/fact/indicator objects.
+
 - Reusable entity store with reversible entity merges.
+
 - Typed, dated, evidence-linked relationships.
+
 - Asset and event models.
+
 - Direct/documented/reconstructed/hypothetical value-flow classes.
+
 - Typology worksheets linked to Catalogue IDs.
+
 - Hypothesis matrix and disconfirming evidence.
+
 - Confidence and intelligence-gap fields.
+
 - Role-based access and sensitive-source compartmentalisation.
+
 - Peer review and approval workflow.
+
 - Audit history.
+
 - Controlled export/redaction.
+
 - Cross-case correlation with access-aware filtering.
 
 ## 28.1 Automation and AI
@@ -714,8 +890,8 @@ Automation MAY assist extraction, translation, entity suggestions, document clas
 
 # 29. Roles, Competencies, and Separation of Duties
 
-| Role | Core responsibilities | Minimum competency |
-| --- | --- | --- |
+| **Role** | **Core responsibilities** | **Minimum competency** |
+|----|----|----|
 | Case Owner | Purpose, scope, resources, closure | Public-interest rationale; risk judgement; governance. |
 | Lead Analyst | Analysis plan, hypotheses, assessment | Financial investigation concepts; structured analysis; writing. |
 | Collector/Researcher | Lawful acquisition, provenance | OSINT/research methods; source handling. |
@@ -732,27 +908,43 @@ Small organisations MAY combine roles, but high-impact dissemination SHOULD pres
 An implementation claiming alignment with CS-AML Investigation Methodology v0.1 SHALL demonstrate the following minimum artefacts for a material investigation:
 
 - Intake/Triage Record.
+
 - Investigation Charter.
+
 - Investigation Risk Assessment.
+
 - Collection Plan.
+
 - Source Register.
+
 - Evidence Register.
+
 - Entity Resolution Decisions for contested/high-impact identities.
+
 - Relationship/Asset/Event records linked to evidence.
+
 - Value-Flow Worksheet where economic movement is material.
+
 - Typology Worksheet where a typology is referenced.
+
 - Hypothesis Matrix including contradictory/disconfirming evidence.
+
 - Intelligence Gap Register.
+
 - Assessment with confidence statement.
+
 - Peer Review Record.
+
 - Dissemination/Referral Approval.
+
 - Closure or Monitoring Record.
+
 - Audit history sufficient to reconstruct material changes.
 
 ## 30.1 Methodology conformance levels
 
-| Level | Characteristics |
-| --- | --- |
+| **Level** | **Characteristics** |
+|----|----|
 | M1 — Basic | Manual artefacts; minimum provenance, hypothesis, peer review, dissemination approval. |
 | M2 — Operational | Structured registers, formal risk review, entity resolution, typology/value-flow worksheets, QA. |
 | M3 — Integrated | Technology-enforced provenance, graph/value-flow integration, cross-case controls, role-based workflow, metrics. |
@@ -760,107 +952,173 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1 
 
 # 31. Standard Operating Sequence
 
-```text
+``` text
 01 Receive intake
+```
+
+``` text
 02 Preserve original intake
+```
+
+``` text
 03 Triage legitimacy and urgency
+```
+
+``` text
 04 Create Investigation Charter
+```
+
+``` text
 05 Perform risk/harm review
+```
+
+``` text
 06 Define Information Requirements
+```
+
+``` text
 07 Approve Collection Plan
+```
+
+``` text
 08 Collect and preserve sources
+```
+
+``` text
 09 Register evidence and provenance
+```
+
+``` text
 10 Resolve core entities
+```
+
+``` text
 11 Build relationships, assets, and events
+```
+
+``` text
 12 Construct timeline
+```
+
+``` text
 13 Map direct/documented value flows
+```
+
+``` text
 14 Reconstruct value flows where justified
+```
+
+``` text
 15 Map candidate typologies
+```
+
+``` text
 16 Create/test competing hypotheses
+```
+
+``` text
 17 Identify contradictory evidence and gaps
+```
+
+``` text
 18 Draft key judgements and confidence
+```
+
+``` text
 19 Peer/red-team review
+```
+
+``` text
 20 Legal/privacy/publication review where applicable
+```
+
+``` text
 21 Approve dissemination/referral/publication
+```
+
+``` text
 22 Close, monitor, or reopen
+```
+
+``` text
 23 Capture lessons and typology updates
 ```
 
 # 32. Annex A — Investigation Charter Template
 
-| Field | Template prompt |
-| --- | --- |
-| Case ID / Title |  |
-| Public-interest purpose | Why is this investigation justified? |
-| Primary question | What specific question must be answered? |
-| Secondary questions |  |
-| Subjects / entities |  |
-| Excluded scope |  |
-| Time period |  |
-| Jurisdictions |  |
-| Predicate issue(s) | Established / alleged / unknown |
-| Initial hypotheses | Include plausible benign alternative |
-| Expected data classes |  |
-| Sensitive data expected |  |
-| Expected outputs |  |
-| Risk level | Low / Moderate / High / Critical |
-| Required reviewers |  |
-| Review date |  |
-| Stop conditions |  |
+| **Field**               | **Template prompt**                      |
+|-------------------------|------------------------------------------|
+| Case ID / Title         |                                          |
+| Public-interest purpose | Why is this investigation justified?     |
+| Primary question        | What specific question must be answered? |
+| Secondary questions     |                                          |
+| Subjects / entities     |                                          |
+| Excluded scope          |                                          |
+| Time period             |                                          |
+| Jurisdictions           |                                          |
+| Predicate issue(s)      | Established / alleged / unknown          |
+| Initial hypotheses      | Include plausible benign alternative     |
+| Expected data classes   |                                          |
+| Sensitive data expected |                                          |
+| Expected outputs        |                                          |
+| Risk level              | Low / Moderate / High / Critical         |
+| Required reviewers      |                                          |
+| Review date             |                                          |
+| Stop conditions         |                                          |
 
 # 33. Annex B — Collection Plan Template
 
-| IR ID | Information Requirement | Priority | Source classes | Method | Lawful-access note | Sensitivity | Success/stop condition |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| **IR ID** | **Information Requirement** | **Priority** | **Source classes** | **Method** | **Lawful-access note** | **Sensitivity** | **Success/stop condition** |
+|----|----|----|----|----|----|----|----|
 | IR-01 |  |  |  |  |  |  |  |
 | IR-02 |  |  |  |  |  |  |  |
 | IR-03 |  |  |  |  |  |  |  |
 
 # 34. Annex C — Source & Evidence Evaluation Template
 
-| Field | Entry |
-| --- | --- |
-| Source ID |  |
-| Evidence ID |  |
-| Source type |  |
-| Origin / URL / provider |  |
-| Acquisition date/time |  |
-| Collection method |  |
-| Lawful-access note |  |
-| Reliability rating (A–F) |  |
-| Information credibility (1–6) |  |
-| Hash / preservation |  |
-| Sensitivity / handling |  |
-| Related claims |  |
-| Verification notes |  |
+| **Field**                     | **Entry** |
+|-------------------------------|-----------|
+| Source ID                     |           |
+| Evidence ID                   |           |
+| Source type                   |           |
+| Origin / URL / provider       |           |
+| Acquisition date/time         |           |
+| Collection method             |           |
+| Lawful-access note            |           |
+| Reliability rating (A–F)      |           |
+| Information credibility (1–6) |           |
+| Hash / preservation           |           |
+| Sensitivity / handling        |           |
+| Related claims                |           |
+| Verification notes            |           |
 
 # 35. Annex D — Entity Resolution Decision Template
 
-| Field | Entry |
-| --- | --- |
-| Candidate records |  |
-| Proposed entity |  |
-| Matching attributes |  |
-| Conflicting attributes |  |
-| Evidence |  |
-| Decision | MERGED / LINKED-POSSIBLE / SEPARATE / UNRESOLVED |
-| Confidence | LOW / MODERATE / HIGH |
-| Analyst |  |
-| Reviewer |  |
-| Date |  |
-| Reversal notes |  |
+| **Field**              | **Entry**                                        |
+|------------------------|--------------------------------------------------|
+| Candidate records      |                                                  |
+| Proposed entity        |                                                  |
+| Matching attributes    |                                                  |
+| Conflicting attributes |                                                  |
+| Evidence               |                                                  |
+| Decision               | MERGED / LINKED-POSSIBLE / SEPARATE / UNRESOLVED |
+| Confidence             | LOW / MODERATE / HIGH                            |
+| Analyst                |                                                  |
+| Reviewer               |                                                  |
+| Date                   |                                                  |
+| Reversal notes         |                                                  |
 
 # 36. Annex E — Value-Flow Worksheet
 
-| Flow ID | Origin | Destination/asset | Value | Date | Mechanism | Class | Evidence | Confidence | Assumptions/gaps |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Flow ID** | **Origin** | **Destination/asset** | **Value** | **Date** | **Mechanism** | **Class** | **Evidence** | **Confidence** | **Assumptions/gaps** |
+|----|----|----|----|----|----|----|----|----|----|
 | VF-01 |  |  |  |  |  |  |  |  |  |
 | VF-02 |  |  |  |  |  |  |  |  |  |
 
 # 37. Annex F — Typology Worksheet
 
-| Field | Entry |
-| --- | --- |
+| **Field** | **Entry** |
+|----|----|
 | Typology ID / name |  |
 | Observed mechanism |  |
 | M indicators |  |
@@ -875,58 +1133,84 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1 
 
 # 38. Annex G — Hypothesis Matrix Template
 
-| Evidence / observation | H1 | H2 | H3 | Diagnosticity / notes |
-| --- | --- | --- | --- | --- |
-|  |  |  |  |  |
-|  |  |  |  |  |
-|  |  |  |  |  |
-|  |  |  |  |  |
+| **Evidence / observation** | **H1** | **H2** | **H3** | **Diagnosticity / notes** |
+|----------------------------|--------|--------|--------|---------------------------|
+|                            |        |        |        |                           |
+|                            |        |        |        |                           |
+|                            |        |        |        |                           |
+|                            |        |        |        |                           |
 
 # 39. Annex H — Intelligence Gap Register
 
-| Gap ID | Question / missing fact | Impact | Priority | Collection option | Owner | Status |
-| --- | --- | --- | --- | --- | --- | --- |
+| **Gap ID** | **Question / missing fact** | **Impact** | **Priority** | **Collection option** | **Owner** | **Status** |
+|----|----|----|----|----|----|----|
 | G-01 |  |  |  |  |  |  |
 | G-02 |  |  |  |  |  |  |
 
 # 40. Annex I — Peer Review Checklist
 
 - Investigation question remains within approved scope.
+
 - Key facts are evidence-linked and time-bounded.
+
 - Contested entities are resolved appropriately.
+
 - Relationships do not overstate control or ownership.
+
 - Direct and reconstructed value flows are visually/textually distinct.
+
 - Typology analysis includes disconfirming indicators and gaps.
+
 - Leading hypothesis has been challenged.
+
 - Alternative explanations are fairly represented.
+
 - Confidence matches evidence and uncertainty.
+
 - Sensitive personal data are necessary and minimised.
+
 - Key judgements are not stronger than the evidence.
+
 - Referral/publication wording distinguishes fact, assessment, and allegation.
 
 # 41. Annex J — Intelligence Product Template
 
 - Document control and handling classification.
+
 - Executive assessment / Key Judgements.
+
 - Investigation question and scope.
+
 - Method and limitations.
+
 - Key entities and relationships.
+
 - Timeline.
+
 - Asset analysis.
+
 - Value-flow analysis.
+
 - Typology analysis.
+
 - Hypothesis assessment.
+
 - Contradictory/disconfirming evidence.
+
 - Confidence statement.
+
 - Intelligence gaps.
+
 - Source/evidence index.
+
 - Recommended next steps.
+
 - Dissemination and redaction notes.
 
 # 42. Annex K — Closure / Monitoring Record
 
-| Field | Entry |
-| --- | --- |
+| **Field** | **Entry** |
+|----|----|
 | Case ID |  |
 | Disposition | Closed / Suspended / Monitoring / Referred / Merged |
 | Final key judgement |  |
@@ -941,8 +1225,8 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1 
 
 # 43. Glossary
 
-| Term | CS-AML meaning |
-| --- | --- |
+| **Term** | **CS-AML meaning** |
+|----|----|
 | Assessment | A reasoned analytical judgement that states confidence, basis, caveats, and gaps. |
 | Claim | A proposition asserted by a source; not automatically accepted as fact. |
 | Evidence | A preserved item or extract supporting or contradicting a proposition. |
@@ -957,13 +1241,21 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1 
 # 44. References and Source Lineage
 
 - Financial Action Task Force (FATF), The FATF Recommendations, as amended June 2026.
+
 - FATF, Money Laundering National Risk Assessment Guidance, updated 28 August 2025.
+
 - FATF, Financial Investigations Guidance (Operational Issues).
+
 - FATF, Investigating Professional Money Laundering, Underground Banking, and the Use of Hawala and Other Similar Service Providers, 3 September 2026.
+
 - United Nations Office on Drugs and Crime (UNODC), Civil Society Guide to the UNCAC / civil-society entry points for asset tracing and recovery.
+
 - UNODC, Manual on International Cooperation for the Purposes of Confiscation of Proceeds of Crime — asset tracing sections.
+
 - PPATK, Klinik Dumas Special Edition: PPATK dan NGO/CSO Perkuat Aduan TPPU melalui peluncuran lapor.ppatk.go.id, 26 November 2025.
+
 - CS-AML Framework v0.1 Expanded Normative Specification.
+
 - CS-AML Typology Catalogue v0.1.
 
 Reference lineage informs the methodology but does not transform CS-AML into an official FATF, UNODC, PPATK, FIU, law-enforcement, or regulated-entity standard. Jurisdiction-specific legal advice remains necessary for sensitive collection, data processing, referral, and publication decisions.
