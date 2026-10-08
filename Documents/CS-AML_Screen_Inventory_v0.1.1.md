@@ -280,7 +280,7 @@ Total canonical MVP screen IDs: 53 = 50 working screens + 3 system-state screens
 |----|----|
 | Canonical route / context | /evidence/{evidence_id}/extracts/new |
 | Primary roles | Investigator |
-| Purpose | Create precise page/paragraph/region extracts linked to original context. From an extract the user MAY record a source-attributed claim and MAY propose a PROVISIONAL fact; fact creation requires source claim and/or evidence references and a verification decision, and an extract is never promoted to a fact without one. *[v0.1.1 · A10]* |
+| Purpose | Create precise page/paragraph/region extracts linked to original context. From an extract the user MAY record a source-attributed claim and MAY propose a PROVISIONAL fact supported by evidence (mandatory) and, optionally, that claim; fact creation requires supporting evidence references and a decision rationale, and the system records the creation decision together with the fact *[v0.1.1 · C01]* *[v0.1.1 · C02]*. The claim itself is never converted into a fact, and no fact is created from an extract without a verification decision. *[v0.1.1 · A10]* |
 | Primary objects | EvidenceExtract, Claim, Fact (provisional proposal) *[v0.1.1 · A10]* |
 | Required states | selecting, editing, validation-error, saved |
 | Priority | P0 |
@@ -348,8 +348,8 @@ Total canonical MVP screen IDs: 53 = 50 working screens + 3 system-state screens
 |----|----|
 | Canonical route / context | /entities/matches/{match_id} |
 | Primary roles | Data Steward |
-| Purpose | Compare candidates side-by-side and merge, reject or defer. |
-| Primary objects | Entity, EntityMatchCandidate |
+| Purpose | Compare candidates side-by-side and merge, reject or defer. Each outcome is recorded as a ResolutionDecision (`MERGE`, `KEEP_SEPARATE` for reject, `DEFER`, or `POSSIBLE_MATCH`). *[v0.1.1 · ER]* |
+| Primary objects | Entity, EntityMatchCandidate, ResolutionDecision *[v0.1.1 · ER]* |
 | Required states | candidate, merge-confirmation, rejected, deferred |
 | Priority | P0 |
 
@@ -359,8 +359,8 @@ Total canonical MVP screen IDs: 53 = 50 working screens + 3 system-state screens
 |----|----|
 | Canonical route / context | /entities/{entity_id}/resolution |
 | Primary roles | Data Steward |
-| Purpose | Inspect merge rationale/history and reverse supported merges. |
-| Primary objects | MergeDecision, Entity |
+| Purpose | Inspect merge rationale/history and reverse supported merges. Shows the entity's append-only ResolutionDecision history; unmerge records an `UNMERGE` decision referencing the reversed `MERGE`. *[v0.1.1 · ER]* |
+| Primary objects | ResolutionDecision (v0.1 name: MergeDecision), Entity *[v0.1.1 · ER]* |
 | Required states | default, confirmation, conflict |
 | Priority | P0 |
 
@@ -752,4 +752,4 @@ Total canonical MVP screen IDs: 53 = 50 working screens + 3 system-state screens
 
 - Screen → wireframe pattern mapping is consistent across this inventory, the Wireframe Specification, the High-Fidelity UI Specification and component composition (e.g. SCR-CASE-001 Case Register uses WF-PAT-01 Register/List). *[v0.1.1 · A15]*
 
-> **Claim and Fact screens (proposed, pending product-owner approval).** The Claim and Fact lifecycle (claim_status, VerificationDecision, fact promotion and revision) is served by the existing screens SCR-SRC-002, SCR-EVD-003, SCR-EVD-004 rather than new screen IDs. When a fact becomes DISPUTED or SUPERSEDED, dependent assessments and products show a `review_required` flag linking to the triggering decision on SCR-ASM-002 and SCR-PRD-004. Whether a dedicated case-level claim/fact register is needed is an open item. *[v0.1.1 · A10]*
+> **Claim and Fact screens (approved by product owner, 2026-10-08).** The Claim and Fact lifecycle (claim_status, VerificationDecision, fact creation and revision) is served by the existing screens SCR-SRC-002, SCR-EVD-003, SCR-EVD-004 rather than new screen IDs. When a fact becomes DISPUTED or SUPERSEDED, dependent assessments and products show a `review_required` flag linking to the triggering decision on SCR-ASM-002 and SCR-PRD-004. Whether a dedicated case-level claim/fact register is needed is an open item. *[v0.1.1 · A10]*

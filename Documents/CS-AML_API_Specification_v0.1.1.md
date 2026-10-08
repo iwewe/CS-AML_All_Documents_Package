@@ -99,7 +99,7 @@ X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 | X-CSRFToken | Request | Django CSRF token; REQUIRED on every unsafe method (§4). *[v0.1.1 · A11]* |
 | X-Request-ID | Both | Correlation ID; server generates when absent. |
 | ETag | Response | `"<record_version>"` returned on GET of every versioned resource (§10). *[v0.1.1 · A04]* |
-| If-Match | Request | `"<record_version>"`; REQUIRED on mutations of versioned resources (§10). Missing → 428; stale → 412. *[v0.1.1 · A04]* |
+| If-Match | Request | `"<record_version>"`; REQUIRED on mutations of versioned resources (§10). Missing → 428; stale → 412. *[v0.1.1 · A04]* Exception: multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions) send a body map `expected_versions` instead (missing → 428, mismatch → 412 with `details.current_record_versions`; §10, §14). *[v0.1.1 · C03]* |
 | Idempotency-Key | Request | UUID; REQUIRED or SHOULD per §11. *[v0.1.1 · A11]* |
 | Idempotent-Replayed | Response | `true` when the response is a replay of an earlier request with the same Idempotency-Key (§11). *[v0.1.1 · A11]* |
 | Retry-After | Response | Rate limit/async polling guidance; also sent with 409 IDEMPOTENCY_IN_PROGRESS. *[v0.1.1 · A11]* |
@@ -145,8 +145,10 @@ X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 # 8. Pagination, Sorting and Filtering
 
 ``` text
-GET /api/v1/entities?case_id=...&type=COMPANY&status=CONFIRMED&classification=RESTRICTED,SOURCE_PROTECTED&sort=-updated_at&page[size]=50&page[after]=...
+GET /api/v1/entities?case_id=...&type=ORGANIZATION&resolution_status=RESOLVED&classification=RESTRICTED,SOURCE_PROTECTED&sort=-updated_at&page[size]=50&page[after]=...
 ```
+
+Filter values are registry wire values: `type` is an `entity_type`, `resolution_status` an `entity_resolution_status` (`schemas/enums.yaml`). *[v0.1.1 · C14]*
 
 | **Concern** | **Baseline** |
 |----|----|
@@ -179,10 +181,10 @@ GET /api/v1/entities?case_id=...&type=COMPANY&status=CONFIRMED&classification=RE
 | 403/404 | ACCESS_DENIED / NOT_FOUND | Deployment/policy chooses non-disclosing behavior consistently. |
 | 409 | STATE_CONFLICT | Workflow/business-state conflict only (e.g. gate not satisfied, object already finalized, approving a rejected item). Not used for stale versions. *[v0.1.1 · A04]* |
 | 409 | IDEMPOTENCY_IN_PROGRESS | A request with the same Idempotency-Key is still in flight; `Retry-After` included (§11). *[v0.1.1 · A11]* |
-| 412 | PRECONDITION_FAILED | `If-Match` does not match the current `record_version`; `details.current_record_version` included. No silent overwrite. *[v0.1.1 · A04]* |
+| 412 | PRECONDITION_FAILED | `If-Match` does not match the current `record_version`; `details.current_record_version` included. No silent overwrite. *[v0.1.1 · A04]* Multi-entity commands (§10, §14): an `expected_versions` entry does not match; `details.current_record_versions` (map of entityId → current record_version) included. *[v0.1.1 · C03]* |
 | 422 | VALIDATION_FAILED | Field/domain validation. |
 | 422 | IDEMPOTENCY_KEY_REUSED | Same Idempotency-Key reused with a different payload (§11). *[v0.1.1 · A11]* |
-| 428 | PRECONDITION_REQUIRED | Mutation of a versioned resource sent without `If-Match`. *[v0.1.1 · A04]* |
+| 428 | PRECONDITION_REQUIRED | Mutation of a versioned resource sent without `If-Match`. *[v0.1.1 · A04]* Multi-entity commands (§10, §14): `expected_versions` missing or not covering every subject entity. *[v0.1.1 · C03]* |
 | 429 | RATE_LIMITED | Request rate or expensive operation threshold exceeded. |
 | 500 | INTERNAL_ERROR | Safe generic message; request ID for support. |
 | 503 | DEPENDENCY_UNAVAILABLE | Temporary backend dependency failure. |
@@ -202,7 +204,7 @@ The error envelope above (`error.code`, `message`, `request_id`, `details`, `fie
 
 - Versioned resources SHALL return `ETag: "<record_version>"` on GET. *[v0.1.1 · A04]*
 
-- Mutations of versioned resources (PATCH/PUT/DELETE and state-changing commands on a versioned resource) SHALL send `If-Match: "<record_version>"`. Missing `If-Match` → **428 PRECONDITION_REQUIRED**. *[v0.1.1 · A04]*
+- Mutations of versioned resources (PATCH/PUT/DELETE and state-changing commands on a versioned resource) SHALL send `If-Match: "<record_version>"`. Missing `If-Match` → **428 PRECONDITION_REQUIRED**. *[v0.1.1 · A04]* Exception: multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions) send a body map `expected_versions` instead (missing → 428, mismatch → 412 with `details.current_record_versions`; §10, §14). *[v0.1.1 · C03]*
 
 - Stale `If-Match` → **412 PRECONDITION_FAILED** with `details.current_record_version` and other safe metadata needed for recovery; the API SHALL NOT silently overwrite. *[v0.1.1 · A04]*
 
@@ -211,6 +213,8 @@ The error envelope above (`error.code`, `message`, `request_id`, `details`, `fie
 - **409 STATE_CONFLICT** is reserved for workflow/business-state conflicts. Approvals, merges, dissemination and assessment finalization SHALL validate both the precondition (412) and current workflow state (409), in the evaluation order of §9. *[v0.1.1 · A04]*
 
 - A retried request carrying the same `Idempotency-Key` replays the original result (§11) instead of failing with 412. *[v0.1.1 · A04, A11]*
+
+- Commands that mutate several versioned resources at once (entity merge/unmerge, resolution decisions and match-candidate decisions, §14) carry their preconditions in a body map `expected_versions` instead of `If-Match`: missing or incomplete → 428, mismatch → 412 with `details.current_record_versions`. An RFC 9110 `If-Match` list passes if any single tag matches, so it cannot guard several resources. *[v0.1.1 · A04]* The map is checked in the precondition step of §9 and is therefore not listed as `required` in the JSON schema, so that a missing map yields 428, not 422. *[v0.1.1 · C03]*
 
 - Immutable/audit resources reject ordinary update/delete methods.
 
@@ -277,7 +281,7 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | GET/PATCH | /sources/{sourceId} | Source detail/update. |
 | GET | /evidence | Authorized evidence library. |
 | POST | /evidence/uploads | Initiate upload session. |
-| PUT/POST | /evidence/uploads/{uploadId}/content | Stream/upload bytes or receive pre-signed target according to deployment. |
+| PUT | /evidence/uploads/{uploadId}/content | Stream/upload bytes (PUT only). *[v0.1.1 · C18]* |
 | POST | /evidence/uploads/{uploadId}/complete | Finalize immutable evidence record and hash. |
 | GET | /evidence/{evidenceId} | Evidence metadata. |
 | GET | /evidence/{evidenceId}/content | Authorized content stream/download; supports range where safe. |
@@ -297,9 +301,23 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | GET/PATCH | /entities/{entityId} | Canonical entity detail/update. |
 | GET | /entities/{entityId}/identifiers | Identifiers/aliases with provenance. |
 | GET | /entity-match-candidates | Candidate duplicates. |
-| POST | /entity-match-candidates/{id}/decisions | Mark same/distinct/unresolved/defer. |
-| POST | /entities/merge | Version-aware merge action. |
-| POST | /entity-merges/{mergeId}/unmerge | Controlled reversal. |
+| POST | /entity-match-candidates/{id}/decisions | Record a ResolutionDecision on the candidate's subject entities with wire value `KEEP_SEPARATE` (distinct), `POSSIBLE_MATCH` (possible) or `DEFER` (unresolved or deferred; Methodology §12.2 maps UNRESOLVED → `DEFER`). A same-entity outcome is recorded as `MERGE` through `POST /entities/merge`, not here. *[v0.1.1 · ER]* *[v0.1.1 · C06]* |
+| POST | /entities/merge | Version-aware merge action; creates a `MERGE` ResolutionDecision. *[v0.1.1 · ER]* |
+| POST | /entity-merges/{mergeId}/unmerge | Controlled reversal; `{mergeId}` is the id of the `MERGE` ResolutionDecision; creates an `UNMERGE` ResolutionDecision with `reverses_decision_ref` = `{mergeId}`. *[v0.1.1 · ER]* |
+| GET | /entities/{entityId}/resolution-decisions | Append-only ResolutionDecision history for the entity. *[v0.1.1 · ER]* |
+| POST | /resolution-decisions | Record a `POSSIBLE_MATCH`, `KEEP_SEPARATE` or `DEFER` ResolutionDecision. `MERGE`/`UNMERGE` are rejected here (422) and use the commands above. *[v0.1.1 · ER]* |
+
+| **Concern** | **Rule** *[v0.1.1 · ER]* |
+|----|----|
+| ResolutionDecision | Fields per Data Model §8.4: `subject_entity_refs` (2..n), `decision` (`MERGE`, `KEEP_SEPARATE`, `POSSIBLE_MATCH`, `DEFER`, `UNMERGE`), `surviving_entity_ref` (required for `MERGE`), `reverses_decision_ref` (required for `UNMERGE`), `matching_attributes`, `conflicting_attributes`, `evidence_refs` (1..n), `confidence`, `rationale`, `decided_by` / `decided_at` (server-resolved), `reviewer_ref` (required for high-impact `MERGE`/`UNMERGE`; SHALL differ from `decided_by`, otherwise 403). Append-only: no PATCH/DELETE; corrections are new decisions. Missing conditional fields → 422. |
+| Entity state | `resolution_status` (`UNRESOLVED`, `RESOLVED`, `CONFLICTED`, `MERGED`, `SPLIT`) is read-only on `PATCH /entities/{entityId}`; it changes only as the effect of a ResolutionDecision (Data Model §8.4, DM-I15). |
+| Preconditions | Multi-entity commands (`POST /entities/merge`, `POST /entity-merges/{mergeId}/unmerge`, `POST /resolution-decisions`, `POST /entity-match-candidates/{id}/decisions`) SHALL send a body map `expected_versions: {<entityId>: <record_version>}` covering every subject entity (checked as a precondition, not as a schema-required field; §10). *[v0.1.1 · C03]* Missing map (or a subject entity missing from it) → 428 PRECONDITION_REQUIRED; any mismatch → 412 PRECONDITION_FAILED with `details.current_record_versions` (map of entityId → current record_version). An `If-Match` header is not used for these commands: under RFC 9110 an `If-Match` list passes if any single tag matches, so it cannot guard several resources at once. *[v0.1.1 · A04]* Idempotency-Key REQUIRED for `MERGE`/`UNMERGE` (§11), SHOULD for other decisions. |
+| Re-suggestion | A pair with a `KEEP_SEPARATE` decision SHALL NOT reappear in `/entity-match-candidates` unless new evidence is attached to either subject. |
+
+Relationship and asset endpoints: *[v0.1.1 · C07]*
+
+| **Method** | **Endpoint** | **Purpose** |
+|----|----|----|
 | GET/POST | /relationships | First-class relationships. |
 | GET/PATCH | /relationships/{relationshipId} | Relationship detail/update. |
 | GET/POST | /assets | Asset registry. |
@@ -333,35 +351,36 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | GET/POST | /intelligence-gaps | Explicit unknowns. |
 | GET/POST | /assessments | Draft/versioned assessments. |
 | POST | /assessments/{id}/finalize | Controlled finalization action. |
+| POST | /assessments/{assessmentId}/disconfirming-searches | Append an entry to `Assessment.disconfirming_searches[]` (Data Model §13.3; SRS-FR-ASM-004): `searched_for`, `sources_consulted[]` (each `source_ref` and/or `description`), `result`, `rationale`; `recorded_by`/`recorded_at` are server-set. `If-Match` carries the assessment `record_version` (missing → 428, stale → 412); returns 201. *[v0.1.1 · C10]* |
 | GET | /assessments/{id}/provenance | Backward trace to hypotheses/facts/evidence. |
 
 > **Confidence semantics** *[v0.1.1 · A09]*  
-> `confidence.level` takes one of `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`; `confidence.rationale` is mandatory for every level. `INSUFFICIENT_BASIS` means a judgement was attempted but the evidential basis is insufficient; it is not a level below `LOW`, and the API SHALL NOT convert it to `LOW`, `null`, zero, or omit it, in any request, response, filter, sort or export. `null` is allowed only on drafts where no confidence judgement has been made yet; `POST /assessments/{id}/finalize` SHALL reject a null level (422). No normalization may raise certainty.
+> `confidence.level` takes one of `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`; `confidence.basis` (Data Model §14.1) is mandatory for every level. `INSUFFICIENT_BASIS` means a judgement was attempted but the evidential basis is insufficient; it is not a level below `LOW`, and the API SHALL NOT convert it to `LOW`, `null`, zero, or omit it, in any request, response, filter, sort or export. `null` is allowed only on drafts where no confidence judgement has been made yet; `POST /assessments/{id}/finalize` SHALL reject a null level (422). No normalization may raise certainty.
 
 # 16A. Claim and Fact API
 
-*[v0.1.1 · A10]* — Proposed in the v0.1.1 remediation; **requires product-owner approval** before implementation. Resource semantics follow Data Model §7.4 (Claim) and §7.5 (Fact). The paths follow this document's existing style for workflow decisions (`/resource/{id}/action` sub-paths, as in `/assessments/{id}/finalize`).
+*[v0.1.1 · A10]* — Approved by product owner, 2026-10-08. Resource semantics follow Data Model §7.4 (Claim) and §7.5 (Fact). The paths follow this document's existing style for workflow decisions (`/resource/{id}/action` sub-paths, as in `/assessments/{id}/finalize`).
 
 | **Method** | **Endpoint** | **Purpose** |
 |----|----|----|
 | GET/POST | /cases/{caseId}/claims | List/record source claims for a case (attributed to a source and/or evidence extract). |
-| GET/PATCH | /claims/{claimId} | Claim detail; version-aware update of descriptive metadata and `claim_status`. The asserted proposition is never overwritten by analyst conclusions. |
-| POST | /claims/{claimId}/verification-decisions | Record an append-only VerificationDecision on a claim. |
-| GET/POST | /cases/{caseId}/facts | List facts; propose ("promote") a new fact, created as `PROVISIONAL`. |
+| GET/PATCH | /claims/{claimId} | Claim detail; version-aware update of descriptive and handling metadata only (e.g. `credibility_grade`). `claim_status` is read-only here and changes only through a VerificationDecision. The asserted proposition is never overwritten by analyst conclusions. *[v0.1.1 · A10]* |
+| POST | /claims/{claimId}/verification-decisions | Record an append-only VerificationDecision on a claim. Accepts claim decision values only (`UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`); fact decisions are created by the fact commands below. `If-Match` on the claim is REQUIRED. *[v0.1.1 · C01]* *[v0.1.1 · C18]* |
+| GET/POST | /cases/{caseId}/facts | List facts; create a new fact supported by evidence (mandatory) and, optionally, claims, created as `PROVISIONAL` together with its `CREATE` VerificationDecision in one transaction. Supporting claims are not modified. *[v0.1.1 · A10]* *[v0.1.1 · C01]* *[v0.1.1 · C02]* |
 | GET | /facts/{factId} | Fact detail, including verification history and `superseded_by`. |
-| POST | /facts/{factId}/establish | Move a fact to `ESTABLISHED` (reviewer decision). |
-| POST | /facts/{factId}/dispute | Move a fact to `DISPUTED` with evidence. |
-| POST | /facts/{factId}/supersede | Move a fact to `SUPERSEDED` with a replacement fact reference. |
+| POST | /facts/{factId}/establish | Move a fact to `ESTABLISHED` (reviewer decision); atomically records the `ESTABLISH` VerificationDecision (rationale and evidence refs in the body). *[v0.1.1 · C01]* |
+| POST | /facts/{factId}/dispute | Move a fact to `DISPUTED` with evidence; atomically records the `DISPUTE` VerificationDecision (rationale and evidence refs in the body). *[v0.1.1 · C01]* |
+| POST | /facts/{factId}/supersede | Move a fact to `SUPERSEDED` with a replacement fact reference; atomically records the `SUPERSEDE` VerificationDecision (rationale and evidence refs in the body). *[v0.1.1 · C01]* |
 | GET | /facts/{factId}/dependents | Assessments and intelligence products that depend on the fact, with their `review_required` state. |
 
 | **Concern** | **Rule** |
 |----|----|
 | Claim status | `claim_status`: `RECORDED`, `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`. The `disputed` boolean is kept for compatibility and is derived (status `CONTRADICTED` or an open dispute); it is read-only. |
-| VerificationDecision | Fields: `target_ref` (claim or fact), `decision`, `rationale`, `evidence_refs`, `decided_by` (server-resolved principal), `decided_at`, `review_ref` (optional). Append-only: no PATCH/DELETE; corrections are new decisions. |
-| Fact promotion | `POST /cases/{caseId}/facts` SHALL include source claim refs and/or evidence refs and a VerificationDecision ref; otherwise 422. The new fact starts as `PROVISIONAL`. |
+| VerificationDecision | Fields: `target_ref` (claim or fact), `decision` (claims: `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`; facts: `CREATE`, `ESTABLISH`, `DISPUTE`, `SUPERSEDE` — Data Model §7.6) *[v0.1.1 · A10]*, `rationale`, `evidence_refs`, `decided_by` (server-resolved principal), `decided_at`, `review_ref` (optional). Append-only: no PATCH/DELETE; corrections are new decisions. |
+| Fact creation | `POST /cases/{caseId}/facts` SHALL include `supporting_evidence` (1..n, mandatory) and `decision_rationale` (required); `supporting_claim_refs` (0..n) and `review_ref` are optional. Missing `supporting_evidence` or `decision_rationale` → 422. The server creates the fact and its `CREATE` VerificationDecision (target = the new fact, `evidence_refs` = `supporting_evidence`) atomically in one transaction. `verification_decision_refs` is server-populated and read-only: it is not accepted in the request and the response returns it containing the new decision. The new fact starts as `PROVISIONAL`. A claim is never converted into a fact. *[v0.1.1 · A10]* *[v0.1.1 · C01]* *[v0.1.1 · C02]* |
 | Fact status | `fact_status`: `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`; `superseded_by` references the replacement fact. |
 | Permissions | Investigator/Analyst MAY record claims and propose `PROVISIONAL` facts. `establish` requires a Reviewer who is not the proposer (otherwise 403). Any authorized case member MAY `dispute` with evidence refs. `supersede` requires a replacement fact ref (otherwise 422). |
-| Preconditions | `PATCH /claims/{claimId}` and every fact command SHALL send `If-Match` (§10): missing → 428, stale → 412. An invalid transition (e.g. establishing a `SUPERSEDED` fact) → 409 STATE_CONFLICT. Commands SHOULD send `Idempotency-Key` (§11). |
+| Preconditions | `PATCH /claims/{claimId}`, `POST /claims/{claimId}/verification-decisions` (If-Match on the claim) and every fact command SHALL send `If-Match` (§10): missing → 428, stale → 412. *[v0.1.1 · C18]* An invalid transition (e.g. establishing a `SUPERSEDED` fact) → 409 STATE_CONFLICT. Commands SHOULD send `Idempotency-Key` (§11). |
 | Dependent impact | When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct is flagged `review_required` with a link to the triggering decision. Published products are never mutated; a correction review task is created. History is preserved. |
 | Certainty | A claim SHALL NOT be returned or exported as a fact without a VerificationDecision. |
 | Audit | Claim creation, every VerificationDecision and every fact status change emit audit events (§27). |
@@ -414,7 +433,7 @@ POST /api/v1/graph/query
 | GET | /reviews | Review queue. |
 | GET | /reviews/{reviewId} | Review workspace data. |
 | POST | /reviews/{reviewId}/request-changes | Decision action. |
-| POST | /reviews/{reviewId}/approve | Independent approval. |
+| POST | /reviews/{reviewId}/approve | Independent approval. Approving a review whose target is, or depends on, a high-impact or adverse assessment with no `disconfirming_searches` entry → 409 STATE_CONFLICT with `details.reason = "DISCONFIRMATION_REQUIRED"` (SRS-FR-ASM-004; enforced at review approval, not at finalization). *[v0.1.1 · C10]* |
 | POST | /reviews/{reviewId}/reject | Reject with rationale. |
 | POST | /disseminations | Create dissemination request. |
 | POST | /disseminations/{id}/approve | Authorize recipient/purpose/package scope. |
@@ -521,7 +540,7 @@ POST /api/v1/graph/query
 | **Action** | **Audit expectation** |
 |----|----|
 | Create/update canonical object | Actor, action, object, version, timestamp, request ID; material before/after reference. |
-| Entity merge/unmerge | Decision/rationale/evidence references + topology-impact record. |
+| Entity merge/unmerge | Decision/rationale/evidence references + topology-impact record; references the ResolutionDecision. Every ResolutionDecision emits an audit event. *[v0.1.1 · ER]* |
 | Assessment finalize | Version, author, confidence, gate state. |
 | Review decision | Reviewer, product/version, decision, rationale. |
 | Dissemination approval/export | Recipient/purpose/package/version/included object manifest. |
@@ -530,7 +549,7 @@ POST /api/v1/graph/query
 
 # 28. API Schema and OpenAPI Requirements
 
-- An OpenAPI 3.1 document SHALL be generated from the implementation, committed as `contracts/openapi.yaml`, linted in CI, used to generate the TypeScript client, and exercised by contract tests. *[v0.1.1 · A11]*
+- The OpenAPI 3.1 contract SHALL be maintained contract-first in `contracts/openapi.yaml`, linted in CI, used to generate the TypeScript client, and exercised by contract tests; the schema generated from the implementation SHALL be diffed against it in CI. *[v0.1.1 · A11]* *[v0.1.1 · C12]*
 
 - Schemas SHALL identify required/nullable fields explicitly.
 
@@ -542,16 +561,16 @@ POST /api/v1/graph/query
 
 - Client TypeScript types SHALL be generated from `contracts/openapi.yaml`; generated code SHALL not replace domain semantics documentation. *[v0.1.1 · A11]*
 
-> **Open items — not yet produced** *[v0.1.1 · A11]*  
-> This package does not yet contain the OpenAPI artefact or full per-operation contracts. This document is a convention and endpoint baseline, not an executable contract. Outstanding:
-> - `contracts/openapi.yaml` itself (OpenAPI 3.1), with CI lint and generated TypeScript client.
-> - Full per-operation request/response schemas for every endpoint in §12–§22 and §16A.
-> - Explicit required/nullable declarations per field.
-> - Upload, async job and approval preconditions per operation (upload session states, job lifecycle and status enum, approval/re-approval and export validity rules).
-> - Detailed contracts for task update, review comments and job lifecycle actions.
-> - Pagination envelope: cursor/page fields of list responses are not yet locked (§8 states the query parameters only).
-> - Policy-denial response details beyond the §9 error envelope.
-> - Response code for a missing REQUIRED Idempotency-Key (§11).
+> **Contract status — P0 vertical slice** *[v0.1.1 · A11]*  
+> `contracts/openapi.yaml` (OpenAPI 3.1, contract-first) now covers the P0 vertical slice: common envelopes and errors, auth/session, cases, sources/evidence (incl. upload and integrity), claims/facts/verification decisions, entities/relationships incl. merge/unmerge and resolution decisions, value flows, hypotheses/assessments, reviews, intelligence products and dissemination/export. It passes Redocly lint and `tools/check_consistency.py` (enum values against `schemas/enums.yaml`). Choices the specifications left open are marked `x-csaml-status: proposed` in the file, including: the cursor pagination envelope `{items, page:{size, next_cursor, has_more, total_count?, total_count_is_estimate?}}`; 400 INVALID_REQUEST for a missing REQUIRED Idempotency-Key; `field_errors` as a field → messages map; and read endpoints added so clients can obtain ETags (`GET /hypotheses/{id}`, `/assessments/{id}`, `/disseminations/{id}`, `/jobs/{jobId}`).
+> The implementation SHALL conform to this contract; once code exists, the schema generated from the implementation SHALL be diffed against it in CI. No implementation or contract test has been run yet.
+>
+> Still outstanding:
+> - Endpoints outside the slice: assets, events, timeline, value-flow view/legend, typologies, indicators, typology matches, intelligence gaps, search, graph, administration/audit, protected sources, `GET /capabilities`.
+> - Open value sets still typed as plain strings: job, upload-session, gate and task status; `risk_rating`; amount precision; export format.
+> - Per-resource sort allowlists; how the browser obtains the CSRF token (cookie vs `/auth/session` field).
+> - Overlap between `/entity-match-candidates/{id}/decisions` and `POST /resolution-decisions` (§14) — keep one.
+> - Review and approval of every `x-csaml-status: proposed` item by the product owner and technical lead.
 
 # 29. Compatibility and Deprecation
 
@@ -571,7 +590,7 @@ POST /api/v1/graph/query
 | Schema | Responses validate against OpenAPI/schema. |
 | Authorization | Positive and negative tests for case membership/classification/protected source. |
 | Non-disclosure | Unauthorized IDs/search/facets do not reveal hidden resource metadata. |
-| Concurrency | Stale `If-Match` → 412 PRECONDITION_FAILED; missing `If-Match` → 428; workflow conflict → 409 STATE_CONFLICT; no overwrite in any case. *[v0.1.1 · A04]* |
+| Concurrency | Stale `If-Match` → 412 PRECONDITION_FAILED; missing `If-Match` → 428; workflow conflict → 409 STATE_CONFLICT; no overwrite in any case. *[v0.1.1 · A04]* Multi-entity commands use `expected_versions` (§10): missing → 428, mismatch → 412 with `details.current_record_versions`. *[v0.1.1 · C03]* |
 | Idempotency | Retries do not duplicate selected actions; replay, key-reuse (422) and in-flight (409) behaviour per §11. *[v0.1.1 · A11]* |
 | Evidence | Upload/finalize/hash/content authorization and lineage. |
 | Analytical semantics | Flow classes, unknown/range values, candidate/disputed states preserved; `INSUFFICIENT_BASIS` round-trips unchanged; claim/fact transitions per §16A. *[v0.1.1 · A09, A10]* |
@@ -599,7 +618,7 @@ POST /api/v1/graph/query
 |----|----|
 | Case | Case, InvestigationQuestion/CharterVersion, Gate, Task, CaseActivity projection |
 | Evidence | Source, EvidenceItem, EvidenceExtract, Derivative/Lineage, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
-| Identity | Entity, Identifier/Alias, MatchCandidate, MergeDecision |
+| Identity | Entity, Identifier/Alias, MatchCandidate, ResolutionDecision (v0.1 name: MergeDecision) *[v0.1.1 · ER]* |
 | Relations/assets | Relationship, OwnershipInterest, ControlAssertion, Asset |
 | Time/value | Event, Timeline projection, ValueFlow, ValueFlowLeg |
 | Analysis | Indicator, Typology, TypologyMatch, Hypothesis, IntelligenceGap, Assessment |

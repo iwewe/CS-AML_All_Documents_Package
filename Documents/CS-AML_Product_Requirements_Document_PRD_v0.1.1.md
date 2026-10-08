@@ -192,8 +192,8 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 | **ID** | **Capability** | **MVP content** |
 |----|----|----|
 | C1 | Case & workflow | Case register, Charter, G0–G6 gates, tasks, activity history |
-| C2 | Sources & evidence | Source register, upload, originals, hashes, extracts, derivative lineage, source/credibility ratings, claim and fact lifecycle (claims, verification decisions, fact promotion/revision — F-EVD-008, proposed; requires product-owner approval) *[v0.1.1 · A10]* |
-| C3 | Entities & relationships | Entity registry, aliases, candidate matching, reversible merge/unmerge, first-class relationships, ownership/control |
+| C2 | Sources & evidence | Source register, upload, originals, hashes, extracts, derivative lineage, source/credibility ratings, claim and fact lifecycle (claims, verification decisions, fact creation/revision — F-EVD-008) *[v0.1.1 · A10]* |
+| C3 | Entities & relationships | Entity registry, aliases, candidate matching, reversible merge/unmerge recorded as append-only resolution decisions, first-class relationships, ownership/control *[v0.1.1 · ER]* |
 | C4 | Assets, events & timeline | Asset records, events, timeline view |
 | C5 | Value-flow | Flow records, multi-leg flows, classification, visualisation, unknown/range handling |
 | C6 | Typology & indicators | Catalogue browser, indicator capture, typology worksheet |
@@ -230,7 +230,7 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 | FR-EVD-03 | Evidence extracts | Create page/section/quote/table/image extracts with exact parent link. | Reviewer can navigate from extract to parent evidence and location. |
 | FR-EVD-04 | Derivative lineage | OCR, translation, crop, parsed data, or analyst dataset records parent and transformation metadata. | No derivative can be presented as an original. |
 | FR-EVD-05 | Source & information evaluation | Record source reliability separately from information credibility. | UI displays both dimensions independently. |
-| FR-EVD-06 | Claim and fact lifecycle | Record source claims without overwriting them; record each verification outcome as a separate decision; promote claims/evidence to provisional facts; establish (independent reviewer), dispute or supersede facts. | No extract or claim becomes a fact without a recorded verification decision; disputing/superseding a fact flags dependent assessments/products for review without altering published products. Proposed in v0.1.1; requires product-owner approval. *[v0.1.1 · A10]* |
+| FR-EVD-06 | Claim and fact lifecycle | Record source claims without overwriting them; record each verification outcome as a separate decision; create provisional facts supported by evidence (mandatory) and, optionally, claims (claims remain unchanged) *[v0.1.1 · C02]*; establish (independent reviewer), dispute or supersede facts. | No extract or claim becomes a fact without a recorded verification decision; disputing/superseding a fact flags dependent assessments/products for review without altering published products. *[v0.1.1 · A10]* |
 
 ## EPIC-03 Entity & Relationship
 
@@ -368,7 +368,7 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 
 ## 12.1 Minimum canonical objects
 
-Case, Source, EvidenceItem, EvidenceExtract, Claim, VerificationDecision, Fact, Entity, Relationship, Asset, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct, Review, Dissemination, AuditEvent. *[v0.1.1 · A10]*
+Case, Source, EvidenceItem, EvidenceExtract, Claim, VerificationDecision, Fact, Entity, ResolutionDecision *[v0.1.1 · ER]*, Relationship, Asset, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct, Review, Dissemination, AuditEvent. *[v0.1.1 · A10]*
 
 ## 12.2 Mandatory analytical chain
 
@@ -379,7 +379,7 @@ Case, Source, EvidenceItem, EvidenceExtract, Claim, VerificationDecision, Fact, 
 
 - Material Relationship objects require evidence reference or explicit analytical status explaining why evidence is unavailable.
 
-- Merge decisions require match rationale, supporting/conflicting attributes, reviewer where configured, and reversibility.
+- Merge decisions require match rationale, supporting/conflicting attributes, reviewer where configured, and reversibility. Every merge, unmerge, keep-separate, possible-match and defer decision is an append-only ResolutionDecision; entity resolution state changes only through these decisions. *[v0.1.1 · ER]*
 
 - ValueFlow requires flow_class and may record amount as exact, range, or unknown.
 
@@ -461,7 +461,7 @@ The values below are targets for the pilot; none has yet been measured. *[v0.1.1
 
 9.  Register at least three different source/evidence types and preserve originals.
 
-10. Create evidence extracts with lineage; record a source claim and promote it to a provisional fact through a recorded verification decision. *[v0.1.1 · A10]*
+10. Create evidence extracts with lineage; record a source claim and create a provisional fact supported by it through a recorded verification decision. *[v0.1.1 · A10]*
 
 11. Create and resolve duplicate entity candidates, including one reversible merge.
 
@@ -591,7 +591,7 @@ A feature is done only when its user-visible behaviour, canonical data state, pe
 
 # Annex A — MVP P0 Feature IDs
 
-The Product & Feature Specification remains the authoritative detailed feature catalogue. The following list identifies the P0 baseline expected to be represented in MVP planning; final sprint sequencing is an engineering/product decision. The v0.1.1 P0 baseline is 55 features (88 total = 55 P0 + 26 P1 + 7 P2), including F-EVD-008 Claim and fact lifecycle (proposed; requires product-owner approval). *[v0.1.1 · A10]*
+The Product & Feature Specification remains the authoritative detailed feature catalogue. The following list identifies the P0 baseline expected to be represented in MVP planning; final sprint sequencing is an engineering/product decision. The v0.1.1 P0 baseline is 55 features (88 total = 55 P0 + 26 P1 + 7 P2), including F-EVD-008 Claim and fact lifecycle (approved by product owner, 2026-10-08). *[v0.1.1 · A10]*
 
 | **P0 Feature** | **P0 Feature** | **P0 Feature** |
 |----------------|----------------|----------------|

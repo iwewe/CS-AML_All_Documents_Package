@@ -647,7 +647,7 @@ The following profiles are normative implementation guidance for the minimum CS-
 
 #### Minimum evidence of operation
 
-- Entity-resolution decision
+- Entity-resolution decision (append-only ResolutionDecision record: merge, unmerge, keep-separate, possible-match or defer) *[v0.1.1 · ER]*
 
 - Merge history
 
@@ -1417,7 +1417,7 @@ The following profiles are normative implementation guidance for the minimum CS-
 
 - Label AI-assisted outputs.
 
-- Require source-level human verification before promotion to Claim/Fact.
+- Require source-level human verification before a Claim is recorded or a Fact is created through a VerificationDecision. *[v0.1.1 · C16]*
 
 - Do not permit generative summaries to overwrite original evidence.
 
@@ -1447,7 +1447,7 @@ The following profiles are normative implementation guidance for the minimum CS-
 
 - AI confidence treated as analytical confidence.
 
-- Unverified OCR/translation promoted to fact.
+- Unverified OCR/translation used to create a fact without a VerificationDecision. *[v0.1.1 · C16]*
 
 > **Implementation maturity**
 >

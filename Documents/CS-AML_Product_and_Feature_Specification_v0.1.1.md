@@ -187,7 +187,7 @@ The following catalogue is the product baseline. IDs are stable across v0.1 and 
 | F-EVD-005 | Derivative lineage | P0 | Investigator | Track OCR, translation, cropped image, parsed table or transformed dataset as derivative. | EvidenceItem | EVD-02 | Derivative records parent, transformation, creator/tool and time. |
 | F-EVD-006 | Source reliability & information credibility | P0 | Analyst | Rate source reliability separately from information credibility. | Source,Claim | SRC-02,ASM-01 | UI prevents one rating from silently standing for both dimensions. |
 | F-EVD-007 | Evidence legal hold / retention state | P1 | Evidence Custodian | Apply retention, legal hold and disposition state. | EvidenceItem | PRI-02 | Deletion workflow respects hold and produces audit record. |
-| F-EVD-008 | Claim and fact lifecycle | P0 | Analyst / Reviewer | Record source claims without overwriting them with analyst conclusions; record each verification outcome as an append-only verification decision; promote claims/evidence to PROVISIONAL facts; establish, dispute or supersede facts. Added in v0.1.1 as a remediation proposal; requires product-owner approval. | Claim,VerificationDecision,Fact | SRC-01,EVD-02,QUA-01 | A fact cannot be created without claim/evidence refs and a verification decision; ESTABLISHED requires a reviewer other than the proposer; DISPUTED/SUPERSEDED flags dependent assessments/products `review_required` without mutating published products; history is preserved. *[v0.1.1 · A10]* |
+| F-EVD-008 | Claim and fact lifecycle | P0 | Analyst / Reviewer | Record source claims without overwriting them with analyst conclusions; record each verification outcome as an append-only verification decision; create PROVISIONAL facts supported by evidence (mandatory) and, optionally, claims (claims are never converted or overwritten) *[v0.1.1 · C02]*; establish, dispute or supersede facts. Added in v0.1.1; approved by product owner, 2026-10-08. | Claim,VerificationDecision,Fact | SRC-01,EVD-02,QUA-01 | A fact cannot be created without claim/evidence refs and a verification decision; ESTABLISHED requires a reviewer other than the proposer; DISPUTED/SUPERSEDED flags dependent assessments/products `review_required` without mutating published products; history is preserved. *[v0.1.1 · A10]* |
 
 ## CAP-03 — Document Intelligence
 
@@ -207,8 +207,8 @@ The following catalogue is the product baseline. IDs are stable across v0.1 and 
 | F-ENT-001 | Entity registry | P0 | Analyst | Create canonical person, organisation, account, wallet, address, domain and other entity records. | Entity | ENT-01 | Each entity has type, canonical name and provenance-linked assertions. |
 | F-ENT-002 | Aliases and identifiers | P0 | Analyst | Record aliases, registration numbers, IDs, phones, emails and external IDs with source. | Entity,Identifier | ENT-01 | Identifier provenance is visible and conflicting values can coexist. |
 | F-ENT-003 | Candidate matching | P0 | Analyst | Compare possible duplicate entities using discriminating features. | EntityMatchCandidate | ENT-01 | System shows both matching and conflicting attributes. |
-| F-ENT-004 | Merge / unmerge | P0 | Data Steward | Merge with rationale and later reverse while preserving history. | Entity,MergeDecision | ENT-01,AUD-01 | Unmerge restores prior identities and relationships without history loss. |
-| F-ENT-005 | Entity confidence/status | P0 | Analyst | Mark entity resolution as candidate, probable, confirmed, disputed or unresolved. | Entity | ENT-01,ASM-01 | Graph/search visibly carries status. |
+| F-ENT-004 | Merge / unmerge | P0 | Data Steward | Merge with rationale and later reverse while preserving history. Each merge, unmerge, keep-separate, possible-match and defer decision is an append-only ResolutionDecision (v0.1 name: MergeDecision). *[v0.1.1 · ER]* | Entity,ResolutionDecision | ENT-01,AUD-01 | Unmerge restores prior identities and relationships without history loss. |
+| F-ENT-005 | Entity confidence/status | P0 | Analyst | Show entity resolution state (UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT), derived only from ResolutionDecisions; candidate/probable matches are POSSIBLE_MATCH decisions (v0.1 terms: confirmed → RESOLVED, disputed → CONFLICTED). *[v0.1.1 · ER]* | Entity | ENT-01,ASM-01 | Graph/search visibly carries status. |
 | F-ENT-006 | External entity enrichment | P1 | Analyst | Request authorised enrichment from external registries/screening services. | Entity,ExternalReference | SRC-01,PRI-01 | Imported enrichment retains provider/source/time/licence metadata. |
 
 ## CAP-05 — Relationship / Ownership / Asset
@@ -500,7 +500,7 @@ The five levels above (ordered least → most restrictive) are the authoritative
 | Case is context; reusable truth objects | F-CASE-\*; F-ENT-\*; F-EVD-\* | Case/Entity/Evidence | CAS/ENT/EVD |
 | Follow the value | F-VAL-\* | ValueFlow/ValueFlowLeg | VAL-01 |
 | Typology caution | F-TYP-\* | Typology/Indicator/TypologyMatch | TYP-01 |
-| Entity resolution reversibility | F-ENT-003/004/005 | EntityMatchCandidate/MergeDecision | ENT-01 |
+| Entity resolution reversibility | F-ENT-003/004/005 | EntityMatchCandidate/ResolutionDecision *[v0.1.1 · ER]* | ENT-01 |
 | Alternative explanations | F-HYP-001/002/003 | Hypothesis/IntelligenceGap | HYP-01/HYP-02/GAP-01 |
 | Confidence and assessment | F-ASM-001/002 | Assessment | ASM-01 |
 | Peer review | F-REV-\* | Review | QUA-01 |

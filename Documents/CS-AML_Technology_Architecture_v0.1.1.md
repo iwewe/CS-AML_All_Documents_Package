@@ -359,7 +359,7 @@ ACQUIRE -> REGISTER -> HASH -> CLASSIFY -> PRESERVE ORIGINAL -> EXTRACT -> VERIF
 |----|----|----|
 | EvidenceExtract | Evidence | Evidence + source locator |
 | Claim | EvidenceExtract / Evidence | Supporting evidence |
-| Fact | Claim(s) | Evidence basis + VerificationDecision record + fact_status (PROVISIONAL/ESTABLISHED/DISPUTED/SUPERSEDED) *[v0.1.1 · A10]* |
+| Fact | Supported by evidence (mandatory) and, optionally, claim(s) (a separate object; the claims are not converted or altered) *[v0.1.1 · C02]* | Supporting claims (supporting_claim_refs) + evidence basis + VerificationDecision record + fact_status (PROVISIONAL/ESTABLISHED/DISPUTED/SUPERSEDED) *[v0.1.1 · A10]* |
 | Indicator | Fact / event / relationship / value flow | Underlying facts |
 | Hypothesis | Indicators / facts | Support and contradiction |
 | Assessment | Hypotheses / gaps | Reasoning basis + reviewer |
@@ -382,16 +382,18 @@ RECORDS / OBSERVATIONS
        v
  analyst review / rule decision
        v
- SAME / POSSIBLE SAME / DISTINCT / UNRESOLVED
+ MERGE / POSSIBLE_MATCH / KEEP_SEPARATE / DEFER  (UNMERGE reverses a MERGE)
        v
- canonical entity + resolution decision record
+ canonical entity + ResolutionDecision record (append-only; entity resolution_status derived from it)
 ```
+
+*[v0.1.1 · ER]* The decision step uses the ResolutionDecision values; tag moved out of the diagram. *[v0.1.1 · C19]*
 
 ## 9.2 Mandatory controls
 
 - No automatic merge solely on name similarity.
 
-- Resolution SHALL store compared identifiers/features, confidence, decision maker, date, and evidence.
+- Resolution SHALL store compared identifiers/features, confidence, decision maker, date, and evidence as an append-only ResolutionDecision (Data Model v0.1.1 §8.4); entity resolution state SHALL change only through such decisions. Legacy outcome names: SAME → MERGE; POSSIBLE SAME → POSSIBLE_MATCH; DISTINCT → KEEP_SEPARATE; UNRESOLVED → DEFER. *[v0.1.1 · ER]*
 
 - Merge SHALL be reversible without deleting original records.
 
@@ -589,7 +591,7 @@ Confidence levels use the wire values `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_B
 |----|----|----|
 | Case API | Create/read/update workflow metadata | Gate transitions separately privileged |
 | Evidence API | Register metadata and retrieve authorized evidence | Original content may use signed/short-lived retrieval |
-| Entity API | Entity CRUD and external IDs | Merge/split via dedicated decision endpoint |
+| Entity API | Entity CRUD and external IDs | Merge/split via dedicated decision endpoint; each creates a ResolutionDecision *[v0.1.1 · ER]* |
 | Relationship API | Create/version relationships | Provenance required |
 | Graph Query API | Bounded graph traversal | Read-only analytical service preferred |
 | Search API | Authorized search | Security trimming mandatory |
@@ -1169,7 +1171,7 @@ The CS-AML Technology Architecture is implementation-neutral. The following exte
 2. Evidence Service stores original + hash + acquisition metadata
 3. Extract created for relevant paragraph/page
 4. Claim created and linked to extract
-5. Fact promoted from claim(s) as PROVISIONAL with a VerificationDecision citing corroborating evidence; ESTABLISHED only after review by someone other than the proposer   [v0.1.1 · A10]
+5. Fact created as PROVISIONAL, supported by evidence and, optionally, the claim(s) (which remain unchanged); its CREATE VerificationDecision is written in the same transaction; ESTABLISHED only after review by someone other than the proposer
 6. Entity created / resolved to canonical identity
 7. Relationship created with evidence + confidence + valid time
 8. Graph projection updates asynchronously
@@ -1182,6 +1184,8 @@ The CS-AML Technology Architecture is implementation-neutral. The following exte
 15. Dissemination Service records recipient, purpose, version, timestamp
 16. Audit Service preserves the decision and export history
 ```
+
+*[v0.1.1 · A10]* Step 5 follows the Claim/Fact lifecycle (Data Model §7.4–7.6). *[v0.1.1 · C01, C02]* Tags moved out of the trace. *[v0.1.1 · C19]*
 
 # Document Status and Change Control
 

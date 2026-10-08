@@ -307,6 +307,8 @@ Canonical object pages SHOULD use a consistent information hierarchy regardless 
 | Disputed | Material conflicting evidence exists. |
 | Unresolved | Available information is insufficient to decide. |
 
+Display labels map to Data Model wire values: Confirmed → `RESOLVED`; Disputed → `CONFLICTED`; Unresolved → `UNRESOLVED`; plus `MERGED` and `SPLIT`. Candidate and Probable describe a pending or `POSSIBLE_MATCH` ResolutionDecision between records, not a stored entity state. Entity state changes only through ResolutionDecisions (Data Model v0.1.1 §8.4). *[v0.1.1 · ER]*
+
 # 10. Relationship, Ownership and Control Architecture
 
 Relationships are first-class records and SHALL be discoverable from both endpoints as well as case context.
@@ -315,10 +317,10 @@ Relationships are first-class records and SHALL be discoverable from both endpoi
 |----|----|----|
 | Governance/role | DIRECTOR_OF, EMPLOYED_BY, REPRESENTED_BY | Role type, organisation, valid time, evidence/status. |
 | Ownership | OWNS, BENEFICIAL_OWNER_OF | Owner/asset, percentage if known, direct/indirect, evidence. |
-| Control | CONTROLS, MANAGES, USES | Control basis distinct from legal ownership. |
+| Control | CONTROLS, MANAGES, USES *[v0.1.1 · C09]* | Control basis distinct from legal ownership. |
 | Commercial | SUPPLIER_TO, CONTRACTED_BY | Counterparty, contract/project context, dates. |
-| Personal/association | RELATIVE_OF, ASSOCIATE_OF | Use carefully; provenance and relevance required. |
-| Transfer/value | PAID_BY, TRANSFERRED_TO, ACQUIRED, SOLD_TO | Prefer ValueFlow/Event where movement semantics are material. |
+| Personal/association | RELATED_TO (familial subtype; displayed as "Relative of"), ASSOCIATE_OF *[v0.1.1 · C09]* | Use carefully; provenance and relevance required. |
+| Transfer/value | PAID_BY, TRANSFERRED_VALUE_TO, ACQUIRED, SOLD_TO *[v0.1.1 · C09]* | Prefer ValueFlow/Event where movement semantics are material. |
 
 > **Graph rule**  
 > A graph edge SHALL resolve to a canonical Relationship, OwnershipInterest, ControlAssertion or ValueFlow object. The graph itself is never the sole record of the connection.
@@ -880,7 +882,7 @@ This tree is the MVP IA baseline, not a pixel-level navigation design. UX determ
 | Intelligence Gap | Material unknown that could change assessment. |
 | Assessment | Analyst judgement with confidence, basis, alternatives and gaps. |
 | Claim | Attributed assertion from a source; never shown as a fact without a recorded verification decision. *[v0.1.1 · A10]* |
-| Fact | Proposition promoted from claims/evidence by a recorded verification decision; status Provisional, Established, Disputed or Superseded. *[v0.1.1 · A10]* |
+| Fact | Proposition, separate from any claim, created with references to supporting evidence (mandatory) and, optionally, supporting claims, together with its recorded creation decision *[v0.1.1 · C02]*; status Provisional, Established, Disputed or Superseded. *[v0.1.1 · A10]* |
 | Confidence | High, Moderate, Low, Insufficient basis (wire `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`). Insufficient basis is not a level below Low and is never shown as Low, blank or zero. *[v0.1.1 · A09]* |
 | Classification | Public, Internal, Sensitive, Restricted, Source-protected (wire `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`); access labels are additional restrictions. *[v0.1.1 · A08]* |
 | Intelligence Product | Versioned analytical output intended for review/use/dissemination. |

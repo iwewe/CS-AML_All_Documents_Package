@@ -5,7 +5,7 @@
 Paket dokumentasi lengkap CS-AML: kerangka metodologi, spesifikasi produk, rekayasa, dan antarmuka untuk aplikasi intelijen keuangan berbasis masyarakat sipil, beserta hasil audit dokumentasinya.
 
 > **Status: v0.1.1 — Draft for Review (Proposed Internal Baseline). Belum tervalidasi.**
-> Koreksi atas 16 temuan audit (7 Oktober 2026) sudah diterapkan pada file Markdown. Beberapa keputusan masih berstatus *usulan* dan menunggu persetujuan pemilik produk. Belum ada implementasi atau pengujian yang membuktikan isi spesifikasi ini. Lihat [`CHANGELOG.md`](CHANGELOG.md).
+> Koreksi atas 16 temuan audit (7 Oktober 2026) sudah diterapkan, dan keputusan domain utama sudah disetujui pemilik produk. Item kontrak bertanda `x-csaml-status: proposed` masih perlu ditinjau. Belum ada review independen, implementasi, atau pengujian yang membuktikan isi spesifikasi ini. Lihat [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Panduan untuk programmer
 
@@ -13,6 +13,9 @@ Paket dokumentasi lengkap CS-AML: kerangka metodologi, spesifikasi produk, rekay
 - **DOCX dan PDF adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1, jadi jangan dipakai sebagai acuan implementasi.
 - Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*`. Axx adalah ID temuan di [`Audit/`](Audit/).
 - Untuk kerangka, gunakan `CS-AML_Framework_v0.1.1_Expanded.md`. File `CS-AML_Framework_v0.1.1.md` berstatus *legacy*.
+  > `CS-AML_Framework_v0.1.1_Expanded.md` is the authoritative framework document. The non-expanded Framework is retained for historical reference only.
+- Kontrak API ada di `contracts/openapi.yaml` (OpenAPI 3.1, P0 vertical slice). Nilai enum ada di `schemas/enums.yaml`, dan keputusan arsitektur di `docs/adr/`.
+- Sebelum commit perubahan spesifikasi, jalankan `python3 tools/check_consistency.py`. Hasilnya harus 0 error.
 - Hal-hal yang belum selesai (OpenAPI, ADR, beberapa enum) tercantum di bagian **Still open** pada `CHANGELOG.md`.
 
 ## Rantai analitis inti
@@ -27,8 +30,12 @@ SOURCE → EVIDENCE → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INT
 .
 ├── Documents/      23 dokumen: Markdown v0.1.1 (acuan) + DOCX/PDF v0.1 (arsip)
 ├── Audit/          Laporan audit, register temuan, rencana perbaikan
-├── tools/docx2md/  Konverter DOCX → Markdown yang dipakai untuk v0.1.1
-├── CHANGELOG.md    Keputusan dan perubahan v0.1.1 per temuan audit
+├── contracts/      OpenAPI 3.1 (P0 vertical slice)
+├── schemas/        Registry enum (enums.yaml)
+├── sources/        Peta sumber indikator tipologi (verifikasi A13)
+├── docs/adr/       Architecture Decision Records (0004–0006)
+├── tools/          Konverter DOCX → Markdown dan pengecek konsistensi
+├── CHANGELOG.md    Register keputusan dan perubahan v0.1.1
 └── MANIFEST.txt    Daftar seluruh file
 ```
 
@@ -88,9 +95,10 @@ Nama file mengikuti pola `CS-AML_<Judul>_v0.1.1.md` (acuan) dan `CS-AML_<Judul>_
 | Object storage | S3-compatible; produk dipilih lewat ADR-0005 (MinIO Community bukan lagi default) |
 | Broker/cache | Valkey 8.x (BSD-3-Clause), versi dikunci (ADR-0006) |
 | Autentikasi browser | Session cookie di server (BFF) lewat OIDC Keycloak; token tidak pernah sampai ke JavaScript |
-| Konflik versi | `If-Match` usang → 412, tanpa `If-Match` → 428, konflik workflow → 409 |
+| Konflik versi | `If-Match` usang → 412, tanpa `If-Match` → 428, konflik workflow → 409. Perintah multi-entity (merge, unmerge, resolution decision) memakai `expected_versions` di body, bukan `If-Match` |
 | Enum | `UPPER_SNAKE_CASE`; confidence `HIGH/MODERATE/LOW/INSUFFICIENT_BASIS` |
-| Claim/Fact | Lifecycle dengan VerificationDecision (*usulan, perlu persetujuan*) |
+| Claim/Fact | Claim permanen; Fact objek terpisah yang *didukung* claim/evidence + VerificationDecision (disetujui 2026-10-08) |
+| Entity resolution | Status entity (`resolution_status`) dipisah dari ResolutionDecision (MERGE/KEEP_SEPARATE/POSSIBLE_MATCH/DEFER/UNMERGE) (disetujui 2026-10-08) |
 
 ## Audit
 
@@ -100,7 +108,7 @@ Nama file mengikuti pola `CS-AML_<Judul>_v0.1.1.md` (acuan) dan `CS-AML_<Judul>_
 | [`CS-AML_Audit_Register_2026-10-07.json`](Audit/CS-AML_Audit_Register_2026-10-07.json) | Register temuan A01–A16 beserta bukti dan hash file |
 | [`audit-cs-ml.md`](Audit/audit-cs-ml.md) | Rencana siklus perbaikan dokumentasi |
 
-File audit tidak diubah dan tetap menggambarkan kondisi v0.1. Status perbaikan setiap temuan ada di `CHANGELOG.md`.
+File audit 2026-10-07 tidak diubah dan tetap menggambarkan kondisi v0.1. Status perbaikan setiap temuan ada di `CHANGELOG.md`. Hasil pemeriksaan konsistensi v0.1.1 ada di `CS-AML_Consistency_Audit_v0.1.1_2026-10-08.md`; pemeriksaan ini dilakukan oleh AI, bukan pihak independen.
 
 ## Catatan penggunaan
 

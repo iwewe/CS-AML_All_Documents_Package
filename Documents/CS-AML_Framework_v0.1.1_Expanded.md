@@ -531,7 +531,7 @@ A **Claim** is a statement made by a source. Example: “Person A owns Company X
 
 ## 9.3 Fact
 
-A **Fact** is a proposition that the analysis treats as sufficiently established for a stated purpose, based on evidence and verification. Facts SHOULD be narrowly worded and time-bound where appropriate.
+A **Fact** is a proposition that the analysis treats as sufficiently established for a stated purpose, based on evidence and verification. Facts SHOULD be narrowly worded and time-bound where appropriate. A Fact is a separate object supported by evidence (mandatory), optionally by claims, and by a recorded verification decision *[v0.1.1 · C02]*; the supporting Claim remains a permanent record of what the source asserted and is never converted into the Fact. *[v0.1.1 · A10]*
 
 ## 9.4 Example
 
@@ -565,7 +565,7 @@ Entity resolution SHALL be evidence-based. Name similarity alone SHALL NOT justi
 
 ## 10.4 Resolution outcomes
 
-A record comparison SHALL resolve to one of: **same entity**, **probable same**, **possible same**, **different entity**, or **unresolved**. Systems SHOULD preserve the underlying records so merges can be reversed.
+A record comparison SHALL resolve to one of: **same entity**, **probable same**, **possible same**, **different entity**, or **unresolved**. Systems SHOULD preserve the underlying records so merges can be reversed. In implementations these outcomes are recorded as append-only resolution decisions (Data Model v0.1.1 §8.4): same entity → MERGE; probable or possible same → POSSIBLE_MATCH; different entity → KEEP_SEPARATE; unresolved → DEFER; a reversed merge → UNMERGE. *[v0.1.1 · ER]*
 
 ## 10.5 Confidence and merge authority
 
@@ -583,7 +583,7 @@ A relationship is not merely a graph edge; it is an analytical object with type,
 
 ## 11.2 Core relationship types
 
-Recommended relationship types include OWNS, BENEFICIAL_OWNER_OF, CONTROLS, DIRECTOR_OF, COMMISSIONER_OF, EMPLOYED_BY, REPRESENTS, RELATED_TO, ASSOCIATE_OF, SHARES_ADDRESS_WITH, SHARES_CONTACT_WITH, CONTRACTED_BY, SUPPLIER_TO, PAID_BY, TRANSFERRED_TO, LOANED_TO, ACQUIRED, SOLD_TO, LEASED_TO, DONATED_TO, FUNDED_BY, and ACTS_FOR.
+Recommended relationship types include OWNS, BENEFICIAL_OWNER_OF, CONTROLS, DIRECTOR_OF, COMMISSIONER_OF, EMPLOYED_BY, REPRESENTED_BY, RELATED_TO, ASSOCIATE_OF, SHARES_ADDRESS_WITH, SHARES_PHONE_WITH, SHARES_DOMAIN_WITH, CONTRACTED_BY, SUPPLIER_TO, PAID_BY, TRANSFERRED_VALUE_TO, LENDER_TO, ACQUIRED, SOLD_TO, LEASED_TO, DONATED_TO and FUNDED_BY. These are registered `relationship_type` wire values (`schemas/enums.yaml`; Data Model Annex B). Earlier names map as follows: REPRESENTS and ACTS_FOR → inverse of REPRESENTED_BY; SHARES_CONTACT_WITH → SHARES_PHONE_WITH, SHARES_ADDRESS_WITH or SHARES_DOMAIN_WITH; TRANSFERRED_TO → TRANSFERRED_VALUE_TO; LOANED_TO → LENDER_TO. *[v0.1.1 · C09]*
 
 ## 11.3 Legal ownership versus beneficial ownership
 

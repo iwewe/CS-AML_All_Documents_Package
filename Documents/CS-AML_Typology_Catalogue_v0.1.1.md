@@ -31,6 +31,8 @@ Intended users: CSOs, investigative journalists, anti-corruption researchers, pu
 | Review cycle | At least annually, and upon material typology or legal change |
 | Primary orientation | Civil-society financial intelligence using lawful and proportionate sources |
 | Exclusions | No covert financial surveillance, unauthorized access, or criminal-liability determination |
+| Enumeration registry | Wire values of the controlled enumerations in this catalogue (indicator observation status, indicator class, assessment/consistency level, typology status, family) are defined in `schemas/enums.yaml`, which derives from the Data Model Specification v0.1.1 Annex A. Display labels in this document are presentation text. *[v0.1.1 · A09]* |
+| Source-mapping register | Indicator-to-source mapping is held in `sources/typology-source-map.yaml` (see Annex A). *[v0.1.1 · A13]* |
 
 # 0. Normative Position
 
@@ -84,27 +86,31 @@ Typologies are grouped by the primary laundering function they perform. A real c
 
 # 4. Typology Assessment Standard
 
-Every typology analysis SHALL record the status of relevant indicators using the following controlled values: OBSERVED, PARTIALLY OBSERVED, NOT OBSERVED, UNKNOWN, or NOT APPLICABLE.
+Every typology analysis SHALL record the status of relevant indicators using the following controlled values (registry enum `typology_indicator_observation_status`; display labels in brackets): `OBSERVED` (Observed), `PARTIALLY_OBSERVED` (Partially observed), `NOT_OBSERVED` (Not observed), `UNKNOWN` (Unknown), or `NOT_APPLICABLE` (Not applicable). v0.1 wrote these with spaces (e.g. "PARTIALLY OBSERVED"); the wire values are UPPER_SNAKE_CASE. *[v0.1.1 · A09]*
 
-| **Assessment** | **Minimum analytical meaning** |
-|----|----|
-| No analytical basis | No mechanism-specific indicator supported by reliable evidence. |
-| Weak consistency | One or more generic indicators are present, but no mechanism-specific pattern is adequately corroborated. |
-| Plausible consistency | At least one mechanism-specific indicator plus independent corroborating evidence; material gaps remain. |
-| Strong consistency | Multiple mutually reinforcing mechanism-specific indicators, independently supported, with alternative explanations assessed and materially weakened. |
-| Compelling consistency | Direct or authoritative evidence establishes the mechanism or value movement and is corroborated by additional evidence. This still does not determine criminal liability. |
+The assessment level is recorded as `consistency_level` (registry enum `typology_consistency_level`, Data Model Section 12.2), ordered from weakest to strongest: *[v0.1.1 · A09]*
 
-**MINIMUM RULE —** Except where direct authoritative evidence establishes the mechanism, an analyst SHALL NOT assess a typology above “Plausible consistency” on the basis of a single indicator or a single source.
+| **Assessment (display label)** | **Wire value** | **Minimum analytical meaning** |
+|----|----|----|
+| No analytical basis | `NO_BASIS` | No mechanism-specific indicator supported by reliable evidence. |
+| Weak consistency | `WEAK` | One or more generic indicators are present, but no mechanism-specific pattern is adequately corroborated. |
+| Plausible consistency | `PLAUSIBLE` | At least one mechanism-specific indicator plus independent corroborating evidence; material gaps remain. |
+| Strong consistency | `STRONG` | Multiple mutually reinforcing mechanism-specific indicators, independently supported, with alternative explanations assessed and materially weakened. |
+| Compelling consistency | `COMPELLING` | Direct or authoritative evidence establishes the mechanism or value movement and is corroborated by additional evidence. This still does not determine criminal liability. |
+
+**MINIMUM RULE —** Except where direct authoritative evidence establishes the mechanism, an analyst SHALL NOT assess a typology above “Plausible consistency” (`PLAUSIBLE`) on the basis of a single indicator or a single source. *[v0.1.1 · A09]*
 
 # 5. Indicator Classes
 
-| **Class** | **Name** | **Use** |
-|----|----|----|
-| M | Mechanism-specific | Directly reflects how the typology operates; highest analytical weight. |
-| C | Corroborating | Supports a mechanism-specific indicator through an independent fact, relationship, event, or source. |
-| K | Contextual | Raises or lowers plausibility but is not specific enough to support a typology on its own. |
-| D | Disconfirming | Contradicts, weakens, or provides a more credible alternative explanation. |
-| G | Gap | Material information that is missing and limits confidence. |
+| **Class (code)** | **Wire value** | **Name** | **Use** |
+|----|----|----|----|
+| M | `MECHANISM` | Mechanism-specific | Directly reflects how the typology operates; highest analytical weight. |
+| C | `CORROBORATING` | Corroborating | Supports a mechanism-specific indicator through an independent fact, relationship, event, or source. |
+| K | `CONTEXTUAL` | Contextual | Raises or lowers plausibility but is not specific enough to support a typology on its own. |
+| D | `DISCONFIRMING` | Disconfirming | Contradicts, weakens, or provides a more credible alternative explanation. |
+| G | `GAP` | Gap | Material information that is missing and limits confidence. |
+
+The single-letter class codes are display short codes used in the indicator tables below; the wire value of `indicator_class` (Data Model Section 12.1) is the UPPER_SNAKE_CASE value. *[v0.1.1 · A09]*
 
 # 6. Typology Index
 
@@ -1581,17 +1587,17 @@ Money-laundering schemes frequently combine several typologies. Analysts SHALL p
 | typology_id | Stable identifier, e.g., CSAML-TYP-C02 | MUST |
 | version | Entry version | MUST |
 | title | Controlled title | MUST |
-| family | Catalogue family | MUST |
+| family | Catalogue family: `A`–`F` (Section 3; registry enum `typology_family`) *[v0.1.1 · A09]* | MUST |
 | objective | Concealment/movement/integration objective | MUST |
 | mechanism | Ordered mechanism description | MUST |
-| indicators | Classed M/C/K/D/G indicators | MUST |
+| indicators | Classed indicators: `MECHANISM`, `CORROBORATING`, `CONTEXTUAL`, `DISCONFIRMING`, `GAP` (display codes M/C/K/D/G) *[v0.1.1 · A09]* | MUST |
 | observables | Civil-society observable sources/signals | MUST |
 | questions | Minimum analytical questions | MUST |
 | cautions | Alternative explanations / false-positive cautions | MUST |
 | evidence_classes | Evidence types commonly useful | SHOULD |
-| source_lineage | Authoritative reference basis | MUST |
+| source_lineage | Reference lineage for the entry as a whole; per-indicator mapping is held in `sources/typology-source-map.yaml` (Annex A) *[v0.1.1 · A13]* | MUST |
 | last_reviewed | Review date | MUST |
-| status | active/deprecated/experimental | MUST |
+| status | `ACTIVE` / `DEPRECATED` / `EXPERIMENTAL` (display: Active / Deprecated / Experimental; registry enum `typology_status`; v0.1 wrote lower-case) *[v0.1.1 · A09]* | MUST |
 
 # 9. Case-Level Typology Assessment Record
 
@@ -1599,28 +1605,28 @@ Money-laundering schemes frequently combine several typologies. Analysts SHALL p
 |----|----|
 | Case ID | Required |
 | Typology ID/version | Required |
-| Assessment level | Required |
-| Observed mechanism-specific indicators | Required |
+| Assessment level (`consistency_level`: `NO_BASIS`, `WEAK`, `PLAUSIBLE`, `STRONG`, `COMPELLING`) *[v0.1.1 · A09]* | Required |
+| Observed mechanism-specific indicators, each with its observation status (`OBSERVED`, `PARTIALLY_OBSERVED`, `NOT_OBSERVED`, `UNKNOWN`, `NOT_APPLICABLE`) *[v0.1.1 · A09]* | Required |
 | Corroborating evidence IDs | Required |
 | Disconfirming evidence IDs | Required if available |
 | Alternative explanations | Required |
 | Intelligence gaps | Required |
 | Analyst judgement | Required |
-| Confidence | Required |
-| Reviewer | Required for Strong/Compelling assessments |
+| Confidence (`HIGH`, `MODERATE`, `LOW`, or `INSUFFICIENT_BASIS`, with rationale; Data Model Section 14.1) *[v0.1.1 · A09]* | Required |
+| Reviewer | Required for `STRONG`/`COMPELLING` assessments *[v0.1.1 · A09]* |
 | Date / revision | Required |
 
 # 10. Governance and Catalogue Maintenance
 
 - Each typology SHALL have a stable identifier and version history.
 
-- New typologies SHOULD be supported by multiple authoritative or case-based sources before promotion to Active status.
+- New typologies SHOULD be supported by multiple authoritative or case-based sources before their status is changed to `ACTIVE`. *[v0.1.1 · A09]*
 
-- Experimental entries MAY be used for research but SHALL be clearly labelled and SHALL NOT be used as sole basis for escalation.
+- Entries with status `EXPERIMENTAL` MAY be used for research but SHALL be clearly labelled and SHALL NOT be used as sole basis for escalation. *[v0.1.1 · A09]*
 
 - Entries SHALL be reviewed when material FATF/APG/PPATK guidance, major case-law patterns, or technological changes emerge, and at least annually.
 
-- Deprecated typologies SHALL remain resolvable by ID so historical case records remain interpretable.
+- Typologies with status `DEPRECATED` SHALL remain resolvable by ID so historical case records remain interpretable. *[v0.1.1 · A09]*
 
 - Changes to indicators SHALL document rationale and source lineage.
 
@@ -1642,7 +1648,7 @@ Money-laundering schemes frequently combine several typologies. Analysts SHALL p
 |----|----|
 | Catalogue-aware | Organisation uses controlled typology IDs and distinguishes indicators from findings. |
 | Catalogue-conformant | In addition, case records document indicator classes, evidence links, alternative explanations, intelligence gaps, and assessment level. |
-| Catalogue-assured | In addition, strong/compelling assessments receive independent review; catalogue changes are versioned and annually reviewed; QA samples verify typology use. |
+| Catalogue-assured | In addition, `STRONG`/`COMPELLING` assessments receive independent review; catalogue changes are versioned and annually reviewed; QA samples verify typology use. *[v0.1.1 · A09]* |
 
 # Annex A — Source Lineage and Reference Basis
 
@@ -1652,6 +1658,7 @@ Money-laundering schemes frequently combine several typologies. Analysts SHALL p
 - The 20 typology IDs and the catalogue structure are a CS-AML catalogue, not an official FATF list. *[v0.1.1 · N01]*
 - Lineage entries that name only a programme, topic page, or body of work (for example "FATF Methods and Trends", "APG typologies reports", or "PPATK … risk assessments") are labelled `pending verification — specific publication/section not yet identified` until a specific publication, edition, and section are recorded.
 - Publications named with a title and year are listed below by their official location; per-indicator page support for them has not been confirmed.
+- **Source-mapping register.** `sources/typology-source-map.yaml` holds one record per indicator in this catalogue (indicator key `<typology_id>-I<nn>` in document order), with origin (`EXTERNAL_SOURCE`, `CS_AML_DESIGN_CONVENTION`, `PENDING_VERIFICATION`), the typology-level lineage as stated here, verification status (`PENDING_VERIFICATION`, `PUBLICATION_LEVEL_VERIFIED`) and an adaptation note. `PUBLICATION_LEVEL_VERIFIED` means only that the 2026-10-07 audit verified the publication itself (S01, S08, S09); it is not section- or page-level support for any indicator. Per-indicator section/page verification remains an open methodological task. *[v0.1.1 · A13]*
 
 FATF Recommendations, updated June 2026 — [<u>https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html</u>](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html)
 

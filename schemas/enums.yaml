@@ -1,0 +1,1198 @@
+# CS-AML controlled wire-enumeration registry (machine source of truth)  [v0.1.1 · A09]
+# Derived from Data Model Specification v0.1.1 Annex A and the enum rows of its field tables,
+# the Typology Catalogue v0.1.1 (§3, §4, §5, §8) and the round-2 decisions approved by the product
+# owner on 2026-10-08 (A10 Claim/Fact, ER ResolutionDecision). API error codes are not enums here.
+# Documents and contracts/openapi.yaml SHALL use exactly these values. See schemas/README.md.
+registry_version: 0.1.1
+source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md Annex A
+conventions:
+  value_pattern: ^[A-Z][A-Z0-9_]*$
+  labels: Display labels are presentation strings (translatable) and SHALL NOT be stored or exchanged in place of
+    wire values.
+  ordered: 'ordered: true means values are listed least -> most (rank 1 = lowest); ordered: false means no ranking
+    may be inferred from list order.'
+  legacy_values: Pre-v0.1.1 spellings accepted only by migration tooling, never emitted on the wire.
+enums:
+  classification:
+    description: Information sensitivity classification (authoritative model, D-A08).
+    used_by:
+    - <envelope>.classification
+    - IntelligenceProduct.classification
+    ordered: true
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §4, §16, Annex A
+    note: rank 1 = least restrictive, 5 = most restrictive. Unknown, missing or unrecognized values fail closed
+      (deny access, flag for classification). Access labels are additive. Derived objects inherit the highest input
+      classification unless a recorded reviewer downgrade exists. Framework v0.1 legacy labels map per Data Model
+      §16 (Restricted / Highly Restricted never auto-mapped).
+    values:
+    - value: PUBLIC
+      label: Public
+      description: Suitable for public release after normal review.
+      rank: 1
+    - value: INTERNAL
+      label: Internal
+      description: Routine internal operational information.
+      rank: 2
+    - value: SENSITIVE
+      label: Sensitive
+      description: Could create privacy, reputational, safety, or investigative harm if disclosed.
+      rank: 3
+    - value: RESTRICTED
+      label: Restricted
+      description: High-risk information requiring named-role or case-specific authorization.
+      rank: 4
+    - value: SOURCE_PROTECTED
+      label: Source-protected
+      legacy_values:
+      - SOURCE-PROTECTED
+      description: Information whose disclosure could identify or endanger a confidential source.
+      rank: 5
+  confidence_level:
+    description: Analyst confidence level of a Confidence object.
+    used_by:
+    - Confidence.level
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §14, §14.1, Annex A
+    note: 'HIGH > MODERATE > LOW is a scale, but INSUFFICIENT_BASIS is NOT ordered below LOW and SHALL NOT be converted
+      to LOW, null, zero or omitted; therefore the enum as a whole is ordered: false. null is allowed only on drafts
+      where no confidence judgement has been made; finalized objects carry a non-null level. Rationale (Confidence.basis)
+      is mandatory for every level. No normalization may raise certainty.'
+    nullable: true
+    values:
+    - value: HIGH
+      label: High
+    - value: MODERATE
+      label: Moderate
+    - value: LOW
+      label: Low
+    - value: INSUFFICIENT_BASIS
+      label: Insufficient basis
+      description: A judgement was attempted but the evidential basis is insufficient. Not a level below LOW.
+  source_diversity:
+    description: Diversity of sources underlying a confidence judgement.
+    used_by:
+    - Confidence.source_diversity
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §14.1
+    values:
+    - value: SINGLE
+      label: Single
+    - value: MULTIPLE_RELATED
+      label: Multiple related
+    - value: MULTIPLE_INDEPENDENT
+      label: Multiple independent
+  case_status:
+    description: Case lifecycle state (envelope status for Case).
+    used_by:
+    - Case.status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §6.1 Lifecycle states
+    note: Lifecycle sequence DRAFT -> AUTHORIZED -> ACTIVE -> REVIEW -> CLOSED -> MONITORING -> REOPENED; a state
+      machine, not a ranked scale.
+    values:
+    - value: DRAFT
+      label: Draft
+    - value: AUTHORIZED
+      label: Authorized
+    - value: ACTIVE
+      label: Active
+    - value: REVIEW
+      label: Review
+    - value: CLOSED
+      label: Closed
+    - value: MONITORING
+      label: Monitoring
+    - value: REOPENED
+      label: Reopened
+  investigation_question_status:
+    description: Status of an InvestigationQuestion.
+    used_by:
+    - InvestigationQuestion.status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §6.2
+    values:
+    - value: OPEN
+      label: Open
+    - value: ANSWERED
+      label: Answered
+    - value: RETIRED
+      label: Retired
+  source_type:
+    description: Type of information Source.
+    used_by:
+    - Source.source_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.1
+    values:
+    - value: REGISTRY
+      label: Registry
+    - value: COURT_RECORD
+      label: Court record
+    - value: MEDIA
+      label: Media
+    - value: WHISTLEBLOWER
+      label: Whistleblower
+    - value: WEBSITE
+      label: Website
+    - value: DATASET
+      label: Dataset
+    - value: DOCUMENT
+      label: Document
+    - value: INTERVIEW
+      label: Interview
+    - value: OTHER
+      label: Other
+  source_reliability_grade:
+    description: Source reliability grade (separate from information credibility and analyst confidence).
+    used_by:
+    - Source.reliability_grade
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.1, §14
+    note: 'Labels are the letters; F means unknown and is not a rank below E, hence ordered: false.'
+    values:
+    - value: A
+      label: Grade A
+      description: Highly reliable.
+    - value: B
+      label: Grade B
+      description: Generally reliable.
+    - value: C
+      label: Grade C
+      description: Mixed.
+    - value: D
+      label: Grade D
+      description: Generally unreliable.
+    - value: E
+      label: Grade E
+      description: Unreliable.
+    - value: F
+      label: Grade F
+      description: Unknown (reliability cannot be judged).
+  evidence_type:
+    description: Type of EvidenceItem.
+    used_by:
+    - EvidenceItem.evidence_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2
+    values:
+    - value: DOCUMENT
+      label: Document
+    - value: IMAGE
+      label: Image
+    - value: RECORD
+      label: Record
+    - value: TRANSCRIPT
+      label: Transcript
+    - value: DATASET_ROW
+      label: Dataset row
+    - value: WEB_SNAPSHOT
+      label: Web snapshot
+    - value: OTHER
+      label: Other
+  evidence_verification_status:
+    description: Verification status of an EvidenceItem.
+    used_by:
+    - EvidenceItem.verification_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2
+    values:
+    - value: UNVERIFIED
+      label: Unverified
+    - value: SOURCE_VERIFIED
+      label: Source verified
+    - value: INDEPENDENTLY_CORROBORATED
+      label: Independently corroborated
+    - value: DISPUTED
+      label: Disputed
+  redaction_state:
+    description: Redaction state of an EvidenceItem.
+    used_by:
+    - EvidenceItem.redaction_state
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2
+    values:
+    - value: NONE
+      label: None
+    - value: WORKING_REDACTION
+      label: Working redaction
+    - value: PUBLICATION_REDACTION
+      label: Publication redaction
+  evidence_item_status:
+    description: EvidenceItem lifecycle state (envelope status for EvidenceItem).
+    used_by:
+    - EvidenceItem.status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2 Lifecycle states
+    note: Lifecycle sequence COLLECTED -> REGISTERED -> VERIFIED -> SUPERSEDED -> RESTRICTED.
+    values:
+    - value: COLLECTED
+      label: Collected
+    - value: REGISTERED
+      label: Registered
+    - value: VERIFIED
+      label: Verified
+    - value: SUPERSEDED
+      label: Superseded
+    - value: RESTRICTED
+      label: Restricted
+  claim_status:
+    description: Status of a Claim (A10, approved by product owner 2026-10-08). The Claim assertion itself is never
+      overwritten.
+    used_by:
+    - Claim.claim_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.4, Annex A
+    note: Every transition out of RECORDED is backed by a VerificationDecision. A Claim never becomes a Fact.
+    values:
+    - value: RECORDED
+      label: Recorded
+      description: Assertion recorded with attribution; no verification decision yet.
+    - value: UNDER_REVIEW
+      label: Under review
+    - value: CORROBORATED
+      label: Corroborated
+    - value: CONTRADICTED
+      label: Contradicted
+      description: Also sets the compatibility field Claim.disputed = true.
+    - value: UNRESOLVED
+      label: Unresolved
+  fact_status:
+    description: Status of a Fact (A10, approved by product owner 2026-10-08).
+    used_by:
+    - Fact.fact_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.5, Annex A
+    values:
+    - value: PROVISIONAL
+      label: Provisional
+      description: Initial state of a newly created Fact.
+    - value: ESTABLISHED
+      label: Established
+      description: Requires a reviewer other than the proposer.
+    - value: DISPUTED
+      label: Disputed
+    - value: SUPERSEDED
+      label: Superseded
+      description: Requires Fact.superseded_by.
+  verification_decision:
+    description: Outcome recorded by an append-only VerificationDecision on a Claim or a Fact.
+    used_by:
+    - VerificationDecision.decision
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.6, Annex A
+    note: Claim decisions are claim_status values; Fact decisions are fact actions. A decision value SHALL match
+      the target type (applies_to).
+    values:
+    - value: UNDER_REVIEW
+      label: Under review
+      applies_to: CLAIM
+    - value: CORROBORATED
+      label: Corroborated
+      applies_to: CLAIM
+    - value: CONTRADICTED
+      label: Contradicted
+      applies_to: CLAIM
+    - value: UNRESOLVED
+      label: Unresolved
+      applies_to: CLAIM
+    - value: CREATE
+      label: Create fact
+      applies_to: FACT
+      description: 'Fact creation: creates a new PROVISIONAL Fact supported by the referenced claims and/or evidence.
+        It does not convert, alter or close any Claim. (Draft name PROMOTE retired on 2026-10-08.)'
+    - value: ESTABLISH
+      label: Establish
+      applies_to: FACT
+    - value: DISPUTE
+      label: Dispute
+      applies_to: FACT
+    - value: SUPERSEDE
+      label: Supersede
+      applies_to: FACT
+  entity_type:
+    description: Type of canonical Entity.
+    used_by:
+    - Entity.entity_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.1, Annex A
+    values:
+    - value: PERSON
+      label: Person
+    - value: ORGANIZATION
+      label: Organization
+    - value: ACCOUNT
+      label: Account
+    - value: ADDRESS
+      label: Address
+    - value: DOMAIN
+      label: Domain
+    - value: PHONE
+      label: Phone
+    - value: EMAIL
+      label: Email
+    - value: WALLET
+      label: Wallet
+    - value: PROPERTY
+      label: Property
+    - value: VEHICLE
+      label: Vehicle
+    - value: VESSEL
+      label: Vessel
+    - value: AIRCRAFT
+      label: Aircraft
+    - value: CONTRACT
+      label: Contract
+    - value: PROJECT
+      label: Project
+    - value: OTHER
+      label: Other
+  entity_resolution_status:
+    description: Entity resolution STATE (not a decision). Changes only as the effect of a ResolutionDecision.
+    used_by:
+    - Entity.resolution_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.1, §8.4, Annex A
+    values:
+    - value: UNRESOLVED
+      label: Unresolved
+    - value: RESOLVED
+      label: Resolved
+    - value: CONFLICTED
+      label: Conflicted
+    - value: MERGED
+      label: Merged
+    - value: SPLIT
+      label: Split
+  resolution_decision:
+    description: Decision about a pair/set of Entity records, recorded as an append-only ResolutionDecision (ER,
+      approved by product owner 2026-10-08).
+    used_by:
+    - ResolutionDecision.decision
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.4, Annex A
+    note: legacy_values are the Investigation Methodology v0.1 §12.2 outcome names.
+    values:
+    - value: MERGE
+      label: Merge
+      legacy_values:
+      - MERGED
+      description: Absorbed records become MERGED (canonical_parent = surviving_entity_ref); survivor becomes RESOLVED.
+        Requires surviving_entity_ref.
+    - value: KEEP_SEPARATE
+      label: Keep separate
+      legacy_values:
+      - SEPARATE
+      description: No state change; the same pair is not re-suggested unless new evidence is attached.
+    - value: POSSIBLE_MATCH
+      label: Possible match
+      legacy_values:
+      - LINKED_POSSIBLE
+      description: Candidate link recorded; no state change.
+    - value: DEFER
+      label: Defer
+      legacy_values:
+      - UNRESOLVED
+      description: State stays or becomes UNRESOLVED.
+    - value: UNMERGE
+      label: Unmerge
+      description: Restored records become SPLIT; relationships/claims re-attributed per recorded history. Requires
+        reverses_decision_ref.
+  public_official_status:
+    description: Public-official status of a person; not equivalent to suspicion.
+    used_by:
+    - PersonProfile.public_official_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.2
+    values:
+    - value: NONE
+      label: None
+    - value: CURRENT
+      label: Current
+    - value: FORMER
+      label: Former
+    - value: UNKNOWN
+      label: Unknown
+  organization_type:
+    description: Type of organization.
+    used_by:
+    - OrganizationProfile.organization_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.3
+    values:
+    - value: COMPANY
+      label: Company
+    - value: NGO
+      label: NGO
+    - value: GOVERNMENT
+      label: Government
+    - value: TRUST
+      label: Trust
+    - value: PARTNERSHIP
+      label: Partnership
+    - value: ASSOCIATION
+      label: Association
+    - value: OTHER
+      label: Other
+  relationship_type:
+    description: Canonical relationship vocabulary (baseline).
+    used_by:
+    - Relationship.relationship_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.1, Annex B
+    note: Directed relationships run from_entity -> to_entity (e.g. Person --DIRECTOR_OF--> Organization). Extensible
+      only through registry change control. [v0.1.1 · C09] Ten values were registered from the Investigation Methodology §13,
+      IA §10 and Framework Expanded §11.2 lists; other names in those lists are display synonyms mapped to registered
+      values (see Data Model Annex B, mapping table).
+    values:
+    - value: OWNS
+      label: Owns
+      directionality: DIRECTED
+      description: Legal ownership unless subtype says otherwise.
+    - value: BENEFICIAL_OWNER_OF
+      label: Beneficial owner of
+      directionality: DIRECTED
+      description: Beneficial ownership/economic interest.
+    - value: CONTROLS
+      label: Controls
+      directionality: DIRECTED
+      description: Control without requiring ownership.
+    - value: DIRECTOR_OF
+      label: Director of
+      directionality: DIRECTED
+      description: Corporate role; from Person to Organization (Person --DIRECTOR_OF--> Organization).
+    - value: OFFICER_OF
+      label: Officer of
+      directionality: DIRECTED
+      description: Organizational role.
+    - value: EMPLOYED_BY
+      label: Employed by
+      directionality: DIRECTED
+      description: Employment/role.
+    - value: RELATED_TO
+      label: Related to
+      directionality: SYMMETRIC
+      description: Familial/known relation; subtype required where possible.
+    - value: ASSOCIATE_OF
+      label: Associate of
+      directionality: SYMMETRIC
+      description: Documented association; SHALL NOT imply wrongdoing.
+    - value: SHARES_ADDRESS_WITH
+      label: Shares address with
+      directionality: SYMMETRIC
+      description: Common address.
+    - value: SHARES_PHONE_WITH
+      label: Shares phone with
+      directionality: SYMMETRIC
+      description: Common phone.
+    - value: SHARES_DEVICE_WITH
+      label: Shares device with
+      directionality: SYMMETRIC
+      description: Common device if lawfully obtained.
+    - value: CONTRACTED_BY
+      label: Contracted by
+      directionality: DIRECTED
+      description: Contract relationship.
+    - value: SUPPLIER_TO
+      label: Supplier to
+      directionality: DIRECTED
+      description: Supply relationship.
+    - value: ACQUIRED
+      label: Acquired
+      directionality: DIRECTED
+      description: Entity acquired asset.
+    - value: SOLD_TO
+      label: Sold to
+      directionality: DIRECTED
+      description: Asset transfer.
+    - value: REPRESENTED_BY
+      label: Represented by
+      directionality: DIRECTED
+      description: Professional/legal representation.
+    - value: PAID_BY
+      label: Paid by
+      directionality: DIRECTED
+      description: Documented payer relationship, not necessarily direct bank proof.
+    # [v0.1.1 · C09] values below registered from Methodology §13, IA §10 and Framework Expanded §11.2.
+    - value: AUTHORIZED_SIGNATORY_OF
+      label: Authorized signatory of
+      directionality: DIRECTED
+      description: 'Signing authority; from Person to Organization or Account.'
+    - value: COMMISSIONER_OF
+      label: Commissioner of
+      directionality: DIRECTED
+      description: 'Supervisory-board (commissioner) role; from Person to Organization.'
+    - value: MANAGES
+      label: Manages
+      directionality: DIRECTED
+      description: 'Day-to-day management of an entity or asset without implying ownership or control.'
+    - value: USES
+      label: Uses
+      directionality: DIRECTED
+      description: 'Entity uses or occupies an asset without documented ownership.'
+    - value: LENDER_TO
+      label: Lender to
+      directionality: DIRECTED
+      description: 'Lending relationship; from lender to borrower.'
+    - value: LEASED_TO
+      label: Leased to
+      directionality: DIRECTED
+      description: 'Lease of an asset; from lessor to lessee.'
+    - value: DONATED_TO
+      label: Donated to
+      directionality: DIRECTED
+      description: 'Documented donation; from donor to recipient.'
+    - value: FUNDED_BY
+      label: Funded by
+      directionality: DIRECTED
+      description: 'Documented funding; from funded entity to funder.'
+    - value: SHARES_DOMAIN_WITH
+      label: Shares domain with
+      directionality: SYMMETRIC
+      description: 'Common internet domain or email domain.'
+    - value: TRANSFERRED_VALUE_TO
+      label: Transferred value to
+      directionality: DIRECTED
+      description: 'Value transfer from sender to receiver; requires evidence or clearly marked reconstruction (prefer ValueFlow where movement semantics are material).'
+  directionality:
+    description: Directionality of a Relationship.
+    used_by:
+    - Relationship.directionality
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.1
+    values:
+    - value: DIRECTED
+      label: Directed
+    - value: SYMMETRIC
+      label: Symmetric
+  relationship_status:
+    description: Status of a Relationship.
+    used_by:
+    - Relationship.relationship_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.1
+    values:
+    - value: ASSERTED
+      label: Asserted
+    - value: ESTABLISHED
+      label: Established
+    - value: DISPUTED
+      label: Disputed
+    - value: SUPERSEDED
+      label: Superseded
+  ownership_type:
+    description: Type of OwnershipInterest.
+    used_by:
+    - OwnershipInterest.ownership_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.2
+    values:
+    - value: LEGAL
+      label: Legal
+    - value: BENEFICIAL
+      label: Beneficial
+    - value: ECONOMIC_INTEREST
+      label: Economic interest
+    - value: NOMINEE_ASSERTED
+      label: Nominee asserted
+  control_basis:
+    description: Basis of a ControlAssertion (multi-valued).
+    used_by:
+    - ControlAssertion.control_basis[]
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.3
+    values:
+    - value: VOTING
+      label: Voting
+    - value: APPOINTMENT
+      label: Appointment
+    - value: FINANCING
+      label: Financing
+    - value: CONTRACTUAL
+      label: Contractual
+    - value: OPERATIONAL
+      label: Operational
+    - value: FAMILY_PROXY
+      label: Family proxy
+    - value: OTHER
+      label: Other
+  control_level:
+    description: Level of control asserted.
+    used_by:
+    - ControlAssertion.control_level
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.3
+    note: 'MINOR < SIGNIFICANT < DOMINANT is a scale, but UNKNOWN is not ranked; ordered: false.'
+    values:
+    - value: MINOR
+      label: Minor
+    - value: SIGNIFICANT
+      label: Significant
+    - value: DOMINANT
+      label: Dominant
+    - value: UNKNOWN
+      label: Unknown
+  asset_type:
+    description: Type of Asset.
+    used_by:
+    - Asset.asset_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §10.1
+    values:
+    - value: PROPERTY
+      label: Property
+    - value: VEHICLE
+      label: Vehicle
+    - value: VESSEL
+      label: Vessel
+    - value: AIRCRAFT
+      label: Aircraft
+    - value: SECURITY
+      label: Security
+    - value: COMPANY_SHARE
+      label: Company share
+    - value: CRYPTO_ASSET
+      label: Crypto-asset
+    - value: PRECIOUS_METAL
+      label: Precious metal
+    - value: LUXURY_GOOD
+      label: Luxury good
+    - value: INTELLECTUAL_PROPERTY
+      label: Intellectual property
+    - value: OTHER
+      label: Other
+  event_type:
+    description: Type of Event.
+    used_by:
+    - Event.event_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §10.2
+    values:
+    - value: INCORPORATION
+      label: Incorporation
+    - value: APPOINTMENT
+      label: Appointment
+    - value: RESIGNATION
+      label: Resignation
+    - value: CONTRACT_AWARD
+      label: Contract award
+    - value: ACQUISITION
+      label: Acquisition
+    - value: DISPOSAL
+      label: Disposal
+    - value: TRANSFER
+      label: Transfer
+    - value: COURT_EVENT
+      label: Court event
+    - value: PAYMENT_EVENT
+      label: Payment event
+    - value: PUBLICATION
+      label: Publication
+    - value: OTHER
+      label: Other
+  flow_class:
+    description: Mandatory epistemic class of a value flow (D-A09). Preserved in storage, APIs, exports and visualizations.
+    used_by:
+    - ValueFlow.flow_class
+    - ValueFlowLeg.flow_class
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §11, Annex A
+    note: 'Epistemic categories, not a confidence scale; ordered: false.'
+    values:
+    - value: DIRECT
+      label: Direct
+      description: Evidence of the actual movement of value.
+    - value: DOCUMENTED
+      label: Documented
+      description: Authoritative or transactional document evidencing a transfer/obligation, not necessarily settlement.
+    - value: RECONSTRUCTED
+      label: Reconstructed
+      description: Inferred; SHALL identify the inferential steps linking origin and destination.
+    - value: HYPOTHETICAL
+      label: Hypothetical
+      description: SHALL never be included in an external intelligence product as if observed.
+  flow_type:
+    description: Economic type of a ValueFlow.
+    used_by:
+    - ValueFlow.flow_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §11.1
+    values:
+    - value: PAYMENT
+      label: Payment
+    - value: CONTRACT
+      label: Contract
+    - value: SUBCONTRACT
+      label: Subcontract
+    - value: LOAN
+      label: Loan
+    - value: INVESTMENT
+      label: Investment
+    - value: ASSET_PURCHASE
+      label: Asset purchase
+    - value: ASSET_SALE
+      label: Asset sale
+    - value: GRANT
+      label: Grant
+    - value: DONATION
+      label: Donation
+    - value: DIVIDEND
+      label: Dividend
+    - value: CRYPTO_TRANSFER
+      label: Crypto transfer
+    - value: VALUE_CONVERSION
+      label: Value conversion
+    - value: OTHER
+      label: Other
+  indicator_class:
+    description: Indicator class (CS-AML design convention).
+    used_by:
+    - Indicator.indicator_class
+    - Typology Catalogue indicator sets (Class column, letter code)
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §12.1; Documents/CS-AML_Typology_Catalogue_v0.1.1.md
+      §5
+    note: code is the catalogue display short code; the wire value is the UPPER_SNAKE_CASE value.
+    values:
+    - value: MECHANISM
+      label: Mechanism-specific
+      code: M
+      description: Directly reflects how the typology operates; highest analytical weight.
+    - value: CORROBORATING
+      label: Corroborating
+      code: C
+      description: Supports a mechanism-specific indicator through an independent fact, relationship, event, or
+        source.
+    - value: CONTEXTUAL
+      label: Contextual
+      code: K
+      description: Raises or lowers plausibility but is not specific enough to support a typology on its own.
+    - value: DISCONFIRMING
+      label: Disconfirming
+      code: D
+      description: Contradicts, weakens, or provides a more credible alternative explanation.
+    - value: GAP
+      label: Gap
+      code: G
+      description: Material information that is missing and limits confidence.
+  indicator_status:
+    description: Lifecycle status of a case-level Indicator object.
+    used_by:
+    - Indicator.status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §12.1
+    note: Distinct from typology_indicator_observation_status, which records the per-typology assessment of whether
+      a catalogue indicator is present.
+    values:
+    - value: OBSERVED
+      label: Observed
+    - value: CORROBORATED
+      label: Corroborated
+    - value: DISPUTED
+      label: Disputed
+    - value: RETIRED
+      label: Retired
+  typology_consistency_level:
+    description: Consistency between case evidence and a catalogue typology. Expresses consistency, not guilt or
+      legal classification.
+    used_by:
+    - TypologyMatch.consistency_level
+    - Typology Catalogue §4 assessment level
+    - Typology Catalogue §9 Assessment level
+    ordered: true
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §12.2, Annex A; Documents/CS-AML_Typology_Catalogue_v0.1.1.md
+      §4
+    note: rank 1 = weakest. Above PLAUSIBLE requires more than a single indicator or single source unless direct
+      authoritative evidence establishes the mechanism; STRONG/COMPELLING require a reviewer.
+    values:
+    - value: NO_BASIS
+      label: No analytical basis
+      description: No mechanism-specific indicator supported by reliable evidence.
+      rank: 1
+    - value: WEAK
+      label: Weak consistency
+      description: One or more generic indicators are present, but no mechanism-specific pattern is adequately corroborated.
+      rank: 2
+    - value: PLAUSIBLE
+      label: Plausible consistency
+      description: At least one mechanism-specific indicator plus independent corroborating evidence; material gaps
+        remain.
+      rank: 3
+    - value: STRONG
+      label: Strong consistency
+      description: Multiple mutually reinforcing mechanism-specific indicators, independently supported, with alternative
+        explanations assessed and materially weakened.
+      rank: 4
+    - value: COMPELLING
+      label: Compelling consistency
+      description: Direct or authoritative evidence establishes the mechanism or value movement and is corroborated
+        by additional evidence. Does not determine criminal liability.
+      rank: 5
+  typology_indicator_observation_status:
+    description: Status of a catalogue indicator within a typology analysis.
+    used_by:
+    - Typology Catalogue §4 / §9 indicator status (TypologyMatch indicator assessment)
+    ordered: false
+    source: Documents/CS-AML_Typology_Catalogue_v0.1.1.md §4
+    note: v0.1 wrote "PARTIALLY OBSERVED", "NOT OBSERVED", "NOT APPLICABLE" with spaces; normalised in v0.1.1 (A09).
+    legacy_values:
+      PARTIALLY OBSERVED: PARTIALLY_OBSERVED
+      NOT OBSERVED: NOT_OBSERVED
+      NOT APPLICABLE: NOT_APPLICABLE
+    values:
+    - value: OBSERVED
+      label: Observed
+    - value: PARTIALLY_OBSERVED
+      label: Partially observed
+    - value: NOT_OBSERVED
+      label: Not observed
+    - value: UNKNOWN
+      label: Unknown
+    - value: NOT_APPLICABLE
+      label: Not applicable
+  typology_status:
+    description: Catalogue status of a typology entry.
+    used_by:
+    - 'Typology record schema: status (Typology Catalogue §8)'
+    ordered: false
+    source: Documents/CS-AML_Typology_Catalogue_v0.1.1.md §8, §10
+    legacy_values:
+      active: ACTIVE
+      deprecated: DEPRECATED
+      experimental: EXPERIMENTAL
+    values:
+    - value: ACTIVE
+      label: Active
+      description: In use for analysis; reached through governance (§10).
+    - value: DEPRECATED
+      label: Deprecated
+      description: No longer recommended; remains resolvable by ID so historical case records stay interpretable.
+    - value: EXPERIMENTAL
+      label: Experimental
+      description: Research use only; clearly labelled; SHALL NOT be the sole basis for escalation.
+  typology_family:
+    description: Catalogue family (primary laundering function). The family letter is also the first character of
+      the typology ID suffix.
+    used_by:
+    - 'Typology record schema: family (Typology Catalogue §8)'
+    ordered: false
+    source: Documents/CS-AML_Typology_Catalogue_v0.1.1.md §3
+    values:
+    - value: A
+      label: Ownership & Control Concealment
+    - value: B
+      label: Layering & Movement
+    - value: C
+      label: Business, Trade & Contract Abuse
+    - value: D
+      label: Asset Conversion & Integration
+    - value: E
+      label: Professional & Network Facilitation
+    - value: F
+      label: Digital & Cross-Border Channels
+  hypothesis_type:
+    description: Type of Hypothesis.
+    used_by:
+    - Hypothesis.hypothesis_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.1
+    values:
+    - value: OWNERSHIP
+      label: Ownership
+    - value: CONTROL
+      label: Control
+    - value: VALUE_FLOW
+      label: Value flow
+    - value: TYPOLOGY
+      label: Typology
+    - value: SOURCE_OF_FUNDS
+      label: Source of funds
+    - value: OTHER
+      label: Other
+  hypothesis_status:
+    description: Status of a Hypothesis.
+    used_by:
+    - Hypothesis.status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.1, Annex A
+    values:
+    - value: OPEN
+      label: Open
+    - value: SUPPORTED
+      label: Supported
+    - value: WEAKENED
+      label: Weakened
+    - value: REJECTED
+      label: Rejected
+    - value: INCONCLUSIVE
+      label: Inconclusive
+  gap_importance:
+    description: Importance of an IntelligenceGap.
+    used_by:
+    - IntelligenceGap.importance
+    ordered: true
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.2
+    note: rank 1 = least important.
+    values:
+    - value: LOW
+      label: Low
+      rank: 1
+    - value: MEDIUM
+      label: Medium
+      rank: 2
+    - value: HIGH
+      label: High
+      rank: 3
+    - value: CRITICAL
+      label: Critical
+      rank: 4
+  collection_feasibility:
+    description: Feasibility of collecting information to close an IntelligenceGap.
+    used_by:
+    - IntelligenceGap.collection_feasibility
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.2
+    values:
+    - value: AVAILABLE
+      label: Available
+    - value: DIFFICULT
+      label: Difficult
+    - value: UNAVAILABLE
+      label: Unavailable
+    - value: UNLAWFUL
+      label: Unlawful
+    - value: OUT_OF_SCOPE
+      label: Out of scope
+  gap_status:
+    description: Status of an IntelligenceGap.
+    used_by:
+    - IntelligenceGap.status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.2
+    values:
+    - value: OPEN
+      label: Open
+    - value: PARTIALLY_RESOLVED
+      label: Partially resolved
+    - value: RESOLVED
+      label: Resolved
+    - value: ACCEPTED
+      label: Accepted
+  assessment_review_status:
+    description: Review status of an Assessment.
+    used_by:
+    - Assessment.review_status
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.3
+    values:
+    - value: DRAFT
+      label: Draft
+    - value: PEER_REVIEWED
+      label: Peer reviewed
+    - value: APPROVED
+      label: Approved
+    - value: SUPERSEDED
+      label: Superseded
+  product_type:
+    description: Type of IntelligenceProduct.
+    used_by:
+    - IntelligenceProduct.product_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.1
+    note: 'mvp_p0: true for the six MVP P0 templates (SRS-FR-PRD-001); INVESTIGATION_BRIEF and PUBLICATION_SUPPORT
+      are not in MVP scope.'
+    values:
+    - value: FINANCIAL_INTELLIGENCE_NOTE
+      label: Financial intelligence note
+      mvp_p0: true
+    - value: ENTITY_PROFILE
+      label: Entity profile
+      mvp_p0: true
+    - value: ASSET_PROFILE
+      label: Asset profile
+      mvp_p0: true
+    - value: NETWORK_ANALYSIS
+      label: Network analysis
+      mvp_p0: true
+    - value: REFERRAL_PACKAGE
+      label: Referral package
+      mvp_p0: true
+    - value: CASE_REPORT
+      label: Case report
+      mvp_p0: true
+    - value: INVESTIGATION_BRIEF
+      label: Investigation brief
+      mvp_p0: false
+    - value: PUBLICATION_SUPPORT
+      label: Publication support
+      mvp_p0: false
+  product_approval_state:
+    description: Approval state of an IntelligenceProduct.
+    used_by:
+    - IntelligenceProduct.approval_state
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.1
+    values:
+    - value: DRAFT
+      label: Draft
+    - value: REVIEWED
+      label: Reviewed
+    - value: APPROVED
+      label: Approved
+    - value: DISSEMINATED
+      label: Disseminated
+    - value: WITHDRAWN
+      label: Withdrawn
+  review_type:
+    description: Type of Review.
+    used_by:
+    - Review.review_type
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.2
+    values:
+    - value: PEER
+      label: Peer
+    - value: LEGAL
+      label: Legal
+    - value: PRIVACY
+      label: Privacy
+    - value: SECURITY
+      label: Security
+    - value: RED_TEAM
+      label: Red team
+    - value: EDITORIAL
+      label: Editorial
+  review_decision:
+    description: Decision of a Review.
+    used_by:
+    - Review.decision
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.2, Annex A
+    values:
+    - value: APPROVE
+      label: Approve
+    - value: APPROVE_WITH_CHANGES
+      label: Approve with changes
+    - value: RETURN
+      label: Return
+    - value: REJECT
+      label: Reject
+  retention_trigger:
+    description: Event that starts a retention period.
+    used_by:
+    - RetentionRule.trigger
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §16.1
+    values:
+    - value: CREATION
+      label: Creation
+    - value: CASE_CLOSURE
+      label: Case closure
+    - value: DISSEMINATION
+      label: Dissemination
+    - value: LEGAL_HOLD_RELEASE
+      label: Legal hold release
+    - value: OTHER
+      label: Other
+  retention_disposition:
+    description: Disposition at end of retention.
+    used_by:
+    - RetentionRule.disposition
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §16.1
+    values:
+    - value: DELETE
+      label: Delete
+    - value: ANONYMIZE
+      label: Anonymize
+    - value: ARCHIVE
+      label: Archive
+    - value: REVIEW
+      label: Review
+  audit_action:
+    description: Action recorded by an AuditEvent.
+    used_by:
+    - AuditEvent.action
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §17.1
+    note: ResolutionDecision MERGE -> MERGE, UNMERGE -> SPLIT, other decisions -> UPDATE (Data Model §8.4). Field
+      type is enum/string; values outside this list are not conformant wire values.
+    values:
+    - value: CREATE
+      label: Create
+    - value: UPDATE
+      label: Update
+    - value: MERGE
+      label: Merge
+    - value: SPLIT
+      label: Split
+    - value: REVIEW
+      label: Review
+    - value: APPROVE
+      label: Approve
+    - value: DISSEMINATE
+      label: Disseminate
+    - value: RESTRICT
+      label: Restrict
+    - value: DELETE
+      label: Delete
+    - value: EXPORT
+      label: Export
+    - value: LOGIN_SENSITIVE
+      label: Sensitive login
+    - value: OTHER
+      label: Other
+  source_mapping_origin:
+    description: Origin of a catalogue indicator in the A13 source-mapping register.
+    used_by:
+    - sources/typology-source-map.yaml records[].origin
+    ordered: false
+    source: Audit finding A13; sources/README.md
+    values:
+    - value: EXTERNAL_SOURCE
+      label: External source
+      description: Indicator content is taken from an identified external publication (requires a stated source).
+    - value: CS_AML_DESIGN_CONVENTION
+      label: CS-AML design convention
+      description: Indicator is framed by the catalogue as a CS-AML construct; no external source is claimed.
+    - value: PENDING_VERIFICATION
+      label: Pending verification
+      description: Origin not yet established; typology-level lineage is not per-indicator support.
+  source_verification_status:
+    description: Verification status of a source or of an indicator-to-source mapping.
+    used_by:
+    - sources/typology-source-map.yaml records[].verification_status
+    - sources/typology-source-map.yaml publications[].verification_status
+    ordered: false
+    source: Audit/CS-AML_Documentation_Audit_2026-10-07.md §8 (audit finding A13)
+    values:
+    - value: PENDING_VERIFICATION
+      label: Pending verification
+      description: Not verified (or only a programme/topic is named).
+    - value: PUBLICATION_LEVEL_VERIFIED
+      label: Publication-level verified
+      description: Publication existence/version verified by the 2026-10-07 audit (§8, S01–S18); NOT section/page-level
+        support for any indicator.
+unregistered_fields:
+- field: <envelope>.object_type
+  reason: Canonical class names (Data Model §3.1, Annex C); not an enumerated value list in the Data Model.
+- field: <envelope>.status
+  reason: Per-class lifecycle; registered here only where the Data Model lists values (case_status, evidence_item_status,
+    claim_status, fact_status, etc.).
+- field: Case.risk_rating
+  reason: Declared enum with no values in Data Model v0.1.1 — open item.
+- field: Case.closure_reason
+  reason: Declared enum with no values in Data Model v0.1.1 — open item.
+- field: InvestigationQuestion.priority
+  reason: Declared enum with no values in Data Model v0.1.1 — open item.
+- field: Claim.credibility_grade
+  reason: 'Numeric grades 1-6 (Data Model §14: 1 independently confirmed; 2 probably true; 3 possibly true; 4 doubtful;
+    5 improbable; 6 cannot be judged). Codes are digits, outside the UPPER_SNAKE_CASE pattern; decision needed whether
+    to keep digit codes or define wire names.'
+- field: Source.lawful_access_basis
+  reason: text/enum with no values listed.
+- field: Asset.valuation_basis
+  reason: enum/text; prose examples only (registry, market estimate, appraisal, reported value).
+- field: IntelligenceProduct.audience
+  reason: enum/string[] with no values listed.
+- field: RetentionRule.applies_to
+  reason: 'enum/ref: object type (see object_type) or object reference.'

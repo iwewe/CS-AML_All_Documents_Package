@@ -1,0 +1,1655 @@
+# CS-AML typology indicator source-mapping register  [v0.1.1 · A13]
+#
+# One record per indicator in the Typology Catalogue v0.1.1 (89 indicators, 20 typologies).
+# indicator_id: the catalogue does not assign indicator IDs. The stable key used here is
+#   <typology_id>-I<nn>, numbered in document order within each "Indicator set" table (I01 = first row).
+#   If the catalogue is re-ordered, keys SHALL be kept and new indicators appended with the next number.
+#
+# origin (schemas/enums.yaml: source_mapping_origin)
+#   EXTERNAL_SOURCE           indicator content is taken from an identified publication (requires `source`). None yet.
+#   CS_AML_DESIGN_CONVENTION  the catalogue itself frames the indicator as a CS-AML construct (here: DISCONFIRMING
+#                             indicators, per catalogue §0/§5/§6). No external source is claimed.
+#   PENDING_VERIFICATION      origin not established. Typology-level "Primary reference lineage" is NOT per-indicator
+#                             support (catalogue Annex A), so it is recorded in typology_lineage_refs, not in `source`.
+# verification_status (schemas/enums.yaml: source_verification_status)
+#   PENDING_VERIFICATION        no indicator-to-source mapping has been verified (all records at present).
+#   PUBLICATION_LEVEL_VERIFIED  used only on `publications` entries whose existence/version the 2026-10-07 audit
+#                               verified (Audit §8: S01, S08, S09). It is NOT section/page support for any indicator.
+# source: only what the catalogue itself states; null where no per-indicator source is stated (all records at present).
+# location: section/page. Always null: no page-level verification has been done. Do not add sections or pages
+#   without checking the publication itself.
+# OPEN METHODOLOGICAL TASK: per-indicator verification against the cited publications (section/page, adaptation
+#   note), sample review by an investigator/AML specialist (audit finding A13). Until then no record may be cited
+#   as external support for an indicator.
+register: CS-AML typology indicator source-mapping register
+register_version: 0.1.1
+catalogue: Documents/CS-AML_Typology_Catalogue_v0.1.1.md
+enum_registry: schemas/enums.yaml (source_mapping_origin, source_verification_status, indicator_class)
+generated_from_catalogue_on: '2026-10-08'
+publications:
+- publication_id: SRC-FATF-EGMONT-CBO
+  publisher: FATF; Egmont Group
+  title: Concealment of Beneficial Ownership
+  year: 2018
+  url: https://www.fatf-gafi.org/content/dam/fatf-gafi/reports/FATF-Egmont-Concealment-beneficial-ownership.pdf
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Named with title and year; not in audit register §8.
+- publication_id: SRC-FATF-BO-LEGAL-PERSONS
+  publisher: FATF
+  title: Guidance on Beneficial Ownership of Legal Persons
+  year: 2023
+  url: https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Guidance-Beneficial-Ownership-Legal-Persons.html
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Named with title and year; not in audit register §8.
+- publication_id: SRC-FATF-BO-GUIDANCE-UNSPECIFIED
+  publisher: FATF
+  title: Beneficial Ownership guidance (specific publication not identified)
+  year: null
+  url: null
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label: pending verification — specific publication/section not yet identified.'
+- publication_id: SRC-APG-YEARLY-TYPOLOGIES
+  publisher: APG
+  title: Yearly Typologies Reports (specific edition not identified)
+  year: null
+  url: null
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label: pending verification — specific publication/section not yet identified. Catalogue also writes "APG
+    typologies case studies" (B02) and "APG typologies reports" (D02); mapped here.'
+- publication_id: SRC-FATF-PML-2018
+  publisher: FATF
+  title: Professional Money Laundering
+  year: 2018
+  url: https://www.fatf-gafi.org/content/dam/fatf-gafi/reports/Professional-Money-Laundering.pdf
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Named with title and year; not in audit register §8 (S08 is the separate 2026 report).
+- publication_id: SRC-FATF-METHODS-TRENDS
+  publisher: FATF
+  title: Methods and Trends (topic index page; specific publication not identified)
+  year: null
+  url: https://www.fatf-gafi.org/en/topics/methods-and-trends.html
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label: pending verification — specific publication/section not yet identified. Also cited as "FATF Methods
+    and Trends case studies" (C04) and "FATF methods and trends" (D03).'
+- publication_id: SRC-FATF-CEF-2026
+  publisher: FATF
+  title: Cyber-Enabled Fraud (digitalisation, ML/TF/PF risks)
+  year: 2026
+  url: https://www.fatf-gafi.org/en/publications/Methodsandtrends/cyber-enabled-fraud-digitalisation-ml-tf-pf-risks.html
+  specific_publication_identified: true
+  verification_status: PUBLICATION_LEVEL_VERIFIED
+  audit_ref: Audit/CS-AML_Documentation_Audit_2026-10-07.md §8 [S09]
+  note: Audit verified that the 2026 publication exists; not all figures/case narratives were audited. Cited as "FATF cyber-enabled
+    fraud paper (2026)", "FATF Cyber-Enabled Fraud (2026)", "FATF Cyber-Enabled Fraud paper (2026)".
+- publication_id: SRC-FATF-TBML
+  publisher: FATF
+  title: Trade-Based Money Laundering (2006 and later updates)
+  year: 2006
+  url: https://www.fatf-gafi.org/en/publications/Methodsandtrends/Trade-basedmoneylaundering.html
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Catalogue states "2006 and later updates"; later editions not identified. Not in audit register §8.
+- publication_id: SRC-PPATK-COURT-TYPOLOGY-UNSPECIFIED
+  publisher: PPATK
+  title: Court-based typology research (specific publication not identified)
+  year: null
+  url: null
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label: pending verification — specific publication/section not yet identified. Annex A lists two PPATK
+    court-based typology publications but the C03 entry does not say which.'
+- publication_id: SRC-FATF-CORRUPTION-BO-UNSPECIFIED
+  publisher: FATF
+  title: Corruption / beneficial ownership work (specific publication not identified)
+  year: null
+  url: null
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label: pending verification — specific publication/section not yet identified.'
+- publication_id: SRC-FATF-REAL-ESTATE-TYPOLOGIES-UNSPECIFIED
+  publisher: FATF
+  title: Real estate typologies (specific publication not identified)
+  year: null
+  url: null
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label (C04): pending verification — specific publication/section not yet identified.'
+- publication_id: SRC-FATF-REAL-ESTATE
+  publisher: FATF
+  title: Money Laundering and Terrorist Financing Through the Real Estate Sector
+  year: null
+  url: https://www.fatf-gafi.org/en/publications/Methodsandtrends/Moneylaunderingandterroristfinancingthroughtherealestatesector.html
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Year not stated in the catalogue. Not in audit register §8.
+- publication_id: SRC-FATF-PML-HAWALA-2026
+  publisher: FATF
+  title: Investigating Professional Money Laundering, Underground Banking, Hawala and HOSSPs
+  year: 2026
+  url: https://www.fatf-gafi.org/en/publications/Methodsandtrends/pml-underground-banking-hawala-hossps.html
+  specific_publication_identified: true
+  verification_status: PUBLICATION_LEVEL_VERIFIED
+  audit_ref: Audit/CS-AML_Documentation_Audit_2026-10-07.md §8 [S08]
+  note: Audit verified existence and scope of the 2026 report, not the local indicators. Cited as "FATF PML, Underground Banking
+    and Hawala report (2026)" (E01) and "FATF Investigating PML, Underground Banking and Hawala/HOSSPs (2026)" (E03).
+- publication_id: SRC-FATF-VA-RED-FLAGS-2020
+  publisher: FATF
+  title: Virtual Assets Red Flag Indicators
+  year: 2020
+  url: https://www.fatf-gafi.org/en/publications/Methodsandtrends/Virtual-assets-red-flag-indicators.html
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Named with title and year; not in audit register §8.
+- publication_id: SRC-FATF-VA-VASP-TARGETED-UPDATE-2026
+  publisher: FATF
+  title: VA/VASP Targeted Update
+  year: 2026
+  url: null
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: No URL given in the catalogue. Not in audit register §8.
+- publication_id: SRC-FATF-DEFI-2026
+  publisher: FATF
+  title: Targeted report on decentralised finance (DeFi)
+  year: 2026
+  url: https://www.fatf-gafi.org/en/news/targeted-report-decentralised-finance-2026.html
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Not in audit register §8.
+- publication_id: SRC-PPATK-RA-UNSPECIFIED
+  publisher: PPATK
+  title: Risk assessments (publication index page; specific publication not identified)
+  year: null
+  url: https://www.ppatk.go.id/dalam_negeri/read/1397/publikasi-penilaian-risiko.html
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue labels "PPATK cybercrime risk assessments" (F02), "PPATK cross-border cash risk assessments" (F03), "PPATK
+    fintech sectoral risk assessments" (F04): pending verification — specific publication/section not yet identified. URL
+    is the index page listed in Annex A.'
+- publication_id: SRC-FATF-RECOMMENDATIONS
+  publisher: FATF
+  title: FATF Recommendations (updated June 2026)
+  year: 2026
+  url: https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html
+  specific_publication_identified: true
+  verification_status: PUBLICATION_LEVEL_VERIFIED
+  audit_ref: Audit/CS-AML_Documentation_Audit_2026-10-07.md §8 [S01]
+  note: Catalogue cites "FATF Recommendation 32 context". Audit verified the publication/version, not CS-AML controls or any
+    indicator.
+- publication_id: SRC-FATF-NEW-PAYMENT-METHODS
+  publisher: FATF
+  title: Money Laundering Using New Payment Methods
+  year: null
+  url: null
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Year and URL not given in the catalogue. Not in audit register §8.
+- publication_id: SRC-FATF-ENV-CRIME-UNSPECIFIED
+  publisher: FATF; national authorities
+  title: Environmental crime work and national risk-assessment materials (specific publications not identified)
+  year: null
+  url: null
+  specific_publication_identified: false
+  verification_status: PENDING_VERIFICATION
+  note: 'Catalogue label: pending verification — specific publication/section not yet identified.'
+- publication_id: SRC-PPATK-SMUGGLING-2025
+  publisher: PPATK
+  title: Tipologi Pencucian Uang yang Berasal dari Penyelundupan
+  year: 2025
+  url: https://www.ppatk.go.id/publikasi/read/250/tipologi-pencucian-uang-yang-berasal-dari-penyelundupan.html
+  specific_publication_identified: true
+  verification_status: PENDING_VERIFICATION
+  note: Not in audit register §8.
+records:
+- typology_id: CSAML-TYP-A01
+  indicator_id: CSAML-TYP-A01-I01
+  indicator_class: MECHANISM
+  indicator_text: Entity holds significant assets/contracts while showing little observable operating substance.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-LEGAL-PERSONS
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Guidance on Beneficial Ownership of Legal Persons (2023)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A01
+  indicator_id: CSAML-TYP-A01-I02
+  indicator_class: MECHANISM
+  indicator_text: Multiple layers of legal entities separate the relevant person from ownership/control.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-LEGAL-PERSONS
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Guidance on Beneficial Ownership of Legal Persons (2023)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A01
+  indicator_id: CSAML-TYP-A01-I03
+  indicator_class: CORROBORATING
+  indicator_text: Common directors, addresses, agents, or contact points connect nominally separate entities.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-LEGAL-PERSONS
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Guidance on Beneficial Ownership of Legal Persons (2023)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A01
+  indicator_id: CSAML-TYP-A01-I04
+  indicator_class: CORROBORATING
+  indicator_text: Entity formation or ownership change is temporally close to a contract, asset acquisition, or legal event.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-LEGAL-PERSONS
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Guidance on Beneficial Ownership of Legal Persons (2023)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A01
+  indicator_id: CSAML-TYP-A01-I05
+  indicator_class: CONTEXTUAL
+  indicator_text: Use of jurisdictions or service providers associated with corporate structuring.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-LEGAL-PERSONS
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Guidance on Beneficial Ownership of Legal Persons (2023)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A01
+  indicator_id: CSAML-TYP-A01-I06
+  indicator_class: DISCONFIRMING
+  indicator_text: Documented legitimate group structure, staffing, operations, tax/business rationale, and independent counterparties
+    support ordinary commercial purpose.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-LEGAL-PERSONS
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Guidance on Beneficial Ownership of Legal Persons (2023)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-A02
+  indicator_id: CSAML-TYP-A02-I01
+  indicator_class: MECHANISM
+  indicator_text: Documented divergence between legal ownership and practical control/benefit.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-GUIDANCE-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Beneficial Ownership guidance — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A02
+  indicator_id: CSAML-TYP-A02-I02
+  indicator_class: MECHANISM
+  indicator_text: Proxy lacks plausible economic capacity while another person funds, uses, or directs the asset/entity.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-GUIDANCE-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Beneficial Ownership guidance — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A02
+  indicator_id: CSAML-TYP-A02-I03
+  indicator_class: CORROBORATING
+  indicator_text: Close personal, employment, family, or business relationship connects nominee and suspected controller.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-GUIDANCE-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Beneficial Ownership guidance — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A02
+  indicator_id: CSAML-TYP-A02-I04
+  indicator_class: CORROBORATING
+  indicator_text: Ownership changes preserve the same practical user, address, manager, or financing source.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-GUIDANCE-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Beneficial Ownership guidance — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-A02
+  indicator_id: CSAML-TYP-A02-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Independent financing, management, and benefit by the registered owner are well documented.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-BO-GUIDANCE-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF-Egmont, Concealment of Beneficial Ownership (2018)
+  - FATF Beneficial Ownership guidance — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-B01
+  indicator_id: CSAML-TYP-B01-I01
+  indicator_class: MECHANISM
+  indicator_text: Fragmentation is followed by recombination into a common beneficiary, asset, or controller.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B01
+  indicator_id: CSAML-TYP-B01-I02
+  indicator_class: MECHANISM
+  indicator_text: Transaction or event pattern clusters closely below a known threshold or control point.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B01
+  indicator_id: CSAML-TYP-B01-I03
+  indicator_class: CORROBORATING
+  indicator_text: Participants share address, employer, device, contact, controller, or other relationship.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B01
+  indicator_id: CSAML-TYP-B01-I04
+  indicator_class: CONTEXTUAL
+  indicator_text: High cash intensity or repeated small-value activity.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B01
+  indicator_id: CSAML-TYP-B01-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Business model naturally produces high-volume small transactions with independently supported commercial
+    purpose.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-B02
+  indicator_id: CSAML-TYP-B02-I01
+  indicator_class: MECHANISM
+  indicator_text: Economic value demonstrably returns to the same controller or closely related entity after intermediate
+    steps.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Methods and Trends — pending verification — specific publication/section not yet identified
+  - APG typologies case studies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B02
+  indicator_id: CSAML-TYP-B02-I02
+  indicator_class: CORROBORATING
+  indicator_text: Intermediate entities have weak independent commercial rationale.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Methods and Trends — pending verification — specific publication/section not yet identified
+  - APG typologies case studies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B02
+  indicator_id: CSAML-TYP-B02-I03
+  indicator_class: CORROBORATING
+  indicator_text: Amounts/timing are closely matched across outward and inward legs.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Methods and Trends — pending verification — specific publication/section not yet identified
+  - APG typologies case studies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-B02
+  indicator_id: CSAML-TYP-B02-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Independent market transactions, arm’s-length pricing, and distinct beneficial owners are supported.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Methods and Trends — pending verification — specific publication/section not yet identified
+  - APG typologies case studies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-B03
+  indicator_id: CSAML-TYP-B03-I01
+  indicator_class: MECHANISM
+  indicator_text: Substantial incoming value is followed by closely timed outward movement with limited retention.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF cyber-enabled fraud paper (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-B03
+  indicator_id: CSAML-TYP-B03-I02
+  indicator_class: CORROBORATING
+  indicator_text: Pass-through entity lacks observable economic role or margin consistent with the movement.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF cyber-enabled fraud paper (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-B03
+  indicator_id: CSAML-TYP-B03-I03
+  indicator_class: CORROBORATING
+  indicator_text: Repeated use of the same routing pattern across cases.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF cyber-enabled fraud paper (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-B03
+  indicator_id: CSAML-TYP-B03-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Escrow, settlement, payment processing, agency, marketplace, or treasury function explains rapid movement.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF cyber-enabled fraud paper (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-C01
+  indicator_id: CSAML-TYP-C01-I01
+  indicator_class: MECHANISM
+  indicator_text: Material mismatch between claimed cash revenue and observable business capacity.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - FATF-Egmont Concealment of Beneficial Ownership (front companies)
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C01
+  indicator_id: CSAML-TYP-C01-I02
+  indicator_class: CORROBORATING
+  indicator_text: Rapid asset accumulation or distributions unsupported by operating footprint.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - FATF-Egmont Concealment of Beneficial Ownership (front companies)
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C01
+  indicator_id: CSAML-TYP-C01-I03
+  indicator_class: CORROBORATING
+  indicator_text: Business has weak documentation of customers, inventory, or service delivery in records that are lawfully
+    available.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - FATF-Egmont Concealment of Beneficial Ownership (front companies)
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C01
+  indicator_id: CSAML-TYP-C01-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Independent sales records, tax filings, market data, staffing, inventory, and operating evidence support
+    revenue levels.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-EGMONT-CBO
+  - SRC-FATF-PML-2018
+  typology_lineage_as_stated:
+  - FATF-Egmont Concealment of Beneficial Ownership (front companies)
+  - FATF Professional Money Laundering (2018)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-C02
+  indicator_id: CSAML-TYP-C02-I01
+  indicator_class: MECHANISM
+  indicator_text: Material documentary inconsistency in price, quantity, quality, shipment, or invoicing.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-TBML
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Trade-Based Money Laundering (2006 and later updates)
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C02
+  indicator_id: CSAML-TYP-C02-I02
+  indicator_class: MECHANISM
+  indicator_text: Trade transaction has no plausible relationship to the parties’ ordinary business.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-TBML
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Trade-Based Money Laundering (2006 and later updates)
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C02
+  indicator_id: CSAML-TYP-C02-I03
+  indicator_class: CORROBORATING
+  indicator_text: Complex third-party payments or jurisdictions unrelated to shipment.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-TBML
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Trade-Based Money Laundering (2006 and later updates)
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C02
+  indicator_id: CSAML-TYP-C02-I04
+  indicator_class: CORROBORATING
+  indicator_text: Repeated use of commodities suited to value manipulation.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-TBML
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Trade-Based Money Laundering (2006 and later updates)
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C02
+  indicator_id: CSAML-TYP-C02-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Price variation is supported by grade, freight, insurance, scarcity, contract terms, or other market factors.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-TBML
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Trade-Based Money Laundering (2006 and later updates)
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-C03
+  indicator_id: CSAML-TYP-C03-I01
+  indicator_class: MECHANISM
+  indicator_text: Award/contract value is linked to an entity controlled by or for a conflicted beneficiary.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-PPATK-COURT-TYPOLOGY-UNSPECIFIED
+  - SRC-FATF-CORRUPTION-BO-UNSPECIFIED
+  typology_lineage_as_stated:
+  - PPATK court-based typology research — pending verification — specific publication/section not yet identified
+  - FATF corruption/beneficial ownership work — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C03
+  indicator_id: CSAML-TYP-C03-I02
+  indicator_class: MECHANISM
+  indicator_text: Material discrepancy between contracted value and documented delivery/market value.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-PPATK-COURT-TYPOLOGY-UNSPECIFIED
+  - SRC-FATF-CORRUPTION-BO-UNSPECIFIED
+  typology_lineage_as_stated:
+  - PPATK court-based typology research — pending verification — specific publication/section not yet identified
+  - FATF corruption/beneficial ownership work — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C03
+  indicator_id: CSAML-TYP-C03-I03
+  indicator_class: CORROBORATING
+  indicator_text: Subcontractors share owners, addresses, directors, or controllers with prime contractor.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-PPATK-COURT-TYPOLOGY-UNSPECIFIED
+  - SRC-FATF-CORRUPTION-BO-UNSPECIFIED
+  typology_lineage_as_stated:
+  - PPATK court-based typology research — pending verification — specific publication/section not yet identified
+  - FATF corruption/beneficial ownership work — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C03
+  indicator_id: CSAML-TYP-C03-I04
+  indicator_class: CORROBORATING
+  indicator_text: Related asset acquisitions occur soon after economically significant contract events.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-PPATK-COURT-TYPOLOGY-UNSPECIFIED
+  - SRC-FATF-CORRUPTION-BO-UNSPECIFIED
+  typology_lineage_as_stated:
+  - PPATK court-based typology research — pending verification — specific publication/section not yet identified
+  - FATF corruption/beneficial ownership work — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C03
+  indicator_id: CSAML-TYP-C03-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Competitive process, delivery evidence, market pricing, conflict disclosure, and independent oversight support
+    legitimacy.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-PPATK-COURT-TYPOLOGY-UNSPECIFIED
+  - SRC-FATF-CORRUPTION-BO-UNSPECIFIED
+  typology_lineage_as_stated:
+  - PPATK court-based typology research — pending verification — specific publication/section not yet identified
+  - FATF corruption/beneficial ownership work — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-C04
+  indicator_id: CSAML-TYP-C04-I01
+  indicator_class: MECHANISM
+  indicator_text: Lender lacks plausible independent source of funds or appears controlled by borrower/related person.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-FATF-REAL-ESTATE-TYPOLOGIES-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Methods and Trends case studies — pending verification — specific publication/section not yet identified
+  - FATF real estate typologies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C04
+  indicator_id: CSAML-TYP-C04-I02
+  indicator_class: MECHANISM
+  indicator_text: Loan documentation does not align with actual payment, repayment, or commercial terms.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-FATF-REAL-ESTATE-TYPOLOGIES-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Methods and Trends case studies — pending verification — specific publication/section not yet identified
+  - FATF real estate typologies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C04
+  indicator_id: CSAML-TYP-C04-I03
+  indicator_class: CORROBORATING
+  indicator_text: Loan coincides with asset purchase or unexplained increase in wealth.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-FATF-REAL-ESTATE-TYPOLOGIES-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Methods and Trends case studies — pending verification — specific publication/section not yet identified
+  - FATF real estate typologies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C04
+  indicator_id: CSAML-TYP-C04-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Independent lender, market terms, repayment, credit assessment, and source-of-funds evidence support legitimacy.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-METHODS-TRENDS
+  - SRC-FATF-REAL-ESTATE-TYPOLOGIES-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Methods and Trends case studies — pending verification — specific publication/section not yet identified
+  - FATF real estate typologies — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-D01
+  indicator_id: CSAML-TYP-D01-I01
+  indicator_class: MECHANISM
+  indicator_text: Property funding or beneficial use is materially inconsistent with registered ownership.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-REAL-ESTATE
+  typology_lineage_as_stated:
+  - FATF Money Laundering and Terrorist Financing Through the Real Estate Sector
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D01
+  indicator_id: CSAML-TYP-D01-I02
+  indicator_class: MECHANISM
+  indicator_text: Rapid related-party transfer or resale lacks credible economic rationale.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-REAL-ESTATE
+  typology_lineage_as_stated:
+  - FATF Money Laundering and Terrorist Financing Through the Real Estate Sector
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D01
+  indicator_id: CSAML-TYP-D01-I03
+  indicator_class: CORROBORATING
+  indicator_text: Complex company/loan structure obscures ultimate control.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-REAL-ESTATE
+  typology_lineage_as_stated:
+  - FATF Money Laundering and Terrorist Financing Through the Real Estate Sector
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D01
+  indicator_id: CSAML-TYP-D01-I04
+  indicator_class: CORROBORATING
+  indicator_text: Property event follows closely after predicate-risk event or major value inflow.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-REAL-ESTATE
+  typology_lineage_as_stated:
+  - FATF Money Laundering and Terrorist Financing Through the Real Estate Sector
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D01
+  indicator_id: CSAML-TYP-D01-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Documented financing, income, independent valuation, market sale, and beneficial ownership support legitimacy.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-REAL-ESTATE
+  typology_lineage_as_stated:
+  - FATF Money Laundering and Terrorist Financing Through the Real Estate Sector
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-D02
+  indicator_id: CSAML-TYP-D02-I01
+  indicator_class: MECHANISM
+  indicator_text: Asset acquisition is linked to unexplained funding or related-party concealment mechanism.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - APG typologies reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D02
+  indicator_id: CSAML-TYP-D02-I02
+  indicator_class: CORROBORATING
+  indicator_text: Use of proxy purchaser or corporate owner without commercial rationale.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - APG typologies reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D02
+  indicator_id: CSAML-TYP-D02-I03
+  indicator_class: CORROBORATING
+  indicator_text: Rapid resale or cross-border movement.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - APG typologies reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D02
+  indicator_id: CSAML-TYP-D02-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Documented legitimate wealth, business use, collection/investment purpose, and independent purchase funds.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-APG-YEARLY-TYPOLOGIES
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - APG typologies reports — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-E01
+  indicator_id: CSAML-TYP-E01-I01
+  indicator_class: MECHANISM
+  indicator_text: A common facilitator or infrastructure serves multiple unrelated illicit-value chains.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF PML, Underground Banking and Hawala report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E01
+  indicator_id: CSAML-TYP-E01-I02
+  indicator_class: MECHANISM
+  indicator_text: Roles are specialised and repeatable across cases.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF PML, Underground Banking and Hawala report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E01
+  indicator_id: CSAML-TYP-E01-I03
+  indicator_class: CORROBORATING
+  indicator_text: Network receives fees, spreads, commissions, or other compensation.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF PML, Underground Banking and Hawala report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E01
+  indicator_id: CSAML-TYP-E01-I04
+  indicator_class: CORROBORATING
+  indicator_text: Multiple mechanisms—trade, cash, accounts, crypto, assets—are coordinated by the same network.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF PML, Underground Banking and Hawala report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E01
+  indicator_id: CSAML-TYP-E01-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Professional service relationship is routine, documented, and unrelated to suspicious clients/events.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF PML, Underground Banking and Hawala report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-E02
+  indicator_id: CSAML-TYP-E02-I01
+  indicator_class: MECHANISM
+  indicator_text: Multiple ostensibly independent recipients converge on a shared controller/destination.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF Cyber-Enabled Fraud (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E02
+  indicator_id: CSAML-TYP-E02-I02
+  indicator_class: MECHANISM
+  indicator_text: Accounts/entities function mainly as receiving/pass-through nodes.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF Cyber-Enabled Fraud (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E02
+  indicator_id: CSAML-TYP-E02-I03
+  indicator_class: CORROBORATING
+  indicator_text: Common recruitment, device, contact, address, or payment infrastructure.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF Cyber-Enabled Fraud (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E02
+  indicator_id: CSAML-TYP-E02-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Marketplace, payroll, aggregator, franchise, charity, or platform relationship explains convergence.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-2018
+  - SRC-FATF-CEF-2026
+  typology_lineage_as_stated:
+  - FATF Professional Money Laundering (2018)
+  - FATF Cyber-Enabled Fraud (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-E03
+  indicator_id: CSAML-TYP-E03-I01
+  indicator_class: MECHANISM
+  indicator_text: Documented paired pay-in/pay-out or net settlement without direct origin-to-recipient transfer.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Investigating PML, Underground Banking and Hawala/HOSSPs (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E03
+  indicator_id: CSAML-TYP-E03-I02
+  indicator_class: MECHANISM
+  indicator_text: Broker network maintains settlement obligations across jurisdictions.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Investigating PML, Underground Banking and Hawala/HOSSPs (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E03
+  indicator_id: CSAML-TYP-E03-I03
+  indicator_class: CORROBORATING
+  indicator_text: Trade, cash, or third-party accounts used to settle broker balances.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Investigating PML, Underground Banking and Hawala/HOSSPs (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-PML-HAWALA-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-E03
+  indicator_id: CSAML-TYP-E03-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Licensed remittance, family remittance, or legitimate informal finance context explains activity and complies
+    with applicable law.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-PML-HAWALA-2026
+  typology_lineage_as_stated:
+  - FATF Investigating PML, Underground Banking and Hawala/HOSSPs (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-F01
+  indicator_id: CSAML-TYP-F01-I01
+  indicator_class: MECHANISM
+  indicator_text: On-chain path connects identified illicit/subject value to conversion or cash-out infrastructure.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-VA-RED-FLAGS-2020
+  - SRC-FATF-VA-VASP-TARGETED-UPDATE-2026
+  - SRC-FATF-DEFI-2026
+  typology_lineage_as_stated:
+  - FATF Virtual Assets Red Flag Indicators (2020)
+  - FATF VA/VASP Targeted Update (2026)
+  - FATF DeFi report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F01
+  indicator_id: CSAML-TYP-F01-I02
+  indicator_class: MECHANISM
+  indicator_text: Deliberate obfuscation features are used in a context lacking credible legitimate rationale.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-VA-RED-FLAGS-2020
+  - SRC-FATF-VA-VASP-TARGETED-UPDATE-2026
+  - SRC-FATF-DEFI-2026
+  typology_lineage_as_stated:
+  - FATF Virtual Assets Red Flag Indicators (2020)
+  - FATF VA/VASP Targeted Update (2026)
+  - FATF DeFi report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F01
+  indicator_id: CSAML-TYP-F01-I03
+  indicator_class: CORROBORATING
+  indicator_text: Wallets share counterparties, timing, ownership indicators, or off-chain identifiers.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-VA-RED-FLAGS-2020
+  - SRC-FATF-VA-VASP-TARGETED-UPDATE-2026
+  - SRC-FATF-DEFI-2026
+  typology_lineage_as_stated:
+  - FATF Virtual Assets Red Flag Indicators (2020)
+  - FATF VA/VASP Targeted Update (2026)
+  - FATF DeFi report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F01
+  indicator_id: CSAML-TYP-F01-I04
+  indicator_class: CONTEXTUAL
+  indicator_text: Cross-border/high-risk jurisdiction exposure.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-VA-RED-FLAGS-2020
+  - SRC-FATF-VA-VASP-TARGETED-UPDATE-2026
+  - SRC-FATF-DEFI-2026
+  typology_lineage_as_stated:
+  - FATF Virtual Assets Red Flag Indicators (2020)
+  - FATF VA/VASP Targeted Update (2026)
+  - FATF DeFi report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F01
+  indicator_id: CSAML-TYP-F01-I05
+  indicator_class: DISCONFIRMING
+  indicator_text: Documented trading, treasury, privacy, technical testing, or business purpose explains pattern.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-VA-RED-FLAGS-2020
+  - SRC-FATF-VA-VASP-TARGETED-UPDATE-2026
+  - SRC-FATF-DEFI-2026
+  typology_lineage_as_stated:
+  - FATF Virtual Assets Red Flag Indicators (2020)
+  - FATF VA/VASP Targeted Update (2026)
+  - FATF DeFi report (2026)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-F02
+  indicator_id: CSAML-TYP-F02-I01
+  indicator_class: MECHANISM
+  indicator_text: Victim-originating value is directly linked to a recipient then rapidly layered/consolidated.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-CEF-2026
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Cyber-Enabled Fraud paper (2026)
+  - PPATK cybercrime risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-F02
+  indicator_id: CSAML-TYP-F02-I02
+  indicator_class: MECHANISM
+  indicator_text: Recipient infrastructure is reused across multiple fraud incidents.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-CEF-2026
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Cyber-Enabled Fraud paper (2026)
+  - PPATK cybercrime risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-F02
+  indicator_id: CSAML-TYP-F02-I03
+  indicator_class: CORROBORATING
+  indicator_text: Mule/collector network or crypto cash-out pattern is present.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-CEF-2026
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Cyber-Enabled Fraud paper (2026)
+  - PPATK cybercrime risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-CEF-2026); this does not verify the indicator.
+- typology_id: CSAML-TYP-F02
+  indicator_id: CSAML-TYP-F02-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Commercial dispute or authorised payment explains transfer and no fraud predicate is supported.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-CEF-2026
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Cyber-Enabled Fraud paper (2026)
+  - PPATK cybercrime risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-F03
+  indicator_id: CSAML-TYP-F03-I01
+  indicator_class: MECHANISM
+  indicator_text: Documented physical movement of undeclared/falsely declared value linked to subject network.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-RECOMMENDATIONS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Recommendation 32 context
+  - PPATK cross-border cash risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-RECOMMENDATIONS); this does not verify the indicator.
+- typology_id: CSAML-TYP-F03
+  indicator_id: CSAML-TYP-F03-I02
+  indicator_class: CORROBORATING
+  indicator_text: Fragmentation across couriers/routes or repeated border events.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-RECOMMENDATIONS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Recommendation 32 context
+  - PPATK cross-border cash risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-RECOMMENDATIONS); this does not verify the indicator.
+- typology_id: CSAML-TYP-F03
+  indicator_id: CSAML-TYP-F03-I03
+  indicator_class: CORROBORATING
+  indicator_text: Destination-side asset purchase or settlement is temporally/economically linked.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-RECOMMENDATIONS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Recommendation 32 context
+  - PPATK cross-border cash risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established. Lineage includes publication(s) verified at publication level
+    only (SRC-FATF-RECOMMENDATIONS); this does not verify the indicator.
+- typology_id: CSAML-TYP-F03
+  indicator_id: CSAML-TYP-F03-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Lawful declared transport, business purpose, and source/destination evidence support legitimacy.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-RECOMMENDATIONS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Recommendation 32 context
+  - PPATK cross-border cash risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-F04
+  indicator_id: CSAML-TYP-F04-I01
+  indicator_class: MECHANISM
+  indicator_text: Multiple digital payment instruments are used sequentially without plausible commercial purpose.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-NEW-PAYMENT-METHODS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Money Laundering Using New Payment Methods
+  - PPATK fintech sectoral risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F04
+  indicator_id: CSAML-TYP-F04-I02
+  indicator_class: MECHANISM
+  indicator_text: Merchant/payment account functions primarily as a pass-through or cash-out point.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-NEW-PAYMENT-METHODS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Money Laundering Using New Payment Methods
+  - PPATK fintech sectoral risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F04
+  indicator_id: CSAML-TYP-F04-I03
+  indicator_class: CORROBORATING
+  indicator_text: Rapid platform hopping or conversion to other stores of value.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-NEW-PAYMENT-METHODS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Money Laundering Using New Payment Methods
+  - PPATK fintech sectoral risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-F04
+  indicator_id: CSAML-TYP-F04-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Marketplace, payment aggregation, remittance, or platform business model explains flow.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-NEW-PAYMENT-METHODS
+  - SRC-PPATK-RA-UNSPECIFIED
+  typology_lineage_as_stated:
+  - FATF Money Laundering Using New Payment Methods
+  - PPATK fintech sectoral risk assessments — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-D03
+  indicator_id: CSAML-TYP-D03-I01
+  indicator_class: MECHANISM
+  indicator_text: Value enters and exits gambling system with minimal risk exposure/play, where records establish this.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-METHODS-TRENDS
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF methods and trends — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D03
+  indicator_id: CSAML-TYP-D03-I02
+  indicator_class: CORROBORATING
+  indicator_text: Third-party funding or payout to unrelated persons.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-METHODS-TRENDS
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF methods and trends — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D03
+  indicator_id: CSAML-TYP-D03-I03
+  indicator_class: CORROBORATING
+  indicator_text: Gambling operator/account connected to broader laundering network.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-METHODS-TRENDS
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF methods and trends — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-D03
+  indicator_id: CSAML-TYP-D03-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Normal entertainment or professional gambling activity supported by play history and source of funds.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-APG-YEARLY-TYPOLOGIES
+  - SRC-FATF-METHODS-TRENDS
+  typology_lineage_as_stated:
+  - APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified
+  - FATF methods and trends — pending verification — specific publication/section not yet identified
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'
+- typology_id: CSAML-TYP-C05
+  indicator_id: CSAML-TYP-C05-I01
+  indicator_class: MECHANISM
+  indicator_text: Documented mismatch between legal production/permit capacity and traded/exported volume.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-ENV-CRIME-UNSPECIFIED
+  - SRC-PPATK-SMUGGLING-2025
+  typology_lineage_as_stated:
+  - FATF environmental crime work and national risk-assessment materials — pending verification — specific publication/section
+    not yet identified
+  - PPATK smuggling typology (2025)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C05
+  indicator_id: CSAML-TYP-C05-I02
+  indicator_class: MECHANISM
+  indicator_text: Illegal-source commodity is mixed into legitimate supply chain.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-ENV-CRIME-UNSPECIFIED
+  - SRC-PPATK-SMUGGLING-2025
+  typology_lineage_as_stated:
+  - FATF environmental crime work and national risk-assessment materials — pending verification — specific publication/section
+    not yet identified
+  - PPATK smuggling typology (2025)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C05
+  indicator_id: CSAML-TYP-C05-I03
+  indicator_class: CORROBORATING
+  indicator_text: Ownership/control links connect violator, trader, processor, exporter, and asset beneficiary.
+  origin: PENDING_VERIFICATION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-ENV-CRIME-UNSPECIFIED
+  - SRC-PPATK-SMUGGLING-2025
+  typology_lineage_as_stated:
+  - FATF environmental crime work and national risk-assessment materials — pending verification — specific publication/section
+    not yet identified
+  - PPATK smuggling typology (2025)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: Typology-level lineage only; per Annex A, lineage is not per-indicator support. Origin of this wording
+    (external source vs. CS-AML adaptation) not yet established.
+- typology_id: CSAML-TYP-C05
+  indicator_id: CSAML-TYP-C05-I04
+  indicator_class: DISCONFIRMING
+  indicator_text: Independent production records, permits, traceability, and audited supply chain support legality.
+  origin: CS_AML_DESIGN_CONVENTION
+  source: null
+  typology_lineage_refs:
+  - SRC-FATF-ENV-CRIME-UNSPECIFIED
+  - SRC-PPATK-SMUGGLING-2025
+  typology_lineage_as_stated:
+  - FATF environmental crime work and national risk-assessment materials — pending verification — specific publication/section
+    not yet identified
+  - PPATK smuggling typology (2025)
+  location: null
+  verification_status: PENDING_VERIFICATION
+  adaptation_note: 'Disconfirming indicator: the DISCONFIRMING class and the duty to record alternative explanations are CS-AML
+    constructs (catalogue §0, §5, §6). No external source is claimed for this condition.'

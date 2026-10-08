@@ -12,20 +12,25 @@
 - `CS-AML_Framework_v0.1.1.md` (the non-expanded original) is marked **Legacy**. Use `CS-AML_Framework_v0.1.1_Expanded.md`.
 - Every change is tagged in place as `*[v0.1.1 · Axx]*`, where Axx is the audit finding ID from `Audit/CS-AML_Documentation_Audit_2026-10-07.md`.
 
-### Decisions applied
+### Decision register
 
-| ID | Decision | Authority |
-|---|---|---|
-| D-A06 | MVP keeps **six** intelligence product templates: Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report | Product owner |
-| D-A08 | **Five-level** classification from the Data Model is authoritative: `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`; fail closed; legacy mapping never automatic for Restricted/Highly Restricted | Product owner |
-| D-A02/A03 | Object storage: S3-compatible, product chosen by ADR-0005 (MinIO Community no longer a default). Broker/cache: **Valkey 8.x** (BSD-3-Clause), pinned, ADR-0006 | Product owner |
-| D-A11 | Browser auth: **server-side session (BFF)**. Django acts as the OIDC client to Keycloak, the browser holds an HttpOnly cookie, CSRF is sent in a header, and no tokens reach JavaScript | Product owner |
-| D-A04 | Stale `If-Match` → 412 `PRECONDITION_FAILED`; missing → 428; 409 `STATE_CONFLICT` only for workflow state; `VERSION_CONFLICT` retired | Audit recommendation / RFC 9110 |
-| D-A05 | F-ASM-003 keeps its meaning. SRS-FR-ASM-003 now traces to F-ASM-001, and the new SRS-FR-ASM-004 covers the disconfirming search record | Audit recommendation |
-| D-A07 | Product `CAP-01…15` is the authoritative registry; Technology Architecture renamed to `TA-CAP-01…16` with a crosswalk | Audit recommendation |
-| D-A09 | All wire enums use UPPER_SNAKE_CASE; confidence adds `INSUFFICIENT_BASIS`, which is never coerced to LOW/null | Audit recommendation |
-| D-A10 | Claim/Fact lifecycle: `claim_status`, VerificationDecision (append-only), fact promotion/revision, `review_required` flagging. New feature **F-EVD-008**, requirements SRS-FR-CLM-001…004, story ST-E3-07 | **Proposed — needs product-owner approval** |
-| D-A16 | Non-waivable release invariants: authorization bypass, source exposure, evidence/provenance loss, certainty promotion, approval bypass, broken audit history | Audit recommendation |
+Each decision is a product-owner decision (**Approved**) or an audit-derived correction (**Adopted**). Adopted
+corrections apply the audit's recommendation and need no separate approval, but the product owner can still overturn
+them. "Approved" records a decision, not proof that it has been implemented or tested.
+
+| ID | Decision | Status · date · authority | Rationale | Affected specifications |
+|---|---|---|---|---|
+| D-A06 | MVP keeps **six** intelligence product templates: Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report | Approved · 2026-10-08 · Product owner | Keep the PRD/SRS scope; align the backlog with it instead of cutting requirements | Product & Feature, PRD, SRS, MVP Breakdown, Sprint Plan, Screen Inventory, Data Model (`product_type`) |
+| D-A08 | **Five-level** classification is authoritative: `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`; fail closed; Restricted/Highly Restricted are never auto-mapped | Approved · 2026-10-08 · Product owner | One policy model for authorization, label inheritance, export and retention | Data Model §16, Framework Expanded §6.4, Methodology, Technology Architecture, API, SRS, UX/UI documents |
+| D-A02/A03 | Object storage: S3-compatible, product chosen in ADR-0005. Broker/cache: **Valkey 8.x** (BSD-3-Clause), pinned (ADR-0006) | Approved · 2026-10-08 · Product owner | MinIO Community is archived; the Redis 7.x range spans several licences | Technical Stack, Technology Architecture, Product & Feature Annex C, `docs/adr/0005`, `docs/adr/0006` |
+| D-A11 | Browser auth: **server-side session (BFF)**. Django is the OIDC client to Keycloak, the cookie is HttpOnly, CSRF goes in a header, and no tokens reach JavaScript | Approved · 2026-10-08 · Product owner | Removes the session/bearer ambiguity; keeps tokens out of reach of script | API, Frontend, Technical Stack, SRS-IF-003, MVP ST-E1-01, `docs/adr/0004` |
+| D-A10 | Claim/Fact lifecycle. A Claim is a permanent source record. A **VerificationDecision** (append-only) evaluates it. A **Fact** is a separate object *supported by* claims/evidence and decisions; there is no claim→fact "promotion". Feature **F-EVD-008**, SRS-FR-CLM-001…004, story ST-E3-07 | Approved · 2026-10-08 · Product owner (with the refinement from the remediation review) | Keeps source assertions and analytical conclusions apart; makes fact revision and impact on products traceable | Data Model §7.4–7.6, API §16A, SRS, Product & Feature, PRD, MVP Breakdown, Sprint Plan, Screen Inventory, UX/UI, Technology Architecture, Methodology |
+| D-ER | Entity resolution. `Entity.resolution_status` is **state** (UNRESOLVED/RESOLVED/CONFLICTED/MERGED/SPLIT). **ResolutionDecision** is an append-only **decision** over records (MERGE/KEEP_SEPARATE/POSSIBLE_MATCH/DEFER/UNMERGE). New SRS-FR-ENT-006 | Approved · 2026-10-08 · Product owner | Methodology outcomes and Data Model state used different vocabularies for different things | Data Model §8.1/§8.4, Methodology §12, API §14, SRS, Product & Feature, MVP, Sprint, Screen Inventory, UX/UI, Technology Architecture |
+| D-A04 | Stale `If-Match` → 412 `PRECONDITION_FAILED`; missing → 428; 409 `STATE_CONFLICT` only for workflow state; `VERSION_CONFLICT` retired. Multi-entity commands use a body map `expected_versions` | Adopted · 2026-10-08 | RFC 9110 precondition semantics; an If-Match list cannot guard several resources | API §9–§11, §14; Frontend; SRS-IF-002; UX; Component Inventory |
+| D-A05 | F-ASM-003 keeps its meaning. SRS-FR-ASM-003 traces to F-ASM-001, and the new SRS-FR-ASM-004 covers the disconfirming search record | Adopted · 2026-10-08 | IDs must not change meaning | SRS, MVP Breakdown |
+| D-A07 | Product `CAP-01…15` is the authoritative registry; Technology Architecture uses `TA-CAP-01…16` with a crosswalk | Adopted · 2026-10-08 | One global ID must have one meaning | Technology Architecture, Product & Feature, SRS |
+| D-A09 | All wire enums use UPPER_SNAKE_CASE, registered in `schemas/enums.yaml`; confidence adds `INSUFFICIENT_BASIS`, which is never coerced to LOW/null | Adopted · 2026-10-08 | One serialisation for DB/API/UI/export | Data Model Annex A, all specs, `schemas/enums.yaml`, `contracts/openapi.yaml` |
+| D-A16 | Non-waivable release invariants: authorization bypass, source exposure, evidence/provenance loss, certainty promotion, approval bypass, broken audit history | Adopted · 2026-10-08 | Waivers must not license breaking core safety invariants | Sprint Plan, Framework Expanded §3.4, Control Guide, SRS, MVP |
 
 ### Changes per audit finding
 
@@ -48,13 +53,40 @@
 | A15 Case Register | SCR-CASE-001 → WF-PAT-01 | Wireframe, Screen Inventory, High-Fidelity UI |
 | A16 Release waivers | Non-waivable invariants; disable-with-non-reachability-proof; waiver conditions | Sprint Plan §1.1/§7.2, Framework Expanded §3.4, Control Implementation Guide, SRS, MVP Breakdown |
 
+### Round 2 — follow-up to the remediation review (2026-10-08)
+
+- **A10 approved and refined.** Claims are permanent; a Fact is a separate object supported by claims/evidence and VerificationDecisions. `source_claim_refs` → `supporting_claim_refs`; Fact decision `PROMOTE` → `CREATE`; SRS-FR-CLM-003 retitled "Fact creation from supporting claims and evidence". Approval qualifiers removed.
+- **Entity resolution approved.** New Data Model §8.4 ResolutionDecision, DM-I15, SRS-FR-ENT-006, UXR-ENT-006; Methodology §12.2 outcomes are now decision values (legacy mapping MERGED→MERGE, LINKED_POSSIBLE→POSSIBLE_MATCH, SEPARATE→KEEP_SEPARATE, UNRESOLVED→DEFER); API resolution-decision endpoints.
+- **Multi-entity preconditions.** Merge, unmerge and resolution-decision commands use a body map `expected_versions` (missing → 428, mismatch → 412), because an `If-Match` list cannot guard several resources.
+- **`schemas/enums.yaml`.** Machine registry of 50 wire enums (301 values) with display labels; the Typology Catalogue enums are now UPPER_SNAKE_CASE.
+- **`contracts/openapi.yaml`.** OpenAPI 3.1 contract for the P0 vertical slice (72 paths, 92 operations), contract-first. Choices not fixed by the specs are marked `x-csaml-status: proposed`. Redocly lint passes.
+- **`sources/typology-source-map.yaml`.** Register of all 89 indicators across the 20 typologies, each with origin and verification status. None is verified at section/page level yet.
+- **ADRs.** `docs/adr/0004` (BFF session, Accepted), `0005` (object storage, Proposed — product not selected), `0006` (Valkey 8.x, Accepted).
+- **`tools/check_consistency.py`.** Automated checks: registry ↔ Data Model Annex A ↔ OpenAPI enums, `$ref`s, operationIds, path parameters, retired terms, feature/SRS/story references, the TA-CAP namespace and code fences.
+- **Consistency audit.** `Audit/CS-AML_Consistency_Audit_v0.1.1_2026-10-08.md` is an AI-performed internal check, not independent verification. It found 19 issues (C01–C19); all were fixed in round 3 below.
+
+### Round 3 — fixes for consistency audit C01–C19 (2026-10-08)
+
+Changes are tagged `*[v0.1.1 · Cxx]*`.
+
+- **C01/C02 Fact creation.** `POST /cases/{caseId}/facts` creates the Fact and its CREATE VerificationDecision in one transaction (`decision_rationale` required). Establish, dispute and supersede likewise create their decisions. A Fact needs `supporting_evidence` (1..n); `supporting_claim_refs` is optional (0..n).
+- **C03–C05 Multi-entity preconditions.** The `expected_versions` exception to "mutations send If-Match" is now stated in every document. In OpenAPI the map is not schema-required, so a missing map returns 428, not 422. It is adopted, not proposed.
+- **C06/C07.** Match-candidate outcomes use wire values (unresolved/defer → DEFER). The API §14 table is repaired.
+- **C08.** SRS Annex B state models are rederived from `schemas/enums.yaml` and the Data Model.
+- **C09.** 10 relationship types were registered: AUTHORIZED_SIGNATORY_OF, COMMISSIONER_OF, MANAGES, USES, LENDER_TO, LEASED_TO, DONATED_TO, FUNDED_BY, SHARES_DOMAIN_WITH, TRANSFERRED_VALUE_TO. The rest map to existing types (Data Model Annex B).
+- **C10 Disconfirming search.** `Assessment.disconfirming_searches[]` and `high_impact_adverse`; `POST /assessments/{assessmentId}/disconfirming-searches`. It is enforced at review approval (409 `details.reason = DISCONFIRMATION_REQUIRED`), not at finalize. Traced in MVP E6 and Sprint 5.
+- **C11.** Dependent-flagging tests moved to Sprint 5 (assessments) and Sprint 7 (products).
+- **C12/C13.** API §28 is contract-first. SRS Annex C paths are aligned with the API, and the "An The" typo is fixed.
+- **C14–C19.** Typed entity filters; stale OpenAPI comments removed; promotion wording in the Control Guide and UX removed; claim/fact/resolution UI mapped to existing component IDs (count stays 65) and frontend feature owners named; upload content is PUT only; If-Match on claim verification decisions; tags moved out of code fences; ADR-0003 (S3 capability/layout) vs ADR-0005 (product selection) split stated.
+- **Validation after round 3.** `tools/check_consistency.py`: 0 errors. Redocly lint: 0 errors, 4 known warnings.
+
 ### Still open (not resolved by v0.1.1)
 
-- **Approval:** D-A10 (Claim/Fact lifecycle) and every "proposed" item need a recorded product-owner decision.
-- **OpenAPI and schemas:** `contracts/openapi.yaml` and per-operation request/response schemas do not exist yet (API §28 open items). This includes the response for a missing required `Idempotency-Key` and the pagination envelope.
-- **ADR files:** ADR-0005 (object storage) and ADR-0006 (Valkey) are required but not written; no product or release has been selected yet.
-- **Entity resolution outcomes:** Methodology §12.2 (`MERGED/LINKED_POSSIBLE/SEPARATE/UNRESOLVED`) differs from Data Model `Entity.resolution_status`. This needs a domain decision.
-- **Remaining lowercase enums:** Typology Catalogue statuses, and some free-text enum fields in the Data Model (`valuation_basis`, `basis`).
-- **Source mapping:** a per-indicator mapping to source section/page (A13) is not done; references the audit did not check remain unlabelled.
-- **Legacy DOCX/PDF:** these are still v0.1 and do not include these corrections.
-- **Verification:** nothing in v0.1.1 has been verified independently or tested against an implementation. Specification status "corrected" ≠ implementation status "tested".
+- **Proposed contract items:** every `x-csaml-status: proposed` item in `contracts/openapi.yaml` needs review by the product owner and technical lead.
+- **OpenAPI outside the slice:** assets, events, timeline, typologies/indicators/matches, gaps, search, graph, administration/audit, protected sources. Some value sets are still open (job, upload-session, gate and task status; risk rating; export format).
+- **ADR-0005:** no object-store product selected; ADR-0001 to ADR-0003 are not written.
+- **Unregistered enum fields:** 10 fields are declared as enums with no values (`schemas/enums.yaml` → `unregistered_fields`), including `credibility_grade` (1–6, which does not fit the wire pattern).
+- **Display vocabulary:** candidate/probable/confirmed/disputed entity labels map to state values and decisions but have not been replaced. The `/entity-match-candidates/{id}/decisions` endpoint overlaps `POST /resolution-decisions`.
+- **Source mapping (A13):** 89 indicators: 69 pending verification, 20 classified as CS-AML design conventions; none has a verified section/page. This is methodological work: each source must be opened and cited.
+- **Legacy DOCX/PDF:** still v0.1 and do not include these corrections.
+- **Verification:** no independent review and no implementation tests. "Specification corrected" ≠ "independently validated" ≠ "implementation tested" ≠ "production validated".

@@ -329,7 +329,7 @@ Analytical discipline requires separating what a source says from what the inves
 | **State** | **Definition** | **Example** |
 |----|----|----|
 | Claim | A proposition asserted by a source or person. | “Person A controls Company X.” |
-| Corroborated claim | A claim supported by multiple or stronger sources but not yet adopted as fact. | Registry + contract signature + official profile point to same role. |
+| Corroborated claim | A claim supported by multiple or stronger sources; it remains a claim and is not itself a fact. *[v0.1.1 · A10]* | Registry + contract signature + official profile point to same role. |
 | Fact | A proposition sufficiently established for the current analytical purpose. | Person A is listed as director of Company X on date Y. |
 | Indicator | A fact/pattern relevant to a typology or risk. | Three related companies share the same address and director. |
 | Hypothesis | A testable explanatory proposition. | Company Y may act as nominee holder for Person A. |
@@ -337,7 +337,7 @@ Analytical discipline requires separating what a source says from what the inves
 
 Facts SHALL be time-bounded where status may change. “Person A is director” without a date can be materially misleading.
 
-The stored states for these objects follow the Data Model Specification v0.1.1, Sections 7.4–7.6 (proposed lifecycle, pending product-owner approval): a Claim carries `claim_status` (RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED) — “Corroborated claim” above corresponds to CORROBORATED — and a Fact carries `fact_status` (PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED). A Claim becomes a Fact only through a recorded VerificationDecision. *[v0.1.1 · A09, A10]*
+The stored states for these objects follow the Data Model Specification v0.1.1, Sections 7.4–7.6 (approved by product owner, 2026-10-08): a Claim carries `claim_status` (RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED) — “Corroborated claim” above corresponds to CORROBORATED — and a Fact carries `fact_status` (PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED). A Claim never becomes a Fact: it remains a permanent record of what the source asserts. A Fact is a separate object, created with references to the evidence that supports it (`supporting_evidence`, mandatory), optionally the claims that support it (`supporting_claim_refs`), and one or more recorded VerificationDecisions; the creation decision is recorded together with the Fact. *[v0.1.1 · C02]* *[v0.1.1 · A09, A10]*
 
 # 12. Entity Resolution Methodology
 
@@ -365,14 +365,21 @@ Entity resolution SHALL precede high-impact graph conclusions. Name similarity a
 
 ## 12.2 Resolution outcomes
 
-| **Outcome** | **Meaning** |
+Resolution outcomes are recorded as values of `ResolutionDecision.decision` (Data Model Specification v0.1.1, Section 8.4). They are decisions about a pair or set of records, separate from each entity's `resolution_status` state (UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT), which changes only as an effect of these decisions. *[v0.1.1 · ER]*
+
+| **Decision** | **Meaning** |
 |----|----|
-| MERGED | Records represent the same entity with sufficient confidence. |
-| LINKED_POSSIBLE | Likely or possible same entity; keep separate records with candidate link. *[v0.1.1 · A09]* |
-| SEPARATE | Evidence indicates distinct entities. |
-| UNRESOLVED | Insufficient evidence. |
+| MERGE | Records represent the same entity with sufficient confidence. Absorbed records become MERGED; the surviving record becomes RESOLVED. *[v0.1.1 · ER]* |
+| POSSIBLE_MATCH | Likely or possible same entity; keep separate records with candidate link. No state change. *[v0.1.1 · A09, ER]* |
+| KEEP_SEPARATE | Evidence indicates distinct entities. No state change; the pair is not re-suggested unless new evidence is attached. *[v0.1.1 · ER]* |
+| DEFER | Insufficient evidence. Records stay or become UNRESOLVED. *[v0.1.1 · ER]* |
+| UNMERGE | Reverses an earlier MERGE (reference required); restored records become SPLIT and relationships/claims are re-attributed per recorded history. *[v0.1.1 · ER]* |
+
+Legacy outcome names (v0.1): MERGED → MERGE; LINKED_POSSIBLE → POSSIBLE_MATCH; SEPARATE → KEEP_SEPARATE; UNRESOLVED → DEFER. *[v0.1.1 · ER]*
 
 ## 12.3 Merge decision record
+
+Every resolution decision, including merge and unmerge, is stored as an append-only ResolutionDecision (Data Model Specification v0.1.1, Section 8.4). A mistaken decision is corrected by a later decision, never by editing the earlier one. The record holds: *[v0.1.1 · ER]*
 
 - Candidate records.
 
@@ -386,7 +393,7 @@ Entity resolution SHALL precede high-impact graph conclusions. Name similarity a
 
 - Reviewer for high-impact merges.
 
-- Reversal history if later split.
+- Reversal history if later split (an UNMERGE decision referencing the reversed MERGE). *[v0.1.1 · ER]*
 
 A mistaken entity merge can contaminate every downstream relationship. High-impact merges SHOULD be peer reviewed.
 
@@ -396,13 +403,15 @@ Relationships SHALL be represented as typed, dated, evidence-linked propositions
 
 | **Relationship class** | **Examples** |
 |----|----|
-| Legal ownership | OWNS, SHAREHOLDER_OF, BENEFICIAL_OWNER_OF |
-| Governance/control | DIRECTOR_OF, CONTROLS, AUTHORIZED_SIGNATORY_OF |
-| Economic | PAID_BY, CONTRACTED_BY, SUPPLIER_TO, LENDER_TO, BORROWER_FROM |
-| Asset | OWNS_ASSET, USES_ASSET, ACQUIRED_FROM, SOLD_TO |
-| Personal/association | RELATIVE_OF, ASSOCIATE_OF — only when relevant and lawfully supported |
-| Infrastructure | SHARES_ADDRESS_WITH, SHARES_PHONE_WITH, SHARES_DOMAIN_WITH |
-| Transactional/value | TRANSFERRED_VALUE_TO, RECEIVED_VALUE_FROM — only with evidence or clearly marked reconstruction |
+| Legal ownership | OWNS (shareholding recorded as OWNS with an OwnershipInterest), BENEFICIAL_OWNER_OF *[v0.1.1 · C09]* |
+| Governance/control | DIRECTOR_OF, COMMISSIONER_OF, CONTROLS, AUTHORIZED_SIGNATORY_OF *[v0.1.1 · C09]* |
+| Economic | PAID_BY, CONTRACTED_BY, SUPPLIER_TO, LENDER_TO (a borrower is the to_entity of LENDER_TO), FUNDED_BY, DONATED_TO *[v0.1.1 · C09]* |
+| Asset | OWNS, USES, LEASED_TO, ACQUIRED, SOLD_TO ("acquired from" is the inverse of SOLD_TO) *[v0.1.1 · C09]* |
+| Personal/association | RELATED_TO (familial subtype), ASSOCIATE_OF — only when relevant and lawfully supported *[v0.1.1 · C09]* |
+| Infrastructure | SHARES_ADDRESS_WITH, SHARES_PHONE_WITH, SHARES_DOMAIN_WITH, SHARES_DEVICE_WITH *[v0.1.1 · C09]* |
+| Transactional/value | TRANSFERRED_VALUE_TO ("received value from" is the inverse) — only with evidence or clearly marked reconstruction *[v0.1.1 · C09]* |
+
+All values above are registered `relationship_type` wire values (`schemas/enums.yaml`; Data Model Annex B). Other relationship names (for example SHAREHOLDER_OF, RELATIVE_OF, ACQUIRED_FROM) are display synonyms mapped in Data Model Annex B and SHALL NOT be stored as wire values. *[v0.1.1 · C09]*
 
 ## 13.1 Ownership versus control
 
@@ -1117,7 +1126,7 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1.
 | Matching attributes    |                                                  |
 | Conflicting attributes |                                                  |
 | Evidence               |                                                  |
-| Decision               | MERGED / LINKED_POSSIBLE / SEPARATE / UNRESOLVED *[v0.1.1 · A09]* |
+| Decision               | MERGE / POSSIBLE_MATCH / KEEP_SEPARATE / DEFER / UNMERGE (ResolutionDecision.decision; legacy MERGED / LINKED_POSSIBLE / SEPARATE / UNRESOLVED) *[v0.1.1 · A09, ER]* |
 | Confidence             | HIGH / MODERATE / LOW / INSUFFICIENT_BASIS *[v0.1.1 · A09]* |
 | Analyst                |                                                  |
 | Reviewer               |                                                  |

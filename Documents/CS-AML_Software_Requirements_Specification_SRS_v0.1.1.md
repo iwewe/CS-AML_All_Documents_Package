@@ -215,7 +215,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 - High-impact dissemination requires accountable human authorization.
 
-- AI and automation may assist but cannot silently promote generated output into material facts.
+- AI and automation may assist but cannot silently turn generated output into material facts. *[v0.1.1 · A10]*
 
 # 6. Functional Requirements
 
@@ -325,7 +325,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 ## 6.2a Claim and Fact Lifecycle *[v0.1.1 · A10]*
 
 > **Status of this family**  
-> SRS-FR-CLM-001…004 were added in v0.1.1 as a remediation proposal (audit finding A10). They require product-owner approval before being treated as accepted scope. Object definitions follow Data Model Specification v0.1.1 §7.4 Claim and §7.5 Fact.
+> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.1 §7.4 Claim and §7.5 Fact.
 
 ### SRS-FR-CLM-001 — Claim record and attribution
 
@@ -338,19 +338,19 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-CLM-002 — Verification decision
 
-| **Requirement** | Every verification outcome on a claim or fact SHALL be stored as a separate, append-only VerificationDecision record containing target_ref (claim or fact), decision, rationale, evidence_refs, decided_by, decided_at, and optional review_ref. Existing decisions SHALL NOT be edited or deleted. |
+| **Requirement** | Every verification outcome on a claim or fact SHALL be stored as a separate, append-only VerificationDecision record (claim decisions through `POST /claims/{claimId}/verification-decisions`; fact decisions only atomically with fact creation and the fact commands *[v0.1.1 · C01]*) containing target_ref (claim or fact), decision (claims: `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`; facts: `CREATE`, `ESTABLISH`, `DISPUTE`, `SUPERSEDE`) *[v0.1.1 · A10]*, rationale, evidence_refs, decided_by, decided_at, and optional review_ref. Existing decisions SHALL NOT be edited or deleted. |
 |----|----|
 | **Rationale** | Makes every verification judgement reviewable and attributable. |
 | **Verification** | Record two decisions on one claim; attempt to modify the first and verify rejection; verify both remain retrievable in order with attribution. |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-EVD-008; AUD-01; QUA-01 |
 
-### SRS-FR-CLM-003 — Fact promotion
+### SRS-FR-CLM-003 — Fact creation from supporting claims and evidence *[v0.1.1 · A10]*
 
-| **Requirement** | The system SHALL create a Fact only when it references source claim(s) and/or evidence and a VerificationDecision; a new Fact SHALL start as `PROVISIONAL`. `fact_status` ∈ `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`. Investigators/Analysts MAY record claims and propose `PROVISIONAL` facts; moving a fact to `ESTABLISHED` SHALL require a Reviewer who is not the proposer. Evidence extracts and AI/automation output SHALL NOT become facts except through this path. |
+| **Requirement** | The system SHALL create a Fact only when it references supporting evidence (`supporting_evidence`, 1..n, mandatory) and carries a decision rationale; supporting claims (`supporting_claim_refs`, 0..n) are optional. The system SHALL create the Fact and its `CREATE` VerificationDecision atomically in one transaction (API Specification §16A); the fact commands establish/dispute/supersede SHALL likewise create their decision atomically. *[v0.1.1 · C01]* *[v0.1.1 · C02]* A new Fact SHALL start as `PROVISIONAL`. Creating a Fact SHALL NOT modify or convert the supporting claims. `fact_status` ∈ `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`. Investigators/Analysts MAY record claims and propose `PROVISIONAL` facts; moving a fact to `ESTABLISHED` SHALL require a Reviewer who is not the proposer. Evidence extracts and AI/automation output SHALL NOT become facts except through this path. |
 |----|----|
 | **Rationale** | Prevents a claim or extract from being treated as fact without a reviewable decision. |
-| **Verification** | Attempt to create a fact without refs or decision and verify rejection; proposer attempts to establish own fact and is denied; an independent reviewer establishes it and the decision is recorded. |
+| **Verification** | Attempt to create a fact without evidence refs or decision rationale and verify rejection (422); create a fact and verify its `CREATE` decision exists in the same transaction *[v0.1.1 · C01]*; proposer attempts to establish own fact and is denied; an independent reviewer establishes it and the decision is recorded. |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-EVD-008; EVD-02; QUA-01 |
 
@@ -359,7 +359,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Requirement** | Any authorized case member SHALL be able to move a fact to `DISPUTED` with supporting evidence; `SUPERSEDED` SHALL require a replacement fact reference (`superseded_by`). When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering decision. Published products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. |
 |----|----|
 | **Rationale** | Ensures corrections propagate to dependent analysis without rewriting history. |
-| **Verification** | Pilot: record a source claim; promote a `PROVISIONAL` fact; establish it; dispute it with contradicting evidence; supersede it. Verify dependent assessment/product are flagged, the published product is unchanged, a correction review task exists, and full history is retrievable. |
+| **Verification** | Pilot: record a source claim; create a `PROVISIONAL` fact supported by it; establish it; dispute it with contradicting evidence; supersede it. Verify dependent assessment/product are flagged, the published product is unchanged, a correction review task exists, and full history is retrievable. |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-EVD-008; ASM-01; DIS-01 |
 
@@ -403,7 +403,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ENT-004 — Merge and unmerge
 
-| **Requirement** | The system SHALL support evidence-based merge with rationale and SHALL support unmerge that restores prior records and relationships without erasing history. |
+| **Requirement** | The system SHALL support evidence-based merge with rationale and SHALL support unmerge that restores prior records and relationships without erasing history. Each merge and unmerge SHALL be recorded as a ResolutionDecision (`MERGE` / `UNMERGE`, the latter referencing the reversed `MERGE`) per SRS-FR-ENT-006. *[v0.1.1 · ER]* |
 |----|----|
 | **Rationale** | Protects analytical reversibility. |
 | **Verification** | Merge then unmerge test entities; compare pre/post state and audit log. |
@@ -412,12 +412,21 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ENT-005 — Entity resolution status
 
-| **Requirement** | The system SHALL support candidate, probable, confirmed, disputed, and unresolved statuses and SHALL expose status in search/graph views. |
+| **Requirement** | The system SHALL support the entity resolution states `UNRESOLVED`, `RESOLVED`, `CONFLICTED`, `MERGED`, `SPLIT` (Data Model §8.1) and SHALL expose status in search/graph views. Candidate and probable matches SHALL be shown as `POSSIBLE_MATCH` ResolutionDecisions, not as entity states. v0.1 terms map as: confirmed → `RESOLVED`; disputed → `CONFLICTED`; unresolved → `UNRESOLVED`; candidate/probable → `POSSIBLE_MATCH` decision. *[v0.1.1 · ER]* |
 |----|----|
 | **Rationale** | Keeps identity uncertainty visible. |
-| **Verification** | Change status and verify graph/search labels. |
+| **Verification** | Record resolution decisions that change status and verify graph/search labels. *[v0.1.1 · ER]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-ENT-005 |
+
+### SRS-FR-ENT-006 — Resolution decision record *[v0.1.1 · ER]*
+
+| **Requirement** | The system SHALL record every merge, unmerge, keep-separate, possible-match and defer decision as an append-only ResolutionDecision with evidence, confidence, rationale and reviewer where required, and SHALL derive entity resolution state only from these decisions. |
+|----|----|
+| **Rationale** | Separates decisions about pairs/sets of records from entity state, so identity judgements are reviewable, reversible and auditable. Approved by product owner, 2026-10-08. |
+| **Verification** | Record `POSSIBLE_MATCH`, `KEEP_SEPARATE`, `DEFER`, `MERGE` and `UNMERGE` decisions on test entities; verify each is retrievable in order, cannot be edited or deleted, and that `resolution_status` changes only as their effect; attempt a direct status update and a `MERGE` without `surviving_entity_ref` and verify rejection; verify a high-impact `MERGE` requires a reviewer other than the decider; verify a `KEEP_SEPARATE` pair is not re-suggested until new evidence is attached. |
+| **Priority** | MVP / P0 |
+| **Traceability** | F-ENT-003; F-ENT-004; F-ENT-005; ENT-01; AUD-01 |
 
 ### SRS-FR-REL-001 — First-class relationship
 
@@ -596,10 +605,10 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ASM-004 — Disconfirming search record *[v0.1.1 · A05]*
 
-| **Requirement** | The system SHALL require a recorded disconfirming-search entry (what was searched, sources consulted, result, rationale) before a high-impact or adverse assessment/product can pass review. |
+| **Requirement** | The system SHALL require at least one recorded disconfirming-search entry (what was searched, sources consulted, result, rationale; Data Model §13.3 `Assessment.disconfirming_searches[]`) before a high-impact or adverse assessment (`high_impact_adverse`), or a product that depends on it, can pass review. The rule SHALL be enforced at review approval, not at finalization: an approval without such an entry SHALL be rejected with 409 STATE_CONFLICT and `details.reason = "DISCONFIRMATION_REQUIRED"`. Entries are recorded through `POST /assessments/{assessmentId}/disconfirming-searches`. *[v0.1.1 · C10]* |
 |----|----|
 | **Rationale** | Ensures evidence that could weaken adverse findings has been sought and recorded; tested separately from backward traceability (SRS-FR-ASM-003). |
-| **Verification** | Attempt to pass review of a high-impact adverse assessment without a disconfirmation record; verify rejection. Add the record; verify review can proceed. |
+| **Verification** | Attempt to approve the review of a high-impact adverse assessment without a disconfirming-search entry; verify 409 STATE_CONFLICT with `details.reason = "DISCONFIRMATION_REQUIRED"`. Record an entry; verify the review approval succeeds. *[v0.1.1 · C10]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-ASM-003; HYP-02; QUA-01 *[v0.1.1 · A05]* |
 
@@ -840,7 +849,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-IF-002 — REST/HTTP API
 
-| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite); 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. An OpenAPI 3.1 document SHALL be generated from the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.1, and the OpenAPI artefact does not yet exist (open item). *[v0.1.1 · A04, A11]* |
+| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.1 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
 |----|----|
 | **Rationale** | Enables integration and testability. |
 | **Verification** | API contract tests plus authorization parity tests. |
@@ -979,7 +988,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-AUD-004 — Merge history
 
-| **Requirement** | Entity merge/unmerge decisions SHALL record rationale, actor, timestamp, compared features, supporting evidence, and resulting mapping. |
+| **Requirement** | Entity merge/unmerge decisions SHALL record rationale, actor, timestamp, compared features, supporting evidence, and resulting mapping, as ResolutionDecision records (SRS-FR-ENT-006). *[v0.1.1 · ER]* |
 |----|----|
 | **Rationale** | Critical identity-control history. |
 | **Verification** | Merge/unmerge audit test. |
@@ -1317,7 +1326,7 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 
 - An assessment is confidence-rated and backward traceable to sources.
 
-- A source claim is promoted to a fact through a recorded verification decision, and disputing/superseding that fact flags dependent assessments/products without loss of history. *[v0.1.1 · A10]*
+- A fact supported by a recorded source claim is created through a recorded verification decision (the claim is unchanged), and disputing/superseding that fact flags dependent assessments/products without loss of history. *[v0.1.1 · A10]*
 
 - Independent peer review is completed.
 
@@ -1357,75 +1366,87 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 
 # Annex B — State Models
 
+State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.1 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
+
 ``` text
-Case: DRAFT → TRIAGE → ACTIVE → REVIEW → APPROVED/CLOSED → MONITORING → REOPENED
+Case (case_status): DRAFT → AUTHORIZED → ACTIVE → REVIEW → CLOSED → MONITORING → REOPENED
+```
+
+*[v0.1.1 · C08]* Per Data Model §6.1. Triage of an incoming matter happens while the case is DRAFT; authorization of purpose and scope moves it to AUTHORIZED. There is no APPROVED case state: approval applies to gates and products.
+
+``` text
+Entity resolution state (v0.1.1 · ER): UNRESOLVED → RESOLVED | CONFLICTED; absorbed record → MERGED; restored record → SPLIT
+ResolutionDecision.decision (append-only): MERGE | KEEP_SEPARATE | POSSIBLE_MATCH | DEFER | UNMERGE
+```
+
+*[v0.1.1 · ER]* Entity state changes only as the effect of a ResolutionDecision (SRS-FR-ENT-006). v0.1 states CANDIDATE/PROBABLE are POSSIBLE_MATCH decisions; CONFIRMED → RESOLVED; DISPUTED → CONFLICTED.
+
+``` text
+Intelligence product (product_approval_state): DRAFT → REVIEWED → APPROVED → DISSEMINATED
+                                               DRAFT | REVIEWED | APPROVED | DISSEMINATED → WITHDRAWN
+```
+
+*[v0.1.1 · C08]* Per Data Model §15.1 (`approval_state`). A review decision RETURN (Data Model §15.2; "changes requested") sends the product back to DRAFT as a new version; corrections and supersession create a new product version (ST-E8-04) rather than a separate state. `review_required` (Section 7.5 of the Data Model) is a flag, not a state.
+
+``` text
+Hypothesis (hypothesis_status): OPEN → SUPPORTED | WEAKENED | REJECTED | INCONCLUSIVE
 ```
 
 ``` text
-Entity resolution: CANDIDATE → PROBABLE → CONFIRMED | DISPUTED | UNRESOLVED
+Claim (claim_status): RECORDED → UNDER_REVIEW → CORROBORATED | CONTRADICTED | UNRESOLVED
+Fact (fact_status):   PROVISIONAL → ESTABLISHED
+                      PROVISIONAL | ESTABLISHED → DISPUTED
+                      PROVISIONAL | ESTABLISHED | DISPUTED → SUPERSEDED (superseded_by required)
 ```
 
-``` text
-Intelligence product: DRAFT → IN_REVIEW → CHANGES_REQUESTED → APPROVED → DISSEMINATED → SUPERSEDED/CORRECTED
-```
-
-``` text
-Hypothesis: OPEN → SUPPORTED | WEAKENED | REJECTED | INCONCLUSIVE
-```
-
-``` text
-Claim: RECORDED → UNDER_REVIEW → CORROBORATED | CONTRADICTED | UNRESOLVED
-Fact:  PROVISIONAL → ESTABLISHED → DISPUTED | SUPERSEDED (superseded_by required)
-```
-
-*[v0.1.1 · A10]* Claim/Fact states per SRS-FR-CLM-001…004 (proposed; requires product-owner approval).
+*[v0.1.1 · A10]* Claim/Fact states per SRS-FR-CLM-001…004. A Claim never transitions into a Fact. *[v0.1.1 · C08]* Fact transitions per Data Model §7.5, including PROVISIONAL → DISPUTED and DISPUTED → SUPERSEDED; every transition is recorded with its VerificationDecision.
 
 # Annex C — API Resource Baseline
 
-- /cases
+Paths are relative to `/api/v1` and follow API Specification v0.1.1 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
+
+- /cases, /cases/{caseId}/charter, /cases/{caseId}/gates, /cases/{caseId}/tasks
 
 - /sources
 
-- /evidence
+- /evidence, /evidence/uploads, /evidence/{evidenceId}/extracts, /evidence/{evidenceId}/lineage *[v0.1.1 · C13]*
 
-- /evidence-extracts
+- /cases/{caseId}/claims, /claims/{claimId}, /claims/{claimId}/verification-decisions *[v0.1.1 · A10]* *[v0.1.1 · C13]*
 
-- /claims, /claims/{claimId}/verification-decisions *[v0.1.1 · A10]*
+- /cases/{caseId}/facts, /facts/{factId} (commands: establish, dispute, supersede; dependents) *[v0.1.1 · A10]* *[v0.1.1 · C13]*
 
-- /facts (commands: establish, dispute, supersede; dependents) *[v0.1.1 · A10]*
-
-- /entities
+- /entities, /entity-match-candidates, /entities/merge, /entity-merges/{mergeId}/unmerge, /entities/{entityId}/resolution-decisions, /resolution-decisions *[v0.1.1 · ER]*
 
 - /relationships
 
 - /assets
 
-- /events
+- /events, /timeline
 
 - /value-flows
 
 - /indicators
 
-- /typologies
+- /typologies, /typology-matches
 
 - /hypotheses
 
-- /gaps
+- /intelligence-gaps *[v0.1.1 · C13]*
 
-- /assessments
+- /assessments (commands: finalize, disconfirming-searches; provenance) *[v0.1.1 · C13]*
 
 - /products
 
 - /reviews
 
-- /disseminations
+- /disseminations, /sharing-log
 
 - /audit-events
 
-- /search
+- /search, /graph/query
 
-> **API rule**  
-> Resource naming is informative; exact REST/GraphQL design may vary. Authorization semantics, stable identifiers, provenance, and uncertainty preservation are normative.
+> **API rule**
+> This list is informative. The normative interface is `contracts/openapi.yaml` (SRS-IF-002), with semantics in the API Specification; where this list and those documents differ, they prevail. Authorization semantics, stable identifiers, provenance, and uncertainty preservation are normative. *[v0.1.1 · C13]*
 
 # Annex D — Test Scenario Baseline
 
@@ -1433,9 +1454,9 @@ Fact:  PROVISIONAL → ESTABLISHED → DISPUTED | SUPERSEDED (superseded_by requ
 
 2.  Register two public sources and upload three evidence files; hash originals.
 
-3.  Create evidence extracts and one OCR derivative; record a source claim from an extract and promote it to a `PROVISIONAL` fact via a verification decision. *[v0.1.1 · A10]*
+3.  Create evidence extracts and one OCR derivative; record a source claim from an extract and create a `PROVISIONAL` fact supported by it via a verification decision. *[v0.1.1 · A10]*
 
-4.  Create two similar company records, evaluate candidate match, merge, then unmerge one test cycle.
+4.  Create two similar company records, evaluate candidate match, merge, then unmerge one test cycle; verify each step is recorded as a ResolutionDecision. *[v0.1.1 · ER]*
 
 5.  Create Person, Company, Property and Contract entities plus ownership/control relationships.
 

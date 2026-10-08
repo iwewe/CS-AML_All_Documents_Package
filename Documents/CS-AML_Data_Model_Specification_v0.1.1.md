@@ -126,7 +126,7 @@ CASE CONTEXT
 |----|----|
 | Context | Case, CaseEntity, CaseRole, InvestigationQuestion, ScopeChange |
 | Evidence | Source, EvidenceItem, EvidenceExtract, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
-| Knowledge graph | Entity, PersonProfile, OrganizationProfile, AccountProfile, Asset, Relationship, Event, Location |
+| Knowledge graph | Entity, ResolutionDecision, PersonProfile, OrganizationProfile, AccountProfile, Asset, Relationship, Event, Location *[v0.1.1 · ER]* |
 | Financial analysis | ValueFlow, ValueFlowLeg, OwnershipInterest, ControlAssertion, AssetAttribution |
 | Analytical | Indicator, TypologyMatch, Hypothesis, HypothesisEvidenceLink, IntelligenceGap, Assessment |
 | Product & assurance | IntelligenceProduct, Review, Dissemination, ClosureRecord |
@@ -284,7 +284,7 @@ Represents the precise portion of EvidenceItem used analytically.
 
 ## 7.4 Claim
 
-Represents a proposition asserted by a source or person. A Claim is not automatically accepted as fact.
+Represents a proposition asserted by a source or person. A Claim is not automatically accepted as fact. A Claim is a permanent record of what a source asserts; it is never converted into, upgraded to, or overwritten by a Fact. *[v0.1.1 · A10]*
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
@@ -301,7 +301,7 @@ Represents a proposition asserted by a source or person. A Claim is not automati
 
 - Claims SHALL preserve attribution.
 
-- A source assertion SHALL NOT be promoted to Fact solely because it appears in an official document if the document merely records a third-party allegation.
+- A Fact SHALL NOT be created on the basis of a source assertion solely because it appears in an official document if the document merely records a third-party allegation. *[v0.1.1 · A10]*
 
 - The recorded assertion of a Claim (subject, predicate, object value, claimant, evidence extracts) SHALL NOT be overwritten by analyst conclusions. Analytical outcomes are recorded as VerificationDecision objects (Section 7.6) and reflected in claim_status. *[v0.1.1 · A10]*
 
@@ -315,16 +315,16 @@ Every transition out of RECORDED SHALL be backed by a VerificationDecision. *[v0
 
 ## 7.5 Fact
 
-Represents a proposition accepted by the investigation as established to the stated confidence threshold.
+Represents a proposition accepted by the investigation as established to the stated confidence threshold. A Fact is a separate analytical object supported by one or more evidence items (mandatory), optionally by one or more Claims, and by one or more VerificationDecisions; it is not produced by transforming a Claim. *[v0.1.1 · A10]* *[v0.1.1 · C02]*
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | proposition | text/structured | Y | 1 | Established proposition. |
 | supporting_evidence | ref\[\] | Y | 1..n | Evidence supporting acceptance. |
 | contradicting_evidence | ref\[\] | N | 0..n | Known contradictory material. |
-| source_claim_refs | ref\[\] | N | 0..n | Claims from which the fact was promoted, if any. *[v0.1.1 · A10]* |
+| supporting_claim_refs | ref\[\] | N | 0..n | Claims that support the fact, if any. The Claims remain unchanged. *[v0.1.1 · A10]* |
 | fact_status | enum | Y | 1 | PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED *[v0.1.1 · A09, A10]* |
-| verification_decision_refs | ref\[\] | Y | 1..n | VerificationDecision records that created and revised the fact (append-only history). *[v0.1.1 · A10]* |
+| verification_decision_refs | ref\[\] | Y | 1..n | VerificationDecision records that created and revised the fact (append-only history). Server-populated and read-only: the CREATE decision is written atomically with the Fact, and each later fact command appends its decision. *[v0.1.1 · A10]* *[v0.1.1 · C01]* |
 | proposed_by | principal | Y | 1 | Principal who proposed the fact. *[v0.1.1 · A10]* |
 | superseded_by | ref | Y\* | 0..1 | Replacement Fact; required when fact_status = SUPERSEDED. *[v0.1.1 · A10]* |
 | valid_time | interval | N | 0..1 | When proposition is true in real world. |
@@ -338,13 +338,13 @@ Represents a proposition accepted by the investigation as established to the sta
 
 ### Claim and Fact lifecycle rules *[v0.1.1 · A10]*
 
-> **Proposed in remediation — requires product-owner approval.** The rules below and Section 7.6 were added in v0.1.1 to close audit finding A10. Until approved they are a proposed baseline. *[v0.1.1 · A10]*
+> **Approved by product owner, 2026-10-08.** The rules below and Section 7.6 were added in v0.1.1 to close audit finding A10. *[v0.1.1 · A10]*
 
-- **Promotion.** A Fact SHALL be created only with (a) one or more source claim references and/or evidence references, and (b) a VerificationDecision recording the promotion. A newly created Fact SHALL start as PROVISIONAL. A Claim SHALL NOT be treated as a Fact without such a decision. *[v0.1.1 · A10]*
+- **Fact creation.** A Fact SHALL be created only with (a) one or more evidence references (supporting_evidence, mandatory, 1..n), optionally one or more supporting claim references (supporting_claim_refs, 0..n), and (b) a decision rationale. The system SHALL create the Fact and its CREATE VerificationDecision atomically in the same transaction; the CREATE decision targets the new Fact, and neither record SHALL exist without the other. *[v0.1.1 · C01]* *[v0.1.1 · C02]* A newly created Fact SHALL start as PROVISIONAL. Creating a Fact SHALL NOT modify, convert, or close the supporting Claims. A Claim SHALL NOT be treated as a Fact without such a decision. *[v0.1.1 · A10]*
 
 - **Who may act.** An Investigator/Analyst MAY record Claims and propose PROVISIONAL Facts. Moving a Fact to ESTABLISHED SHALL require a Reviewer who is not the proposer. Any authorized case member MAY move a Fact to DISPUTED with supporting evidence. Moving a Fact to SUPERSEDED SHALL require a reference to the replacement Fact (superseded_by). *[v0.1.1 · A10]*
 
-- **Revision.** Every status change SHALL be recorded as a new VerificationDecision; earlier decisions and prior states SHALL be preserved. *[v0.1.1 · A10]*
+- **Revision.** Every status change SHALL be recorded as a new VerificationDecision; earlier decisions and prior states SHALL be preserved. *[v0.1.1 · A10]* The ESTABLISH, DISPUTE and SUPERSEDE decisions SHALL be created atomically with the corresponding status change by the fact command itself. *[v0.1.1 · C01]*
 
 - **Dependent flagging.** When a Fact becomes DISPUTED or SUPERSEDED, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering VerificationDecision (`review_trigger_ref`). Published or disseminated products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. *[v0.1.1 · A10]*
 
@@ -358,12 +358,12 @@ PROVISIONAL | ESTABLISHED | DISPUTED -> SUPERSEDED (superseded_by required)
 
 ## 7.6 VerificationDecision *[v0.1.1 · A10]*
 
-Represents a single, append-only verification outcome on a Claim or Fact (for example: claim corroborated or contradicted, fact promoted, established, disputed, or superseded). Proposed in remediation; requires product-owner approval.
+Represents a single, append-only verification outcome on a Claim or Fact (for example: claim corroborated or contradicted; fact created, established, disputed, or superseded). *[v0.1.1 · A10]*
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | target_ref | ref | Y | 1 | Claim or Fact the decision applies to. |
-| decision | enum | Y | 1 | Outcome; for Claims a claim_status value (UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED); for Facts a fact action (PROMOTE, ESTABLISH, DISPUTE, SUPERSEDE). |
+| decision | enum | Y | 1 | Outcome; for Claims a claim_status value (UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED); for Facts a fact action (CREATE, ESTABLISH, DISPUTE, SUPERSEDE). CREATE (display label "Create fact") records the decision that creates a Fact supported by the referenced evidence (and claims, if any); it does not convert or alter any Claim. *[v0.1.1 · A10]* For Facts, decisions are never created on their own: CREATE is written atomically with the new Fact, and ESTABLISH/DISPUTE/SUPERSEDE atomically with the fact command. *[v0.1.1 · C01]* |
 | rationale | text | Y | 1 | Reasoning for the decision. |
 | evidence_refs | ref\[\] | Y | 1..n | Evidence or extracts relied on. |
 | decided_by | principal | Y | 1 | Decision maker. |
@@ -392,7 +392,7 @@ Canonical identity-bearing node used across cases.
 | identifiers | identifier\[\] | N | 0..n | Typed external identifiers. |
 | resolution_status | enum | Y | 1 | UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT *[v0.1.1 · A09]* |
 | resolution_confidence | confidence | N | 0..1 | Identity match confidence. |
-| canonical_parent | ref | N | 0..1 | Target if merged. |
+| canonical_parent | ref | N | 0..1 | Target if merged; set from the surviving_entity_ref of the MERGE ResolutionDecision (Section 8.4). *[v0.1.1 · ER]* |
 | source_refs | ref\[\] | Y | 1..n | Sources establishing identity. |
 
 ### Normative rules:
@@ -402,6 +402,8 @@ Canonical identity-bearing node used across cases.
 - A merged entity SHALL retain links to precursor records and merge rationale.
 
 - Implementations SHALL support reversing a mistaken merge without losing history.
+
+- resolution_status is entity state. It SHALL change only as the effect of a ResolutionDecision (Section 8.4); decisions about pairs or sets of records are not stored in resolution_status. *[v0.1.1 · ER]*
 
 ## 8.2 PersonProfile
 
@@ -433,6 +435,33 @@ Extension for companies, NGOs, agencies, trusts, partnerships, and other organiz
 | incorporation_date | date | N | 0..1 | Formation date. |
 | dissolution_date | date | N | 0..1 | If dissolved. |
 | registered_address | ref | N | 0..1 | Address entity. |
+
+## 8.4 ResolutionDecision *[v0.1.1 · ER]*
+
+Append-only record of a decision about whether two or more Entity records refer to the same real-world subject. Separates decisions about pairs/sets of records from the state of each Entity. Approved by product owner, 2026-10-08.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| subject_entity_refs | ref\[\] | Y | 2..n | Entity records compared. |
+| decision | enum | Y | 1 | MERGE, KEEP_SEPARATE, POSSIBLE_MATCH, DEFER, UNMERGE |
+| surviving_entity_ref | ref | C | 0..1 | Required for MERGE. |
+| reverses_decision_ref | ref | C | 0..1 | Required for UNMERGE (the MERGE decision being reversed). |
+| matching_attributes | structured\[\] | N | 0..n | Attributes that agree. |
+| conflicting_attributes | structured\[\] | N | 0..n | Attributes that disagree. |
+| evidence_refs | ref\[\] | Y | 1..n | Evidence considered. |
+| confidence | confidence | Y | 1 | Confidence object (HIGH, MODERATE, LOW, INSUFFICIENT_BASIS + basis; Section 14.1). |
+| rationale | text | Y | 1 | Why the decision was made. |
+| decided_by | principal | Y | 1 | Decision maker. |
+| decided_at | datetime | Y | 1 | Decision time. |
+| reviewer_ref | principal | C | 0..1 | Required for high-impact MERGE/UNMERGE; SHALL differ from decided_by. |
+
+### Normative rules:
+
+- ResolutionDecision records SHALL be append-only; a mistaken decision is corrected by a later decision (for example UNMERGE reversing a MERGE), not by editing or deleting the earlier one.
+
+- Effects on Entity state: MERGE → each absorbed record becomes MERGED with canonical_parent = surviving_entity_ref, and the survivor becomes RESOLVED; UNMERGE → restored records become SPLIT and relationships/claims are re-attributed according to the recorded history; POSSIBLE_MATCH → a candidate link is recorded with no state change; KEEP_SEPARATE → no state change, and the same pair SHALL NOT be re-suggested unless new evidence is attached; DEFER → state stays or becomes UNRESOLVED.
+
+- Each ResolutionDecision SHALL generate an AuditEvent (action MERGE for MERGE, SPLIT for UNMERGE, otherwise UPDATE).
 
 # 9. Relationship, Ownership, and Control Model
 
@@ -661,10 +690,14 @@ Represents a reasoned analytical judgment supported by evidence and explicit con
 | review_status | enum | Y | 1 | DRAFT, PEER_REVIEWED, APPROVED, SUPERSEDED *[v0.1.1 · A09]* |
 | review_required | boolean | Y | 1 | Set when a supporting Fact becomes DISPUTED or SUPERSEDED (Section 7.5). *[v0.1.1 · A10]* |
 | review_trigger_ref | ref | N | 0..1 | VerificationDecision that triggered review_required. *[v0.1.1 · A10]* |
+| high_impact_adverse | boolean | N | 0..1 | Defaults to false. True when the assessment is adverse to a named person or organization or is otherwise designated high-impact by the case's review policy. *[v0.1.1 · C10]* |
+| disconfirming_searches | structured\[\] | C | 0..n | Recorded searches for information that would disconfirm the judgment. Each entry: searched_for (text), sources_consulted\[\] (1..n; each a source_ref and/or a description), result (text), rationale (text), recorded_by (principal), recorded_at (datetime). At least one entry is required before review approval when high_impact_adverse is true. Append-only. *[v0.1.1 · C10]* |
 
 ### Normative rules:
 
 - Assessment language SHALL distinguish known, assessed, and unknown information.
+
+- An Assessment with high_impact_adverse = true SHALL NOT pass review (a Review with decision APPROVE or APPROVE_WITH_CHANGES), and neither SHALL an IntelligenceProduct that depends on it, unless the Assessment has at least one disconfirming_searches entry (SRS-FR-ASM-004). The check is enforced at review approval, not at finalization. Entries SHALL NOT be edited or deleted; a correction is a further entry. *[v0.1.1 · C10]*
 
 - Assessment SHALL NOT imply criminal guilt beyond the available evidence and mandate.
 
@@ -832,13 +865,13 @@ Append-only record of material actions.
 
 | **Rule** | **Constraint** |
 |----|----|
-| DM-I01 | Every Fact SHALL reference at least one EvidenceItem or EvidenceExtract. |
+| DM-I01 | Every Fact SHALL reference at least one EvidenceItem or EvidenceExtract (supporting_evidence 1..n); supporting Claims are optional (0..n) and never replace evidence. Every Fact SHALL have the CREATE VerificationDecision written in the same transaction. *[v0.1.1 · C01]* *[v0.1.1 · C02]* |
 | DM-I02 | Every Indicator SHALL reference supporting evidence and at least one subject object. |
 | DM-I03 | Every TypologyMatch SHALL reference one catalogue typology and one or more indicators. |
 | DM-I04 | Every Assessment SHALL reference supporting analytical objects and include limitations. |
 | DM-I05 | A ValueFlow with flow_class=DIRECT SHALL NOT exist without direct evidence of movement. |
 | DM-I06 | A Relationship of type OWNS/BENEFICIAL_OWNER_OF/CONTROLS SHALL include basis and confidence. |
-| DM-I07 | Entity merge SHALL preserve precursor identifiers and generate AuditEvent. |
+| DM-I07 | Entity merge SHALL preserve precursor identifiers and generate AuditEvent. Every merge and unmerge SHALL be recorded as a ResolutionDecision. *[v0.1.1 · ER]* |
 | DM-I08 | External dissemination SHALL reference an approved IntelligenceProduct. |
 | DM-I09 | Source-protected information (classification SOURCE_PROTECTED or a source-protection access label) SHALL NOT be exported into lower-classification products without explicit de-identification review. *[v0.1.1 · A08]* |
 | DM-I10 | Deletion/anonymization SHALL respect evidence preservation obligations and legal holds. |
@@ -846,6 +879,7 @@ Append-only record of material actions.
 | DM-I12 | A Fact with fact_status = SUPERSEDED SHALL reference its replacement Fact (superseded_by). *[v0.1.1 · A10]* |
 | DM-I13 | An object with missing or unrecognized classification SHALL be treated as inaccessible (fail closed) and flagged for classification. *[v0.1.1 · A08]* |
 | DM-I14 | A derived object or export SHALL carry a classification at least as restrictive as the highest classification of its inputs, unless a recorded reviewer downgrade decision exists. *[v0.1.1 · A08]* |
+| DM-I15 | Entity.resolution_status SHALL be derivable from the Entity's ResolutionDecision history; a resolution_status change without a corresponding ResolutionDecision SHALL be rejected. *[v0.1.1 · ER]* |
 
 # 19. Canonical Graph Mapping
 
@@ -875,6 +909,7 @@ verification_decisions   (v0.1.1 · A10)
 facts
 entities
 entity_identifiers
+resolution_decisions     (v0.1.1 · ER)
 relationships
 ownership_interests
 control_assertions
@@ -1025,9 +1060,11 @@ Annex A, together with the enumerations stated in the field tables of this speci
 | hypothesis.status | OPEN, SUPPORTED, WEAKENED, REJECTED, INCONCLUSIVE *[v0.1.1 · A09]* |
 | typology_match.consistency_level | NO_BASIS, WEAK, PLAUSIBLE, STRONG, COMPELLING *[v0.1.1 · A09]* |
 | review.decision | APPROVE, APPROVE_WITH_CHANGES, RETURN, REJECT *[v0.1.1 · A09]* |
-| claim.claim_status | RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED (proposed; requires product-owner approval) *[v0.1.1 · A10]* |
-| fact.fact_status | PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED (proposed lifecycle; requires product-owner approval) *[v0.1.1 · A10]* |
-| verification_decision.decision | Claims: UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED; Facts: PROMOTE, ESTABLISH, DISPUTE, SUPERSEDE (proposed; requires product-owner approval) *[v0.1.1 · A10]* |
+| claim.claim_status | RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED *[v0.1.1 · A10]* |
+| fact.fact_status | PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED *[v0.1.1 · A10]* |
+| verification_decision.decision | Claims: UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED; Facts: CREATE (label "Create fact"), ESTABLISH, DISPUTE, SUPERSEDE *[v0.1.1 · A10]* |
+| entity.resolution_status | UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT (state only; changed by ResolutionDecision) *[v0.1.1 · A09, ER]* |
+| resolution_decision.decision | MERGE, KEEP_SEPARATE, POSSIBLE_MATCH, DEFER, UNMERGE *[v0.1.1 · ER]* |
 
 # Annex B. Canonical Relationship Vocabulary (Baseline)
 
@@ -1050,6 +1087,36 @@ Annex A, together with the enumerations stated in the field tables of this speci
 | SOLD_TO | Directed | Asset transfer. |
 | REPRESENTED_BY | Directed | Professional/legal representation. |
 | PAID_BY | Directed | Documented payer relationship, not necessarily direct bank proof. |
+| AUTHORIZED_SIGNATORY_OF | Directed | Signing authority; from Person to Organization or Account. *[v0.1.1 · C09]* |
+| COMMISSIONER_OF | Directed | Supervisory-board (commissioner) role; from Person to Organization. *[v0.1.1 · C09]* |
+| MANAGES | Directed | Day-to-day management of an entity or asset without implying ownership or control. *[v0.1.1 · C09]* |
+| USES | Directed | Entity uses or occupies an asset without documented ownership. *[v0.1.1 · C09]* |
+| LENDER_TO | Directed | Lending relationship; from lender to borrower. *[v0.1.1 · C09]* |
+| LEASED_TO | Directed | Lease of an asset; from lessor to lessee. *[v0.1.1 · C09]* |
+| DONATED_TO | Directed | Documented donation; from donor to recipient. *[v0.1.1 · C09]* |
+| FUNDED_BY | Directed | Documented funding; from funded entity to funder. *[v0.1.1 · C09]* |
+| SHARES_DOMAIN_WITH | Symmetric | Common internet domain or email domain. *[v0.1.1 · C09]* |
+| TRANSFERRED_VALUE_TO | Directed | Value transfer from sender to receiver; requires evidence or clearly marked reconstruction; prefer ValueFlow where movement semantics are material. *[v0.1.1 · C09]* |
+
+**Display synonyms mapped to registered values.** *[v0.1.1 · C09]* Relationship names used in the Investigation Methodology §13, the Information Architecture §10 and the Framework Expanded §11.2 that have an exact registered equivalent are display synonyms only and SHALL NOT be stored or exchanged as wire values. "Inverse" means the edge is stored with the registered type and the endpoints swapped.
+
+| **Name used in a document** | **Stored as (wire value)** |
+|----|----|
+| SHAREHOLDER_OF | OWNS, with an OwnershipInterest (Section 9.2) recording ownership_type and percentage |
+| OWNS_ASSET | OWNS (to_entity is the Asset) |
+| ACQUIRED_FROM | Inverse of SOLD_TO (`seller --SOLD_TO--> buyer`); ACQUIRED for the buyer-to-asset edge |
+| BORROWER_FROM, LOANED_TO | LENDER_TO (BORROWER_FROM is the inverse) |
+| USES_ASSET | USES |
+| RELATIVE_OF | RELATED_TO, with a familial subtype |
+| REPRESENTS, ACTS_FOR | Inverse of REPRESENTED_BY (`principal --REPRESENTED_BY--> agent`); nominee arrangements use OwnershipInterest NOMINEE_ASSERTED or ControlAssertion |
+| SHARES_CONTACT_WITH | SHARES_PHONE_WITH or SHARES_ADDRESS_WITH; shared email or web domain uses SHARES_DOMAIN_WITH |
+| TRANSFERRED_TO | TRANSFERRED_VALUE_TO |
+| RECEIVED_VALUE_FROM | Inverse of TRANSFERRED_VALUE_TO |
+| CONTROLS_ASSET | CONTROLS (to_entity is the Asset) |
+| BUSINESS_PARTNER_OF | ASSOCIATE_OF, with a business-partner subtype |
+| SUBCONTRACTED_TO | Inverse of CONTRACTED_BY (`subcontractor --CONTRACTED_BY--> contractor`) |
+| INVESTED_IN | OWNS with an OwnershipInterest (ECONOMIC_INTEREST), or LENDER_TO for debt |
+| NOMINEE_FOR | Not a relationship type: OwnershipInterest with ownership_type NOMINEE_ASSERTED, or a ControlAssertion |
 
 # Annex C. Minimal Implementation Object Set
 
@@ -1064,6 +1131,7 @@ Claim                  (v0.1.1 · A10)
 VerificationDecision   (v0.1.1 · A10)
 Fact
 Entity
+ResolutionDecision     (v0.1.1 · ER)
 Relationship
 Asset
 Event

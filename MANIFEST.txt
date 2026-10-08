@@ -1,8 +1,8 @@
 CS-AML All Documents Package
 Created: 2026-10-07
-Updated: 2026-10-08 (v0.1.1 Markdown remediation)
+Updated: 2026-10-08 (v0.1.1 remediation, rounds 1-3)
 
-Canonical source: Documents/*_v0.1.1*.md (full text, audit corrections applied).
+Canonical source: Documents/*_v0.1.1*.md, contracts/, schemas/, sources/, docs/adr/.
 Legacy baseline: Documents/*_v0.1*.docx and *.pdf (unchanged v0.1; not updated by v0.1.1).
 
 [Documents]
@@ -78,14 +78,37 @@ CS-AML_Wireframe_Specification_v0.1.pdf
 
 [Audit]
 CS-AML_Audit_Register_2026-10-07.json
+CS-AML_Consistency_Audit_v0.1.1_2026-10-08.md
 CS-AML_Documentation_Audit_2026-10-07.md
 audit-cs-ml.md
 
-[Root]
-CHANGELOG.md
+[contracts]
+README.md
+openapi.yaml
+
+[schemas]
+README.md
+enums.yaml
+
+[sources]
+README.md
+typology-source-map.yaml
+
+[docs/adr]
+0004-keycloak-oidc.md
+0005-object-storage.md
+0006-broker-cache-valkey.md
 README.md
 
-[Tools]
-tools/docx2md/convert.sh
-tools/docx2md/prep.py
-tools/docx2md/tables.lua
+[tools]
+check_consistency.py
+
+[tools/docx2md]
+convert.sh
+prep.py
+tables.lua
+
+[Root]
+CHANGELOG.md
+MANIFEST.txt
+README.md

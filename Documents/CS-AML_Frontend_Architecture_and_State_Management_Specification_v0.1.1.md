@@ -71,7 +71,7 @@ This specification defines the frontend application architecture for the CS-AML 
 | Routing | React Router or equivalent | Routes use stable canonical IDs; case context is explicit. |
 | Server state | TanStack Query or equivalent | Remote cache, invalidation, deduplication and mutation lifecycle are centralized here. |
 | Forms | React Hook Form + schema validation or equivalent | Form state stays local to form boundary; server validation is mapped back to fields. |
-| Schema types | TypeScript client/types generated from `contracts/openapi.yaml` (OpenAPI 3.1; not yet produced — open item in API Specification §28) | Handwritten duplicate DTO types SHOULD be minimized; enum types use the UPPER_SNAKE_CASE wire values. *[v0.1.1 · A09, A11]* |
+| Schema types | TypeScript client/types generated from `contracts/openapi.yaml` (OpenAPI 3.1; P0 vertical slice available — scope and open items in API Specification §28) | Handwritten duplicate DTO types SHOULD be minimized; enum types use the UPPER_SNAKE_CASE wire values. *[v0.1.1 · A09, A11]* |
 | Visualization | Cytoscape.js + approved timeline/value-flow primitives | Visualization state remains non-canonical. |
 | Storybook | Storybook | Shared components and compound patterns require stories/test coverage. |
 | Tests | Vitest/Jest + Testing Library + Playwright | Behavior first; implementation-detail tests discouraged. |
@@ -187,6 +187,9 @@ frontend/
 | Evidence reader       | \["evidence", evidenceId, {caseId, version}\]      |
 | Search                | \["search", {q,type,caseId,filters,page}\]         |
 | Review product        | \["product", productId, {version, mode:"review"}\] |
+| Case claims / facts (features/evidence) | \["case", caseId, "claims", filters\], \["case", caseId, "facts", filters\] *[v0.1.1 · C17]* |
+| Claim / fact detail (features/evidence) | \["claim", claimId\], \["claim", claimId, "verification-decisions"\], \["fact", factId\], \["fact", factId, "dependents"\] *[v0.1.1 · C17]* |
+| Resolution decisions (features/entities) | \["entity", entityId, "resolution-decisions"\], \["entity-match-candidates", filters\] *[v0.1.1 · C17]* |
 
 # 8. Mutation and Concurrency Model
 
@@ -194,7 +197,8 @@ frontend/
 |----|----|----|
 | Low-impact preference | YES | May update locally and rollback on failure. |
 | Task status | Conditional | Only if authorization and version conflicts are simple; failure visibly rolls back. |
-| Entity merge/unmerge | NO | High-impact/reversible canonical action; wait for server result. |
+| Entity merge/unmerge | NO | High-impact/reversible canonical action; wait for server result. Resolution decisions likewise; send `expected_versions` (§8 concurrency contract). *[v0.1.1 · C17]* |
+| Claim verification decision / fact command | NO | Append-only decision with reviewer-independence checks; wait for server result, then invalidate the claim or fact, its dependents and dependent assessments/products. *[v0.1.1 · C17]* |
 | Evidence metadata affecting provenance | NO | Server validates integrity/version. |
 | Assessment finalization | NO | Requires server gate/version validation. |
 | Review approval/rejection | NO | High-impact decision and independence checks. |
@@ -202,13 +206,13 @@ frontend/
 | Graph selection/layout | Local only | Not a canonical mutation. |
 
 > **Concurrency contract** *[v0.1.1 · A04]*  
-> Editable canonical resources carry `record_version`, returned as `ETag: "<record_version>"` on GET. Every mutation of a versioned resource SHALL send `If-Match: "<record_version>"` from the version the user is editing. The frontend SHALL NOT silently overwrite the newer server version. Response mapping:
+> Editable canonical resources carry `record_version`, returned as `ETag: "<record_version>"` on GET. Every mutation of a versioned resource SHALL send `If-Match: "<record_version>"` from the version the user is editing. Exception: multi-entity commands (entity merge, unmerge, `POST /resolution-decisions`, match-candidate decisions) send no `If-Match`; they send a body map `expected_versions: {<entityId>: <record_version>}` built from the versions of every subject entity shown to the user (API Specification §10, §14). *[v0.1.1 · C03]* The frontend SHALL NOT silently overwrite the newer server version. Response mapping:
 >
 > | **Response** | **Frontend behavior** |
 > |----|----|
-> | 412 PRECONDITION_FAILED | "Record changed" recovery: keep the user's unsaved edits, show `details.current_record_version`, offer compare/reload/re-apply. |
+> | 412 PRECONDITION_FAILED | "Record changed" recovery: keep the user's unsaved edits, show `details.current_record_version`, offer compare/reload/re-apply. For multi-entity commands the error carries `details.current_record_versions` (map of entityId → current record_version): identify every changed entity, refetch them, and ask the user to re-confirm the merge/decision against the current versions. *[v0.1.1 · C03]* |
 > | 409 STATE_CONFLICT | Workflow message explaining the state that blocks the action (e.g. gate not satisfied, already finalized); refetch the object state; no compare/merge flow. |
-> | 428 PRECONDITION_REQUIRED | Client bug (missing `If-Match`): generic error with correlation ID, reported to telemetry; never shown as a user conflict. |
+> | 428 PRECONDITION_REQUIRED | Client bug (missing `If-Match`, or missing/incomplete `expected_versions` *[v0.1.1 · C03]*): generic error with correlation ID, reported to telemetry; never shown as a user conflict. |
 > | 409 IDEMPOTENCY_IN_PROGRESS | Wait per `Retry-After` and poll/retry with the same key. |
 > | 422 IDEMPOTENCY_KEY_REUSED | Client bug: a key was reused with a different payload. |
 >
@@ -402,10 +406,14 @@ frontend/
 | SCR-CASE-003 | cases | case server state; route caseId; local panel state |
 | SCR-EVD-003 | evidence | evidence server state; reader viewport; extract draft form |
 | SCR-ENT-005 | entities | candidate server state; compare UI state; merge mutation |
+| SCR-EVD-004, SCR-EVD-003, SCR-SRC-002 (claims and facts) | evidence | claims, facts, verification decisions and fact dependents server state; claim/fact forms; verification-decision and fact-command mutations (If-Match) *[v0.1.1 · C17]* |
+| SCR-ENT-005, SCR-ENT-006 (resolution decisions) | entities | resolution-decision history server state; merge/unmerge/resolution-decision mutations (`expected_versions`, Idempotency-Key) *[v0.1.1 · C17]* |
 | SCR-VAL-001 | valueflows | flow server state; filters in URL; canvas selection/layout local |
 | SCR-HYP-001 | hypotheses | hypothesis server state; matrix filters local; edits form state |
 | SCR-REV-002 | reviews/products | product version server state; comment form; approval mutation |
 | SCR-DIS-002 | dissemination | authorized export candidates server state; selection form; export mutation |
+
+**Owners of claim, fact and resolution data.** *[v0.1.1 · C17]* `features/evidence` owns Claim, Fact and VerificationDecision server state (query keys in §7). A successful verification decision invalidates the claim; a fact command invalidates the fact, its dependents and the dependent assessments/products (whose `review_required` may change). `features/entities` owns ResolutionDecision state (query keys in §7); a merge, unmerge or resolution decision invalidates every subject entity, its relationships and the candidate list. `features/assessments` and `features/products` read `review_required` and render it with ANA-001 (`review-required` variant).
 
 # 23. Frontend Definition of Done
 

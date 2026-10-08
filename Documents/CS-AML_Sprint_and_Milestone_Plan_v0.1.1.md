@@ -221,7 +221,7 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - ST-E3-06 Reliability and credibility ratings
 
-- ST-E3-07 Claim and fact lifecycle (proposed in v0.1.1; requires product-owner approval) *[v0.1.1 · A10]*
+- ST-E3-07 Claim and fact lifecycle (added in v0.1.1; approved by product owner, 2026-10-08) *[v0.1.1 · A10]*
 
 ### Parallel work
 
@@ -245,7 +245,7 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - Source reliability and information credibility are separate
 
-- A fact can be created only from claim/evidence refs with a recorded verification decision; establishing it requires an independent reviewer *[v0.1.1 · A10]*
+- A fact can be created only when supported by evidence refs (mandatory; claim refs optional) with a decision rationale; the fact and its CREATE verification decision are written in one transaction, and creating it leaves the supporting claims unchanged *[v0.1.1 · C01]* *[v0.1.1 · C02]*; establishing it requires an independent reviewer *[v0.1.1 · A10]*
 
 ### Required sprint evidence
 
@@ -257,7 +257,7 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - Source rating test
 
-- Claim/fact lifecycle test (promotion, establish, dispute/supersede, dependent flagging) *[v0.1.1 · A10]*
+- Claim/fact lifecycle test (claim decisions; fact creation from supporting evidence and optional claims with its CREATE decision; establish, dispute, supersede transitions) *[v0.1.1 · A10]*; dependent flagging is tested in Sprint 5 (assessments) and Sprint 7 (products) *[v0.1.1 · C11]*
 
 - M1 review demonstration
 
@@ -296,6 +296,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 - Candidate match explains similarities/conflicts
 
 - Merge is evidence-backed and reversible
+
+- Every merge, unmerge, keep-separate, possible-match and defer decision is recorded as an append-only ResolutionDecision; entity state changes only through these decisions (SRS-FR-ENT-006) *[v0.1.1 · ER]*
 
 - Relationship edge traces to evidence
 
@@ -399,6 +401,10 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - Assessment traces backward to evidence with confidence basis
 
+- A high-impact or adverse assessment cannot pass review approval without a recorded disconfirming search (SRS-FR-ASM-004; 409 `DISCONFIRMATION_REQUIRED`) *[v0.1.1 · C10]*
+
+- Disputing or superseding a supporting fact flags the dependent assessment `review_required` (regression of ST-E3-07; SRS-FR-CLM-004) *[v0.1.1 · C11]*
+
 ### Required sprint evidence
 
 - Typology version test
@@ -408,6 +414,10 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 - Assessment provenance traversal
 
 - Confidence validation
+
+- Disconfirming-search negative test: review approval rejected without the entry, accepted after `POST /assessments/{assessmentId}/disconfirming-searches` (SRS-FR-ASM-004, ST-E6-06) *[v0.1.1 · C10]*
+
+- Dependent-flagging test for assessments *[v0.1.1 · C11]*
 
 ## 5.7 Sprint 6
 
@@ -493,6 +503,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - Sharing log immutable to ordinary analyst
 
+- Disputing or superseding a fact flags dependent products `review_required`; a published product is not mutated and a correction review task is created (regression of ST-E3-07; SRS-FR-CLM-004) *[v0.1.1 · C11]*
+
 ### Required sprint evidence
 
 - Peer-review separation test
@@ -506,6 +518,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 - Referral package sample
 
 - One generated sample per template (six) *[v0.1.1 · A06]*
+
+- Dependent-flagging and correction-task test for products *[v0.1.1 · C11]*
 
 ## 5.9 Sprint 8
 
@@ -616,10 +630,10 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 | E0 Foundation | 0 | M0 | CI, migrations, storage, audit, environment bootstrap |
 | E1 Identity/Access | 0-1 | M0/M1 | OIDC, ACL negative tests, protected-source test |
 | E2 Case Workflow | 1-2 | M1 | Case/charter/gates/tasks/activity demonstration |
-| E3 Evidence Intake | 2 | M1 | Hash, provenance, extract, lineage evidence; claim/fact lifecycle test *[v0.1.1 · A10]* |
+| E3 Evidence Intake | 2 (dependent-flagging regressions in 5 and 7) | M1 | Hash, provenance, extract, lineage evidence; claim/fact lifecycle test *[v0.1.1 · A10]* *[v0.1.1 · C11]* |
 | E4 Entity/Relationship | 3 | M2 | Merge/unmerge, relationship provenance, asset attribution |
 | E5 Timeline/ValueFlow | 4 | M2 | Temporal precision, four-class flow export |
-| E6 Analytical Reasoning | 5 | M3 | Hypothesis matrix, typology version, assessment trace |
+| E6 Analytical Reasoning | 5 | M3 | Hypothesis matrix, typology version, assessment trace, disconfirming-search test (SRS-FR-ASM-004) *[v0.1.1 · C10]* |
 | E7 Search/Graph | 6 | M3 | Leakage test, graph provenance, rebuild test |
 | E8 Products/Review/Dissemination | 7 | M4 | Six-template generation, review separation, evidence index, approved export, sharing log *[v0.1.1 · A06]* |
 | E9 Operations/Release | 8 | M4 | Retention, restore, hardening, full pilot and traceability matrix |
@@ -670,9 +684,9 @@ If actual team capacity differs from the baseline, preserve dependency order and
 
 2.  Case owner assigns Analyst B as reviewer but not author and records lifecycle gate requirements.
 
-3.  Analyst A registers two sources, uploads evidence, verifies hashes, creates extracts, and records source reliability / information credibility separately; records a source claim and proposes a PROVISIONAL fact that an independent reviewer establishes. *[v0.1.1 · A10]*
+3.  Analyst A registers two sources, uploads evidence, verifies hashes, creates extracts, and records source reliability / information credibility separately; records a source claim and proposes a PROVISIONAL fact supported by it (the claim is unchanged) that an independent reviewer establishes. *[v0.1.1 · A10]*
 
-4.  Analyst A creates entities and identifiers, reviews a duplicate candidate, performs an evidence-backed merge, and verifies unmerge reversibility.
+4.  Analyst A creates entities and identifiers, reviews a duplicate candidate, performs an evidence-backed merge, and verifies unmerge reversibility; both are recorded as ResolutionDecisions. *[v0.1.1 · ER]*
 
 5.  Analyst A records ownership/control relationships and an asset, each linked to evidence.
 

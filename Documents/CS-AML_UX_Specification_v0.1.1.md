@@ -151,8 +151,8 @@ Denied access SHALL be handled without leaking sensitive object existence or enc
 
 | **Concept** | **Required visual semantics** | **Prohibited simplification** |
 |----|----|----|
-| Claim | Attributed statement from a source; not yet accepted as fact. Shows its claim status (Recorded, Under review, Corroborated, Contradicted, Unresolved — proposed, pending product-owner approval). | Displaying as verified fact; showing a claim as a fact without a recorded verification decision. *[v0.1.1 · A10]* |
-| Fact | Verified/time-bounded proposition with evidence, its source claim(s) and the verification decision that created it; shows its fact status (Provisional, Established, Disputed, Superseded). | Hiding provenance; hiding the verification decision; presenting a Provisional fact as Established. *[v0.1.1 · A10]* |
+| Claim | Attributed statement from a source; not yet accepted as fact. Shows its claim status (Recorded, Under review, Corroborated, Contradicted, Unresolved — approved by product owner, 2026-10-08). A claim remains a claim; it is never converted into a fact. | Displaying as verified fact; showing a claim as a fact without a recorded verification decision. *[v0.1.1 · A10]* |
+| Fact | Proposition, time-bounded where relevant, a separate object from any claim, with its supporting evidence, any supporting claim(s) and the verification decision that created it *[v0.1.1 · C16]*; shows its fact status (Provisional, Established, Disputed, Superseded). | Hiding provenance; hiding the verification decision; presenting a Provisional fact as Established. *[v0.1.1 · A10]* |
 | Candidate entity match | Possible identity equivalence requiring review. | Auto-merge appearance. |
 | Relationship | Typed connection with evidence/status/time. | Graph edge with no provenance status. |
 | Indicator | Observed pattern relevant to typology. | Label as suspicious/proven crime by default. |
@@ -244,7 +244,8 @@ Every high-impact object SHALL expose its status near the object title or primar
 | UXR-ENT-002 | Common-name similarity SHALL not receive visual treatment equivalent to a confirmed identifier match. | Similarity rationale is explicit. |
 | UXR-ENT-003 | Merge confirmation SHALL summarize affected aliases, identifiers, relationships, cases and provenance. | User sees consequence preview. |
 | UXR-ENT-004 | Unmerge/reversal path SHALL be discoverable to authorized users. | No hidden support-only reversal for MVP. |
-| UXR-ENT-005 | Entity status such as candidate, probable, confirmed, disputed or unresolved SHALL be visible in graph and detail views. | Status is text-visible, not color-only. |
+| UXR-ENT-006 | Merge, unmerge, reject (keep separate), possible-match and defer actions SHALL each require evidence, confidence and rationale and SHALL be shown as entries in the entity's resolution-decision history. *[v0.1.1 · ER]* | User can see who decided what, when, on which evidence, and which decision an unmerge reversed. |
+| UXR-ENT-005 | Entity status such as candidate, probable, confirmed, disputed or unresolved SHALL be visible in graph and detail views. Display labels map to Data Model wire values: Confirmed → `RESOLVED`; Disputed → `CONFLICTED`; Unresolved → `UNRESOLVED`; plus `MERGED` and `SPLIT`. Candidate and Probable describe a pending or `POSSIBLE_MATCH` ResolutionDecision between records, not a stored entity state. Entity state changes only through ResolutionDecisions (Data Model v0.1.1 §8.4). *[v0.1.1 · ER]* | Status is text-visible, not color-only. |
 
 # 10. Relationship, Ownership and Asset UX
 
@@ -439,7 +440,7 @@ Color SHALL NOT be the sole method for distinguishing classes. Legend/labels SHA
 | Error | Preserve user input where safe and provide recovery action. |
 | Offline/interrupted | Warn before losing work; retry idempotently where applicable. |
 | Background job | Show queued/running/completed/failed; prevent duplicate submission. |
-| Conflict | When another user/version changed the object, show comparison or safe reload path rather than silent overwrite. The "record changed" recovery is triggered by an API 412 PRECONDITION_FAILED (stale version); a 409 STATE_CONFLICT means a workflow/business-state conflict (e.g. gate not satisfied, object already finalized) and SHALL be explained as such, not as a concurrent edit. *[v0.1.1 · A04]* |
+| Conflict | When another user/version changed the object, show comparison or safe reload path rather than silent overwrite. The "record changed" recovery is triggered by an API 412 PRECONDITION_FAILED (stale version; for merge, unmerge and resolution decisions, which guard several entities through `expected_versions`, the recovery names every entity that changed and asks the user to re-confirm the decision *[v0.1.1 · C03]*); a 409 STATE_CONFLICT means a workflow/business-state conflict (e.g. gate not satisfied, object already finalized) and SHALL be explained as such, not as a concurrent edit. *[v0.1.1 · A04]* |
 | Permission changed | Terminate or refresh affected actions; do not continue with stale authorization. |
 | Integrity mismatch | Use high-severity but factual language; do not allow normal analyst dismissal without authorized process. |
 

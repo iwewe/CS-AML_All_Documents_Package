@@ -288,7 +288,7 @@ Entity resolution is the process of deciding whether multiple records refer to t
 | Weak identifiers | Name similarity, shared surname, common address, visual resemblance. | Low |
 | Contextual | Same business domain, same event, same social network. | Low–Medium |
 
-Every merge SHOULD record match reason, supporting evidence, confidence, analyst, and date. Every split or reversal SHOULD preserve the audit history.
+Every merge SHOULD record match reason, supporting evidence, confidence, analyst, and date. Every split or reversal SHOULD preserve the audit history. In implementations, each such decision is an append-only resolution decision record (Data Model v0.1.1 §8.4). *[v0.1.1 · ER]*
 
 ## 4.6 Relationship
 
@@ -296,13 +296,15 @@ A Relationship is an explicit, directional or non-directional link between two e
 
 | **Relationship family** | **Examples** |
 |----|----|
-| Ownership/control | OWNS, BENEFICIAL_OWNER_OF, CONTROLS, NOMINEE_FOR. |
-| Governance/employment | DIRECTOR_OF, COMMISSIONER_OF, EMPLOYED_BY, REPRESENTS. |
-| Personal/association | RELATIVE_OF, ASSOCIATE_OF, BUSINESS_PARTNER_OF. |
-| Shared attributes | SHARES_ADDRESS_WITH, SHARES_PHONE_WITH, SHARES_DEVICE_WITH. |
-| Commercial | SUPPLIER_TO, CONTRACTED_BY, SUBCONTRACTED_TO, INVESTED_IN. |
-| Financial/value | PAID_BY, TRANSFERRED_TO, LOANED_TO, DONATED_TO. |
-| Asset | OWNS_ASSET, CONTROLS_ASSET, USES_ASSET, SOLD_TO, LEASED_TO. |
+| Ownership/control | OWNS, BENEFICIAL_OWNER_OF, CONTROLS; nominee arrangements are recorded as an OwnershipInterest (NOMINEE_ASSERTED) or a ControlAssertion. *[v0.1.1 · C09]* |
+| Governance/employment | DIRECTOR_OF, COMMISSIONER_OF, AUTHORIZED_SIGNATORY_OF, EMPLOYED_BY, REPRESENTED_BY. *[v0.1.1 · C09]* |
+| Personal/association | RELATED_TO (familial subtype), ASSOCIATE_OF (business-partner subtype). *[v0.1.1 · C09]* |
+| Shared attributes | SHARES_ADDRESS_WITH, SHARES_PHONE_WITH, SHARES_DEVICE_WITH, SHARES_DOMAIN_WITH. *[v0.1.1 · C09]* |
+| Commercial | SUPPLIER_TO, CONTRACTED_BY (a subcontractor is CONTRACTED_BY the main contractor); investments are OWNS with an OwnershipInterest (ECONOMIC_INTEREST) or LENDER_TO. *[v0.1.1 · C09]* |
+| Financial/value | PAID_BY, TRANSFERRED_VALUE_TO, LENDER_TO, DONATED_TO, FUNDED_BY. *[v0.1.1 · C09]* |
+| Asset | OWNS, CONTROLS, USES, MANAGES, SOLD_TO, LEASED_TO (to_entity or from_entity is the Asset). *[v0.1.1 · C09]* |
+
+All values in this table are registered `relationship_type` wire values (`schemas/enums.yaml`; Data Model Annex B, which also maps older display names such as RELATIVE_OF or OWNS_ASSET). *[v0.1.1 · C09]*
 
 ## 4.7 Asset
 

@@ -234,7 +234,7 @@ Frontend features SHALL mirror product capabilities rather than backend table na
 | DB-02 | Evidence binaries SHALL NOT be stored as large database blobs unless a deployment ADR explicitly chooses that mode. |
 | DB-03 | Every canonical object SHALL use stable UUID identifiers and created/updated/version metadata. |
 | DB-04 | Material deletes SHOULD be logical/superseding operations where historical reconstruction is required. |
-| DB-05 | Entity merge/unmerge SHALL preserve merge decision history and original identifiers. |
+| DB-05 | Entity merge/unmerge SHALL preserve merge decision history and original identifiers. Decisions are stored in an append-only `resolution_decisions` table (Data Model v0.1.1 §8.4); entity `resolution_status` is updated only as their effect. *[v0.1.1 · ER]* |
 | DB-06 | ValueFlow.flow_class SHALL be constrained to the UPPER_SNAKE_CASE values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL`; `confidence.level` to `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (never coerced to `LOW`/null/zero); classification to `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`. Enum values derive from the Data Model Annex A registry. *[v0.1.1 · A08, A09]* |
 | DB-07 | Unknown numeric values SHALL remain null/unknown and SHALL NOT be coerced to zero. |
 | DB-08 | Canonical records SHALL expose provenance links sufficient to reconstruct material assessments. |
@@ -283,7 +283,7 @@ Allow / deny + audit context
 
 # 11. API Design Standard
 
-The MVP API SHALL be REST/JSON and versioned under `/api/v1/`. An OpenAPI 3.1 document SHALL be generated from implementation, committed as `contracts/openapi.yaml`, linted and checked in CI for breaking changes, used to generate the TypeScript client, and exercised by contract tests; it does not yet exist (open item). *[v0.1.1 · A11]* IDs SHALL be opaque UUIDs. Internal database primary-key assumptions SHALL NOT appear in public contracts.
+The MVP API SHALL be REST/JSON and versioned under `/api/v1/`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, written contract-first) SHALL be linted and checked in CI for breaking changes, used to generate the TypeScript client, and exercised by contract tests; once code exists, the schema generated from the implementation SHALL be diffed against it. *[v0.1.1 · A11]* IDs SHALL be opaque UUIDs. Internal database primary-key assumptions SHALL NOT appear in public contracts.
 
 | **Area** | **Convention** |
 |----|----|
@@ -292,7 +292,7 @@ The MVP API SHALL be REST/JSON and versioned under `/api/v1/`. An OpenAPI 3.1 do
 | Errors | Stable machine code + human message + correlation ID; no sensitive existence leakage |
 | Pagination | Cursor or stable page pagination for large collections |
 | Filtering | Explicit allowlisted fields; permission filtering occurs before result shaping |
-| Concurrency | `ETag: "<record_version>"` on GET; `If-Match` REQUIRED on mutations of versioned resources; missing → 428, stale → 412 PRECONDITION_FAILED; 409 STATE_CONFLICT for workflow conflicts only *[v0.1.1 · A04]* |
+| Concurrency | `ETag: "<record_version>"` on GET; `If-Match` REQUIRED on mutations of versioned resources; missing → 428, stale → 412 PRECONDITION_FAILED; 409 STATE_CONFLICT for workflow conflicts only *[v0.1.1 · A04]*; exception: multi-entity commands (merge, unmerge, resolution and match-candidate decisions) send body `expected_versions` instead of `If-Match` (missing → 428, mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]* |
 | Idempotency | `Idempotency-Key` (UUID) REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval, export generation; SHOULD for creates; scope, 24 h retention and replay/conflict semantics per API Specification §11 *[v0.1.1 · A11]* |
 | Schema | Generated OpenAPI 3.1 in `contracts/openapi.yaml`; lint and contract diff in CI *[v0.1.1 · A11]* |
 
@@ -577,7 +577,7 @@ Material deviations from this specification SHALL be documented under `docs/adr/
 docs/adr/
 ├── 0001-modular-monolith.md
 ├── 0002-postgresql-canonical-store.md
-├── 0003-s3-evidence-storage.md
+├── 0003-s3-evidence-storage.md     # S3 capability and evidence storage layout (product-neutral)
 ├── 0004-keycloak-oidc.md          # Keycloak OIDC with server-side BFF session
 ├── 0005-object-storage.md         # S3-compatible product selection
 ├── 0006-broker-cache-valkey.md    # Valkey 8.x pinned release and licence
@@ -585,6 +585,8 @@ docs/adr/
 ```
 
 *[v0.1.1 · A02, A03, A11]* — ADR-0004 records the BFF session decision (confidential client, Authorization Code + PKCE, session cookie, CSRF). ADR-0005 records the chosen object-store product and release line, maintenance status, licence, patch path, S3 compatibility test evidence and backup/restore test evidence. ADR-0006 records the pinned Valkey release, its licence (BSD-3-Clause) and the matching SBOM entry.
+
+*[v0.1.1 · C19]* ADR-0003 and ADR-0005 do not overlap: ADR-0003 records the S3-API capability and the evidence storage layout (bucket and object-key scheme, versioning, immutability/retention, encryption, original/derivative separation) and is product-neutral; ADR-0005 records only the selection of the object-store product and release line that implements that capability. A change of product is an ADR-0005 change and does not reopen ADR-0003.
 
 # 33. Repository Documentation Set
 

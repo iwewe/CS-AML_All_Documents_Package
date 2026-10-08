@@ -1,0 +1,7 @@
+# sources/
+
+`typology-source-map.yaml` is the A13 source-mapping register for the Typology Catalogue v0.1.1: one record per catalogue indicator (key `<typology_id>-I<nn>`, document order) stating its origin, the typology-level reference lineage as written in the catalogue, the verification status and an adaptation note. A `publications` list records each cited publication once, with `PUBLICATION_LEVEL_VERIFIED` only where the 2026-10-07 audit (§8, S01–S18) verified the publication itself.
+
+- **Relationship to the specs.** The catalogue (Annex A) is the human-readable source; this register is its machine-readable mapping. Allowed values come from `schemas/enums.yaml` (`source_mapping_origin`, `source_verification_status`, `indicator_class`). Typology-level lineage is not per-indicator support.
+- **How to update.** Add or change a record only from a check of the publication itself: fill `source` and `location` (section/page) with what was actually verified, set `origin: EXTERNAL_SOURCE` only when the indicator content comes from that publication, and say in `adaptation_note` how CS-AML adapted it. Never invent sources, sections or pages. Keep existing `indicator_id` keys stable; append new indicators with the next number. Update the catalogue in the same change set when an indicator changes.
+- **Open task.** Per-indicator section/page verification has not been done; every record is currently `PENDING_VERIFICATION`.

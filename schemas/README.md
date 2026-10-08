@@ -1,0 +1,8 @@
+# schemas/
+
+`enums.yaml` is the machine-readable registry of every controlled wire enumeration in CS-AML v0.1.1 (audit finding A09). Wire values are UPPER_SNAKE_CASE; `label` is a separate, translatable display string and is never stored or exchanged in place of the value.
+
+- **Relationship to the specs.** The registry is derived from the Data Model Specification v0.1.1 (Annex A and the enum rows of its field tables), the Typology Catalogue v0.1.1 (§3–§5, §8) and the product-owner decisions of 2026-10-08 (A10 Claim/Fact, ER ResolutionDecision). Specification documents and `contracts/openapi.yaml` SHALL use exactly these values. If a document and this file disagree, raise a defect; do not silently change either side.
+- **Ordering.** `ordered: true` (with `rank`, 1 = lowest) only where the specs define a scale (`classification`, `typology_consistency_level`, `gap_importance`). `confidence_level` is `ordered: false` because `INSUFFICIENT_BASIS` is not a level below `LOW`.
+- **How to update.** Change the Data Model (or the owning document) and this file in the same change set; add values, never rename or remove them without a `legacy_values` mapping and a migration note; record the change in `CHANGELOG.md`. Fields declared as enums without values are listed under `unregistered_fields` until the owning document defines them.
+- **Validate.** `python3 -c "import yaml,re; d=yaml.safe_load(open('schemas/enums.yaml')); [re.fullmatch(r'[A-Z][A-Z0-9_]*', v['value']) or print(k, v['value']) for k, e in d['enums'].items() for v in e['values']]"` (prints nothing when valid; also check values are unique within each enum).

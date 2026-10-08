@@ -165,7 +165,7 @@ Desktop baseline uses a stable application frame. The exact pixel values MAY var
 | Right candidate | Entity B identity/identifiers/provenance. |
 | Center comparison | Matching attributes, conflicting attributes, missing/unknown fields. |
 | Bottom evidence | Evidence citations supporting identity resolution. |
-| Decision zone | Merge \| Reject match \| Defer; rationale required; merge is high-impact confirmation. |
+| Decision zone | Merge \| Reject match \| Defer; rationale required; merge is high-impact confirmation. Each action records a ResolutionDecision (`MERGE`, `KEEP_SEPARATE`, `DEFER`). *[v0.1.1 · ER]* |
 
 ## SCR-VAL-001 — Value Flow Workspace
 

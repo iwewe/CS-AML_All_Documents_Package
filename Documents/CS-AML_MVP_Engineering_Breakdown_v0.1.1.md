@@ -469,7 +469,7 @@ As an analyst, I need source reliability separate from information credibility.
 
 As an analyst, I need what a source asserted kept separate from what the team has verified, so that facts are created only through reviewable decisions and corrections reach dependent analysis.
 
-> Added in v0.1.1 as a remediation proposal (audit finding A10); requires product-owner approval before it is treated as accepted scope.
+> Added in v0.1.1 (audit finding A10). Approved by product owner, 2026-10-08. A claim is never converted into a fact; a fact is a separate object supported by evidence (mandatory), optionally by claims, and by verification decisions. *[v0.1.1 · C02]*
 
 **Engineering tasks**
 
@@ -477,9 +477,9 @@ As an analyst, I need what a source asserted kept separate from what the team ha
 
 - VerificationDecision model: target_ref (claim or fact), decision, rationale, evidence_refs, decided_by, decided_at, optional review_ref; append-only
 
-- Fact promotion command: requires claim refs and/or evidence refs plus a VerificationDecision; new facts start `PROVISIONAL`
+- Fact creation command: requires `supporting_evidence` (1..n) and `decision_rationale`; `supporting_claim_refs` optional; creates the Fact (`PROVISIONAL`) and its `CREATE` VerificationDecision atomically in one transaction; `verification_decision_refs` is server-populated; supporting claims are not modified *[v0.1.1 · A10]* *[v0.1.1 · C01]* *[v0.1.1 · C02]*
 
-- Fact transitions: establish (Reviewer other than proposer), dispute (any authorized case member, with evidence), supersede (requires `superseded_by` replacement fact)
+- Fact transitions: establish (Reviewer other than proposer), dispute (any authorized case member, with evidence), supersede (requires `superseded_by` replacement fact); each command writes its ESTABLISH/DISPUTE/SUPERSEDE decision atomically with the status change *[v0.1.1 · C01]*
 
 - Dependency tracking: on DISPUTED/SUPERSEDED, flag dependent Assessments and IntelligenceProducts `review_required` with link to the triggering decision; create a correction review task for published products instead of mutating them
 
@@ -489,13 +489,13 @@ As an analyst, I need what a source asserted kept separate from what the team ha
 
 - Analyst conclusion never overwrites claim content or attribution
 
-- Fact creation without claim/evidence refs or verification decision is rejected
+- Fact creation without evidence refs or decision rationale is rejected (422); a successful creation returns the fact with its `CREATE` decision in `verification_decision_refs`, and no fact exists without that decision *[v0.1.1 · C01]* *[v0.1.1 · C02]*
 
 - Proposer cannot establish own fact; independent reviewer can
 
 - Verification decisions cannot be edited or deleted
 
-- Pilot path: claim recorded → PROVISIONAL → ESTABLISHED → DISPUTED → SUPERSEDED flags dependent assessment/product, leaves published product unchanged, creates correction task, and preserves full history
+- Pilot path: claim recorded → fact created (PROVISIONAL) supported by evidence and the claim → ESTABLISHED → DISPUTED → SUPERSEDED, each with its decision, preserving full history. Dependent flagging of assessments and products is verified as a regression in ST-E6-06 (Sprint 5) and ST-E8-04 (Sprint 7), when those objects exist *[v0.1.1 · C11]*
 
 **Traceability:** SRS-FR-CLM-001..004; F-EVD-008
 
@@ -553,6 +553,8 @@ As an analyst, I need a reviewable duplicate-candidate screen.
 
 - No auto-merge in MVP
 
+- Record POSSIBLE_MATCH, KEEP_SEPARATE and DEFER outcomes as ResolutionDecision records; a KEEP_SEPARATE pair is not re-suggested unless new evidence is attached *[v0.1.1 · ER]*
+
 **Acceptance tests / exit criteria**
 
 - Candidate screen explains why pair was suggested
@@ -565,7 +567,9 @@ As a data steward, I need reversible entity resolution.
 
 **Engineering tasks**
 
-- MergeDecision record
+- ResolutionDecision record (append-only; MERGE with surviving_entity_ref, UNMERGE with reverses_decision_ref; evidence, confidence, rationale, reviewer for high-impact decisions) per Data Model v0.1.1 §8.4 *[v0.1.1 · ER]*
+
+- Derive entity resolution_status only from ResolutionDecisions (MERGE → MERGED/RESOLVED; UNMERGE → SPLIT) *[v0.1.1 · ER]*
 
 - Preserve old IDs as aliases/superseded records
 
@@ -573,11 +577,17 @@ As a data steward, I need reversible entity resolution.
 
 - Implement unmerge recovery
 
+- Merge, unmerge, `POST /resolution-decisions` and match-candidate decisions carry body `expected_versions` (no `If-Match`); merge/unmerge require `Idempotency-Key` (API Specification §10, §11, §14) *[v0.1.1 · C03]*
+
 **Acceptance tests / exit criteria**
 
 - Unmerge restores prior object topology
 
 - Merge rationale/evidence is mandatory
+
+- Every merge and unmerge produces a ResolutionDecision; a direct resolution_status change without a decision is rejected (SRS-FR-ENT-006) *[v0.1.1 · ER]*
+
+- Missing or incomplete `expected_versions` → 428; a stale entry → 412 with `details.current_record_versions`; a retried merge with the same `Idempotency-Key` replays the original result *[v0.1.1 · C03]*
 
 ### ST-E4-05 — Relationships, ownership and control
 
@@ -717,7 +727,7 @@ As a reviewer, I need direct vs reconstructed flows visually unmistakable.
 
 Implement typology catalogue, indicators, typology worksheet, competing hypotheses, gaps, confidence, and assessments.
 
-**Traceability:** SRS-FR-TYP/HYP/ASM; F-TYP-001..003; F-HYP-001..003; F-ASM-001..003
+**Traceability:** SRS-FR-TYP/HYP/ASM (incl. SRS-FR-ASM-004, ST-E6-06); F-TYP-001..003; F-HYP-001..003; F-ASM-001..003 *[v0.1.1 · C10]*
 
 ### ST-E6-01 — Typology catalogue browser
 
@@ -827,7 +837,7 @@ As an analyst, I need judgement with basis and uncertainty.
 
 - Evidence traversal
 
-- Disconfirming-search record (what was searched, sources consulted, result, rationale) required before a high-impact/adverse assessment or product can pass review (SRS-FR-ASM-004) *[v0.1.1 · A05]*
+- Disconfirming-search record (what was searched, sources consulted, result, rationale) required before a high-impact/adverse assessment or product can pass review (SRS-FR-ASM-004) *[v0.1.1 · A05]*: `Assessment.disconfirming_searches[]` (Data Model §13.3) recorded through `POST /assessments/{assessmentId}/disconfirming-searches` (If-Match on the assessment); `POST /reviews/{reviewId}/approve` returns 409 STATE_CONFLICT with `details.reason = "DISCONFIRMATION_REQUIRED"` when the entry is missing *[v0.1.1 · C10]*
 
 **Acceptance tests / exit criteria**
 
@@ -835,7 +845,11 @@ As an analyst, I need judgement with basis and uncertainty.
 
 - Confidence basis is mandatory for material assessment
 
-- Review of a high-impact adverse assessment without a disconfirmation record is rejected; after the record is added, review can proceed (tested separately from backward traceability) *[v0.1.1 · A05]*
+- Review of a high-impact adverse assessment without a disconfirmation record is rejected; after the record is added, review can proceed (tested separately from backward traceability) *[v0.1.1 · A05]* — rejection happens at review approval (409, `DISCONFIRMATION_REQUIRED`), not at finalization *[v0.1.1 · C10]*
+
+- Regression of ST-E3-07: disputing or superseding a supporting fact flags the dependent assessment `review_required` with `review_trigger_ref` *[v0.1.1 · C11]*
+
+**Traceability:** SRS-FR-ASM-001..004; F-ASM-001..003; SRS-FR-CLM-004 (regression) *[v0.1.1 · C10]*
 
 - Finalizing an assessment with a null confidence level is rejected; `INSUFFICIENT_BASIS` round-trips unchanged through DB/API/UI/export *[v0.1.1 · A09]*
 
@@ -984,6 +998,8 @@ As a case owner, I need prior products retained when corrected.
 - Old version remains auditable
 
 - Recipient-facing export identifies current version
+
+- Regression of ST-E3-07: disputing or superseding a fact flags dependent products `review_required`, leaves a published product unchanged and creates a correction review task *[v0.1.1 · C11]*
 
 ### ST-E8-05 — Dissemination approval and export
 
@@ -1242,7 +1258,7 @@ cs-aml/
 
 - Disconfirming-search enforcement test (separate from traceability test). *[v0.1.1 · A05]*
 
-- Claim/fact lifecycle test (promotion, independent establishment, dispute/supersede, dependent flagging). *[v0.1.1 · A10]*
+- Claim/fact lifecycle test (fact creation from supporting claims/evidence, independent establishment, dispute/supersede, dependent flagging). *[v0.1.1 · A10]*
 
 - Independent peer-review and dissemination-approval test.
 
@@ -1275,9 +1291,9 @@ The following capabilities remain outside the mandatory MVP unless a release dep
 
 2\. Create classified case, owner, investigation question and charter; complete required gate.
 
-3\. Register a public source and ingest original PDF evidence; compute hash and create precise extract; record a source claim and promote it to a PROVISIONAL fact through a verification decision; have an independent reviewer establish it. *[v0.1.1 · A10]*
+3\. Register a public source and ingest original PDF evidence; compute hash and create precise extract; record a source claim and create a PROVISIONAL fact supported by it through a verification decision; have an independent reviewer establish it. *[v0.1.1 · A10]*
 
-4\. Create two entities and one organization; record aliases/identifiers; exercise candidate match and reviewed merge/unmerge on test records.
+4\. Create two entities and one organization; record aliases/identifiers; exercise candidate match and reviewed merge/unmerge on test records, each recorded as a ResolutionDecision. *[v0.1.1 · ER]*
 
 5\. Create evidence-backed relationship, ownership/control assertion and an asset.
 

@@ -98,7 +98,7 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 | GEN-002 | IconButton | P0 | Compact labelled action | All | action semantics |
 | GEN-003 | Link | P0 | Internal/external navigation link | All | navigation |
 | GEN-004 | TextInput | P0 | Single-line text field | Forms | form controls |
-| GEN-005 | TextArea | P0 | Long-form input | Editors | form controls |
+| GEN-005 | TextArea | P0 | Long-form input. `rationale` variant (required, with guidance text) used for decision rationale on verification, resolution and review decisions (HiFi "RationaleField") *[v0.1.1 · C17]* | Editors | form controls |
 | GEN-006 | Select | P0 | Controlled vocabulary selection | Forms | form controls |
 | GEN-007 | Combobox | P0 | Search/select canonical object or term | Forms | findability |
 | GEN-008 | Checkbox | P0 | Independent binary selection | Forms | form controls |
@@ -121,17 +121,17 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 | GEN-025 | LoadingState | P0 | Skeleton/progress state | All | states |
 | GEN-026 | AccessDeniedState | P0 | Non-disclosing permission denial | System | security |
 | GEN-027 | IntegrityWarningState | P0 | Evidence integrity mismatch warning | Evidence | security |
-| GEN-028 | ConflictState | P0 | Stale/concurrent edit conflict ("record changed"): shown when the API returns 412 PRECONDITION_FAILED (stale If-Match); a 409 STATE_CONFLICT is a workflow-state error, not this state | Editors | versioning *[v0.1.1 · A04]* |
+| GEN-028 | ConflictState | P0 | Stale/concurrent edit conflict ("record changed"): shown when the API returns 412 PRECONDITION_FAILED (stale If-Match, or a stale `expected_versions` entry on merge/unmerge/resolution decisions); a 409 STATE_CONFLICT is a workflow-state error, not this state. Multi-entity variant lists every entity in `details.current_record_versions` that changed, with reload/re-confirm per entity *[v0.1.1 · C03]* | Editors | versioning *[v0.1.1 · A04]* |
 
 ## Analytical components
 
 | **ID** | **Component** | **Priority** | **Purpose** | **Primary usage** | **Semantic owner** |
 |----|----|----|----|----|----|
-| ANA-001 | AnalyticalStateBadge | P0 | Claim/Fact/Inference/Candidate/Disputed/Unknown; a claim never receives the Fact variant without a recorded verification decision | Analysis | uncertainty *[v0.1.1 · A10]* |
+| ANA-001 | AnalyticalStateBadge | P0 | Claim/Fact/Inference/Candidate/Disputed/Unknown; a claim never receives the Fact variant without a recorded verification decision. Status variants for every `claim_status` (RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED) and `fact_status` (PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED) wire value, plus a `review-required` variant for Assessments/IntelligenceProducts flagged `review_required` (links to `review_trigger_ref`) *[v0.1.1 · C17]* | Analysis | uncertainty *[v0.1.1 · A10]* |
 | ANA-002 | ConfidenceBadge | P0 | Controlled confidence label + rationale affordance; variants `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (neutral, not adverse, not rendered as Low) | Assessment | confidence *[v0.1.1 · A09]* |
 | ANA-003 | FlowClassBadge | P0 | `flow_class` variants DIRECT/DOCUMENTED/RECONSTRUCTED/HYPOTHETICAL (wire values) | Value Flow | epistemic class *[v0.1.1 · A09]* |
 | ANA-004 | EvidenceCitation | P0 | Canonical evidence citation with location | Evidence/Product | provenance |
-| ANA-005 | ProvenanceTrail | P0 | Source→Evidence→Derivative lineage summary | Evidence | provenance |
+| ANA-005 | ProvenanceTrail | P0 | Source→Evidence→Derivative lineage summary. `decision-history` variant: append-only, chronological list of VerificationDecisions (claims/facts) or ResolutionDecisions (entities) with decision, rationale, evidence, decided_by and decided_at; no edit/delete affordance *[v0.1.1 · C17]* | Evidence | provenance |
 | ANA-006 | SourceRating | P0 | A-F reliability display/input | Source | source evaluation |
 | ANA-007 | CredibilityRating | P0 | 1-6 information credibility | Claims | information evaluation |
 | ANA-008 | EntitySummaryCard | P0 | Canonical identity summary without accusation | Entity | identity |
@@ -161,7 +161,7 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 | CMP-003 | ObjectDetailFrame | P0 | Context header + tabs + main + inspector | Object detail | WF-PAT-02 |
 | CMP-004 | EditorFrame | P0 | Form sections + validation + action footer | Editors | WF-PAT-03 |
 | CMP-005 | AnalyticalWorkspaceFrame | P0 | Toolbar + canvas + inspector + accessible alternative | Analysis | WF-PAT-04 |
-| CMP-006 | CompareResolutionFrame | P0 | Symmetric A/B comparison + differences + decision | Entity match | WF-PAT-05 |
+| CMP-006 | CompareResolutionFrame | P0 | Symmetric A/B comparison + differences + decision. Slots: compare columns (HiFi "CompareColumn"), matching/conflicting attribute signals (HiFi "MatchSignal"/"ConflictSignal", rendered with GEN-013 Badge), decision rail (HiFi "MergeDecisionPanel"; records a ResolutionDecision MERGE, KEEP_SEPARATE, POSSIBLE_MATCH or DEFER with GEN-005 `rationale`) *[v0.1.1 · C17]* | Entity match | WF-PAT-05 |
 | CMP-007 | ReviewApprovalFrame | P0 | Artifact + review panel + decision controls | Review | WF-PAT-06 |
 | CMP-008 | SystemStateFrame | P0 | Safe failure/permission/integrity state | System | WF-PAT-07 |
 

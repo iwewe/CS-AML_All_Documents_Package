@@ -216,7 +216,7 @@ This specification defines visual composition at production fidelity. It determi
 | Wireframe pattern | WF-PAT-02 |
 | Primary composition | Object header + summary band + tabbed sections; 8/4 grid where right rail holds resolution/provenance state. |
 | Primary components | EntityIdentityBlock; IdentifierTable; AliasList; RelationshipSummary; AssetSummary; CaseBacklinks; ResolutionState |
-| Required states | Confirmed; probable; candidate; disputed; unresolved; merged/superseded |
+| Required states | Confirmed; probable; candidate; disputed; unresolved; merged/superseded; split (state labels map to `resolution_status` per Information Architecture v0.1.1 §9.3; candidate/probable reflect a pending or `POSSIBLE_MATCH` ResolutionDecision) *[v0.1.1 · ER]* |
 | Responsive rule | Rail stacks at \<1100 px; tables remain horizontally scrollable only as last resort. |
 
 **Engineering acceptance**
@@ -234,7 +234,7 @@ This specification defines visual composition at production fidelity. It determi
 | Purpose | Support reversible, evidence-based merge decisions. |
 | Wireframe pattern | WF-PAT-05 |
 | Primary composition | Symmetrical A/B comparison with central decision rail; matching/conflicting attributes grouped by type. |
-| Primary components | CompareColumn; MatchSignal; ConflictSignal; ProvenanceLink; MergeDecisionPanel; RationaleField |
+| Primary components | CompareColumn; MatchSignal; ConflictSignal; ProvenanceLink; MergeDecisionPanel (records a ResolutionDecision: merge, keep separate, possible match or defer); RationaleField *[v0.1.1 · ER]* — these are slot names of existing inventory components: CompareColumn, MatchSignal, ConflictSignal and MergeDecisionPanel → CMP-006 CompareResolutionFrame; ProvenanceLink → ANA-004 EvidenceCitation; RationaleField → GEN-005 TextArea (`rationale` variant); decision history → ANA-005 ProvenanceTrail (`decision-history` variant) *[v0.1.1 · C17]* |
 | Required states | Candidate; insufficient evidence; conflict; merge-ready; decision recorded |
 | Responsive rule | At \<1200 px columns remain side-by-side with horizontal containment; below tablet not primary supported workflow. |
 
