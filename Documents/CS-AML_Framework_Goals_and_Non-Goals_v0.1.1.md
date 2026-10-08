@@ -5,13 +5,13 @@
 *Civil Society Financial Intelligence / AML Investigation*
 
 > **Document status — v0.1.1**
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
 > Supersedes: CS-AML Framework Goals and Non-Goals v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
-| **Document status** | Draft for Review (Proposed Internal Baseline) — framework component *[v0.1.1 · A01]* |
+| **Document status** | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — framework component *[v0.1.1 · A01]* |
 |----|----|
 | **Version** | 0.1.1 *[v0.1.1 · A01]* |
 | **Intended audience** | Civil society organisations, investigative journalists, researchers, public-interest investigators, technology implementers |

@@ -5,16 +5,16 @@ Derived Methodology · Version 0.1.1
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-Draft for Review · October 2026
+Approved Internal Specification Baseline · October 2026
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework — Derived Methodology
 
-Status: Draft for Review (Proposed Internal Baseline) \| Version: 0.1.1 \| Date: October 2026 *[v0.1.1 · A01]*
+Status: Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) \| Version: 0.1.1 \| Date: October 2026 *[v0.1.1 · A01]*
 
 > **Document status — v0.1.1**
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
 > Supersedes: CS-AML Investigation Methodology v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
@@ -25,7 +25,7 @@ Status: Draft for Review (Proposed Internal Baseline) \| Version: 0.1.1 \| Date:
 | Document title | CS-AML Investigation Methodology v0.1.1 *[v0.1.1 · A01]* |
 | Parent standard | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) *[v0.1.1 · A01]* |
 | Companion standard | CS-AML Typology Catalogue v0.1.1 (`CS-AML_Typology_Catalogue_v0.1.1.md`) *[v0.1.1 · A01]* |
-| Status | Draft for Review (Proposed Internal Baseline) / Derived Methodology *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) / Derived Methodology *[v0.1.1 · A01]* |
 | Primary audience | Civil society organisations, investigative journalists, public-interest researchers, anti-corruption organisations, environmental and human-rights organisations, digital-rights organisations, research institutions, and trusted technical partners. |
 | Primary use | Lawful, evidence-based financial investigation and intelligence analysis performed without coercive state powers or privileged access to regulated financial systems. |
 | Normative language | MUST/SHALL = mandatory; SHOULD = recommended unless documented justification exists; MAY = optional capability. |

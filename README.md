@@ -4,8 +4,14 @@
 
 Paket dokumentasi lengkap CS-AML: kerangka metodologi, spesifikasi produk, rekayasa, dan antarmuka untuk aplikasi intelijen keuangan berbasis masyarakat sipil, beserta hasil audit dokumentasinya.
 
-> **Status: v0.1.1 — Draft for Review (Proposed Internal Baseline). Belum tervalidasi.**
-> Koreksi atas 16 temuan audit (7 Oktober 2026) sudah diterapkan, dan keputusan domain utama sudah disetujui pemilik produk. Item kontrak bertanda `x-csaml-status: proposed` masih perlu ditinjau. Belum ada review independen, implementasi, atau pengujian yang membuktikan isi spesifikasi ini. Lihat [`CHANGELOG.md`](CHANGELOG.md).
+> **Status: v0.1.1 — Approved Internal Specification Baseline (tag `v0.1.1-spec`, 8 Oktober 2026).**
+> Keenam release gate terpenuhi: konsistensi domain, invariant keselamatan, traceability, kontrak mesin, keputusan blocking, dan keterbatasan yang tercatat. Spesifikasi ini dibekukan sebagai acuan implementasi. Belum ada review independen, implementasi, atau pengujian yang membuktikan isinya. Lihat [`CHANGELOG.md`](CHANGELOG.md).
+
+## Kapan sebuah rilis spesifikasi dianggap selesai
+
+> A specification release is considered complete when all release-blocking semantic, safety, traceability, and contract inconsistencies are resolved; automated consistency checks pass; remaining limitations are explicitly documented; and unresolved non-blocking items are assigned to a future release. Absence of known imperfections is not required.
+
+Artinya: spesifikasi tidak harus bebas kekurangan, tetapi harus bebas dari kekurangan yang membuat implementasi berbahaya, ambigu, atau tidak dapat diuji. Setelah tag `v0.1.1-spec`, dokumen tidak diaudit ulang kecuali ada perubahan substantif. Masalah yang ditemukan saat implementasi masuk sebagai issue → change request → v0.1.2.
 
 ## Panduan untuk programmer
 

@@ -5,19 +5,19 @@
 Version 0.1.1
 
 > **Document status — v0.1.1**
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
 > Supersedes: CS-AML API Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Purpose**  
-> Proposed normative HTTP API baseline (draft for review) for CS-AML MVP 0.1. *[v0.1.1 · A01]* It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
+> Normative HTTP API baseline for CS-AML MVP 0.1 (approved internal specification baseline v0.1.1). *[v0.1.1 · A01]* It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
 
 > **Core API axiom**  
 > The API SHALL expose canonical data and authorized derived views without erasing provenance, uncertainty, version history or permission boundaries. It SHALL NOT convert candidate, reconstructed, hypothetical, inferred or derived data into stronger canonical truth through transport semantics.
 
-Status: Proposed normative API contract baseline for MVP 0.1 (draft for review) *[v0.1.1 · A01]*
+Status: Normative API contract baseline for MVP 0.1 (approved internal specification baseline v0.1.1, 2026-10-08) *[v0.1.1 · A01]*
 
 Dependencies: Framework v0.1.1 · Data Model v0.1.1 · SRS v0.1.1 · Technology Architecture v0.1.1 · Frontend Architecture v0.1.1 · Control Implementation Guide v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
 
@@ -27,7 +27,7 @@ Dependencies: Framework v0.1.1 · Data Model v0.1.1 · SRS v0.1.1 · Technology 
 |----|----|
 | Document ID | CSAML-API-0.1 |
 | Version | 0.1.1 |
-| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
 | Primary audience | Backend Engineer, Frontend Engineer, QA, Security Reviewer, Integration Engineer |
 | Protocol | HTTPS + JSON; multipart/streaming where file transfer requires it |
 | Reference style | Resource-oriented REST API with explicit action endpoints for workflow decisions |
@@ -562,7 +562,7 @@ POST /api/v1/graph/query
 - Client TypeScript types SHALL be generated from `contracts/openapi.yaml`; generated code SHALL not replace domain semantics documentation. *[v0.1.1 · A11]*
 
 > **Contract status — P0 vertical slice** *[v0.1.1 · A11]*  
-> `contracts/openapi.yaml` (OpenAPI 3.1, contract-first) now covers the P0 vertical slice: common envelopes and errors, auth/session, cases, sources/evidence (incl. upload and integrity), claims/facts/verification decisions, entities/relationships incl. merge/unmerge and resolution decisions, value flows, hypotheses/assessments, reviews, intelligence products and dissemination/export. It passes Redocly lint and `tools/check_consistency.py` (enum values against `schemas/enums.yaml`). Choices the specifications left open are marked `x-csaml-status: proposed` in the file, including: the cursor pagination envelope `{items, page:{size, next_cursor, has_more, total_count?, total_count_is_estimate?}}`; 400 INVALID_REQUEST for a missing REQUIRED Idempotency-Key; `field_errors` as a field → messages map; and read endpoints added so clients can obtain ETags (`GET /hypotheses/{id}`, `/assessments/{id}`, `/disseminations/{id}`, `/jobs/{jobId}`).
+> `contracts/openapi.yaml` (OpenAPI 3.1, contract-first) now covers the P0 vertical slice: common envelopes and errors, auth/session, cases, sources/evidence (incl. upload and integrity), claims/facts/verification decisions, entities/relationships incl. merge/unmerge and resolution decisions, value flows, hypotheses/assessments, reviews, intelligence products and dissemination/export. It passes Redocly lint and `tools/check_consistency.py` (enum values against `schemas/enums.yaml`). Contract choices the prose left open were classified once on 2026-10-08 with `x-csaml-release-class` *[v0.1.1 · G5]*: **MUST_DECIDE_V0_1_1** (decided — see below), **ACCEPT_DEFAULT_V0_1_1** (frozen default that may evolve only compatibly) and **DEFER_V0_2**. Accepted defaults include: the cursor pagination envelope `{items, page:{size, next_cursor, has_more, total_count?, total_count_is_estimate?}}`; 400 INVALID_REQUEST for a missing REQUIRED Idempotency-Key; `field_errors` as a field → messages map; and read endpoints added so clients can obtain ETags (`GET /hypotheses/{id}`, `/assessments/{id}`, `/disseminations/{id}`, `/jobs/{jobId}`).
 > The implementation SHALL conform to this contract; once code exists, the schema generated from the implementation SHALL be diffed against it in CI. No implementation or contract test has been run yet.
 >
 > Still outstanding:
@@ -570,7 +570,16 @@ POST /api/v1/graph/query
 > - Open value sets still typed as plain strings: job, upload-session, gate and task status; `risk_rating`; amount precision; export format.
 > - Per-resource sort allowlists; how the browser obtains the CSRF token (cookie vs `/auth/session` field).
 > - Overlap between `/entity-match-candidates/{id}/decisions` and `POST /resolution-decisions` (§14) — keep one.
-> - Review and approval of every `x-csaml-status: proposed` item by the product owner and technical lead.
+> - Task contracts (`Task`, `TaskCreate`) — DEFER_V0_2.
+>
+> **Decisions for v0.1.1 (MUST_DECIDE_V0_1_1, product owner 2026-10-08)** *[v0.1.1 · G5]*
+> 1. A request without a REQUIRED `Idempotency-Key` is rejected with 400 INVALID_REQUEST and is not executed.
+> 2. A review approval binds to the frozen product version under review (`target_version`); any later change creates a new version that needs a new review. The reviewer must not be the author; SRS-FR-ASM-004 is enforced at approval.
+> 3. Dissemination approval fixes recipient, purpose, product version and `package_scope_refs`. Export packages may contain only objects inside that scope (otherwise 409 STATE_CONFLICT); any change needs a new approval. Downloads re-check authorization and approval validity.
+> 4. `reviewer_ref` on high-impact merge/unmerge is the reviewing principal (a person); the server rejects reviewer = decider (409 STATE_CONFLICT).
+> 5. Evidence upload completion is all-or-nothing: metadata, storage write and integrity record succeed together or no EvidenceItem exists; a hash mismatch returns 422.
+> 6. Relationship source, target and type are immutable on PATCH; changes are made by creating a new relationship.
+> 7. `POST /evidence/{evidenceId}/verify-integrity` takes no If-Match; it never modifies the evidence and its result is recorded as a separate audited event.
 
 # 29. Compatibility and Deprecation
 

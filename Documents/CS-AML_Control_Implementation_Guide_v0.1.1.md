@@ -4,12 +4,12 @@ Control Implementation Guide
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1.1 \| Proposed Implementation Guide (Draft for Review)**
+**Version 0.1.1 \| Implementation Guide (Approved Internal Specification Baseline)**
 
 > **Document status — v0.1.1**  
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*  
 > Supersedes: CS-AML Control Implementation Guide v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
@@ -24,7 +24,7 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 |----|----|
 | Document | CS-AML Control Implementation Guide |
 | Version | 0.1.1 |
-| Status | Draft for Review (Proposed Internal Baseline) — derivative implementation guide *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — derivative implementation guide *[v0.1.1 · A01]* |
 | Parent | CS-AML Framework v0.1.1 (Markdown, `Documents/CS-AML_Framework_v0.1.1_Expanded.md`) |
 | Related specifications | Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.1 |
 | Primary audience | CSO leadership, investigators, compliance/ethics leads, privacy/security staff, system owners, reviewers, assurance teams |

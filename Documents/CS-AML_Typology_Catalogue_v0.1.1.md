@@ -2,12 +2,12 @@
 
 Civil Society Financial Intelligence / AML Investigation
 
-**Version 0.1.1 \| Proposed Typology Standard (Draft for Review)**
+**Version 0.1.1 \| Typology Standard (Approved Internal Specification Baseline)**
 
 > **Document status — v0.1.1**
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
 > Supersedes: CS-AML Typology Catalogue v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
@@ -15,7 +15,7 @@ Civil Society Financial Intelligence / AML Investigation
 >
 > This catalogue provides a controlled vocabulary and analytical standard for identifying, documenting, testing, and communicating money-laundering typologies using lawful civil-society information. A typology match is an analytical lead, not a finding of criminal liability.
 
-**Status: Draft for Review (Proposed Internal Baseline) v0.1.1** *[v0.1.1 · A01]*
+**Status: Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) v0.1.1** *[v0.1.1 · A01]*
 
 Intended users: CSOs, investigative journalists, anti-corruption researchers, public-interest investigators, and partner analysts.
 
@@ -25,7 +25,7 @@ Intended users: CSOs, investigative journalists, anti-corruption researchers, pu
 |----|----|
 | Document | CS-AML Typology Catalogue |
 | Version | 0.1.1 *[v0.1.1 · A01]* |
-| Status | Draft for Review (Proposed Internal Baseline) — derivative catalogue *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — derivative catalogue *[v0.1.1 · A01]* |
 | Parent framework | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) *[v0.1.1 · A01]* |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Review cycle | At least annually, and upon material typology or legal change |

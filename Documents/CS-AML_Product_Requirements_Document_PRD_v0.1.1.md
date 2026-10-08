@@ -1,16 +1,16 @@
 **PRD v0.1.1**
 
 > **Document status — v0.1.1**  
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*  
 > Supersedes: CS-AML Product Requirements Document (PRD) v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 
 Civil Society Financial Intelligence & AML Investigation Platform
 
-Status: Draft for Review (Proposed Internal Baseline) — proposed product baseline for MVP planning; not yet validated for engineering handoff *[v0.1.1 · A01]*
+Status: Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — product baseline for MVP planning; not yet validated for engineering handoff *[v0.1.1 · A01]*
 
 Version: 0.1.1 \| Date: 7 October 2026 (v0.1); revised for v0.1.1
 
@@ -23,7 +23,7 @@ Version: 0.1.1 \| Date: 7 October 2026 (v0.1); revised for v0.1.1
 |----|----|
 | Document | CS-AML Product Requirements Document (PRD) |
 | Version | 0.1.1 |
-| Status | Draft for Review (Proposed Internal Baseline) / implementation planning *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) / implementation planning *[v0.1.1 · A01]* |
 | Audience | Product, engineering, investigation leads, security/privacy reviewers, QA, governance |
 | Upstream specifications | CS-AML Framework; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification; Control Implementation Guide; Technology Architecture; Product & Feature Specification (all v0.1.1 Markdown, `Documents/*_v0.1.1.md`) |
 | Normative intent | Defines product outcomes and MVP requirements. Detailed data semantics, controls, and architecture remain governed by their respective specifications. |

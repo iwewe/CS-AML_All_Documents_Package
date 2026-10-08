@@ -5,16 +5,16 @@
 Version 0.1.1
 
 > **Document status — v0.1.1**  
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*  
 > Supersedes: CS-AML Product & Feature Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 
 Civil Society Financial Intelligence / AML Investigation Platform
 
-Status: Draft for Review (Proposed Internal Baseline) — proposed product baseline / implementation specification *[v0.1.1 · A01]*
+Status: Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — product baseline / implementation specification *[v0.1.1 · A01]*
 
 > **Product axiom**  
 > The platform SHALL help analysts discover, structure, test, explain, review, and disseminate financial intelligence without converting uncertainty into fact or replacing accountable human judgement.
@@ -25,7 +25,7 @@ Status: Draft for Review (Proposed Internal Baseline) — proposed product basel
 |----|----|
 | Document | CS-AML Product & Feature Specification |
 | Version | 0.1.1 |
-| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
 | Primary audience | Product owners, investigators, analysts, architects, developers, security/privacy reviewers, QA |
 | Normative inputs | CS-AML Framework v0.1.1; Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.1; Control Implementation Guide v0.1.1; Technology Architecture v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) |
 | Normative language | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |

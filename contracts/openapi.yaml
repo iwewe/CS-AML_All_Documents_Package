@@ -1,16 +1,16 @@
-# CS-AML API — OpenAPI 3.1 contract, P0 vertical slice. Version 0.1.1 — DRAFT FOR REVIEW.
+# CS-AML API — OpenAPI 3.1 contract, P0 vertical slice. Version 0.1.1 — Approved Internal Specification Baseline (v0.1.1-spec).
 # Source of truth for prose semantics: Documents/CS-AML_API_Specification_v0.1.1.md and
 # Documents/CS-AML_Data_Model_Specification_v0.1.1.md. Wire enums: schemas/enums.yaml.
-# Items marked `x-csaml-status: proposed` are contract decisions not fixed by those specifications.
+# Contract choices not fixed by those specifications carry x-csaml-release-class (MUST_DECIDE_V0_1_1 / ACCEPT_DEFAULT_V0_1_1 / DEFER_V0_2).
 openapi: 3.1.0
 info:
   title: CS-AML API — P0 vertical slice
   version: 0.1.1
-  summary: Draft for review (proposed internal baseline). Not validated against an implementation.
+  summary: Approved Internal Specification Baseline v0.1.1 (2026-10-08). Not validated against an implementation.
   description: |-
-    Status: **draft for review** (v0.1.1, proposed internal baseline). Hand-authored P0 vertical slice of the CS-AML API derived from `Documents/CS-AML_API_Specification_v0.1.1.md` (endpoints, conventions) and `Documents/CS-AML_Data_Model_Specification_v0.1.1.md` (fields, enums). Maintained contract-first; once an implementation exists, the schema generated from it is diffed against this file in CI (API §28).
+    Status: **Approved Internal Specification Baseline v0.1.1** (2026-10-08, tag `v0.1.1-spec`). Not yet implemented or tested. Hand-authored P0 vertical slice of the CS-AML API derived from `Documents/CS-AML_API_Specification_v0.1.1.md` (endpoints, conventions) and `Documents/CS-AML_Data_Model_Specification_v0.1.1.md` (fields, enums). Maintained contract-first; once an implementation exists, the schema generated from it is diffed against this file in CI (API §28).
 
-    Conventions: wire enums are UPPER_SNAKE_CASE from the Data Model Annex A registry (`schemas/enums.yaml`); every schema/parameter/operation marked `x-csaml-status: proposed` is a contract decision not fixed by the specifications. Evaluation order: 401 → 403/404 → 400/428 → 412 → 422 → 409. Versioned resources return `ETag: "<record_version>"`; mutations send `If-Match`, except multi-entity commands (merge, unmerge, resolution decisions, match-candidate decisions), which send the body map `expected_versions` (412 carries details.current_record_versions). Idempotency-Key is REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval and export package generation; SHOULD for creates.
+    Conventions: wire enums are UPPER_SNAKE_CASE from the Data Model Annex A registry (`schemas/enums.yaml`); contract choices not fixed by the prose specifications carry `x-csaml-release-class`: MUST_DECIDE_V0_1_1 (decided, `x-csaml-status: decided`), ACCEPT_DEFAULT_V0_1_1 (frozen default, `accepted-default`; may evolve compatibly) or DEFER_V0_2 (`deferred`). Evaluation order: 401 → 403/404 → 400/428 → 412 → 422 → 409. Versioned resources return `ETag: "<record_version>"`; mutations send `If-Match`, except multi-entity commands (merge, unmerge, resolution decisions, match-candidate decisions), which send the body map `expected_versions` (412 carries details.current_record_versions). Idempotency-Key is REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval and export package generation; SHOULD for creates.
   x-csaml-document-status: DRAFT_FOR_REVIEW
   license:
     name: Internal — not for external distribution
@@ -127,8 +127,8 @@ paths:
       summary: Log out (destroy session, initiate IdP logout)
       tags:
       - Auth
-      x-csaml-status: proposed
-      description: 'Proposed: 303 See Other to the IdP end-session endpoint (API §4 states only ''session destroyed; IdP logout initiated'').'
+      x-csaml-status: accepted-default
+      description: 303 See Other to the IdP end-session endpoint (API §4 states only 'session destroyed; IdP logout initiated').
       parameters:
       - $ref: '#/components/parameters/XRequestID'
       responses:
@@ -148,6 +148,7 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     servers:
     - url: /
       description: Same origin, outside /api/v1 (API Specification §4).
@@ -1270,8 +1271,9 @@ paths:
       summary: Recompute/verify integrity
       tags:
       - Evidence
-      x-csaml-status: proposed
-      description: 'Proposed: No If-Match: verification does not modify the evidence record (the result is recorded/audited separately).'
+      x-csaml-status: decided
+      description: 'No If-Match: verification does not modify the evidence record (the result is recorded/audited separately). Decided (2026-10-08):
+        no If-Match; the check never modifies the evidence record and its result is recorded as a separate audited event.'
       parameters:
       - $ref: '#/components/parameters/evidenceId'
       - $ref: '#/components/parameters/XRequestID'
@@ -1309,6 +1311,7 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
   /evidence/{evidenceId}/extracts:
     post:
       operationId: createEvidenceExtract
@@ -3071,8 +3074,8 @@ paths:
       summary: Hypothesis detail
       tags:
       - Hypotheses
-      x-csaml-status: proposed
-      description: 'Proposed: Not listed in API §16; added so clients can obtain the ETag required for PATCH.'
+      x-csaml-status: accepted-default
+      description: Not listed in API §16; added so clients can obtain the ETag required for PATCH.
       parameters:
       - $ref: '#/components/parameters/hypothesisId'
       - $ref: '#/components/parameters/XRequestID'
@@ -3104,6 +3107,7 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     patch:
       operationId: updateHypothesis
       summary: Version-aware hypothesis update
@@ -3255,8 +3259,8 @@ paths:
       summary: Assessment detail
       tags:
       - Assessments
-      x-csaml-status: proposed
-      description: 'Proposed: Not listed in API §16; added so clients can obtain the ETag required for PATCH/finalize.'
+      x-csaml-status: accepted-default
+      description: Not listed in API §16; added so clients can obtain the ETag required for PATCH/finalize.
       parameters:
       - $ref: '#/components/parameters/assessmentId'
       - $ref: '#/components/parameters/XRequestID'
@@ -3288,6 +3292,7 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     patch:
       operationId: updateAssessment
       summary: Version-aware assessment update
@@ -3724,8 +3729,8 @@ paths:
       summary: Freeze/submit version for review
       tags:
       - Products
-      x-csaml-status: proposed
-      description: 'Proposed: Returns the created Review (201).'
+      x-csaml-status: accepted-default
+      description: Returns the created Review (201).
       parameters:
       - $ref: '#/components/parameters/productId'
       - $ref: '#/components/parameters/XRequestID'
@@ -3776,6 +3781,7 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
   /reviews:
     get:
       operationId: listReviews
@@ -4120,8 +4126,8 @@ paths:
       summary: Dissemination detail
       tags:
       - Disseminations
-      x-csaml-status: proposed
-      description: 'Proposed: Not listed in API §19; added so clients can obtain the ETag required for approve/exports.'
+      x-csaml-status: accepted-default
+      description: Not listed in API §19; added so clients can obtain the ETag required for approve/exports.
       parameters:
       - $ref: '#/components/parameters/disseminationId'
       - $ref: '#/components/parameters/XRequestID'
@@ -4153,6 +4159,7 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
   /disseminations/{disseminationId}/approve:
     post:
       operationId: approveDissemination
@@ -4363,8 +4370,8 @@ paths:
       summary: Poll an asynchronous job
       tags:
       - Jobs
-      x-csaml-status: proposed
-      description: 'Proposed: Implied by API §22 `poll_url: /api/v1/jobs/{id}`; not listed as an endpoint.'
+      x-csaml-status: accepted-default
+      description: 'Implied by API §22 `poll_url: /api/v1/jobs/{id}`; not listed as an endpoint.'
       parameters:
       - $ref: '#/components/parameters/jobId'
       - $ref: '#/components/parameters/XRequestID'
@@ -4394,6 +4401,7 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
 components:
   securitySchemes:
     sessionCookie:
@@ -4479,7 +4487,7 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/Ref'
-      description: 'ID of the MERGE ResolutionDecision being reversed (Proposed mapping: API §14 ''entity-merges/{mergeId}'').'
+      description: 'ID of the MERGE ResolutionDecision being reversed (mapping: API §14 ''entity-merges/{mergeId}'').'
     relationshipId:
       name: relationshipId
       in: path
@@ -4553,10 +4561,13 @@ components:
       required: true
       description: 'UUID. REQUIRED for this command (API §11). Scope (principal, method, route template + path params); retention 24 h. Same key
         + same payload → original result replayed with `Idempotent-Replayed: true`; different payload → 422 IDEMPOTENCY_KEY_REUSED; in flight
-        → 409 IDEMPOTENCY_IN_PROGRESS + Retry-After. Proposed: a missing key → 400 INVALID_REQUEST (open item in API §11).'
+        → 409 IDEMPOTENCY_IN_PROGRESS + Retry-After. Decided (2026-10-08): where the key is REQUIRED, a request without it is rejected with 400
+        INVALID_REQUEST and the operation is NOT executed.'
       schema:
         type: string
         format: uuid
+      x-csaml-status: decided
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -4692,7 +4703,7 @@ components:
   responses:
     BadRequest:
       description: 400 INVALID_REQUEST — malformed request, invalid header, body record_version ≠ If-Match, or missing REQUIRED Idempotency-Key
-        (proposed).
+        (the operation is not executed).
       headers:
         X-Request-ID:
           $ref: '#/components/headers/XRequestID'
@@ -5472,9 +5483,8 @@ components:
       - basis
     Money:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Money/range shape derived from Data Model §21 example and API §7 (amount + currency; ranges preserve min/max/approximate
-        semantics).'
+      x-csaml-status: accepted-default
+      description: Money/range shape derived from Data Model §21 example and API §7 (amount + currency; ranges preserve min/max/approximate semantics).
       properties:
         value:
           type:
@@ -5499,10 +5509,11 @@ components:
           description: Amount precision qualifier (e.g. EXACT, ESTIMATED). Value set not yet in the registry.
           examples:
           - ESTIMATED
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     TemporalValue:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Interval shape derived from Data Model §21 example (`occurred_at.from/to`) and API §7 (precision field).'
+      x-csaml-status: accepted-default
+      description: Interval shape derived from Data Model §21 example (`occurred_at.from/to`) and API §7 (precision field).
       properties:
         from:
           type: string
@@ -5513,6 +5524,7 @@ components:
         precision:
           type: string
           description: Temporal precision for partial/approximate dates.
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     FieldErrors:
       type: object
       additionalProperties:
@@ -5520,7 +5532,8 @@ components:
         items:
           type: string
       description: Field path → list of safe messages.
-      x-csaml-status: proposed
+      x-csaml-status: accepted-default
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Error:
       type: object
       properties:
@@ -5617,9 +5630,9 @@ components:
       - error
     PageInfo:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: API Specification §8 fixes only the query parameters (page[size], page[after], sort); the response envelope is an
-        open item (§28). Cursor envelope chosen here.'
+      x-csaml-status: accepted-default
+      description: API Specification §8 fixes only the query parameters (page[size], page[after], sort); the response envelope is an open item
+        (§28). Cursor envelope chosen here.
       properties:
         size:
           type: integer
@@ -5644,10 +5657,11 @@ components:
       - size
       - next_cursor
       - has_more
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     ListEnvelope:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Cursor list envelope; see PageInfo.'
+      x-csaml-status: accepted-default
+      description: Cursor list envelope; see PageInfo.
       properties:
         items:
           type: array
@@ -5657,6 +5671,7 @@ components:
       required:
       - items
       - page
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Job:
       type: object
       description: Asynchronous job (API Specification §22).
@@ -5748,9 +5763,8 @@ components:
         - risk_rating
     CaseCreate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Writable fields on create. case_code is server-assigned; investigation questions are created through the charter
-        (POST /cases/{caseId}/charter/versions).'
+      x-csaml-status: accepted-default
+      description: Writable fields on create. case_code is server-assigned; investigation questions are created through the charter (POST /cases/{caseId}/charter/versions).
       properties:
         title:
           type: string
@@ -5780,10 +5794,11 @@ components:
       - purpose
       - risk_rating
       - classification
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     CasePatch:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Explicit writable-field schema (API-SEC-04). Lifecycle transitions go through gates, not PATCH.'
+      x-csaml-status: accepted-default
+      description: Explicit writable-field schema (API-SEC-04). Lifecycle transitions go through gates, not PATCH.
       properties:
         record_version:
           type: integer
@@ -5807,6 +5822,7 @@ components:
           items:
             type: string
       minProperties: 1
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     InvestigationQuestion:
       type: object
       description: InvestigationQuestion (Data Model §6.2).
@@ -5833,8 +5849,8 @@ components:
       - status
     CharterVersion:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: CharterVersion fields are not defined by the Data Model; minimal shape from Case.purpose + InvestigationQuestion.'
+      x-csaml-status: accepted-default
+      description: CharterVersion fields are not defined by the Data Model; minimal shape from Case.purpose + InvestigationQuestion.
       properties:
         case_id:
           $ref: '#/components/schemas/Ref'
@@ -5856,10 +5872,11 @@ components:
       - version
       - purpose
       - investigation_questions
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Charter:
       type: object
-      description: 'Current charter + version history links (API Specification §12). Proposed: Response shape.'
-      x-csaml-status: proposed
+      description: Current charter + version history links (API Specification §12). Response shape.
+      x-csaml-status: accepted-default
       properties:
         current:
           $ref: '#/components/schemas/CharterVersion'
@@ -5870,10 +5887,11 @@ components:
             format: uri-reference
       required:
       - current
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     CharterVersionCreate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Request shape for a new charter version.'
+      x-csaml-status: accepted-default
+      description: Request shape for a new charter version.
       properties:
         purpose:
           type: string
@@ -5895,12 +5913,13 @@ components:
       required:
       - purpose
       - investigation_questions
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Gate:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
       - type: object
-        x-csaml-status: proposed
-        description: 'Proposed: Gate fields are not defined by the Data Model; status values are not yet in the registry.'
+        x-csaml-status: accepted-default
+        description: Gate fields are not defined by the Data Model; status values are not yet in the registry.
         properties:
           case_id:
             $ref: '#/components/schemas/Ref'
@@ -5912,19 +5931,22 @@ components:
         required:
         - case_id
         - gate_code
+        x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     GateDecisionRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Rationale for submit/approve/reject; REQUIRED for reject (API §12 ''reject/return with rationale'').'
+      x-csaml-status: accepted-default
+      description: Rationale for submit/approve/reject; REQUIRED for reject (API §12 'reject/return with rationale').
       properties:
         rationale:
           type: string
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Task:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
       - type: object
-        x-csaml-status: proposed
-        description: 'Proposed: Task fields are not defined by the Data Model (task contracts are an open item, API §28).'
+        x-csaml-status: deferred
+        description: Task fields are not defined by the Data Model (task contracts are an open item, API §28). Deferred to v0.2 (task contracts
+          are outside the core vertical slice).
         properties:
           case_id:
             $ref: '#/components/schemas/Ref'
@@ -5933,10 +5955,11 @@ components:
         required:
         - case_id
         - title
+        x-csaml-release-class: DEFER_V0_2
     TaskCreate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Minimal task create.'
+      x-csaml-status: deferred
+      description: Minimal task create. Deferred to v0.2 (task contracts are outside the core vertical slice).
       properties:
         title:
           type: string
@@ -5944,10 +5967,11 @@ components:
           $ref: '#/components/schemas/Classification'
       required:
       - title
+      x-csaml-release-class: DEFER_V0_2
     CaseActivityItem:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Material case activity projection item, derived from AuditEvent fields (Data Model §17.1). Derived/rebuildable.'
+      x-csaml-status: accepted-default
+      description: Material case activity projection item, derived from AuditEvent fields (Data Model §17.1). Derived/rebuildable.
       properties:
         occurred_at:
           type: string
@@ -5963,6 +5987,7 @@ components:
       - actor
       - action
       - target_ref
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Source:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -6125,7 +6150,8 @@ components:
             - string
             - 'null'
             description: Original filename as metadata only.
-            x-csaml-status: proposed
+            x-csaml-status: accepted-default
+            x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
           verification_status:
             $ref: '#/components/schemas/EvidenceVerificationStatus'
           redaction_state:
@@ -6142,8 +6168,8 @@ components:
         - redaction_state
     UploadInitiateRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Upload session states and request fields are an open item (API §28); fields derived from EvidenceItem.'
+      x-csaml-status: accepted-default
+      description: Upload session states and request fields are an open item (API §28); fields derived from EvidenceItem.
       properties:
         source_id:
           $ref: '#/components/schemas/Ref'
@@ -6176,10 +6202,11 @@ components:
       - acquired_at
       - original_filename
       - classification
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     UploadSession:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Upload session response shape.'
+      x-csaml-status: accepted-default
+      description: Upload session response shape.
       properties:
         upload_id:
           $ref: '#/components/schemas/Ref'
@@ -6197,14 +6224,18 @@ components:
       - upload_id
       - status
       - content_url
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     UploadCompleteRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Finalization request. Completion only succeeds after metadata, storage write and integrity record succeed atomically.'
+      x-csaml-status: decided
+      description: 'Finalization request. Completion only succeeds after metadata, storage write and integrity record succeed atomically. Decided
+        (2026-10-08): completion is all-or-nothing: metadata, storage write and integrity (hash) record succeed together or no EvidenceItem is
+        created; a hash mismatch returns 422 and leaves no partial evidence.'
       properties:
         expected_content_hash:
           type: string
           description: Client-computed SHA-256 (hex). Server recomputes; mismatch → 422.
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     EvidenceExtract:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -6251,8 +6282,8 @@ components:
       - locator
     IntegrityCheckResult:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: verify-integrity result shape.'
+      x-csaml-status: accepted-default
+      description: verify-integrity result shape.
       properties:
         evidence_id:
           $ref: '#/components/schemas/Ref'
@@ -6274,10 +6305,11 @@ components:
       - algorithm
       - matches
       - checked_at
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     EvidenceLineage:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Original/derivative lineage shape (Data Model §7.2: derived copies linked by derivation relationship).'
+      x-csaml-status: accepted-default
+      description: 'Original/derivative lineage shape (Data Model §7.2: derived copies linked by derivation relationship).'
       properties:
         evidence_id:
           $ref: '#/components/schemas/Ref'
@@ -6292,10 +6324,11 @@ components:
       required:
       - evidence_id
       - derivative_refs
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     DerivativeCreate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Register approved derivative metadata/output; bytes come from a completed upload session.'
+      x-csaml-status: accepted-default
+      description: Register approved derivative metadata/output; bytes come from a completed upload session.
       properties:
         derivation_type:
           type: string
@@ -6314,6 +6347,7 @@ components:
       - derivation_type
       - upload_id
       - classification
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Claim:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -6364,8 +6398,9 @@ components:
             items:
               $ref: '#/components/schemas/Ref'
             readOnly: true
-            x-csaml-status: proposed
-            description: Append-only decision history (convenience link; Proposed).
+            x-csaml-status: accepted-default
+            description: Append-only decision history (convenience link).
+            x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
         required:
         - subject_refs
         - predicate
@@ -6423,10 +6458,11 @@ components:
       - classification
     ClaimPatch:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Only descriptive/handling metadata is writable. The asserted proposition (subject, predicate, object value, claimant,
-        extracts) is immutable, and claim_status changes only via POST /claims/{claimId}/verification-decisions, because the Data Model requires
-        every transition out of RECORDED to be backed by a VerificationDecision.'
+      x-csaml-status: decided
+      description: 'Only descriptive/handling metadata is writable. The asserted proposition (subject, predicate, object value, claimant, extracts)
+        is immutable, and claim_status changes only via POST /claims/{claimId}/verification-decisions, because the Data Model requires every transition
+        out of RECORDED to be backed by a VerificationDecision. Decided (2026-10-08): follows the approved Claim/Fact decision (A10): the asserted
+        proposition is immutable and claim_status changes only through verification decisions.'
       properties:
         record_version:
           type: integer
@@ -6450,6 +6486,7 @@ components:
           items:
             type: string
       minProperties: 1
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     VerificationDecision:
       type: object
       description: Append-only verification outcome (Data Model §7.6). No PATCH/DELETE; corrections are new decisions.
@@ -6463,8 +6500,9 @@ components:
           enum:
           - CLAIM
           - FACT
-          description: Proposed convenience discriminator.
-          x-csaml-status: proposed
+          description: Convenience discriminator.
+          x-csaml-status: accepted-default
+          x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
         decision:
           $ref: '#/components/schemas/VerificationDecisionValue'
         rationale:
@@ -6673,7 +6711,8 @@ components:
           enum:
           - ASSESSMENT
           - INTELLIGENCE_PRODUCT
-          x-csaml-status: proposed
+          x-csaml-status: accepted-default
+          x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
         id:
           $ref: '#/components/schemas/Ref'
         review_required:
@@ -6688,8 +6727,8 @@ components:
       - review_required
     FactDependents:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Dependents response shape (not paginated).'
+      x-csaml-status: accepted-default
+      description: Dependents response shape (not paginated).
       properties:
         fact_id:
           $ref: '#/components/schemas/Ref'
@@ -6700,10 +6739,11 @@ components:
       required:
       - fact_id
       - items
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Identifier:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Typed identifier shape (Data Model §8.1, §23).'
+      x-csaml-status: accepted-default
+      description: Typed identifier shape (Data Model §8.1, §23).
       properties:
         identifier_type:
           type: string
@@ -6721,6 +6761,7 @@ components:
       required:
       - identifier_type
       - value
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Entity:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -6830,8 +6871,8 @@ components:
       minProperties: 1
     IdentifierList:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Identifiers/aliases with provenance response shape.'
+      x-csaml-status: accepted-default
+      description: Identifiers/aliases with provenance response shape.
       properties:
         entity_id:
           $ref: '#/components/schemas/Ref'
@@ -6847,10 +6888,11 @@ components:
       - entity_id
       - identifiers
       - aliases
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     AttributeComparison:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Structured matching/conflicting attribute item (shape not defined by the Data Model).'
+      x-csaml-status: accepted-default
+      description: Structured matching/conflicting attribute item (shape not defined by the Data Model).
       properties:
         attribute:
           type: string
@@ -6863,6 +6905,7 @@ components:
             $ref: '#/components/schemas/Ref'
       required:
       - attribute
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     ExpectedVersions:
       type: object
       minProperties: 1
@@ -6970,8 +7013,10 @@ components:
           minLength: 1
         reviewer_ref:
           $ref: '#/components/schemas/Ref'
-          description: Reviewer (Review record or principal per policy); required for high-impact merges; server verifies reviewer ≠ decider.
-          x-csaml-status: proposed
+          description: 'Decided (2026-10-08): reference to the reviewing principal (a person), recorded with the decision; required for high-impact
+            merges/unmerges. The server rejects the request (409 STATE_CONFLICT) when the reviewer is the decider.'
+          x-csaml-status: decided
+          x-csaml-release-class: MUST_DECIDE_V0_1_1
       required:
       - subject_entity_refs
       - surviving_entity_ref
@@ -6997,8 +7042,10 @@ components:
           minLength: 1
         reviewer_ref:
           $ref: '#/components/schemas/Ref'
-          description: Reviewer (Review record or principal per policy); required for high-impact merges; server verifies reviewer ≠ decider.
-          x-csaml-status: proposed
+          description: 'Decided (2026-10-08): reference to the reviewing principal (a person), recorded with the decision; required for high-impact
+            merges/unmerges. The server rejects the request (409 STATE_CONFLICT) when the reviewer is the decider.'
+          x-csaml-status: decided
+          x-csaml-release-class: MUST_DECIDE_V0_1_1
       required:
       - evidence_refs
       - confidence
@@ -7078,9 +7125,9 @@ components:
       - rationale
     MatchCandidate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: MatchCandidate fields are not defined by the Data Model; minimal shape per SRS-FR-ENT-003 (matching/conflicting
-        features). Candidate scores are not risk scores.'
+      x-csaml-status: accepted-default
+      description: MatchCandidate fields are not defined by the Data Model; minimal shape per SRS-FR-ENT-003 (matching/conflicting features).
+        Candidate scores are not risk scores.
       properties:
         id:
           $ref: '#/components/schemas/Ref'
@@ -7104,6 +7151,7 @@ components:
       required:
       - id
       - subject_entity_refs
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Relationship:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -7192,8 +7240,9 @@ components:
       - classification
     RelationshipPatch:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Endpoints and type are immutable on PATCH (create a new relationship instead).'
+      x-csaml-status: decided
+      description: 'Endpoints and type are immutable on PATCH (create a new relationship instead). Decided (2026-10-08): source, target and relationship_type
+        are immutable; to change them create a new relationship (the old one keeps its provenance and can be retired via relationship_status).'
       properties:
         record_version:
           type: integer
@@ -7223,6 +7272,7 @@ components:
           items:
             type: string
       minProperties: 1
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     ValueFlow:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -7670,7 +7720,9 @@ components:
           high_impact_adverse:
             type: boolean
             default: false
-            description: True when the assessment is adverse to a named person or organization or is designated high-impact by the case review policy. Such assessments (and products depending on them) cannot pass review without at least one disconfirming search (SRS-FR-ASM-004; Data Model §13.3).
+            description: True when the assessment is adverse to a named person or organization or is designated high-impact by the case review
+              policy. Such assessments (and products depending on them) cannot pass review without at least one disconfirming search (SRS-FR-ASM-004;
+              Data Model §13.3).
           disconfirming_searches:
             type: array
             items:
@@ -7782,16 +7834,18 @@ components:
       minProperties: 1
     AssessmentFinalizeRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Optional finalization note. Server validates: confidence.level non-null (422), confidence.basis present (422), gate/review
-        state (409).'
+      x-csaml-status: decided
+      description: 'Optional finalization note. Server validates: confidence.level non-null (422), confidence.basis present (422), gate/review
+        state (409). Decided (2026-10-08): follows D-A09: finalize requires a non-null confidence.level and confidence.basis (422 otherwise);
+        INSUFFICIENT_BASIS is a valid final level.'
       properties:
         rationale:
           type: string
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     AssessmentProvenance:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Backward-trace response shape (API §16). Only authorized references are returned.'
+      x-csaml-status: accepted-default
+      description: Backward-trace response shape (API §16). Only authorized references are returned.
       properties:
         assessment_id:
           $ref: '#/components/schemas/Ref'
@@ -7816,6 +7870,7 @@ components:
       - hypothesis_refs
       - fact_refs
       - evidence_refs
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     IntelligenceProduct:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -7939,8 +7994,8 @@ components:
       minProperties: 1
     SubmitReviewRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Submit-review request shape.'
+      x-csaml-status: accepted-default
+      description: Submit-review request shape.
       properties:
         review_type:
           $ref: '#/components/schemas/ReviewType'
@@ -7948,6 +8003,7 @@ components:
           type: string
       required:
       - review_type
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Review:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -7960,8 +8016,10 @@ components:
             $ref: '#/components/schemas/Ref'
           target_version:
             type: string
-            x-csaml-status: proposed
-            description: Frozen product version under review (Proposed).
+            x-csaml-status: decided
+            description: 'Frozen product version under review. Decided (2026-10-08): an approval applies only to this version; any later change
+              to the product creates a new version that requires a new review.'
+            x-csaml-release-class: MUST_DECIDE_V0_1_1
           reviewer:
             oneOf:
             - $ref: '#/components/schemas/PrincipalRef'
@@ -7982,8 +8040,10 @@ components:
         - target_ref
     ReviewApproveRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Approve request shape; decision limited to APPROVE / APPROVE_WITH_CHANGES.'
+      x-csaml-status: decided
+      description: 'Approve request shape; decision limited to APPROVE / APPROVE_WITH_CHANGES. Decided (2026-10-08): decision is APPROVE or APPROVE_WITH_CHANGES;
+        the approval binds to Review.target_version, the reviewer must not be the author (independence), and SRS-FR-ASM-004 is enforced here (409
+        DISCONFIRMATION_REQUIRED).'
       properties:
         decision:
           type: string
@@ -7997,6 +8057,7 @@ components:
           description: Review findings (text or structured).
       required:
       - findings
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     ReviewDecisionRequest:
       type: object
       description: request-changes records decision RETURN; reject records REJECT (rationale required).
@@ -8059,8 +8120,10 @@ components:
         - purpose
     DisseminationApproveRequest:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Authorize recipient/purpose/package scope; package_scope_refs limits the export candidates.'
+      x-csaml-status: decided
+      description: 'Authorize recipient/purpose/package scope; package_scope_refs limits the export candidates. Decided (2026-10-08): package_scope_refs
+        is the complete approved scope. Export packages may contain only objects inside this scope; any change of recipient, purpose, scope or
+        product version requires a new approval.'
       properties:
         rationale:
           type: string
@@ -8068,10 +8131,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Ref'
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     ExportCandidate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Authorized selectable export object shape.'
+      x-csaml-status: accepted-default
+      description: Authorized selectable export object shape.
       properties:
         object_type:
           type: string
@@ -8085,10 +8149,12 @@ components:
       - object_type
       - id
       - classification
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     ExportCreate:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Export package request: objects selected from export-candidates.'
+      x-csaml-status: decided
+      description: 'Export package request: objects selected from export-candidates. Decided (2026-10-08): every object_ref must lie inside the
+        approved package_scope_refs of the dissemination, otherwise 409 STATE_CONFLICT; nothing outside the approved scope is exported.'
       properties:
         object_refs:
           type: array
@@ -8100,13 +8166,16 @@ components:
           description: Package format. Value set not yet defined.
       required:
       - object_refs
+      x-csaml-release-class: MUST_DECIDE_V0_1_1
     ExportPackage:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
       - type: object
-        x-csaml-status: proposed
-        description: 'Proposed: ExportPackage fields are not defined by the Data Model; derived from API §27 (recipient/purpose/package/version/included
-          object manifest). Download re-checks authorization and approval validity at retrieval time.'
+        x-csaml-status: decided
+        description: 'ExportPackage fields are not defined by the Data Model; derived from API §27 (recipient/purpose/package/version/included
+          object manifest). Download re-checks authorization and approval validity at retrieval time. Decided (2026-10-08): the package is bound
+          to one approved dissemination and product version; download re-checks authorization and approval validity, and a package whose approval
+          was revoked or superseded cannot be downloaded.'
         properties:
           dissemination_ref:
             $ref: '#/components/schemas/Ref'
@@ -8131,10 +8200,11 @@ components:
         - dissemination_ref
         - product_ref
         - manifest
+        x-csaml-release-class: MUST_DECIDE_V0_1_1
     SharingLogEntry:
       type: object
-      x-csaml-status: proposed
-      description: 'Proposed: Immutable sharing record shape derived from Dissemination fields.'
+      x-csaml-status: accepted-default
+      description: Immutable sharing record shape derived from Dissemination fields.
       properties:
         id:
           $ref: '#/components/schemas/Ref'
@@ -8163,6 +8233,7 @@ components:
       - purpose
       - released_at
       - released_by
+      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     CaseList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'

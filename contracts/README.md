@@ -1,6 +1,6 @@
 # contracts/
 
-`openapi.yaml` is the OpenAPI 3.1 contract for the CS-AML API, version 0.1.1. Its status is **draft for review**: nothing has been implemented or tested against it yet.
+`openapi.yaml` is the OpenAPI 3.1 contract for the CS-AML API, version 0.1.1. Its status is **Approved Internal Specification Baseline** (tag `v0.1.1-spec`, 2026-10-08). Nothing has been implemented or tested against it yet.
 
 ## Scope: the P0 vertical slice
 
@@ -16,7 +16,13 @@ The contract is derived from `Documents/CS-AML_API_Specification_v0.1.1.md` (end
 - Hypotheses and assessments, including finalize and provenance.
 - Intelligence products (the six MVP templates), reviews, dissemination, export packages, the sharing log and job polling.
 
-Anything marked `x-csaml-status: proposed` is a contract decision that the specifications do not fix. Examples are the list envelope and 400 for a missing REQUIRED `Idempotency-Key`. Each one needs review.
+Contract choices that the prose specifications do not fix were classified once (2026-10-08) with `x-csaml-release-class`:
+
+| Class | `x-csaml-status` | Meaning |
+|---|---|---|
+| `MUST_DECIDE_V0_1_1` | `decided` | Affects safety, approval, integrity or domain semantics; decided by the product owner (API Specification §28 lists the seven decisions) |
+| `ACCEPT_DEFAULT_V0_1_1` | `accepted-default` | Engineering default needed to implement (e.g. pagination envelope, response shapes); frozen, may evolve only compatibly |
+| `DEFER_V0_2` | `deferred` | Outside the core vertical slice (task contracts) |
 
 Multi-entity commands (merge, unmerge, `POST /resolution-decisions` and match-candidate decisions) send the body map `expected_versions` instead of `If-Match`. This is adopted (D-A04), not proposed. The property is defined on each request body but is not in `required`: a missing or incomplete map returns 428 PRECONDITION_REQUIRED, and a stale entry returns 412 PRECONDITION_FAILED with `details.current_record_versions`. *[v0.1.1 · C04, C05]*
 

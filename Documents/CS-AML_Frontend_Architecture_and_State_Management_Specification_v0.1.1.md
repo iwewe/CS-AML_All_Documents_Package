@@ -5,9 +5,9 @@
 Version 0.1.1
 
 > **Document status — v0.1.1**
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
 > Supersedes: CS-AML Frontend Architecture & State Management Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
@@ -27,7 +27,7 @@ Dependencies: SRS v0.1.1 · Technical Stack v0.1.1 · API Specification v0.1.1 �
 |----|----|
 | Document ID | CSAML-FEARCH-0.1 |
 | Version | 0.1.1 |
-| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
 | Primary audience | Frontend Engineer, UX Engineer, Tech Lead, QA, Security Reviewer |
 | Reference stack | React 19 + TypeScript + Vite + Tailwind CSS 4 + shared Storybook design system |
 | API assumption | Versioned same-origin REST API (`/api/v1`) with server-side BFF session; canonical authorization and validation remain server-side (API Specification v0.1.1) *[v0.1.1 · A11]* |

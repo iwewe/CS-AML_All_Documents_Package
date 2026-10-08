@@ -2,7 +2,21 @@
 
 ## v0.1.1 — 2026-10-08 — Audit remediation (Markdown)
 
-**Status:** Draft for Review (Proposed Internal Baseline). Not validated.
+**Status:** **Approved Internal Specification Baseline** — tag `v0.1.1-spec`, 2026-10-08, product owner. Not yet implemented, tested or independently reviewed.
+
+### Release gates (all passed on 2026-10-08)
+
+| Gate | Pass condition | Result |
+|---|---|---|
+| G1 Domain consistency | Claim/Fact, entity resolution, ValueFlow, classification and confidence each have one authoritative meaning | Passed (D-A08, D-A09, D-A10, D-ER) |
+| G2 Safety invariants | Authorization, source protection, evidence integrity, approval/export and certainty promotion are unambiguous and non-waivable | Passed (D-A16) |
+| G3 Traceability | Feature → SRS → story → screen/API has no broken or double-meaning IDs | Passed (`tools/check_consistency.py`: 0 errors) |
+| G4 Machine contract | OpenAPI slice valid, `$ref`s resolve, enums match the registry, lint without errors | Passed (Redocly: 0 errors, 4 accepted warnings) |
+| G5 Proposed decisions | No open contract choice affects a blocking area | Passed: all 51 open choices classified; 7 MUST_DECIDE decisions recorded (API Specification §28) |
+| G6 Known limitations | Everything unfinished is stated as open and assigned to a release | Passed (see "Still open" below) |
+
+Rule after the tag: the documents are not re-audited unless a substantive change is made. Problems found during implementation go
+through issue → change request → v0.1.2.
 
 ### Source of truth
 
@@ -31,6 +45,7 @@ them. "Approved" records a decision, not proof that it has been implemented or t
 | D-A07 | Product `CAP-01…15` is the authoritative registry; Technology Architecture uses `TA-CAP-01…16` with a crosswalk | Adopted · 2026-10-08 | One global ID must have one meaning | Technology Architecture, Product & Feature, SRS |
 | D-A09 | All wire enums use UPPER_SNAKE_CASE, registered in `schemas/enums.yaml`; confidence adds `INSUFFICIENT_BASIS`, which is never coerced to LOW/null | Adopted · 2026-10-08 | One serialisation for DB/API/UI/export | Data Model Annex A, all specs, `schemas/enums.yaml`, `contracts/openapi.yaml` |
 | D-A16 | Non-waivable release invariants: authorization bypass, source exposure, evidence/provenance loss, certainty promotion, approval bypass, broken audit history | Adopted · 2026-10-08 | Waivers must not license breaking core safety invariants | Sprint Plan, Framework Expanded §3.4, Control Guide, SRS, MVP |
+| D-G5 | Seven contract decisions: missing REQUIRED Idempotency-Key → 400, not executed; review approval bound to frozen version; export only within approved scope; merge/unmerge reviewer ≠ decider; all-or-nothing upload completion; immutable relationship endpoints/type; verify-integrity without If-Match | Approved · 2026-10-08 · Product owner | Release gate G5: no open choice may affect a blocking area | API §28, `contracts/openapi.yaml` |
 
 ### Changes per audit finding
 
@@ -80,13 +95,22 @@ Changes are tagged `*[v0.1.1 · Cxx]*`.
 - **C14–C19.** Typed entity filters; stale OpenAPI comments removed; promotion wording in the Control Guide and UX removed; claim/fact/resolution UI mapped to existing component IDs (count stays 65) and frontend feature owners named; upload content is PUT only; If-Match on claim verification decisions; tags moved out of code fences; ADR-0003 (S3 capability/layout) vs ADR-0005 (product selection) split stated.
 - **Validation after round 3.** `tools/check_consistency.py`: 0 errors. Redocly lint: 0 errors, 4 known warnings.
 
-### Still open (not resolved by v0.1.1)
+### Round 4 — release gate G5 (2026-10-08)
 
-- **Proposed contract items:** every `x-csaml-status: proposed` item in `contracts/openapi.yaml` needs review by the product owner and technical lead.
-- **OpenAPI outside the slice:** assets, events, timeline, typologies/indicators/matches, gaps, search, graph, administration/audit, protected sources. Some value sets are still open (job, upload-session, gate and task status; risk rating; export format).
-- **ADR-0005:** no object-store product selected; ADR-0001 to ADR-0003 are not written.
-- **Unregistered enum fields:** 10 fields are declared as enums with no values (`schemas/enums.yaml` → `unregistered_fields`), including `credibility_grade` (1–6, which does not fit the wire pattern).
-- **Display vocabulary:** candidate/probable/confirmed/disputed entity labels map to state values and decisions but have not been replaced. The `/entity-match-candidates/{id}/decisions` endpoint overlaps `POST /resolution-decisions`.
-- **Source mapping (A13):** 89 indicators: 69 pending verification, 20 classified as CS-AML design conventions; none has a verified section/page. This is methodological work: each source must be opened and cited.
-- **Legacy DOCX/PDF:** still v0.1 and do not include these corrections.
-- **Verification:** no independent review and no implementation tests. "Specification corrected" ≠ "independently validated" ≠ "implementation tested" ≠ "production validated".
+- All 51 open OpenAPI choices were classified once with `x-csaml-release-class`: 13 markers MUST_DECIDE_V0_1_1 (7 decisions + 2 confirmations of A10/D-A09 + the missing Idempotency-Key rule), 37 ACCEPT_DEFAULT_V0_1_1, 2 DEFER_V0_2 (task contracts).
+- The seven decisions (API Specification §28): missing REQUIRED Idempotency-Key → 400, not executed; review approval bound to the frozen `target_version`; export limited to the approved dissemination scope; merge/unmerge reviewer is a principal ≠ decider; upload completion all-or-nothing; relationship endpoints/type immutable; verify-integrity without If-Match.
+- Document status changed from "Draft for Review" to "Approved Internal Specification Baseline" in 22 documents (the legacy Framework stays legacy).
+
+### Still open — non-blocking, assigned to a future release
+
+| Item | Why it is not blocking | Target |
+|---|---|---|
+| OpenAPI outside the slice: assets, events, timeline, typologies/indicators/matches, gaps, search, graph, administration/audit, protected sources, `GET /capabilities` | Not needed to run the core vertical slice; added when the epic starts | v0.2 (per epic) |
+| Open value sets (job, upload-session, gate and task status; risk rating; amount precision; export format), sort allowlists, CSRF-token delivery detail, task contracts | Accepted defaults / plain strings do not change domain meaning | v0.2 |
+| Overlap of `/entity-match-candidates/{id}/decisions` and `POST /resolution-decisions` | Both create the same ResolutionDecision; no semantic conflict | v0.2 (keep one) |
+| ADR-0005 product selection (ADR-0001 to ADR-0003 not written) | S3 capability, versioning, integrity and restore requirements are authoritative; product chosen at deployment | Before first deployment with real evidence |
+| 10 unregistered enum fields (`schemas/enums.yaml` → `unregistered_fields`, incl. `credibility_grade` 1–6) | Not used as wire enums in the slice | v0.2 |
+| Entity display vocabulary (candidate/probable/confirmed) mapped, not replaced | Mapping to state and decision values is explicit | v0.2 |
+| A13 Research Track: page-level verification of 89 typology indicators (69 pending, 20 CS-AML design) | No indicator claims FATF/PPATK/UNODC provenance without a "pending verification" label | Parallel research track |
+| Release package (Markdown + DOCX + PDF regenerated from v0.1.1) | DOCX/PDF v0.1 remain the historical baseline | Once, after the freeze |
+| Independent review and implementation evidence | "Specification approved" ≠ "independently validated" ≠ "implementation tested" ≠ "production validated" | Vertical slice implementation |

@@ -6,9 +6,9 @@ Specification v0.1.1
 Proposed visual and component baseline (draft for review) for the CS-AML MVP analyst interface *[v0.1.1 · A01]*
 
 > **Document status — v0.1.1**
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
 > Supersedes: CS-AML UI Design System Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
@@ -20,7 +20,7 @@ Proposed visual and component baseline (draft for review) for the CS-AML MVP ana
 |----|----|
 | Document ID | CSAML-UI-DS-0.1 |
 | Version | 0.1.1 |
-| Status | Draft for Review (Proposed Internal Baseline) — proposed normative UI design-system baseline for MVP 0.1 *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — normative UI design-system baseline for MVP 0.1 *[v0.1.1 · A01]* |
 | Depends on | UX Specification; Information Architecture Specification; Screen Inventory; Wireframe Specification |
 | Primary consumers | Product design, frontend engineering, QA, accessibility, product owner |
 | Baseline theme | Light, calm, data-dense, evidence-first |

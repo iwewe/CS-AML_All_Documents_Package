@@ -1,6 +1,6 @@
 CS-AML All Documents Package
 Created: 2026-10-07
-Updated: 2026-10-08 (v0.1.1 remediation, rounds 1-3)
+Updated: 2026-10-08 (v0.1.1 Approved Internal Specification Baseline, tag v0.1.1-spec)
 
 Canonical source: Documents/*_v0.1.1*.md, contracts/, schemas/, sources/, docs/adr/.
 Legacy baseline: Documents/*_v0.1*.docx and *.pdf (unchanged v0.1; not updated by v0.1.1).

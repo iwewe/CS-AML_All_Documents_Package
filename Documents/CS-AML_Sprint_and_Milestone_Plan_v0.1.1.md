@@ -5,9 +5,9 @@
 Engineering Delivery Baseline for MVP 0.1
 
 > **Document status — v0.1.1**  
-> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*  
 > Supersedes: CS-AML Sprint & Milestone Plan v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
@@ -17,7 +17,7 @@ Engineering Delivery Baseline for MVP 0.1
 
 | **Field** | **Baseline** |
 |:---|:---|
-| Status | Draft for Review (Proposed Internal Baseline) — planning baseline for MVP 0.1 *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — planning baseline for MVP 0.1 *[v0.1.1 · A01]* |
 | Planning cadence | 2-week sprint baseline; capacity-adjustable (planning assumption, not a measured velocity or commitment) *[v0.1.1 · N06]* |
 | Primary objective | Reach a releasable two-analyst end-to-end investigation workflow |
 | Source documents | PRD v0.1.1; SRS v0.1.1; MVP Engineering Breakdown v0.1.1; Technical Stack & Repository Specification v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) |
