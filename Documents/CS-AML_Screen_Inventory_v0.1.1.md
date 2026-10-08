@@ -1,10 +1,17 @@
-**CS-AML Screen Inventory v0.1**
+**CS-AML Screen Inventory v0.1.1**
 
 Canonical screen catalogue for MVP 0.1
 
-| **Version** | 0.1                             |
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Screen Inventory v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
+| **Version** | 0.1.1 |
 |-------------|---------------------------------|
-| **Status**  | Normative UI inventory baseline |
+| **Status**  | Draft for Review (Proposed Internal Baseline) — proposed normative UI inventory baseline *[v0.1.1 · A01]* |
 | **Scope**   | MVP 0.1                         |
 
 **Design axiom.** Screens and wireframes SHALL preserve analytical uncertainty, provenance, reversibility, permission boundaries, and review context. Visual hierarchy must never convert inference into fact or status into accusation.
@@ -54,7 +61,9 @@ This inventory defines the canonical set of user-facing screens required for CS-
 | Administration | 5                |
 | System         | 3                |
 
-Total canonical MVP screens: 53.
+Total canonical MVP screen IDs: 53 = 50 working screens + 3 system-state screens (SCR-SYS-001…003). Any statement of "50 screens" refers to the working screens only and excludes the system-state screens. *[v0.1.1 · A01, A15]*
+
+> Each screen ID is a specification requirement; it is not evidence that the screen has been designed, implemented or tested. *[v0.1.1 · A01]*
 
 # 4. Canonical Screen Inventory
 
@@ -69,11 +78,11 @@ Total canonical MVP screens: 53.
 | SCR-CASE-006 | Case Work / Tasks | Cases | Case team | Track collection, verification, analysis and review tasks. | P0 |
 | SCR-CASE-007 | Case Activity | Cases | Case team, Auditor | Chronological material actions for reconstructability. | P0 |
 | SCR-SRC-001 | Source Register | Evidence | Investigator | Register sources with provenance, access method, reliability and legal/access notes. | P0 |
-| SCR-SRC-002 | Source Detail | Evidence | Investigator, Reviewer | Inspect provenance, reliability, linked evidence, claims and cases. | P0 |
+| SCR-SRC-002 | Source Detail | Evidence | Investigator, Reviewer | Inspect provenance, reliability, linked evidence, claims (with claim status and verification decisions) and cases. | P0 *[v0.1.1 · A10]* |
 | SCR-EVD-001 | Evidence Library | Evidence | Case team | Browse evidence and derivatives by source, type, integrity and status. | P0 |
 | SCR-EVD-002 | Upload Evidence | Evidence | Investigator, Custodian | Ingest original evidence with source linkage and immutable preservation. | P0 |
-| SCR-EVD-003 | Evidence Detail / Reader | Evidence | Case team | Read original/derivative evidence with provenance, hash and linked analytical objects. | P0 |
-| SCR-EVD-004 | Evidence Extract Builder | Evidence | Investigator | Create precise page/paragraph/region extracts linked to original context. | P0 |
+| SCR-EVD-003 | Evidence Detail / Reader | Evidence | Case team | Read original/derivative evidence with provenance, hash and linked analytical objects, including linked claims and facts with their status and verification decisions. | P0 *[v0.1.1 · A10]* |
+| SCR-EVD-004 | Evidence Extract Builder | Evidence | Investigator | Create precise page/paragraph/region extracts linked to original context, record source-attributed claims from them, and propose PROVISIONAL facts. | P0 *[v0.1.1 · A10]* |
 | SCR-EVD-005 | Evidence Lineage | Evidence | Investigator, Reviewer | Show original-to-derivative lineage and transformation metadata. | P0 |
 | SCR-ENT-001 | Entity Register | Entities | Analyst | Find canonical entities across authorised cases without duplicating case-specific copies. | P0 |
 | SCR-ENT-002 | Create Entity | Entities | Analyst | Create canonical entity and provenance-bearing assertions. | P0 |
@@ -97,7 +106,7 @@ Total canonical MVP screens: 53.
 | SCR-GRF-001 | Investigation Graph | Analysis | Analyst | Explore evidence-backed entity, relationship, asset and value-flow graph. | P0 |
 | SCR-SCH-001 | Global Search | Search | All authorised users | Search authorised canonical objects with permission-aware counts and facets. | P0 |
 | SCR-PRD-001 | Product Library | Products | Analyst, Reviewer | Browse intelligence products by case, status, classification and version. | P0 |
-| SCR-PRD-002 | Create Intelligence Product | Products | Analyst | Create Financial Intelligence Note, Referral Package or Case Report from approved analytical objects. | P0 |
+| SCR-PRD-002 | Create Intelligence Product | Products | Analyst | Create a product from any of the six MVP templates — Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report — from approved analytical objects. | P0 *[v0.1.1 · A06]* |
 | SCR-PRD-003 | Product Editor | Products | Analyst | Edit structured product content while maintaining fact/analysis/gap distinctions and evidence index. | P0 |
 | SCR-PRD-004 | Product Detail / Version History | Products | Analyst, Reviewer | Read current/superseded versions and approval state. | P0 |
 | SCR-REV-001 | Review Queue | Products | Reviewer | List pending independent reviews and gating requirements. | P0 |
@@ -227,8 +236,8 @@ Total canonical MVP screens: 53.
 |----|----|
 | Canonical route / context | /sources/{source_id} |
 | Primary roles | Investigator, Reviewer |
-| Purpose | Inspect provenance, reliability, linked evidence, claims and cases. |
-| Primary objects | Source, EvidenceItem, Claim |
+| Purpose | Inspect provenance, reliability, linked evidence, claims and cases. Each claim shows its attribution, `claim_status` and verification decision history; a claim is never presented as a fact. *[v0.1.1 · A10]* |
+| Primary objects | Source, EvidenceItem, Claim, VerificationDecision *[v0.1.1 · A10]* |
 | Required states | default, restricted, superseded |
 | Priority | P0 |
 
@@ -260,8 +269,8 @@ Total canonical MVP screens: 53.
 |----|----|
 | Canonical route / context | /evidence/{evidence_id} |
 | Primary roles | Case team |
-| Purpose | Read original/derivative evidence with provenance, hash and linked analytical objects. |
-| Primary objects | EvidenceItem, EvidenceExtract |
+| Purpose | Read original/derivative evidence with provenance, hash and linked analytical objects. The context rail lists linked claims and facts separately, each with its status (`claim_status` / `fact_status`) and verification decisions; authorised users record verification decisions and fact transitions (establish, dispute, supersede) from this panel, subject to the role rules of the Claim and Fact lifecycle. *[v0.1.1 · A10]* |
+| Primary objects | EvidenceItem, EvidenceExtract, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
 | Required states | default, restricted, integrity-warning |
 | Priority | P0 |
 
@@ -271,8 +280,8 @@ Total canonical MVP screens: 53.
 |----|----|
 | Canonical route / context | /evidence/{evidence_id}/extracts/new |
 | Primary roles | Investigator |
-| Purpose | Create precise page/paragraph/region extracts linked to original context. |
-| Primary objects | EvidenceExtract |
+| Purpose | Create precise page/paragraph/region extracts linked to original context. From an extract the user MAY record a source-attributed claim and MAY propose a PROVISIONAL fact; fact creation requires source claim and/or evidence references and a verification decision, and an extract is never promoted to a fact without one. *[v0.1.1 · A10]* |
+| Primary objects | EvidenceExtract, Claim, Fact (provisional proposal) *[v0.1.1 · A10]* |
 | Required states | selecting, editing, validation-error, saved |
 | Priority | P0 |
 
@@ -543,7 +552,7 @@ Total canonical MVP screens: 53.
 |----|----|
 | Canonical route / context | /cases/{case_id}/products/new |
 | Primary roles | Analyst |
-| Purpose | Create Financial Intelligence Note, Referral Package or Case Report from approved analytical objects. |
+| Purpose | Create a product from any of the six MVP templates — Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report — from approved analytical objects. *[v0.1.1 · A06]* |
 | Primary objects | IntelligenceProduct |
 | Required states | template-select, draft, validation-error |
 | Priority | P0 |
@@ -740,3 +749,7 @@ Total canonical MVP screens: 53.
 - UX and IA requirements have no unresolved conflict.
 
 - Wireframe reference exists for P0 screens before implementation is considered design-ready.
+
+- Screen → wireframe pattern mapping is consistent across this inventory, the Wireframe Specification, the High-Fidelity UI Specification and component composition (e.g. SCR-CASE-001 Case Register uses WF-PAT-01 Register/List). *[v0.1.1 · A15]*
+
+> **Claim and Fact screens (proposed, pending product-owner approval).** The Claim and Fact lifecycle (claim_status, VerificationDecision, fact promotion and revision) is served by the existing screens SCR-SRC-002, SCR-EVD-003, SCR-EVD-004 rather than new screen IDs. When a fact becomes DISPUTED or SUPERSEDED, dependent assessments and products show a `review_required` flag linking to the triggering decision on SCR-ASM-002 and SCR-PRD-004. Whether a dedicated case-level claim/fact register is needed is an open item. *[v0.1.1 · A10]*

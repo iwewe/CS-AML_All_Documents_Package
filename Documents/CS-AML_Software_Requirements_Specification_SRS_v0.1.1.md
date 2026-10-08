@@ -2,10 +2,17 @@
 
 **Software Requirements Specification (SRS)**
 
-Version 0.1
+Version 0.1.1
+
+> **Document status — v0.1.1**  
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Supersedes: CS-AML Software Requirements Specification (SRS) v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Document status**  
-> Normative software baseline for MVP 0.1 implementation. This SRS translates the approved PRD, Product & Feature Specification, Data Model Specification, Control Implementation Guide, Investigation Methodology, and Technology Architecture into testable software requirements.
+> Proposed normative software baseline for MVP 0.1 implementation (draft for review). This SRS translates the PRD (draft for review), Product & Feature Specification, Data Model Specification, Control Implementation Guide, Investigation Methodology, and Technology Architecture into testable software requirements. *[v0.1.1 · A01]*
 
 *Civil Society Financial Intelligence / AML Investigation Platform*
 
@@ -13,11 +20,11 @@ Version 0.1
 
 | **Document** | CS-AML Software Requirements Specification |
 |----|----|
-| **Version** | 0.1 |
-| **Status** | Normative baseline |
+| **Version** | 0.1.1 |
+| **Status** | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
 | **Primary product scope** | MVP 0.1 |
 | **Audience** | Product, engineering, QA, security, data, reviewers, governance |
-| **Upstream documents** | CS-AML PRD v0.1; Product & Feature Specification v0.1; Data Model Specification v0.1; Technology Architecture v0.1; Control Implementation Guide v0.1; Investigation Methodology v0.1 |
+| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.1; Technology Architecture v0.1.1; Control Implementation Guide v0.1.1; Investigation Methodology v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) |
 | **Normative terms** | SHALL / MUST = mandatory; SHOULD = recommended; MAY = optional |
 
 # Contents
@@ -144,6 +151,8 @@ SOURCE → EVIDENCE → CLAIM/FACT → INDICATOR → HYPOTHESIS → ASSESSMENT �
 DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 ```
 
+These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.1 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
+
 # 3. Definitions and Conventions
 
 | **Term** | **Meaning** | **Software implication** |
@@ -153,7 +162,8 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 | Material action | Action capable of changing analytical meaning, access, review status, or dissemination | Must be auditable |
 | Protected source | Human/source identity requiring compartmentalisation | Identity access separate from routine evidence access |
 | High-impact product | Product containing potentially harmful adverse findings or public attribution | Requires independent review and dissemination approval |
-| MVP | Minimum release satisfying end-to-end case completion | All P0 requirements required unless explicitly waived |
+| MVP | Minimum release satisfying end-to-end case completion | All P0 requirements required unless explicitly waived; a defect against a non-waivable invariant (§21) can never be waived *[v0.1.1 · A16]* |
+| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.1 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]* |
 
 # 4. System Boundary and Actors
 
@@ -311,6 +321,47 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 | **Verification** | Save different ratings and verify independent display/storage. |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-EVD-006; SRC-02; ASM-01 |
+
+## 6.2a Claim and Fact Lifecycle *[v0.1.1 · A10]*
+
+> **Status of this family**  
+> SRS-FR-CLM-001…004 were added in v0.1.1 as a remediation proposal (audit finding A10). They require product-owner approval before being treated as accepted scope. Object definitions follow Data Model Specification v0.1.1 §7.4 Claim and §7.5 Fact.
+
+### SRS-FR-CLM-001 — Claim record and attribution
+
+| **Requirement** | The system SHALL record each Claim as a source-attributed assertion linked to its asserting source/person and supporting evidence/extract references, with `claim_status` ∈ `RECORDED`, `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`. Analyst conclusions SHALL NOT overwrite the claim's asserted content or attribution. The `disputed` boolean is retained for compatibility and SHALL be derived (true when status is `CONTRADICTED` or an open dispute exists). |
+|----|----|
+| **Rationale** | Keeps what a source asserted separate from what analysts concluded. |
+| **Verification** | Create a claim from an extract; record an analyst conclusion; verify the claim content and attribution are unchanged and `disputed` is derived from status. |
+| **Priority** | MVP / P0 |
+| **Traceability** | F-EVD-008; SRC-01; EVD-02 |
+
+### SRS-FR-CLM-002 — Verification decision
+
+| **Requirement** | Every verification outcome on a claim or fact SHALL be stored as a separate, append-only VerificationDecision record containing target_ref (claim or fact), decision, rationale, evidence_refs, decided_by, decided_at, and optional review_ref. Existing decisions SHALL NOT be edited or deleted. |
+|----|----|
+| **Rationale** | Makes every verification judgement reviewable and attributable. |
+| **Verification** | Record two decisions on one claim; attempt to modify the first and verify rejection; verify both remain retrievable in order with attribution. |
+| **Priority** | MVP / P0 |
+| **Traceability** | F-EVD-008; AUD-01; QUA-01 |
+
+### SRS-FR-CLM-003 — Fact promotion
+
+| **Requirement** | The system SHALL create a Fact only when it references source claim(s) and/or evidence and a VerificationDecision; a new Fact SHALL start as `PROVISIONAL`. `fact_status` ∈ `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`. Investigators/Analysts MAY record claims and propose `PROVISIONAL` facts; moving a fact to `ESTABLISHED` SHALL require a Reviewer who is not the proposer. Evidence extracts and AI/automation output SHALL NOT become facts except through this path. |
+|----|----|
+| **Rationale** | Prevents a claim or extract from being treated as fact without a reviewable decision. |
+| **Verification** | Attempt to create a fact without refs or decision and verify rejection; proposer attempts to establish own fact and is denied; an independent reviewer establishes it and the decision is recorded. |
+| **Priority** | MVP / P0 |
+| **Traceability** | F-EVD-008; EVD-02; QUA-01 |
+
+### SRS-FR-CLM-004 — Fact revision and dependent flagging
+
+| **Requirement** | Any authorized case member SHALL be able to move a fact to `DISPUTED` with supporting evidence; `SUPERSEDED` SHALL require a replacement fact reference (`superseded_by`). When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering decision. Published products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. |
+|----|----|
+| **Rationale** | Ensures corrections propagate to dependent analysis without rewriting history. |
+| **Verification** | Pilot: record a source claim; promote a `PROVISIONAL` fact; establish it; dispute it with contradicting evidence; supersede it. Verify dependent assessment/product are flagged, the published product is unchanged, a correction review task exists, and full history is retrievable. |
+| **Priority** | MVP / P0 |
+| **Traceability** | F-EVD-008; ASM-01; DIS-01 |
 
 ### SRS-FR-DOC-001 — Document ingestion
 
@@ -527,10 +578,10 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 
 ### SRS-FR-ASM-002 — Confidence model
 
-| **Requirement** | The system SHALL support High, Moderate, Low, and Insufficient Basis (or configured equivalent) with rationale. |
+| **Requirement** | The system SHALL support the confidence levels `HIGH`, `MODERATE`, `LOW`, and `INSUFFICIENT_BASIS` (wire values from the Data Model Annex A registry; display labels High, Moderate, Low, Insufficient Basis are separate and translatable), each with mandatory rationale. `INSUFFICIENT_BASIS` means a judgement was attempted but the evidential basis is insufficient; it is not a level below `LOW` and SHALL NOT be converted to `LOW`, null, zero, or omitted. Null is permitted only on drafts where no confidence judgement has been made; a finalized assessment SHALL carry a non-null level. No normalization, import, or export SHALL raise certainty. *[v0.1.1 · A09]* |
 |----|----|
 | **Rationale** | Avoids pseudo-precision. |
-| **Verification** | Save each level and verify mandatory rationale. |
+| **Verification** | Save each level and verify mandatory rationale; round-trip every level through DB/API/UI/export and verify `INSUFFICIENT_BASIS` is never converted to `LOW`, null, or zero; attempt to finalize an assessment with a null level and verify rejection. *[v0.1.1 · A09]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-ASM-002 |
 
@@ -541,7 +592,16 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 | **Rationale** | Core reproducibility requirement. |
 | **Verification** | Select key assessment and trace to origin without external notes. |
 | **Priority** | MVP / P0 |
-| **Traceability** | F-ASM-003 |
+| **Traceability** | F-ASM-001; ASM-01 *[v0.1.1 · A05]* |
+
+### SRS-FR-ASM-004 — Disconfirming search record *[v0.1.1 · A05]*
+
+| **Requirement** | The system SHALL require a recorded disconfirming-search entry (what was searched, sources consulted, result, rationale) before a high-impact or adverse assessment/product can pass review. |
+|----|----|
+| **Rationale** | Ensures evidence that could weaken adverse findings has been sought and recorded; tested separately from backward traceability (SRS-FR-ASM-003). |
+| **Verification** | Attempt to pass review of a high-impact adverse assessment without a disconfirmation record; verify rejection. Add the record; verify review can proceed. |
+| **Priority** | MVP / P0 |
+| **Traceability** | F-ASM-003; HYP-02; QUA-01 *[v0.1.1 · A05]* |
 
 ## 6.6 Search and Graph
 
@@ -715,12 +775,12 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 
 ### SRS-DR-001 — Canonical object set
 
-| **Requirement** | The system SHALL implement at minimum Case, Source, EvidenceItem, EvidenceExtract, Fact, Entity, Relationship, Asset, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct, Review, Dissemination, and AuditEvent as durable domain objects. |
+| **Requirement** | The system SHALL implement at minimum Case, Source, EvidenceItem, EvidenceExtract, Claim, VerificationDecision, Fact, Entity, Relationship, Asset, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct, Review, Dissemination, and AuditEvent as durable domain objects. *[v0.1.1 · A10]* |
 |----|----|
 | **Rationale** | Aligns SRS with canonical data model. |
 | **Verification** | Schema review and CRUD contract tests for all required object types. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1 |
+| **Traceability** | Data Model v0.1.1 |
 
 ### SRS-DR-002 — Stable identifiers
 
@@ -729,7 +789,7 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 | **Rationale** | Supports audit and linking. |
 | **Verification** | Rename object and verify identifier unchanged. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1 |
+| **Traceability** | Data Model v0.1.1 |
 
 ### SRS-DR-003 — Version semantics
 
@@ -747,7 +807,7 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 | **Rationale** | Supports imperfect open-source data. |
 | **Verification** | Store year-only and approximate event date. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1 |
+| **Traceability** | Data Model v0.1.1 |
 
 ### SRS-DR-005 — Provenance references
 
@@ -780,7 +840,7 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 
 ### SRS-IF-002 — REST/HTTP API
 
-| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. |
+| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite); 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. An OpenAPI 3.1 document SHALL be generated from the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.1, and the OpenAPI artefact does not yet exist (open item). *[v0.1.1 · A04, A11]* |
 |----|----|
 | **Rationale** | Enables integration and testability. |
 | **Verification** | API contract tests plus authorization parity tests. |
@@ -789,7 +849,7 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 
 ### SRS-IF-003 — OIDC identity provider
 
-| **Requirement** | The system SHALL integrate with an OIDC-compatible provider for authentication and group/claim mapping. |
+| **Requirement** | The system SHALL integrate with an OIDC-compatible provider for authentication and group/claim mapping. Browser authentication SHALL use a server-side session (BFF): the backend is a confidential OIDC client (Authorization Code + PKCE), the browser holds only an HttpOnly, Secure session cookie, tokens are never exposed to JavaScript, and unsafe methods carry a CSRF token. *[v0.1.1 · A11]* |
 |----|----|
 | **Rationale** | Avoids custom password storage where possible. |
 | **Verification** | IdP login/logout/disable/claim tests. |
@@ -944,7 +1004,7 @@ DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 | **Rationale** | Analyst productivity. |
 | **Verification** | Search benchmark under concurrent users. |
 | **Priority** | MVP target |
-| **Traceability** | CAP-10 |
+| **Traceability** | CAP-10 (Search / Graph / Analytics, product capability registry) *[v0.1.1 · A07]* |
 
 ### SRS-NFR-PERF-003 — Upload size
 
@@ -1230,7 +1290,7 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 | **SRS family** | **Upstream product** | **Framework/control** | **Canonical data** | **Primary test** |
 |----|----|----|----|----|
 | CASE | F-CASE-\* | GOV-01/CAS-01/CAS-02 | Case, Review, AuditEvent | V1/V6 |
-| EVD | F-EVD-\*/F-DOC-001 | SRC-01/SRC-02/EVD-01/EVD-02 | Source, EvidenceItem, EvidenceExtract | V1/V3 |
+| EVD/CLM | F-EVD-\*/F-DOC-001 | SRC-01/SRC-02/EVD-01/EVD-02/QUA-01 | Source, EvidenceItem, EvidenceExtract, Claim, VerificationDecision, Fact | V1/V3/V6 *[v0.1.1 · A10]* |
 | ENT/REL/AST | F-ENT-\*/F-REL-\*/F-AST-001 | ENT-01/REL-01/AST-01 | Entity, Relationship, Asset | V1/V3/V4 |
 | TIM/VAL | F-TIM-\*/F-VAL-\* | REL-01/VAL-01 | Event, ValueFlow | V1/V3/V4 |
 | TYP/HYP/ASM | F-TYP-\*/F-HYP-\*/F-ASM-\* | TYP-01/HYP-01/HYP-02/ASM-01/GAP-01 | Indicator, TypologyMatch, Hypothesis, Assessment | V1/V4/V6 |
@@ -1241,6 +1301,9 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 
 > **Release gate**  
 > MVP 0.1 SHALL NOT be declared production-ready until the end-to-end pilot scenario passes with provenance, authorization, audit, review, and export controls intact.
+
+> **Non-waivable invariants** *[v0.1.1 · A16]*  
+> No administrative waiver is possible for a defect that violates: (1) authorization (unauthorized access / authorization bypass); (2) source identity protection; (3) evidence integrity or provenance of material records; (4) certainty preservation — e.g. `RECONSTRUCTED`/`HYPOTHETICAL` shown or stored as `DIRECT`/`DOCUMENTED`, `INSUFFICIENT_BASIS` shown as a level, or a claim treated as fact without a decision; (5) approval gates, including export without approval (SRS-FR-DIS-001); (6) audit history (broken, missing, or editable). If such a defect exists, the only release path is to disable the affected feature path with tested evidence of non-reachability; the defect itself is never waived. Other High defects may be waived only by the accountable authority with a tested compensating control, owner, and expiry date.
 
 - A case can be opened only with accountable owner and valid charter.
 
@@ -1253,6 +1316,8 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 - At least two competing hypotheses are tested using supporting and contradicting evidence.
 
 - An assessment is confidence-rated and backward traceable to sources.
+
+- A source claim is promoted to a fact through a recorded verification decision, and disputing/superseding that fact flags dependent assessments/products without loss of history. *[v0.1.1 · A10]*
 
 - Independent peer review is completed.
 
@@ -1308,6 +1373,13 @@ Intelligence product: DRAFT → IN_REVIEW → CHANGES_REQUESTED → APPROVED →
 Hypothesis: OPEN → SUPPORTED | WEAKENED | REJECTED | INCONCLUSIVE
 ```
 
+``` text
+Claim: RECORDED → UNDER_REVIEW → CORROBORATED | CONTRADICTED | UNRESOLVED
+Fact:  PROVISIONAL → ESTABLISHED → DISPUTED | SUPERSEDED (superseded_by required)
+```
+
+*[v0.1.1 · A10]* Claim/Fact states per SRS-FR-CLM-001…004 (proposed; requires product-owner approval).
+
 # Annex C — API Resource Baseline
 
 - /cases
@@ -1317,6 +1389,10 @@ Hypothesis: OPEN → SUPPORTED | WEAKENED | REJECTED | INCONCLUSIVE
 - /evidence
 
 - /evidence-extracts
+
+- /claims, /claims/{claimId}/verification-decisions *[v0.1.1 · A10]*
+
+- /facts (commands: establish, dispute, supersede; dependents) *[v0.1.1 · A10]*
 
 - /entities
 
@@ -1357,7 +1433,7 @@ Hypothesis: OPEN → SUPPORTED | WEAKENED | REJECTED | INCONCLUSIVE
 
 2.  Register two public sources and upload three evidence files; hash originals.
 
-3.  Create evidence extracts and one OCR derivative.
+3.  Create evidence extracts and one OCR derivative; record a source claim from an extract and promote it to a `PROVISIONAL` fact via a verification decision. *[v0.1.1 · A10]*
 
 4.  Create two similar company records, evaluate candidate match, merge, then unmerge one test cycle.
 
@@ -1371,7 +1447,7 @@ Hypothesis: OPEN → SUPPORTED | WEAKENED | REJECTED | INCONCLUSIVE
 
 9.  Create two competing hypotheses and record supporting/contradicting evidence.
 
-10. Create assessment with Moderate confidence and two intelligence gaps.
+10. Create assessment with `MODERATE` confidence and two intelligence gaps; record a disconfirming-search entry before review. *[v0.1.1 · A05, A09]*
 
 11. Generate intelligence product, submit to independent reviewer, address change request, approve.
 

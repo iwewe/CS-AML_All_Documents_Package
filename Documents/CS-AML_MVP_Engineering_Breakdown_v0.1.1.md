@@ -2,11 +2,18 @@ Engineering execution baseline for MVP 0.1
 
 From SRS requirements to epics, stories, tasks, acceptance tests, dependencies, and release evidence.
 
-Status: Baseline for engineering planning and backlog creation
+> **Document status — v0.1.1**  
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Supersedes: CS-AML MVP Engineering Breakdown v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
+Status: Draft for Review (Proposed Internal Baseline) — proposed baseline for engineering planning and backlog creation *[v0.1.1 · A01]*
 
 # 1. Purpose and Engineering Objective
 
-This document translates the approved CS-AML Product Requirements Document and Software Requirements Specification into an executable MVP engineering plan. It does not redefine product requirements. It establishes engineering work packages, sequencing, acceptance evidence, and a common definition of completion.
+This document translates the CS-AML Product Requirements Document v0.1.1 and Software Requirements Specification v0.1.1 (both draft for review) *[v0.1.1 · A01]* into an executable MVP engineering plan. It does not redefine product requirements. It establishes engineering work packages, sequencing, acceptance evidence, and a common definition of completion.
 
 > **MVP release objective: a two-analyst team SHALL complete one sensitive investigation from case opening through independently reviewed and approved intelligence product, with provenance, authorization, and auditability intact.**
 
@@ -37,15 +44,17 @@ The P0 baseline is the mandatory release scope defined by the PRD/SRS. The engin
 | E0 | Platform Foundation & Delivery | Establish the deployable application skeleton, environments, CI/CD, canonical database, evidence storage, audit substrate, and engineering conventions. | SRS-OPS; SRS-DR; SRS-AUD; F-OPS-001; F-AUD-001 |
 | E1 | Identity, Access & Protected Sources | Implement OIDC/MFA integration, role/object access controls, case membership, classification, and protected-source compartment. | SRS-SEC; F-SEC-001..003 |
 | E2 | Case & Investigation Workflow | Implement case register, investigation charter, lifecycle gates, tasks, assignments, and case activity history. | SRS-FR-CASE; F-CASE-001..005 |
-| E3 | Source, Evidence & Document Intake | Implement source provenance, original evidence preservation, hashing, extracts, derivative lineage, ratings, and document ingestion. | SRS-FR-EVD/DOC; F-EVD-001..006; F-DOC-001 |
+| E3 | Source, Evidence & Document Intake | Implement source provenance, original evidence preservation, hashing, extracts, derivative lineage, ratings, claim and fact lifecycle, and document ingestion. | SRS-FR-EVD/DOC/CLM; F-EVD-001..006; F-EVD-008; F-DOC-001 *[v0.1.1 · A10]* |
 | E4 | Entity Resolution & Relationship Model | Implement entity registry, aliases/identifiers, candidate matching, merge/unmerge, relationship, ownership/control, and asset registry. | SRS-FR-ENT/REL/AST; F-ENT-001..005; F-REL-001..003; F-AST-001 |
 | E5 | Timeline & Follow-the-Value | Implement events, visual timeline, ValueFlow records, multi-leg chains, uncertainty classes, range/unknown values, and flow visualization. | SRS-FR-TIM/VAL; F-TIM-001..002; F-VAL-001..004 |
-| E6 | Typology, Hypothesis & Assessment | Implement typology catalogue, indicators, typology worksheet, competing hypotheses, gaps, confidence, and assessments. | SRS-FR-TYP/HYP/ASM; F-TYP-001..003; F-HYP-001..003; F-ASM-001..003 |
+| E6 | Typology, Hypothesis & Assessment | Implement typology catalogue, indicators, typology worksheet, competing hypotheses, gaps, confidence, disconfirming-search record, and assessments. | SRS-FR-TYP/HYP/ASM (incl. SRS-FR-ASM-004); F-TYP-001..003; F-HYP-001..003; F-ASM-001..003 *[v0.1.1 · A05]* |
 | E7 | Search & Investigation Graph | Implement permission-aware full-text/faceted search and evidence-backed graph visualization with canonical links. | SRS-FR-SCH/GRF; F-SCH-001..002; F-GRF-001 |
 | E8 | Intelligence Product, Review & Dissemination | Implement report templates, evidence index, peer review, versioning/corrections, approvals, export/referral, and dissemination log. | SRS-FR-PRD/REV/DIS; F-PRD-001..003; F-REV-001; F-DIS-001..004 |
 | E9 | Administration, Retention & Operational Readiness | Implement vocabularies, retention policies, backup/restore, configuration, minimum monitoring, security hardening, and release verification. | SRS-FR-ADM/SEC/AUD/OPS; F-ADM-001; F-ADM-003; F-OPS-001 |
 
 # 3. Delivery Strategy and Increments
+
+Increments, sequencing and any sizing derived from this backlog are planning targets, not measured estimates or commitments; no task estimates, velocity data or benchmarks exist yet. *[v0.1.1 · N06]*
 
 The recommended sequence creates demonstrable end-to-end capabilities early. Increments are dependency-aware, but teams MAY overlap work where contracts are stable and integration tests remain authoritative.
 
@@ -170,11 +179,13 @@ As a user, I need organisational SSO so access can be centrally revoked.
 
 **Engineering tasks**
 
-- Implement OIDC authorization code flow
+- Implement OIDC authorization code flow (+ PKCE) with Django as confidential client of Keycloak, server-side session (BFF): `GET /auth/login`, `GET /auth/callback`, `POST /auth/logout`, `GET /auth/session` *[v0.1.1 · A11]*
+
+- Browser holds only `__Host-csaml_session` cookie (HttpOnly, Secure, SameSite=Lax, Path=/); access/refresh/ID tokens stay server-side; no `Authorization: Bearer` from browser; CSRF token in `X-CSRFToken` on unsafe methods *[v0.1.1 · A11]*
 
 - Map IdP subject to local user
 
-- Enforce session timeout and logout
+- Enforce session timeout and logout (idle/absolute timeouts per security-policy configuration; back-channel logout revokes sessions where supported)
 
 - Support MFA claim/policy checks
 
@@ -183,6 +194,8 @@ As a user, I need organisational SSO so access can be centrally revoked.
 - Disabled IdP user cannot establish new session
 
 - Session shows authenticated identity and roles
+
+- No OIDC token is readable from browser JavaScript; unsafe request without valid CSRF token is rejected *[v0.1.1 · A11]*
 
 ### ST-E1-02 — Role and case membership authorization
 
@@ -328,9 +341,9 @@ As a reviewer, I need to reconstruct material case activity.
 
 ## E3 — Source, Evidence & Document Intake
 
-Implement source provenance, original evidence preservation, hashing, extracts, derivative lineage, ratings, and document ingestion.
+Implement source provenance, original evidence preservation, hashing, extracts, derivative lineage, ratings, claim and fact lifecycle, and document ingestion.
 
-**Traceability:** SRS-FR-EVD/DOC; F-EVD-001..006; F-DOC-001
+**Traceability:** SRS-FR-EVD/DOC/CLM; F-EVD-001..006; F-EVD-008; F-DOC-001 *[v0.1.1 · A10]*
 
 ### ST-E3-01 — Source register
 
@@ -402,13 +415,15 @@ As an analyst, I need precise excerpts linked to originals.
 
 - Preview parent context
 
-- Link extract to claims/facts
+- Link extract to claims as supporting evidence; facts are created only through the claim and fact lifecycle (ST-E3-07), never directly from an extract *[v0.1.1 · A10]*
 
 **Acceptance tests / exit criteria**
 
 - Extract cannot exist without parent evidence
 
 - Citation opens exact parent location where supported
+
+- Creating or linking an extract never creates a Fact *[v0.1.1 · A10]*
 
 ### ST-E3-05 — Derivative lineage
 
@@ -449,6 +464,40 @@ As an analyst, I need source reliability separate from information credibility.
 - UI does not merge the two ratings
 
 - Rating change is versioned/audited
+
+### ST-E3-07 — Claim and fact lifecycle *[v0.1.1 · A10]*
+
+As an analyst, I need what a source asserted kept separate from what the team has verified, so that facts are created only through reviewable decisions and corrections reach dependent analysis.
+
+> Added in v0.1.1 as a remediation proposal (audit finding A10); requires product-owner approval before it is treated as accepted scope.
+
+**Engineering tasks**
+
+- Claim model/API/UI: source-attributed assertion linked to source/person and evidence/extract refs; `claim_status` (`RECORDED`, `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`); `disputed` boolean kept for compatibility and derived from status/open dispute
+
+- VerificationDecision model: target_ref (claim or fact), decision, rationale, evidence_refs, decided_by, decided_at, optional review_ref; append-only
+
+- Fact promotion command: requires claim refs and/or evidence refs plus a VerificationDecision; new facts start `PROVISIONAL`
+
+- Fact transitions: establish (Reviewer other than proposer), dispute (any authorized case member, with evidence), supersede (requires `superseded_by` replacement fact)
+
+- Dependency tracking: on DISPUTED/SUPERSEDED, flag dependent Assessments and IntelligenceProducts `review_required` with link to the triggering decision; create a correction review task for published products instead of mutating them
+
+- Endpoints per API Specification v0.1.1 (claims, verification-decisions, facts, establish/dispute/supersede, dependents); audit events for every transition
+
+**Acceptance tests / exit criteria**
+
+- Analyst conclusion never overwrites claim content or attribution
+
+- Fact creation without claim/evidence refs or verification decision is rejected
+
+- Proposer cannot establish own fact; independent reviewer can
+
+- Verification decisions cannot be edited or deleted
+
+- Pilot path: claim recorded → PROVISIONAL → ESTABLISHED → DISPUTED → SUPERSEDED flags dependent assessment/product, leaves published product unchanged, creates correction task, and preserves full history
+
+**Traceability:** SRS-FR-CLM-001..004; F-EVD-008
 
 ## E4 — Entity Resolution & Relationship Model
 
@@ -774,13 +823,21 @@ As an analyst, I need judgement with basis and uncertainty.
 
 - Judgement, confidence, rationale, assumptions, gaps, alternatives
 
+- Confidence wire enum `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` with mandatory rationale; `INSUFFICIENT_BASIS` never converted to LOW/null/zero; null only on drafts *[v0.1.1 · A09]*
+
 - Evidence traversal
+
+- Disconfirming-search record (what was searched, sources consulted, result, rationale) required before a high-impact/adverse assessment or product can pass review (SRS-FR-ASM-004) *[v0.1.1 · A05]*
 
 **Acceptance tests / exit criteria**
 
 - Reviewer can trace assessment backward to evidence
 
 - Confidence basis is mandatory for material assessment
+
+- Review of a high-impact adverse assessment without a disconfirmation record is rejected; after the record is added, review can proceed (tested separately from backward traceability) *[v0.1.1 · A05]*
+
+- Finalizing an assessment with a null confidence level is rejected; `INSUFFICIENT_BASIS` round-trips unchanged through DB/API/UI/export *[v0.1.1 · A09]*
 
 ## E7 — Search & Investigation Graph
 
@@ -858,7 +915,9 @@ As an analyst, I need consistent report outputs.
 
 - Product model
 
-- Templates: Financial Intelligence Note, Referral Package, Case Report
+- Templates (all six MVP P0 templates): Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report *[v0.1.1 · A06]*
+
+- Template-specific section structure and canonical-object bindings for each of the six templates *[v0.1.1 · A06]*
 
 - Auto-populate metadata/classification/evidence index references
 
@@ -868,13 +927,15 @@ As an analyst, I need consistent report outputs.
 
 - Product shows author/reviewer/status
 
+- Each of the six templates can be generated from canonical objects with version, classification, author/reviewer and evidence index (SRS-FR-PRD-001) *[v0.1.1 · A06]*
+
 ### ST-E8-02 — Evidence index generation
 
 As a reviewer, I need claims traceable from report to evidence.
 
 **Engineering tasks**
 
-- Generate index from linked facts/assessments
+- Generate index from linked facts/assessments, following each fact through its verification decision(s) and source claims/evidence (facts exist only via the ST-E3-07 lifecycle) *[v0.1.1 · A10]*
 
 - Include source/evidence IDs and citation locations
 
@@ -885,6 +946,8 @@ As a reviewer, I need claims traceable from report to evidence.
 - Key fact in pilot has traversable evidence reference
 
 - Restricted evidence is handled according to export policy
+
+- Index shows fact status; a product that depends on a DISPUTED or SUPERSEDED fact is flagged `review_required` *[v0.1.1 · A10]*
 
 ### ST-E8-03 — Peer review workflow
 
@@ -1060,7 +1123,7 @@ As product owner, I need objective release evidence.
 
 **Acceptance tests / exit criteria**
 
-- All mandatory P0 SRS requirements pass or accepted exception exists
+- All mandatory P0 SRS requirements pass or accepted exception exists; no exception is possible for a non-waivable invariant (authorization, source identity, evidence integrity/provenance, certainty promotion, approval bypass, audit history) — see Sprint & Milestone Plan v0.1.1 §7.2 *[v0.1.1 · A16]*
 
 - Pilot completes case-to-approved-product with intact provenance/audit
 
@@ -1177,6 +1240,10 @@ cs-aml/
 
 - Hypothesis and assessment traceability test.
 
+- Disconfirming-search enforcement test (separate from traceability test). *[v0.1.1 · A05]*
+
+- Claim/fact lifecycle test (promotion, independent establishment, dispute/supersede, dependent flagging). *[v0.1.1 · A10]*
+
 - Independent peer-review and dissemination-approval test.
 
 - Backup/restore test record.
@@ -1208,7 +1275,7 @@ The following capabilities remain outside the mandatory MVP unless a release dep
 
 2\. Create classified case, owner, investigation question and charter; complete required gate.
 
-3\. Register a public source and ingest original PDF evidence; compute hash and create precise extract.
+3\. Register a public source and ingest original PDF evidence; compute hash and create precise extract; record a source claim and promote it to a PROVISIONAL fact through a verification decision; have an independent reviewer establish it. *[v0.1.1 · A10]*
 
 4\. Create two entities and one organization; record aliases/identifiers; exercise candidate match and reviewed merge/unmerge on test records.
 

@@ -4,9 +4,16 @@
 
 A governance, investigation, evidence, intelligence, technology, and assurance standard for civil society financial intelligence.
 
-| **Status** | Normative Draft / Baseline Specification |
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Framework v0.1 Expanded. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
+| **Status** | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
 |----|----|
-| **Version** | 0.1 Expanded |
+| **Version** | 0.1.1 Expanded *[v0.1.1 · A01]* |
 | **Date** | October 2026 |
 | **Primary audience** | Civil society, investigative journalism, public-interest research |
 | **Normative terms** | MUST / SHALL / SHOULD / MAY |
@@ -106,11 +113,11 @@ Evidence is not an allegation. Case is context; Entity and Evidence are reusable
 
 # 0. Document Control
 
-**Document title:** CS-AML Framework v0.1 — Civil Society Anti-Money Laundering & Financial Intelligence Framework
+**Document title:** CS-AML Framework v0.1.1 — Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Status:** Normative Draft / Baseline Specification
+**Status:** Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]*
 
-**Version:** 0.1 Expanded
+**Version:** 0.1.1 Expanded *[v0.1.1 · A01]*
 
 **Publication date:** October 2026
 
@@ -176,7 +183,7 @@ CS-AML does not authorise or standardise:
 
 ## 1.4 Relationship to formal AML regimes
 
-CS-AML is complementary to—not a substitute for—formal AML/CFT systems. FATF standards are directed primarily at states, competent authorities, financial institutions, and designated non-financial businesses and professions. Civil society occupies a different position: it can identify public-interest risks, trace assets using lawful sources, expose relationships, support victims, contribute information to authorities, and improve accountability. PPATK has publicly recognised the value of information from NGO/CSO and the public in supporting early detection and financial-intelligence analysis. UNODC likewise recognises civil-society contributions to asset tracing through open-source investigation, financial investigation, forensic auditing, and legal analysis.
+CS-AML is complementary to—not a substitute for—formal AML/CFT systems. FATF standards are directed primarily at states, competent authorities, financial institutions, and designated non-financial businesses and professions. Civil society occupies a different position: it can identify public-interest risks, trace assets using lawful sources, expose relationships, support victims, contribute information to authorities, and improve accountability. PPATK has publicly recognised the value of information from NGO/CSO and the public in supporting early detection and financial-intelligence analysis. UNODC likewise recognises civil-society contributions to asset tracing through open-source investigation, financial investigation, forensic auditing, and legal analysis (Annex J, reference 4 — pending verification — page-level support not confirmed). *[v0.1.1 · A13]*
 
 ## 1.5 Risk-based proportionality
 
@@ -250,7 +257,7 @@ AML concepts SHALL NOT be used to stigmatise nonprofit organisations merely beca
 
 ## 3.1 Conformance statement
 
-An organisation may describe itself as **CS-AML v0.1 Aligned** only if it can demonstrate the mandatory requirements in this section and the applicable control objectives in Sections 4–20.
+An organisation may describe itself as **CS-AML v0.1.1 Aligned** only if it can demonstrate the mandatory requirements in this section and the applicable control objectives in Sections 4–20. Alignment is a self-assessed claim against this draft framework; it is not an external certification, and no organisation has yet been assessed against v0.1.1. *[v0.1.1 · A01]*
 
 ## 3.2 Minimum mandatory controls
 
@@ -289,6 +296,8 @@ At minimum, an aligned implementation SHALL have:
 ## 3.4 Exceptions
 
 A mandatory requirement MAY be temporarily excepted only when: the reason is documented; a responsible approver is identified; compensating controls are recorded; the exception has an expiry date; and the exception does not authorise illegal collection or unsafe publication.
+
+No exception MAY cover the non-waivable invariants: unauthorized access or authorization bypass; source identity exposure; evidence corruption or loss of provenance/integrity for material records; certainty promotion (for example a reconstructed or hypothetical flow presented as direct, insufficient basis presented as a confidence level, or a claim treated as fact without a verification decision); approval bypass, including export without approval; and broken, missing, or editable audit history. Where such a condition exists, the only permitted path is to disable the affected capability with tested evidence that it cannot be reached. *[v0.1.1 · A16]*
 
 # 4. Governance and Operating Model
 
@@ -408,15 +417,21 @@ Minimum fields SHALL include case identifier, title, purpose, investigation ques
 
 ## 6.4 Case sensitivity
 
-Suggested classifications are:
+Cases and their content SHALL be classified using the five-level model defined authoritatively in the CS-AML Data Model Specification v0.1.1, Section 16 (`CS-AML_Data_Model_Specification_v0.1.1.md`). Levels, ordered least to most restrictive (wire value — display label): *[v0.1.1 · A08]*
 
-- **Public:** information safe for broad release;
+- **PUBLIC — Public:** suitable for public release after normal review;
 
-- **Internal:** routine investigative material;
+- **INTERNAL — Internal:** routine internal operational information;
 
-- **Restricted:** sensitive personal, legal, partner, or unpublished material;
+- **SENSITIVE — Sensitive:** could create privacy, reputational, safety, or investigative harm if disclosed;
 
-- **Highly Restricted:** source-identifying information, severe physical-security risk, legally privileged material, or comparable sensitivity.
+- **RESTRICTED — Restricted:** high-risk information requiring named-role or case-specific authorization;
+
+- **SOURCE_PROTECTED — Source-protected:** information whose disclosure could identify or endanger a confidential source.
+
+Access labels (purpose, jurisdiction, embargo, legal-review, compartment, and similar) are additive restrictions; the most restrictive applicable level and all applicable labels apply. Derived objects and exports inherit the highest classification of their inputs unless a recorded reviewer downgrade decision exists. Unknown or missing classification SHALL fail closed (access denied; object flagged for classification). *[v0.1.1 · A08]*
+
+**Legacy mapping note.** v0.1 of this framework suggested four levels (Public, Internal, Restricted, Highly Restricted). These map as follows and the last two SHALL NOT be mapped automatically: Public → PUBLIC; Internal → INTERNAL; Restricted → SENSITIVE or RESTRICTED as chosen by the data owner during migration (RESTRICTED until decided); Highly Restricted → SOURCE_PROTECTED only where the reason is source-identifying information, otherwise RESTRICTED plus the relevant access label (e.g. legal-privilege, physical-security). See the Data Model Specification, Section 16. *[v0.1.1 · A08]*
 
 Access SHALL follow least privilege.
 
@@ -653,6 +668,8 @@ Types MAY include payment, transfer, contract award, subcontract, loan, repaymen
 - **Reconstructed flow:** inferred from linked economic events such as contract, invoice, asset acquisition, ownership change, and timeline.
 
 Reconstructed flows SHALL be clearly marked as inferred and SHALL include the reasoning path.
+
+In stored records the flow class is one of the four wire values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL` defined in the Data Model Specification v0.1.1 (Section 11 and Annex A). *[v0.1.1 · A09]*
 
 ## 14.4 Flow attributes
 
@@ -944,7 +961,7 @@ Information SHALL be shared on a need-to-know and purpose-appropriate basis. Pub
 
 ## 22.2 Handling markings
 
-Products SHOULD include markings such as PUBLIC, INTERNAL, RESTRICTED, or HIGHLY RESTRICTED, together with explicit onward-sharing instructions when necessary.
+Products SHOULD include a classification marking (PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, or SOURCE_PROTECTED; see Section 6.4), together with explicit onward-sharing instructions when necessary. *[v0.1.1 · A08]*
 
 ## 22.3 Referral decision
 
@@ -1146,7 +1163,7 @@ Higher maturity does not mean greater surveillance. A mature system may collect 
 
 # 29. Control Catalogue
 
-The following controls form the minimum catalogue for CS-AML v0.1. Organisations MAY add local controls.
+The following controls form the minimum catalogue for CS-AML v0.1.1. Organisations MAY add local controls.
 
 | **ID** | **Control objective** | **Mandatory requirement** | **Evidence of operation** |
 |----|----|----|----|
@@ -1524,7 +1541,7 @@ This mapping explains how CS-AML draws concepts from recognised external sources
 | Risk-based proportionality | FATF Recommendation 1; Wolfsberg RBA | CS-AML adapts proportionality, prioritisation, and effectiveness to civil-society investigation risk. |
 | NPO safeguards | FATF Recommendation 8 materials | CS-AML explicitly prevents over-application of AML concepts to legitimate NPO activity. |
 | Beneficial ownership | FATF Recommendations 24/25 concepts | CS-AML uses ownership/control distinction for open-source investigation; it does not create official BO determinations. |
-| Asset tracing | UNCAC Chapter V / UNODC civil-society guidance | CS-AML structures public-source asset tracing, legal analysis, and evidence packaging. |
+| Asset tracing | UNCAC Chapter V / UNODC civil-society guidance (pending verification — page-level support not confirmed) | CS-AML structures public-source asset tracing, legal analysis, and evidence packaging. *[v0.1.1 · A13]* |
 | Public referral | PPATK public/CSO engagement | CS-AML structures decision-useful public information; it is not an STR/TKM substitute. |
 | Effectiveness and assurance | Wolfsberg effectiveness principles | CS-AML measures useful outcomes, control operation, and quality rather than raw activity volume. |
 | Privacy and minimisation | Indonesia PDP Law and applicable privacy law | CS-AML requires purpose limitation, sensitivity handling, retention, and proportionality. |
@@ -1533,7 +1550,7 @@ The mapping is informative. Compliance with CS-AML does not imply compliance wit
 
 # 41. Annex I — Minimum Conformance Evidence Pack
 
-An organisation claiming CS-AML v0.1 alignment SHOULD be able to produce, under appropriate confidentiality controls, a sample evidence pack containing:
+An organisation claiming CS-AML v0.1.1 alignment SHOULD be able to produce, under appropriate confidentiality controls, a sample evidence pack containing:
 
 **1.** framework adoption decision or policy statement;
 
@@ -1575,6 +1592,10 @@ Absence of a specific software feature does not automatically mean non-conforman
 
 The framework is informed by, but is not a replacement for, the following sources:
 
+**Source verification status.** References 1, 2, 5, 6, and 7 were confirmed to exist at the cited official locations during the 2026-10-07 documentation audit (publication-level verification only). References marked `pending verification` have not been confirmed at the publication, section, or page level. A reference supports the concept it is cited for; it does not mean that individual CS-AML requirements, indicators, thresholds, or grades are derived from or endorsed by that source. *[v0.1.1 · A13]*
+
+**CS-AML design conventions.** The lifecycle gates G0–G6, conformance and maturity levels, A–F source-reliability and 1–6 information-credibility grading as applied here, the four value-flow classes, indicator classes, and the typology identifiers of the Typology Catalogue are CS-AML design decisions. They are not FATF or other external requirements. *[v0.1.1 · A13, N01]*
+
 **1.** Financial Action Task Force (FATF), **The FATF Recommendations**, as amended June 2026. International standards covering AML/CFT/CPF and the risk-based approach.
 
 https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html
@@ -1583,11 +1604,11 @@ https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendatio
 
 https://www.fatf-gafi.org/en/topics/non-profit-organisations.html
 
-**3.** FATF, **Best Practices — Combating the Terrorist Financing Abuse of Non-Profit Organisations (Recommendation 8)**.
+**3.** FATF, **Best Practices — Combating the Terrorist Financing Abuse of Non-Profit Organisations (Recommendation 8)**. Status: pending verification — specific publication/section not yet identified (edition and direct URL not recorded). *[v0.1.1 · A13]*
 
 https://www.fatf-gafi.org/
 
-**4.** UNODC, **Civil Society Guide to the United Nations Convention against Corruption**, including civil-society roles in asset tracing, public information, financial investigation, forensic auditing, and legal analysis.
+**4.** UNODC, **Civil Society Guide to the United Nations Convention against Corruption**, including civil-society roles in asset tracing, public information, financial investigation, forensic auditing, and legal analysis. Status: pending verification — page-level support not confirmed (URL indexed on the official UNODC domain; bibliographic title and page locations for the specific roles listed have not been confirmed from the full PDF). *[v0.1.1 · A13]*
 
 https://www.unodc.org/documents/NGO/Corruption/251113-CSU-UNCAC_Guide-Web.pdf
 

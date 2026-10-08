@@ -3,7 +3,14 @@
 **Component Inventory & Storybook  
 Implementation Specification**
 
-Version 0.1
+Version 0.1.1
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Component Inventory & Storybook Implementation Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Implementation axiom**  
 > A UI component SHALL encode reusable visual and interaction semantics, not feature-specific assumptions. Storybook SHALL make those semantics inspectable, testable, accessible, and regression-safe before components are composed into production screens.
@@ -11,14 +18,15 @@ Version 0.1
 | **Field** | **Value** |
 |----|----|
 | Document ID | CSAML-CISB-0.1 |
-| Status | Normative frontend implementation baseline for MVP 0.1 |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) — proposed frontend implementation baseline for MVP 0.1 *[v0.1.1 · A01]* |
 | Primary owners | Frontend Engineering / Design System Engineering |
 | Inputs | UX, IA, Screen Inventory, Wireframe, UI Design System, High-Fidelity UI |
 | Primary output | Reusable component library + Storybook contract + testable component documentation |
 
 # 1. Purpose and Scope
 
-This specification defines the reusable CS-AML frontend component inventory and the Storybook implementation contract for MVP 0.1. It is the implementation bridge between the normative UI specifications and production React code. It defines component boundaries, ownership, variants, accessibility expectations, stories, testing, visual regression, documentation, and release criteria.
+This specification defines the reusable CS-AML frontend component inventory and the Storybook implementation contract for MVP 0.1. It is the implementation bridge between the UI specifications (draft for review) and production React code. *[v0.1.1 · A01]* It defines component boundaries, ownership, variants, accessibility expectations, stories, testing, visual regression, documentation, and release criteria.
 
 > **Boundary**  
 > This document does not redefine screen navigation, workflow, wireframe composition, or visual semantics. Those remain governed by IA, UX, Wireframe, UI Design System, and High-Fidelity UI specifications. This document converts those decisions into reusable frontend implementation units.
@@ -70,6 +78,8 @@ This specification defines the reusable CS-AML frontend component inventory and 
 
 The MVP baseline contains 65 shared components across foundation, general, analytical/domain, and compound pattern layers.
 
+> The 65 component IDs below are implementation requirements. They are not evidence that any component has been built, and no Storybook, interaction-test, axe or visual-regression results exist for CS-AML at this baseline. *[v0.1.1 · A01; N07]*
+
 ## Foundation components
 
 | **ID** | **Component** | **Priority** | **Purpose** | **Primary usage** | **Semantic owner** |
@@ -111,15 +121,15 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 | GEN-025 | LoadingState | P0 | Skeleton/progress state | All | states |
 | GEN-026 | AccessDeniedState | P0 | Non-disclosing permission denial | System | security |
 | GEN-027 | IntegrityWarningState | P0 | Evidence integrity mismatch warning | Evidence | security |
-| GEN-028 | ConflictState | P0 | Stale/concurrent edit conflict | Editors | versioning |
+| GEN-028 | ConflictState | P0 | Stale/concurrent edit conflict ("record changed"): shown when the API returns 412 PRECONDITION_FAILED (stale If-Match); a 409 STATE_CONFLICT is a workflow-state error, not this state | Editors | versioning *[v0.1.1 · A04]* |
 
 ## Analytical components
 
 | **ID** | **Component** | **Priority** | **Purpose** | **Primary usage** | **Semantic owner** |
 |----|----|----|----|----|----|
-| ANA-001 | AnalyticalStateBadge | P0 | Claim/Fact/Inference/Candidate/Disputed/Unknown | Analysis | uncertainty |
-| ANA-002 | ConfidenceBadge | P0 | Controlled confidence label + rationale affordance | Assessment | confidence |
-| ANA-003 | FlowClassBadge | P0 | DIRECT/DOCUMENTED/RECONSTRUCTED/HYPOTHETICAL | Value Flow | epistemic class |
+| ANA-001 | AnalyticalStateBadge | P0 | Claim/Fact/Inference/Candidate/Disputed/Unknown; a claim never receives the Fact variant without a recorded verification decision | Analysis | uncertainty *[v0.1.1 · A10]* |
+| ANA-002 | ConfidenceBadge | P0 | Controlled confidence label + rationale affordance; variants `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (neutral, not adverse, not rendered as Low) | Assessment | confidence *[v0.1.1 · A09]* |
+| ANA-003 | FlowClassBadge | P0 | `flow_class` variants DIRECT/DOCUMENTED/RECONSTRUCTED/HYPOTHETICAL (wire values) | Value Flow | epistemic class *[v0.1.1 · A09]* |
 | ANA-004 | EvidenceCitation | P0 | Canonical evidence citation with location | Evidence/Product | provenance |
 | ANA-005 | ProvenanceTrail | P0 | Source→Evidence→Derivative lineage summary | Evidence | provenance |
 | ANA-006 | SourceRating | P0 | A-F reliability display/input | Source | source evaluation |
@@ -139,7 +149,7 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 | ANA-020 | TypologyMatchPanel | P0 | Indicators/counter-indicators/alternatives | Typology | typology caution |
 | ANA-021 | AssessmentSummary | P0 | Judgement, confidence, basis, gaps | Assessment | assessment |
 | ANA-022 | ReviewDecisionPanel | P0 | Comment/request changes/approve/reject | Review | review |
-| ANA-023 | ClassificationBanner | P0 | Handling/classification context | All sensitive | security |
+| ANA-023 | ClassificationBanner | P0 | Handling/classification context; variants `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected) plus access-label slots; the compact classification badge is the GEN-013 Badge with the same five variants | All sensitive | security *[v0.1.1 · A08]* |
 | ANA-024 | ProtectedSourceMarker | P0 | Authorized protected-source presence indicator without identity leak | Source | source protection |
 
 ## Compound components
@@ -159,7 +169,7 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 
 **CISB-010 —** All public components SHALL define explicit TypeScript props and SHALL avoid `any` in public interfaces.
 
-**CISB-011 —** Status and analytical variants SHALL use controlled typed values aligned to normative vocabularies.
+**CISB-011 —** Status and analytical variants SHALL use controlled typed values aligned to normative vocabularies. Variant values are the canonical UPPER_SNAKE_CASE wire values from the Data Model Annex A registry; display labels are resolved separately and are translatable. *[v0.1.1 · A09]*
 
 **CISB-012 —** Components that render canonical objects SHOULD accept stable IDs/links separately from display labels so canonical navigation remains explicit.
 
@@ -266,6 +276,40 @@ The MVP baseline contains 65 shared components across foundation, general, analy
 - Unknown amount
 
 - Range amount
+
+## ConfidenceBadge *[v0.1.1 · A09]*
+
+- High (`HIGH`)
+
+- Moderate (`MODERATE`)
+
+- Low (`LOW`)
+
+- Insufficient basis (`INSUFFICIENT_BASIS`) — neutral treatment, visibly not a level below Low
+
+- Not yet assessed (draft, null level) — distinct from Insufficient basis
+
+- Rationale expanded / collapsed
+
+- Grayscale
+
+## ClassificationBanner / classification Badge *[v0.1.1 · A08]*
+
+- Public (`PUBLIC`)
+
+- Internal (`INTERNAL`)
+
+- Sensitive (`SENSITIVE`)
+
+- Restricted (`RESTRICTED`)
+
+- Source-protected (`SOURCE_PROTECTED`) — no source identity in label, tooltip or DOM
+
+- With additive access labels (e.g. embargo, legal-review)
+
+- Classification missing (fail-closed state)
+
+- Grayscale
 
 ## EvidenceCitation
 
@@ -459,7 +503,7 @@ frontend/
 
 **CISB-081 —** Storybook builds SHALL NOT embed production API tokens, production endpoints requiring credentials, or real protected-source identities.
 
-**CISB-082 —** Authorization behavior MAY be simulated through safe decorators/fixtures, but Storybook SHALL NOT be treated as proof of server-side authorization.
+**CISB-082 —** Authorization behavior MAY be simulated through safe decorators/fixtures, but Storybook SHALL NOT be treated as proof of server-side authorization. Restricted or permission-denied stories demonstrate rendering only; authorization SHALL be verified by server-side policy tests. *[v0.1.1 · A01]*
 
 **CISB-083 —** Private deployment or access control SHOULD be used when Storybook documentation contains internal security architecture details.
 

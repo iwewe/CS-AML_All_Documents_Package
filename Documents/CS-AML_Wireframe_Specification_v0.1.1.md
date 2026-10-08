@@ -1,10 +1,17 @@
-**CS-AML Wireframe Specification v0.1**
+**CS-AML Wireframe Specification v0.1.1**
 
 Structural wireframe contract for MVP 0.1
 
-| **Version** | 0.1                          |
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Wireframe Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
+| **Version** | 0.1.1 |
 |-------------|------------------------------|
-| **Status**  | Normative wireframe baseline |
+| **Status**  | Draft for Review (Proposed Internal Baseline) — proposed normative wireframe baseline *[v0.1.1 · A01]* |
 | **Scope**   | MVP 0.1                      |
 
 **Design axiom.** Screens and wireframes SHALL preserve analytical uncertainty, provenance, reversibility, permission boundaries, and review context. Visual hierarchy must never convert inference into fact or status into accusation.
@@ -56,7 +63,7 @@ Desktop baseline uses a stable application frame. The exact pixel values MAY var
 | **Screen ID** | **Screen** | **Wireframe Pattern** | **Critical States** |
 |----|----|----|----|
 | SCR-HOME-001 | Home / Work Queue | WF-PAT-01 | default, empty, filtered, degraded |
-| SCR-CASE-001 | Case Register | WF-PAT-02 | default, empty, no-access, filtered |
+| SCR-CASE-001 | Case Register | WF-PAT-01 | default, empty, no-access, filtered *[v0.1.1 · A15]* |
 | SCR-CASE-002 | Create Case | WF-PAT-03 | draft, validation-error, success |
 | SCR-CASE-003 | Case Overview | WF-PAT-02 | default, restricted, stale-data |
 | SCR-CASE-004 | Investigation Charter | WF-PAT-03 | view, edit, version-history, validation-error |
@@ -247,7 +254,7 @@ Desktop baseline uses a stable application frame. The exact pixel values MAY var
 
 # 9. Wireframe Acceptance Criteria
 
-- Every P0 Screen Inventory ID maps to exactly one primary wireframe pattern.
+- Every P0 Screen Inventory ID maps to exactly one primary wireframe pattern, and register/list screens map to WF-PAT-01 rather than a detail pattern. The mapping SHALL be cross-checked against the Screen Inventory, High-Fidelity UI Specification and component composition before implementation. *[v0.1.1 · A15]*
 
 - Core analytical screens have explicit provenance and uncertainty regions.
 
@@ -258,6 +265,8 @@ Desktop baseline uses a stable application frame. The exact pixel values MAY var
 - Desktop and narrow-screen behaviour preserve critical semantics.
 
 - No wireframe implies guilt, suspicion score or evidentiary certainty merely through placement, size, color or prominence.
+
+> These criteria are review targets for future design files; this specification is a structural contract, not a completed wireframe set or tested UI. *[v0.1.1 · A01]*
 
 # 10. Handoff to UI Design System
 

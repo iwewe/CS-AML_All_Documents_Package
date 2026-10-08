@@ -4,21 +4,29 @@ Control Implementation Guide
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1 \| Normative Implementation Guide**
+**Version 0.1.1 \| Proposed Implementation Guide (Draft for Review)**
+
+> **Document status — v0.1.1**  
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Supersedes: CS-AML Control Implementation Guide v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 
 > **Status**
 >
-> This document is an official derivative specification of CS-AML Framework v0.1. It defines how the minimum CS-AML control catalogue is to be implemented, evidenced, tested, reviewed, and improved. It does not replace applicable law, professional ethics, or organisational policy.
+> This document is a derivative specification of CS-AML Framework v0.1.1 (draft for review). It defines how the minimum CS-AML control catalogue is to be implemented, evidenced, tested, reviewed, and improved. It does not replace applicable law, professional ethics, or organisational policy. The efficacy of these controls has not yet been demonstrated: no design-effectiveness or operating-effectiveness test of any control described here has been recorded. *[v0.1.1 · A01]*
 
 # Document Control
 
 | **Field** | **Specification** |
 |----|----|
 | Document | CS-AML Control Implementation Guide |
-| Version | 0.1 |
-| Status | Normative derivative / implementation baseline |
-| Parent | CS-AML Framework v0.1 |
-| Related specifications | Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) — derivative implementation guide *[v0.1.1 · A01]* |
+| Parent | CS-AML Framework v0.1.1 (Markdown, `Documents/CS-AML_Framework_v0.1.1_Expanded.md`) |
+| Related specifications | Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.1 |
 | Primary audience | CSO leadership, investigators, compliance/ethics leads, privacy/security staff, system owners, reviewers, assurance teams |
 | Normative language | SHALL/MUST = mandatory; SHOULD = strongly recommended unless justified; MAY = optional |
 | Control population | 26 minimum controls inherited from the CS-AML v0.1 control catalogue |
@@ -1567,6 +1575,10 @@ A control exception is not the absence of a control. It is a documented, risk-ac
 >
 > Convenience, workload, urgency, donor pressure, publication deadlines, or technical difficulty alone do not justify silently bypassing a mandatory control.
 
+> **Non-waivable invariants** *[v0.1.1 · A16]*
+>
+> No exception, waiver, or risk acceptance may permit: (1) unauthorized access or authorization bypass; (2) exposure of protected source identity; (3) evidence corruption or loss of provenance/integrity for material records; (4) certainty promotion — e.g. reconstructed or hypothetical flows presented or stored as direct/documented, an insufficient-basis judgement presented as a confidence level, or a claim treated as fact without a recorded verification decision; (5) approval bypass, including external dissemination or export without approval; (6) broken, missing, or editable audit history. Where a system defect produces one of these conditions, the only acceptable path is to disable the affected function with tested evidence that it cannot be reached; the defect itself is not excepted. Exceptions for other requirements remain subject to steps 8–14 above, including a compensating control, independent approval, and an expiry date.
+
 # 12. Metrics and Control Effectiveness
 
 Metrics SHALL be interpreted as evidence about outcomes, not targets that incentivise surveillance or accusation. Higher case volume, more entities, more alerts, or more typology matches are not measures of success.
@@ -1645,7 +1657,7 @@ An organisation MAY claim conformance with this guide only for a stated scope (f
 
 - Evidence demonstrates controls operated during the assessment period.
 
-- Material exceptions are recorded, approved, and time-limited.
+- Material exceptions are recorded, approved, and time-limited, and none covers a non-waivable invariant (§11). *[v0.1.1 · A16]*
 
 - High-impact cases meet enhanced review requirements.
 
@@ -1721,6 +1733,7 @@ An organisation MAY claim conformance with this guide only for a stated scope (f
 | **Field**             | **Specification** |
 |-----------------------|-------------------|
 | Exception ID          |                   |
+| Non-waivable invariant check (confirm the exception does not touch any invariant in §11) *[v0.1.1 · A16]* | |
 | Control / requirement |                   |
 | Reason                |                   |
 | Affected scope        |                   |
@@ -1771,7 +1784,7 @@ These external sources provide alignment context rather than direct regulatory o
 | FATF | FATF Recommendations and 2022 Methodology, as amended June 2026 — risk-based approach and effectiveness principles. |
 | Wolfsberg Group | Guidance on the Risk-Based Approach, June 2026 — proportionality, prioritisation, and effectiveness. |
 | PPATK | Klinik Dumas Special Edition, November 2025 — role and quality of NGO/CSO and public information in supporting financial-intelligence analysis. |
-| CS-AML | Framework v0.1 Expanded; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification. |
+| CS-AML | Framework v0.1.1 Expanded; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification. |
 
 ## E.1 Interpretation notes
 

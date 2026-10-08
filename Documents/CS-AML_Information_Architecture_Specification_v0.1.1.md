@@ -2,16 +2,23 @@
 
 Information Architecture Specification
 
-**Version 0.1**
+**Version 0.1.1**
 
 Information organisation, taxonomy, navigation, labeling and findability for the CS-AML Platform
 
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Information Architecture Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 > **Status**  
-> Normative information-architecture baseline for MVP 0.1. This document defines how information is organised, named, grouped, navigated, linked, searched and found. Interaction behaviour remains governed by the separate CS-AML UX Specification.
+> Draft for Review (Proposed Internal Baseline) — proposed normative information-architecture baseline for MVP 0.1. *[v0.1.1 · A01]* This document defines how information is organised, named, grouped, navigated, linked, searched and found. Interaction behaviour remains governed by the separate CS-AML UX Specification.
 
 | **Document** | **Primary ownership** |
 |----|----|
-| UX Specification v0.1 | Interaction behaviour, task flow, feedback, user-facing safety, accessibility. |
+| UX Specification v0.1.1 *[v0.1.1 · A01]* | Interaction behaviour, task flow, feedback, user-facing safety, accessibility. |
 | This IA Specification | Object hierarchy, taxonomy, labels, navigation model, information scent, findability, cross-object discovery. |
 | Data Model Specification | Canonical object semantics, fields and integrity rules. |
 | SRS / PRD | Product and software requirements that IA must satisfy. |
@@ -224,6 +231,8 @@ The MVP global navigation SHALL remain small and task-oriented. It should expose
 | Source Handler | Protected-source workspace and controlled handoff. | Protected identity in global search. |
 | Admin/Auditor | Policy/configuration/audit entry points. | Analytical edit rights. |
 
+> **Roles and classification.** Role entry points shape default emphasis only; they do not grant access to any classification level. Visibility is decided by server-side policy against the object's classification level (`PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`) plus its access labels. No role by itself grants `RESTRICTED` access (named-role or case-specific authorization is required), and `SOURCE_PROTECTED` material stays in the protected-source workspace (Source Handler) and out of general navigation and search. Unknown or missing classification fails closed. *[v0.1.1 · A08]*
+
 # 7. Case Workspace Information Architecture
 
 A case workspace SHALL organise investigation context around a stable case header plus domain views. Exact visual interaction is governed by UX; this section defines information grouping and hierarchy.
@@ -350,6 +359,8 @@ ValueFlow is a canonical analytical object representing movement or transformati
 | DOCUMENTED | Documented economic relationship/obligation supports the movement but not necessarily transaction-level proof. | DOCUMENTED |
 | RECONSTRUCTED | Analyst reconstructs probable movement from linked facts and events. | RECONSTRUCTED |
 | HYPOTHETICAL | Proposed flow used for hypothesis testing. | HYPOTHETICAL |
+
+The required labels are the `flow_class` wire values (UPPER_SNAKE_CASE, derived from the Data Model Annex A registry); translated display labels MAY be shown alongside them but SHALL NOT replace or merge classes. *[v0.1.1 · A09]*
 
 ## 12.1 ValueFlow page structure
 
@@ -480,9 +491,9 @@ Taxonomy SHALL distinguish system-defined canonical categories from organisation
 
 | **Layer** | **Examples** | **Governance** |
 |----|----|----|
-| Canonical system enum | ValueFlow class, analytical status, product lifecycle state. | Versioned through software/data model; changes require migration review. |
+| Canonical system enum | ValueFlow class, analytical status, product lifecycle state, confidence level (`HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`), classification level (`PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`). | Versioned through software/data model (Data Model Annex A registry); wire values are UPPER_SNAKE_CASE and display labels are separate and translatable; changes require migration review. *[v0.1.1 · A08, A09]* |
 | Framework catalogue | CS-AML typology IDs and classes. | Versioned framework release. |
-| Controlled vocabulary | Relationship types, asset types, event types, classifications. | Admin-managed with stable IDs and effective dates. |
+| Controlled vocabulary | Relationship types, asset types, event types, access labels (e.g. purpose, jurisdiction, embargo, legal-review, compartment). | Admin-managed with stable IDs and effective dates. Classification levels are a canonical system enum, not an admin-managed vocabulary. *[v0.1.1 · A08]* |
 | Reference taxonomy | Jurisdiction lists, currencies, organisation types. | May map to external standards where appropriate. |
 | Free text | Notes, rationale, narrative assessment. | Not used where controlled semantics are required. |
 
@@ -748,7 +759,7 @@ Derived views are navigation and analytical projections. They SHALL remain ancho
 
 - Terminology matches the canonical data model and UX Specification.
 
-- Representative tree/findability tests pass for MVP workflows.
+- Representative tree/findability tests pass for MVP workflows (target; no such tests have been run at this baseline). *[v0.1.1 · A01]*
 
 - No IA decision converts analytical status or derived ranking into implicit guilt/risk classification.
 
@@ -868,6 +879,10 @@ This tree is the MVP IA baseline, not a pixel-level navigation design. UX determ
 | Hypothesis | Testable explanation. |
 | Intelligence Gap | Material unknown that could change assessment. |
 | Assessment | Analyst judgement with confidence, basis, alternatives and gaps. |
+| Claim | Attributed assertion from a source; never shown as a fact without a recorded verification decision. *[v0.1.1 · A10]* |
+| Fact | Proposition promoted from claims/evidence by a recorded verification decision; status Provisional, Established, Disputed or Superseded. *[v0.1.1 · A10]* |
+| Confidence | High, Moderate, Low, Insufficient basis (wire `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`). Insufficient basis is not a level below Low and is never shown as Low, blank or zero. *[v0.1.1 · A09]* |
+| Classification | Public, Internal, Sensitive, Restricted, Source-protected (wire `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`); access labels are additional restrictions. *[v0.1.1 · A08]* |
 | Intelligence Product | Versioned analytical output intended for review/use/dissemination. |
 | Dissemination | Controlled record of external/internal sharing of a specific product version. |
 

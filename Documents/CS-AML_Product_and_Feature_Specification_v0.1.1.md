@@ -2,11 +2,19 @@
 
 **Product & Feature Specification**
 
-Version 0.1
+Version 0.1.1
+
+> **Document status — v0.1.1**  
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Supersedes: CS-AML Product & Feature Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 
 Civil Society Financial Intelligence / AML Investigation Platform
 
-Status: Normative product baseline / implementation specification
+Status: Draft for Review (Proposed Internal Baseline) — proposed product baseline / implementation specification *[v0.1.1 · A01]*
 
 > **Product axiom**  
 > The platform SHALL help analysts discover, structure, test, explain, review, and disseminate financial intelligence without converting uncertainty into fact or replacing accountable human judgement.
@@ -16,10 +24,10 @@ Status: Normative product baseline / implementation specification
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Product & Feature Specification |
-| Version | 0.1 |
-| Status | Normative product baseline |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
 | Primary audience | Product owners, investigators, analysts, architects, developers, security/privacy reviewers, QA |
-| Normative inputs | CS-AML Framework; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification; Control Implementation Guide; Technology Architecture |
+| Normative inputs | CS-AML Framework v0.1.1; Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.1; Control Implementation Guide v0.1.1; Technology Architecture v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) |
 | Normative language | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Primary output | Prioritised, testable product backlog and release scope |
 
@@ -129,6 +137,8 @@ The product SHALL preserve reusable truth-bearing objects—especially Evidence,
 
 # 7. Product Capability Map
 
+This map (CAP-01…CAP-15) is the authoritative **product capability registry**; its IDs are unchanged. The Technology Architecture uses a separate namespace, TA-CAP-01…TA-CAP-16, with a crosswalk to these IDs. Any other document using `CAP-xx` refers to this registry. *[v0.1.1 · A07]*
+
 | **ID** | **Capability** | **Scope** |
 |----|----|----|
 | CAP-01 | Case & Workflow Management | Case, charter, scope, tasks, lifecycle gates, status, assignment, review |
@@ -152,7 +162,7 @@ The product SHALL preserve reusable truth-bearing objects—especially Evidence,
 
 # 8. Functional Feature Catalogue
 
-The following catalogue is the product baseline. IDs are stable within v0.1 and SHOULD be used in issue trackers, architecture decisions, test cases, and release notes.
+The following catalogue is the product baseline. IDs are stable across v0.1 and v0.1.1 (existing IDs keep their meaning; new features receive new IDs) and SHOULD be used in issue trackers, architecture decisions, test cases, and release notes.
 
 ## CAP-01 — Case & Workflow Management
 
@@ -177,6 +187,7 @@ The following catalogue is the product baseline. IDs are stable within v0.1 and 
 | F-EVD-005 | Derivative lineage | P0 | Investigator | Track OCR, translation, cropped image, parsed table or transformed dataset as derivative. | EvidenceItem | EVD-02 | Derivative records parent, transformation, creator/tool and time. |
 | F-EVD-006 | Source reliability & information credibility | P0 | Analyst | Rate source reliability separately from information credibility. | Source,Claim | SRC-02,ASM-01 | UI prevents one rating from silently standing for both dimensions. |
 | F-EVD-007 | Evidence legal hold / retention state | P1 | Evidence Custodian | Apply retention, legal hold and disposition state. | EvidenceItem | PRI-02 | Deletion workflow respects hold and produces audit record. |
+| F-EVD-008 | Claim and fact lifecycle | P0 | Analyst / Reviewer | Record source claims without overwriting them with analyst conclusions; record each verification outcome as an append-only verification decision; promote claims/evidence to PROVISIONAL facts; establish, dispute or supersede facts. Added in v0.1.1 as a remediation proposal; requires product-owner approval. | Claim,VerificationDecision,Fact | SRC-01,EVD-02,QUA-01 | A fact cannot be created without claim/evidence refs and a verification decision; ESTABLISHED requires a reviewer other than the proposer; DISPUTED/SUPERSEDED flags dependent assessments/products `review_required` without mutating published products; history is preserved. *[v0.1.1 · A10]* |
 
 ## CAP-03 — Document Intelligence
 
@@ -248,7 +259,7 @@ The following catalogue is the product baseline. IDs are stable within v0.1 and 
 | F-HYP-002 | Evidence support / contradiction matrix | P0 | Analyst | Link evidence and indicators as supporting, contradicting, neutral or unknown for each hypothesis. | Hypothesis,EvidenceItem,Indicator | HYP-01,HYP-02 | Matrix records analyst and rationale. |
 | F-HYP-003 | Intelligence gaps | P0 | Analyst | Record unknowns that could materially change assessment. | IntelligenceGap | GAP-01 | Final product surfaces material unresolved gaps. |
 | F-ASM-001 | Assessment record | P0 | Analyst | Write judgement, confidence, basis, alternatives, assumptions and gaps. | Assessment | ASM-01 | Assessment cannot be final without confidence and evidence-linked basis. |
-| F-ASM-002 | Confidence scale | P0 | Analyst | Apply controlled confidence language with rationale. | Assessment | ASM-01 | Confidence changes are versioned. |
+| F-ASM-002 | Confidence scale | P0 | Analyst | Apply controlled confidence language with rationale: wire values `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (Data Model Annex A registry; display labels separate). `INSUFFICIENT_BASIS` is not a level below LOW. | Assessment | ASM-01 | Confidence changes are versioned; rationale is mandatory for every level; `INSUFFICIENT_BASIS` is never converted to LOW, null or zero; a finalized assessment carries a non-null level. *[v0.1.1 · A09]* |
 | F-ASM-003 | Disconfirming search record | P0 | Reviewer | Document what was done to search for evidence that weakens adverse findings. | Review,Hypothesis | HYP-02,QUA-01 | High-impact product cannot pass review if no disconfirmation record/rationale. |
 
 ## CAP-10 — Search / Graph / Analytics
@@ -323,13 +334,13 @@ The MVP SHALL demonstrate the complete analytical chain on a real or synthetic c
 | **Module** | **Minimum outcome** |
 |----|----|
 | MVP-1 Case Workspace | Case register, charter, lifecycle, tasks, ownership, status, audit |
-| MVP-2 Source & Evidence | Source register, preserved evidence, hashes, extracts, derivatives, reliability |
+| MVP-2 Source & Evidence | Source register, preserved evidence, hashes, extracts, derivatives, reliability, claim and fact lifecycle *[v0.1.1 · A10]* |
 | MVP-3 Entity & Relationship | Canonical entities, aliases/identifiers, candidate match, merge/unmerge, first-class relationships |
 | MVP-4 Assets / Events / Timeline | Asset attribution, event records, visual timeline |
 | MVP-5 Follow-the-Value | ValueFlow builder with mandatory DIRECT/DOCUMENTED/RECONSTRUCTED/HYPOTHETICAL classification |
 | MVP-6 Typology & Hypothesis | Catalogue browser, indicators, typology worksheet, competing hypotheses, gaps |
 | MVP-7 Assessment & Review | Assessment, confidence, disconfirmation, peer review |
-| MVP-8 Intelligence Product | Report templates, evidence index, versioning, secure export/referral |
+| MVP-8 Intelligence Product | Six report templates (Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report) *[v0.1.1 · A06]*, evidence index, versioning, secure export/referral |
 | MVP-9 Search & Graph | Full-text/faceted search and provenance-aware graph view |
 | MVP-10 Security & Audit | OIDC/MFA, object-level RBAC, protected-source compartment, audit, backup/restore |
 
@@ -390,11 +401,14 @@ At minimum, authorisation SHALL consider role, case membership, object classific
 
 | **Classification** | **Handling expectation** |
 |----|----|
-| Public / Open | Suitable for broad internal visibility or public source references; still subject to case purpose and privacy rules. |
-| Internal | Routine investigation content limited to authorised organisation users. |
-| Restricted | Sensitive personal, legal-risk, unpublished, or partner-controlled information. |
-| Protected Source | Source identity/contact and highly sensitive source-handling data; separate compartment and minimal access. |
-| Legal / Need-to-Know | Material with legal privilege, safety, embargo, or highly constrained access conditions. |
+| Public (`PUBLIC`) | Suitable for public release after normal review; still subject to case purpose and privacy rules. |
+| Internal (`INTERNAL`) | Routine internal operational information limited to authorised organisation users. |
+| Sensitive (`SENSITIVE`) | Could create privacy, reputational, safety, or investigative harm if disclosed. |
+| Restricted (`RESTRICTED`) | High-risk information requiring named-role or case-specific authorization. |
+| Source-protected (`SOURCE_PROTECTED`) | Information whose disclosure could identify or endanger a confidential source; separate compartment and minimal access. |
+| Access labels (not levels) | Legal privilege, safety, embargo, purpose, jurisdiction, compartment and other need-to-know conditions are additive access labels; the most restrictive applicable level plus all labels apply. *[v0.1.1 · A08]* |
+
+The five levels above (ordered least → most restrictive) are the authoritative classification model defined in Data Model Specification v0.1.1 §16. Derived objects and exports inherit the highest classification of their inputs unless a recorded reviewer downgrade decision exists. Unknown or missing classification fails closed. The Framework v0.1 label "Highly Restricted" is never auto-mapped: it becomes `SOURCE_PROTECTED` only when the reason is source-identifying information, otherwise `RESTRICTED` plus the relevant access label. *[v0.1.1 · A08]*
 
 # 14. Product Data and API Requirements
 
@@ -432,7 +446,7 @@ At minimum, authorisation SHALL consider role, case membership, object classific
 |----|----|----|
 | EPIC-01 | Foundation platform | Project skeleton, auth, tenancy/deployment policy, canonical IDs, audit framework. |
 | EPIC-02 | Case & workflow | Case charter, tasks, gates, ownership, lifecycle. |
-| EPIC-03 | Evidence & provenance | Source/evidence registry, file store, hash, extracts, derivatives. |
+| EPIC-03 | Evidence & provenance | Source/evidence registry, file store, hash, extracts, derivatives, claim and fact lifecycle. *[v0.1.1 · A10]* |
 | EPIC-04 | Entity model & resolution | Entity registry, identifiers, match candidates, merge/unmerge. |
 | EPIC-05 | Relationships/assets/events | First-class graph objects, ownership/control, assets, event/timeline. |
 | EPIC-06 | Value-flow | Flow/legs, visual builder, classifications, calculations. |
@@ -574,7 +588,7 @@ A pragmatic first implementation MAY use the following profile:
 | Web application / API | Django + REST/GraphQL equivalent |
 | Canonical relational store | PostgreSQL + PostGIS where geographic data is needed |
 | Evidence object store | S3-compatible storage or encrypted filesystem |
-| Async jobs | Celery/RQ equivalent + Redis-compatible broker |
+| Async jobs | Celery/RQ equivalent + Valkey 8.x broker (Redis-protocol compatible; release pinned per ADR-0006) *[v0.1.1 · A03]* |
 | IAM | Keycloak or other OIDC provider |
 | Search | PostgreSQL FTS initially; OpenSearch when scale/features justify it |
 | Graph | Relational projection initially; Neo4j/Memgraph optional derived projection |
@@ -588,6 +602,7 @@ A pragmatic first implementation MAY use the following profile:
 
 | **Priority** | **Feature count** | **Planning meaning** |
 |----|----|----|
-| P0 / MVP | 54 | Required to prove end-to-end methodology and controls |
+| P0 / MVP | 55 | Required to prove end-to-end methodology and controls *[v0.1.1 · A10]* |
 | P1 / Phase 2 | 26 | Operational depth, enrichment, advanced review and analytics |
 | P2 / Phase 3 | 7 | Network intelligence, federation, advanced AI/analytics |
+| Total | 88 | 55 P0 + 26 P1 + 7 P2 (v0.1 baseline: 87 = 54 + 26 + 7; F-EVD-008 added in v0.1.1) *[v0.1.1 · A10]* |

@@ -2,19 +2,26 @@
 
 UX Specification
 
-**Version 0.1**
+**Version 0.1.1**
 
 User experience requirements for the Civil Society Anti-Money Laundering / Financial Intelligence Platform
 
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML UX Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 > **Status**  
-> Normative UX baseline for MVP 0.1. This document defines interaction behaviour, user-facing semantics, task flow, feedback, safety, accessibility, and usability requirements. It intentionally does not define final information architecture, taxonomy, sitemap, or object hierarchy; those belong to the separate CS-AML Information Architecture Specification.
+> Draft for Review (Proposed Internal Baseline) — proposed normative UX baseline for MVP 0.1. The requirements below have not yet been validated through prototypes, usability testing or accessibility evaluation; the usability scenarios in §29 are planned, not completed. *[v0.1.1 · A01; N07]* This document defines interaction behaviour, user-facing semantics, task flow, feedback, safety, accessibility, and usability requirements. It intentionally does not define final information architecture, taxonomy, sitemap, or object hierarchy; those belong to the separate CS-AML Information Architecture Specification.
 
 | **Document** | **Relationship** |
 |----|----|
-| PRD v0.1 | Defines product outcomes and MVP scope. |
-| SRS v0.1 | Defines testable software requirements. |
-| MVP Engineering Breakdown v0.1 | Defines implementation epics and stories. |
-| Technical Stack & Repository v0.1 | Defines technical implementation baseline. |
+| PRD v0.1.1 | Defines product outcomes and MVP scope. *[v0.1.1 · A01]* |
+| SRS v0.1.1 | Defines testable software requirements. *[v0.1.1 · A01]* |
+| MVP Engineering Breakdown v0.1.1 | Defines implementation epics and stories. *[v0.1.1 · A01]* |
+| Technical Stack & Repository v0.1.1 | Defines technical implementation baseline. *[v0.1.1 · A01]* |
 | This UX Specification | Defines user interaction behaviour and experience quality. |
 | Future IA Specification | Will define content/object organisation, taxonomy, navigation model, labels, hierarchy, and findability. |
 
@@ -144,14 +151,14 @@ Denied access SHALL be handled without leaking sensitive object existence or enc
 
 | **Concept** | **Required visual semantics** | **Prohibited simplification** |
 |----|----|----|
-| Claim | Attributed statement from a source; not yet accepted as fact. | Displaying as verified fact. |
-| Fact | Verified/time-bounded proposition with evidence. | Hiding provenance. |
+| Claim | Attributed statement from a source; not yet accepted as fact. Shows its claim status (Recorded, Under review, Corroborated, Contradicted, Unresolved — proposed, pending product-owner approval). | Displaying as verified fact; showing a claim as a fact without a recorded verification decision. *[v0.1.1 · A10]* |
+| Fact | Verified/time-bounded proposition with evidence, its source claim(s) and the verification decision that created it; shows its fact status (Provisional, Established, Disputed, Superseded). | Hiding provenance; hiding the verification decision; presenting a Provisional fact as Established. *[v0.1.1 · A10]* |
 | Candidate entity match | Possible identity equivalence requiring review. | Auto-merge appearance. |
 | Relationship | Typed connection with evidence/status/time. | Graph edge with no provenance status. |
 | Indicator | Observed pattern relevant to typology. | Label as suspicious/proven crime by default. |
 | Hypothesis | Testable explanation with support and contradiction. | Present as conclusion. |
-| Assessment | Analyst judgement with confidence and gaps. | Present confidence as mathematical probability unless validated. |
-| Value flow class | DIRECT / DOCUMENTED / RECONSTRUCTED / HYPOTHETICAL. | One undifferentiated arrow style. |
+| Assessment | Analyst judgement with confidence (High, Moderate, Low, Insufficient basis) and gaps. | Present confidence as mathematical probability unless validated; show Insufficient basis as Low, as an adverse result, or as missing. *[v0.1.1 · A09]* |
+| Value flow class | DIRECT / DOCUMENTED / RECONSTRUCTED / HYPOTHETICAL (`flow_class` wire values; display labels may be translated). | One undifferentiated arrow style; showing RECONSTRUCTED or HYPOTHETICAL as DIRECT or DOCUMENTED. *[v0.1.1 · A09]* |
 | Intelligence product | Versioned product with review/approval state. | Overwrite prior approved version. |
 
 ## 5.2 Status presentation rule
@@ -323,7 +330,7 @@ Color SHALL NOT be the sole method for distinguishing classes. Legend/labels SHA
 | **ID** | **UX requirement** | **Acceptance** |
 |----|----|----|
 | UXR-ASM-001 | Assessment authoring SHALL separate judgement, confidence, basis, assumptions, alternatives and gaps. | A single narrative box is insufficient for material assessment. |
-| UXR-ASM-002 | Confidence selection SHALL require rationale and SHOULD show descriptive guidance. | User cannot save material assessment with confidence but no basis. |
+| UXR-ASM-002 | Confidence selection SHALL require rationale and SHOULD show descriptive guidance. Options are High, Moderate, Low and Insufficient basis (wire `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`); Insufficient basis is a distinct, neutral choice — not a level below Low. | User cannot save material assessment with confidence but no basis (for every level, including Insufficient basis); a finalized assessment cannot be left without a confidence level. *[v0.1.1 · A09]* |
 | UXR-ASM-003 | Assessment SHALL expose backward trace to supporting evidence. | Reviewer can traverse to provenance. |
 | UXR-ASM-004 | Unresolved gaps SHALL remain visible when product is drafted. | Drafting report does not hide gaps. |
 | UXR-ASM-005 | System SHALL avoid probability-like visual precision unless model is validated. | No default 0-100 “guilt/risk score”. |
@@ -396,6 +403,8 @@ Color SHALL NOT be the sole method for distinguishing classes. Legend/labels SHA
 
 - Permission state changes SHOULD be reflected promptly without requiring users to infer stale access.
 
+- Classification SHALL be shown with the canonical display labels Public, Internal, Sensitive, Restricted and Source-protected (wire `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`); additional access labels (e.g. embargo, legal-review) are shown as restrictions alongside the level. Objects with unknown or missing classification fail closed. *[v0.1.1 · A08]*
+
 ## 18.2 Protected source interactions
 
 - Protected source identity SHALL be visually and functionally compartmentalized from routine source-derived evidence.
@@ -414,7 +423,7 @@ Color SHALL NOT be the sole method for distinguishing classes. Legend/labels SHA
 | Unknown | Provide “Unknown / Not established” where analytically valid; do not force false precision. |
 | Date precision | Support exact date, month, year, range and unknown. |
 | Money/value | Support exact, approximate, minimum, maximum, range and unknown; preserve currency. |
-| Confidence | Use controlled descriptive scale with rationale; avoid pseudo-precision. |
+| Confidence | Use controlled descriptive scale with rationale; avoid pseudo-precision. Insufficient basis SHALL NOT be converted to Low, blank or zero. *[v0.1.1 · A09]* |
 | Autosave | Long-form analytical drafting SHOULD protect against accidental loss while preserving version/audit semantics. |
 | Validation | Validation messages SHALL state what is wrong and how to resolve it. |
 | Destructive action | Use consequence preview and explicit confirmation; typed confirmation reserved for exceptionally high-impact actions, not routine use. |
@@ -430,7 +439,7 @@ Color SHALL NOT be the sole method for distinguishing classes. Legend/labels SHA
 | Error | Preserve user input where safe and provide recovery action. |
 | Offline/interrupted | Warn before losing work; retry idempotently where applicable. |
 | Background job | Show queued/running/completed/failed; prevent duplicate submission. |
-| Conflict | When another user/version changed the object, show comparison or safe reload path rather than silent overwrite. |
+| Conflict | When another user/version changed the object, show comparison or safe reload path rather than silent overwrite. The "record changed" recovery is triggered by an API 412 PRECONDITION_FAILED (stale version); a 409 STATE_CONFLICT means a workflow/business-state conflict (e.g. gate not satisfied, object already finalized) and SHALL be explained as such, not as a concurrent edit. *[v0.1.1 · A04]* |
 | Permission changed | Terminate or refresh affected actions; do not continue with stale authorization. |
 | Integrity mismatch | Use high-severity but factual language; do not allow normal analyst dismissal without authorized process. |
 
@@ -455,7 +464,7 @@ Color SHALL NOT be the sole method for distinguishing classes. Legend/labels SHA
 | UXR-A11Y-003 | Color SHALL NOT be the sole carrier of flow class, status, warning, evidence quality or confidence. |
 | UXR-A11Y-004 | Interactive graph/timeline SHALL have accessible alternative representations such as lists/tables. |
 | UXR-A11Y-005 | Form controls SHALL have programmatic labels and useful validation text. |
-| UXR-A11Y-006 | Text and UI contrast SHOULD meet WCAG 2.2 AA targets. |
+| UXR-A11Y-006 | Text and UI contrast SHOULD meet WCAG 2.2 AA targets. These are design targets; no WCAG conformance is claimed until a recorded evaluation of the implemented product exists. *[v0.1.1 · A01; N07]* |
 | UXR-A11Y-007 | Critical confirmation dialogs SHALL not trap or unpredictably move focus. |
 | UXR-A11Y-008 | Hover-only information SHALL also be available by focus/click or persistent text. |
 

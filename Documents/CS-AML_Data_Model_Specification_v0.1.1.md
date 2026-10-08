@@ -4,20 +4,27 @@ Data Model Specification
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1 \| Normative Data Specification**
+**Version 0.1.1 \| Proposed Normative Data Specification (Draft for Review)**
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Data Model Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Status**
 >
-> This document defines the canonical information model for CS-AML v0.1. It is intended to be implementation-neutral and SHALL be used as the authoritative semantic reference for database schemas, APIs, graph stores, analytical tooling, exchange formats, and audit records that claim CS-AML conformance.
+> This document defines the canonical information model for CS-AML v0.1.1. It is intended to be implementation-neutral and SHALL be used as the authoritative semantic reference for database schemas, APIs, graph stores, analytical tooling, exchange formats, and audit records that claim to implement the CS-AML data model. *[v0.1.1 · A01]*
 
 # Document Control
 
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Data Model Specification |
-| Version | 0.1 |
-| Status | Normative baseline |
-| Applies to | CS-AML Framework v0.1 and derivative implementations |
+| Version | 0.1.1 *[v0.1.1 · A01]* |
+| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
+| Applies to | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) and derivative implementations *[v0.1.1 · A01]* |
 | Primary audience | Framework maintainers, investigators, data architects, software engineers, security/privacy reviewers, assurance reviewers |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Design objective | Preserve evidentiary provenance, analytical uncertainty, temporal context, and privacy constraints while enabling reusable entity-centric financial intelligence. |
@@ -118,7 +125,7 @@ CASE CONTEXT
 | **Family** | **Canonical objects** |
 |----|----|
 | Context | Case, CaseEntity, CaseRole, InvestigationQuestion, ScopeChange |
-| Evidence | Source, EvidenceItem, EvidenceExtract, Claim, Fact |
+| Evidence | Source, EvidenceItem, EvidenceExtract, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
 | Knowledge graph | Entity, PersonProfile, OrganizationProfile, AccountProfile, Asset, Relationship, Event, Location |
 | Financial analysis | ValueFlow, ValueFlowLeg, OwnershipInterest, ControlAssertion, AssetAttribution |
 | Analytical | Indicator, TypologyMatch, Hypothesis, HypothesisEvidenceLink, IntelligenceGap, Assessment |
@@ -138,7 +145,7 @@ All canonical objects SHALL expose a minimum common envelope. Implementations MA
 | created_by | principal-id | Required | Human or service principal responsible for creation. |
 | updated_at | datetime | Required | Last material update timestamp. |
 | status | enum | Required | Lifecycle status appropriate to object class. |
-| classification | enum | Required | Information sensitivity classification. |
+| classification | enum | Required | Information sensitivity classification (Section 16; `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`). Unknown or missing values fail closed. *[v0.1.1 · A08]* |
 | access_labels | array | Conditional | Attribute-based handling labels. |
 | case_links | array\<case-id\> | Optional | Contextual case associations; not ownership. |
 | provenance_refs | array\<id\> | Conditional | Links to source/evidence/provenance objects. |
@@ -147,6 +154,10 @@ All canonical objects SHALL expose a minimum common envelope. Implementations MA
 | valid_to | datetime/date | Optional | End of real-world validity. |
 | record_version | integer | Required | Monotonic version number for optimistic concurrency/audit. |
 | deleted_at | datetime | Optional | Soft-delete/tombstone marker where policy permits. |
+
+## 4.1 Wire enumeration convention
+
+All controlled enumerations on the wire (database values, API payloads, exports) SHALL use UPPER_SNAKE_CASE values as listed in the field tables of this specification and in Annex A, which together form the controlled-enumeration registry. Display labels are separate, translatable presentation strings and SHALL NOT be stored or exchanged in place of wire values. Enumeration lists in other CS-AML documents derive from this registry. *[v0.1.1 · A09]*
 
 # 5. Identifier and Naming Standard
 
@@ -201,7 +212,7 @@ Represents a testable analytical question that constrains scope and prevents ope
 | case_id | ref | Y | 1 | Parent case context. |
 | question | text | Y | 1 | Neutral question. |
 | priority | enum | Y | 1 | Analytical priority. |
-| status | enum | Y | 1 | Open/answered/retired. |
+| status | enum | Y | 1 | OPEN, ANSWERED, RETIRED *[v0.1.1 · A09]* |
 | answer_summary | text | N | 0..1 | Short evidence-linked answer. |
 
 ### Normative rules:
@@ -216,7 +227,7 @@ Represents the origin or provider of information. A Source describes where infor
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| source_type | enum | Y | 1 | registry, court_record, media, whistleblower, website, dataset, document, interview, other |
+| source_type | enum | Y | 1 | REGISTRY, COURT_RECORD, MEDIA, WHISTLEBLOWER, WEBSITE, DATASET, DOCUMENT, INTERVIEW, OTHER *[v0.1.1 · A09]* |
 | publisher_or_origin | string | N | 0..1 | Originating organization/person. |
 | locator | uri/string | N | 0..1 | URL, archival location, or repository reference. |
 | accessed_at | datetime | Y | 1 | Collection/access time. |
@@ -238,14 +249,14 @@ Represents a preserved evidentiary object such as a file, page image, registry r
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | source_id | ref | Y | 1 | Origin source. |
-| evidence_type | enum | Y | 1 | document, image, record, transcript, dataset_row, web_snapshot, other |
+| evidence_type | enum | Y | 1 | DOCUMENT, IMAGE, RECORD, TRANSCRIPT, DATASET_ROW, WEB_SNAPSHOT, OTHER *[v0.1.1 · A09]* |
 | content_hash | string | Y\* | 0..1 | SHA-256 or equivalent where bytes are available. |
 | storage_ref | uri/ref | Y | 1 | Controlled storage location. |
 | acquired_at | datetime | Y | 1 | Acquisition time. |
 | acquired_by | principal | Y | 1 | Collector. |
 | original_format | string | N | 0..1 | MIME/type. |
-| verification_status | enum | Y | 1 | unverified, source-verified, independently-corroborated, disputed |
-| redaction_state | enum | Y | 1 | none, working_redaction, publication_redaction |
+| verification_status | enum | Y | 1 | UNVERIFIED, SOURCE_VERIFIED, INDEPENDENTLY_CORROBORATED, DISPUTED *[v0.1.1 · A09]* |
+| redaction_state | enum | Y | 1 | NONE, WORKING_REDACTION, PUBLICATION_REDACTION *[v0.1.1 · A09]* |
 
 ### Normative rules:
 
@@ -283,13 +294,24 @@ Represents a proposition asserted by a source or person. A Claim is not automati
 | evidence_extract_refs | ref\[\] | Y | 1..n | Supporting extracts. |
 | claimant | ref/string | N | 0..1 | Who makes the assertion. |
 | credibility_grade | enum | N | 0..1 | 1-6 information credibility. |
-| disputed | boolean | Y | 1 | Whether contested. |
+| claim_status | enum | Y | 1 | RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED *[v0.1.1 · A10]* |
+| disputed | boolean | Y | 1 | Whether contested. Retained for compatibility; derived as true when claim_status = CONTRADICTED or an open dispute exists. *[v0.1.1 · A10]* |
 
 ### Normative rules:
 
 - Claims SHALL preserve attribution.
 
 - A source assertion SHALL NOT be promoted to Fact solely because it appears in an official document if the document merely records a third-party allegation.
+
+- The recorded assertion of a Claim (subject, predicate, object value, claimant, evidence extracts) SHALL NOT be overwritten by analyst conclusions. Analytical outcomes are recorded as VerificationDecision objects (Section 7.6) and reflected in claim_status. *[v0.1.1 · A10]*
+
+### Lifecycle states: *[v0.1.1 · A10]*
+
+``` text
+RECORDED -> UNDER_REVIEW -> CORROBORATED | CONTRADICTED | UNRESOLVED
+```
+
+Every transition out of RECORDED SHALL be backed by a VerificationDecision. *[v0.1.1 · A10]*
 
 ## 7.5 Fact
 
@@ -300,7 +322,11 @@ Represents a proposition accepted by the investigation as established to the sta
 | proposition | text/structured | Y | 1 | Established proposition. |
 | supporting_evidence | ref\[\] | Y | 1..n | Evidence supporting acceptance. |
 | contradicting_evidence | ref\[\] | N | 0..n | Known contradictory material. |
-| fact_status | enum | Y | 1 | provisional, established, superseded, disputed |
+| source_claim_refs | ref\[\] | N | 0..n | Claims from which the fact was promoted, if any. *[v0.1.1 · A10]* |
+| fact_status | enum | Y | 1 | PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED *[v0.1.1 · A09, A10]* |
+| verification_decision_refs | ref\[\] | Y | 1..n | VerificationDecision records that created and revised the fact (append-only history). *[v0.1.1 · A10]* |
+| proposed_by | principal | Y | 1 | Principal who proposed the fact. *[v0.1.1 · A10]* |
+| superseded_by | ref | Y\* | 0..1 | Replacement Fact; required when fact_status = SUPERSEDED. *[v0.1.1 · A10]* |
 | valid_time | interval | N | 0..1 | When proposition is true in real world. |
 | confidence | confidence | Y | 1 | Analytical confidence. |
 
@@ -310,6 +336,48 @@ Represents a proposition accepted by the investigation as established to the sta
 
 - Fact objects SHALL NOT encode legal guilt or criminal liability unless directly quoting an authoritative adjudication, in which case attribution SHALL be explicit.
 
+### Claim and Fact lifecycle rules *[v0.1.1 · A10]*
+
+> **Proposed in remediation — requires product-owner approval.** The rules below and Section 7.6 were added in v0.1.1 to close audit finding A10. Until approved they are a proposed baseline. *[v0.1.1 · A10]*
+
+- **Promotion.** A Fact SHALL be created only with (a) one or more source claim references and/or evidence references, and (b) a VerificationDecision recording the promotion. A newly created Fact SHALL start as PROVISIONAL. A Claim SHALL NOT be treated as a Fact without such a decision. *[v0.1.1 · A10]*
+
+- **Who may act.** An Investigator/Analyst MAY record Claims and propose PROVISIONAL Facts. Moving a Fact to ESTABLISHED SHALL require a Reviewer who is not the proposer. Any authorized case member MAY move a Fact to DISPUTED with supporting evidence. Moving a Fact to SUPERSEDED SHALL require a reference to the replacement Fact (superseded_by). *[v0.1.1 · A10]*
+
+- **Revision.** Every status change SHALL be recorded as a new VerificationDecision; earlier decisions and prior states SHALL be preserved. *[v0.1.1 · A10]*
+
+- **Dependent flagging.** When a Fact becomes DISPUTED or SUPERSEDED, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering VerificationDecision (`review_trigger_ref`). Published or disseminated products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. *[v0.1.1 · A10]*
+
+Fact lifecycle: *[v0.1.1 · A10]*
+
+``` text
+PROVISIONAL -> ESTABLISHED
+PROVISIONAL | ESTABLISHED -> DISPUTED
+PROVISIONAL | ESTABLISHED | DISPUTED -> SUPERSEDED (superseded_by required)
+```
+
+## 7.6 VerificationDecision *[v0.1.1 · A10]*
+
+Represents a single, append-only verification outcome on a Claim or Fact (for example: claim corroborated or contradicted, fact promoted, established, disputed, or superseded). Proposed in remediation; requires product-owner approval.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| target_ref | ref | Y | 1 | Claim or Fact the decision applies to. |
+| decision | enum | Y | 1 | Outcome; for Claims a claim_status value (UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED); for Facts a fact action (PROMOTE, ESTABLISH, DISPUTE, SUPERSEDE). |
+| rationale | text | Y | 1 | Reasoning for the decision. |
+| evidence_refs | ref\[\] | Y | 1..n | Evidence or extracts relied on. |
+| decided_by | principal | Y | 1 | Decision maker. |
+| decided_at | datetime | Y | 1 | Decision time. |
+| review_ref | ref | N | 0..1 | Related Review, if any. |
+
+### Normative rules:
+
+- VerificationDecision records SHALL be append-only; a mistaken decision is corrected by a later decision, not by editing or deleting the earlier one.
+
+- A decision moving a Fact to ESTABLISHED SHALL have decided_by different from the Fact's proposed_by.
+
+- Each VerificationDecision SHALL generate an AuditEvent.
+
 # 8. Entity and Identity Model
 
 ## 8.1 Entity
@@ -318,11 +386,11 @@ Canonical identity-bearing node used across cases.
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| entity_type | enum | Y | 1 | person, organization, account, address, domain, phone, email, wallet, property, vehicle, vessel, aircraft, contract, project, other |
+| entity_type | enum | Y | 1 | PERSON, ORGANIZATION, ACCOUNT, ADDRESS, DOMAIN, PHONE, EMAIL, WALLET, PROPERTY, VEHICLE, VESSEL, AIRCRAFT, CONTRACT, PROJECT, OTHER *[v0.1.1 · A09]* |
 | primary_name | string | Y | 1 | Preferred display label. |
 | aliases | string\[\] | N | 0..n | Alternative labels. |
 | identifiers | identifier\[\] | N | 0..n | Typed external identifiers. |
-| resolution_status | enum | Y | 1 | unresolved, resolved, conflicted, merged, split |
+| resolution_status | enum | Y | 1 | UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT *[v0.1.1 · A09]* |
 | resolution_confidence | confidence | N | 0..1 | Identity match confidence. |
 | canonical_parent | ref | N | 0..1 | Target if merged. |
 | source_refs | ref\[\] | Y | 1..n | Sources establishing identity. |
@@ -345,7 +413,7 @@ Extension of Entity for natural persons. Sensitive attributes SHALL only be stor
 | birth_date | date/partial | N | 0..1 | Known/partial DOB. |
 | nationalities | code\[\] | N | 0..n | Known nationalities. |
 | occupation | string\[\] | N | 0..n | Relevant occupation/role. |
-| public_official_status | enum | N | 0..1 | none, current, former, unknown; not equivalent to suspicion. |
+| public_official_status | enum | N | 0..1 | NONE, CURRENT, FORMER, UNKNOWN; not equivalent to suspicion. *[v0.1.1 · A09]* |
 | sensitive_attribute_notes | restricted text | N | 0..1 | Only if strictly necessary and lawful. |
 
 ### Normative rules:
@@ -359,7 +427,7 @@ Extension for companies, NGOs, agencies, trusts, partnerships, and other organiz
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | entity_id | ref | Y | 1 | Base Entity. |
-| organization_type | enum | Y | 1 | company, ngo, government, trust, partnership, association, other |
+| organization_type | enum | Y | 1 | COMPANY, NGO, GOVERNMENT, TRUST, PARTNERSHIP, ASSOCIATION, OTHER *[v0.1.1 · A09]* |
 | registration_number | string | N | 0..1 | Legal registration identifier. |
 | registration_jurisdiction | code | N | 0..1 | Jurisdiction. |
 | incorporation_date | date | N | 0..1 | Formation date. |
@@ -377,12 +445,12 @@ Represents a typed, evidence-linked edge between entities. Relationships are fir
 | from_entity | ref | Y | 1 | Origin node. |
 | relationship_type | enum | Y | 1 | Typed semantic relationship. |
 | to_entity | ref | Y | 1 | Target node. |
-| directionality | enum | Y | 1 | directed/symmetric. |
+| directionality | enum | Y | 1 | DIRECTED, SYMMETRIC *[v0.1.1 · A09]* |
 | valid_from | date/datetime | N | 0..1 | Relationship start. |
 | valid_to | date/datetime | N | 0..1 | Relationship end. |
 | supporting_evidence | ref\[\] | Y | 1..n | Evidence. |
 | confidence | confidence | Y | 1 | Confidence. |
-| relationship_status | enum | Y | 1 | asserted, established, disputed, superseded |
+| relationship_status | enum | Y | 1 | ASSERTED, ESTABLISHED, DISPUTED, SUPERSEDED *[v0.1.1 · A09]* |
 
 ### Normative rules:
 
@@ -398,7 +466,7 @@ Specialized relationship for legal or beneficial ownership.
 |----|----|----|----|----|
 | owner_entity | ref | Y | 1 | Owner/beneficial owner. |
 | owned_entity_or_asset | ref | Y | 1 | Company/share/asset. |
-| ownership_type | enum | Y | 1 | legal, beneficial, economic_interest, nominee_asserted |
+| ownership_type | enum | Y | 1 | LEGAL, BENEFICIAL, ECONOMIC_INTEREST, NOMINEE_ASSERTED *[v0.1.1 · A09]* |
 | percentage | decimal | N | 0..1 | 0-100 if known. |
 | basis | text/enum | Y | 1 | Registry, filing, court record, reconstruction, etc. |
 | supporting_evidence | ref\[\] | Y | 1..n | Evidence. |
@@ -418,8 +486,8 @@ Represents control that may exist without formal ownership.
 |----|----|----|----|----|
 | controller | ref | Y | 1 | Person/entity exercising control. |
 | controlled_entity | ref | Y | 1 | Target. |
-| control_basis | enum\[\] | Y | 1..n | voting, appointment, financing, contractual, operational, family_proxy, other |
-| control_level | enum | N | 0..1 | minor, significant, dominant, unknown |
+| control_basis | enum\[\] | Y | 1..n | VOTING, APPOINTMENT, FINANCING, CONTRACTUAL, OPERATIONAL, FAMILY_PROXY, OTHER *[v0.1.1 · A09]* |
+| control_level | enum | N | 0..1 | MINOR, SIGNIFICANT, DOMINANT, UNKNOWN *[v0.1.1 · A09]* |
 | supporting_evidence | ref\[\] | Y | 1..n | Evidence. |
 | confidence | confidence | Y | 1 | Confidence. |
 
@@ -431,7 +499,7 @@ Represents an item or right with economic value.
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| asset_type | enum | Y | 1 | property, vehicle, vessel, aircraft, security, company_share, crypto_asset, precious_metal, luxury_good, intellectual_property, other |
+| asset_type | enum | Y | 1 | PROPERTY, VEHICLE, VESSEL, AIRCRAFT, SECURITY, COMPANY_SHARE, CRYPTO_ASSET, PRECIOUS_METAL, LUXURY_GOOD, INTELLECTUAL_PROPERTY, OTHER *[v0.1.1 · A09]* |
 | description | text | Y | 1 | Neutral description. |
 | legal_owner | ref | N | 0..1 | Known legal owner. |
 | beneficial_owner_assertions | ref\[\] | N | 0..n | OwnershipInterest refs. |
@@ -451,7 +519,7 @@ Represents a temporally bounded occurrence involving one or more entities.
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| event_type | enum | Y | 1 | incorporation, appointment, resignation, contract_award, acquisition, disposal, transfer, court_event, payment_event, publication, other |
+| event_type | enum | Y | 1 | INCORPORATION, APPOINTMENT, RESIGNATION, CONTRACT_AWARD, ACQUISITION, DISPOSAL, TRANSFER, COURT_EVENT, PAYMENT_EVENT, PUBLICATION, OTHER *[v0.1.1 · A09]* |
 | start_time | datetime/date | Y | 1 | Start/occurrence. |
 | end_time | datetime/date | N | 0..1 | End if interval. |
 | participant_refs | ref\[\] | Y | 1..n | Entities participating. |
@@ -471,8 +539,8 @@ Represents movement, conversion, allocation, or inferred transfer of economic va
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| flow_class | enum | Y | 1 | direct, documented, reconstructed, hypothetical |
-| flow_type | enum | Y | 1 | payment, contract, subcontract, loan, investment, asset_purchase, asset_sale, grant, donation, dividend, crypto_transfer, value_conversion, other |
+| flow_class | enum | Y | 1 | DIRECT, DOCUMENTED, RECONSTRUCTED, HYPOTHETICAL *[v0.1.1 · A09]* |
+| flow_type | enum | Y | 1 | PAYMENT, CONTRACT, SUBCONTRACT, LOAN, INVESTMENT, ASSET_PURCHASE, ASSET_SALE, GRANT, DONATION, DIVIDEND, CRYPTO_TRANSFER, VALUE_CONVERSION, OTHER *[v0.1.1 · A09]* |
 | origin_ref | ref | Y | 1 | Origin entity/asset/event. |
 | destination_ref | ref | Y | 1 | Destination entity/asset/event. |
 | amount | money/range | N | 0..1 | Known/estimated amount. |
@@ -516,11 +584,11 @@ Represents an observed condition relevant to analysis. It SHALL NOT be treated a
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | indicator_code | string | Y | 1 | Stable catalogue or local code. |
-| indicator_class | enum | Y | 1 | mechanism, corroborating, contextual, disconfirming, gap |
+| indicator_class | enum | Y | 1 | MECHANISM, CORROBORATING, CONTEXTUAL, DISCONFIRMING, GAP *[v0.1.1 · A09]* |
 | description | text | Y | 1 | Observed condition. |
 | subject_refs | ref\[\] | Y | 1..n | Affected entities/flows/events. |
 | evidence_refs | ref\[\] | Y | 1..n | Evidence. |
-| status | enum | Y | 1 | observed, corroborated, disputed, retired |
+| status | enum | Y | 1 | OBSERVED, CORROBORATED, DISPUTED, RETIRED *[v0.1.1 · A09]* |
 | confidence | confidence | Y | 1 | Confidence. |
 
 ## 12.2 TypologyMatch
@@ -533,7 +601,7 @@ Represents analytical consistency between case evidence and a catalogue typology
 | subject_refs | ref\[\] | Y | 1..n | Entities/flows under analysis. |
 | indicator_refs | ref\[\] | Y | 1..n | Observed indicators. |
 | disconfirming_refs | ref\[\] | N | 0..n | Contrary evidence/indicators. |
-| consistency_level | enum | Y | 1 | no_basis, weak, plausible, strong, compelling |
+| consistency_level | enum | Y | 1 | NO_BASIS, WEAK, PLAUSIBLE, STRONG, COMPELLING *[v0.1.1 · A09]* |
 | analyst_rationale | text | Y | 1 | Why level was assigned. |
 | confidence | confidence | Y | 1 | Confidence. |
 
@@ -552,11 +620,11 @@ Represents a testable analytical explanation.
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | statement | text | Y | 1 | Specific falsifiable hypothesis. |
-| hypothesis_type | enum | N | 0..1 | ownership, control, value_flow, typology, source_of_funds, other |
+| hypothesis_type | enum | N | 0..1 | OWNERSHIP, CONTROL, VALUE_FLOW, TYPOLOGY, SOURCE_OF_FUNDS, OTHER *[v0.1.1 · A09]* |
 | supporting_refs | ref\[\] | N | 0..n | Evidence/facts/indicators supporting. |
 | contradicting_refs | ref\[\] | N | 0..n | Evidence/facts contradicting. |
 | alternative_hypothesis_refs | ref\[\] | N | 0..n | Competing explanations. |
-| status | enum | Y | 1 | open, supported, weakened, rejected, inconclusive |
+| status | enum | Y | 1 | OPEN, SUPPORTED, WEAKENED, REJECTED, INCONCLUSIVE *[v0.1.1 · A09]* |
 | confidence | confidence | Y | 1 | Current confidence. |
 | next_test | text | N | 0..1 | Most useful discriminating test. |
 
@@ -573,10 +641,10 @@ Represents a material unknown that limits assessment.
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | description | text | Y | 1 | Unknown or missing information. |
-| importance | enum | Y | 1 | low, medium, high, critical |
+| importance | enum | Y | 1 | LOW, MEDIUM, HIGH, CRITICAL *[v0.1.1 · A09]* |
 | related_refs | ref\[\] | Y | 1..n | Hypotheses/questions affected. |
-| collection_feasibility | enum | Y | 1 | available, difficult, unavailable, unlawful, out_of_scope |
-| status | enum | Y | 1 | open, partially_resolved, resolved, accepted |
+| collection_feasibility | enum | Y | 1 | AVAILABLE, DIFFICULT, UNAVAILABLE, UNLAWFUL, OUT_OF_SCOPE *[v0.1.1 · A09]* |
+| status | enum | Y | 1 | OPEN, PARTIALLY_RESOLVED, RESOLVED, ACCEPTED *[v0.1.1 · A09]* |
 
 ## 13.3 Assessment
 
@@ -590,7 +658,9 @@ Represents a reasoned analytical judgment supported by evidence and explicit con
 | limitations | text | Y | 1 | Known constraints and gaps. |
 | alternative_explanations | text/ref\[\] | Y | 1..n | Material alternatives. |
 | confidence | confidence | Y | 1 | Confidence in judgment. |
-| review_status | enum | Y | 1 | draft, peer_reviewed, approved, superseded |
+| review_status | enum | Y | 1 | DRAFT, PEER_REVIEWED, APPROVED, SUPERSEDED *[v0.1.1 · A09]* |
+| review_required | boolean | Y | 1 | Set when a supporting Fact becomes DISPUTED or SUPERSEDED (Section 7.5). *[v0.1.1 · A10]* |
+| review_trigger_ref | ref | N | 0..1 | VerificationDecision that triggered review_required. *[v0.1.1 · A10]* |
 
 ### Normative rules:
 
@@ -606,7 +676,7 @@ CS-AML separates source reliability, information credibility, and analyst confid
 |----|----|----|
 | Source reliability | A-F | A highly reliable; B generally reliable; C mixed; D generally unreliable; E unreliable; F unknown |
 | Information credibility | 1-6 | 1 independently confirmed; 2 probably true; 3 possibly true; 4 doubtful; 5 improbable; 6 cannot be judged |
-| Analyst confidence | Low / Moderate / High | Overall confidence in analytical judgment, based on evidence quality, independence, consistency, and remaining gaps |
+| Analyst confidence | HIGH / MODERATE / LOW, or INSUFFICIENT_BASIS (display: High / Moderate / Low / Insufficient basis) | Overall confidence in analytical judgment, based on evidence quality, independence, consistency, and remaining gaps. INSUFFICIENT_BASIS is not a level below LOW (Section 14.1). *[v0.1.1 · A09]* |
 
 ## 14.1 Confidence
 
@@ -614,12 +684,20 @@ Structured confidence object embedded/referenced by analytical objects.
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| level | enum | Y | 1 | low, moderate, high |
-| basis | text | Y | 1 | Reason for confidence. |
-| source_diversity | enum | N | 0..1 | single, multiple_related, multiple_independent |
+| level | enum | Y\* | 0..1 | HIGH, MODERATE, LOW, INSUFFICIENT_BASIS; `null` only on drafts where no confidence judgement has yet been made. *[v0.1.1 · A09]* |
+| basis | text | Y | 1 | Reason for confidence (rationale); mandatory for every level, including INSUFFICIENT_BASIS. *[v0.1.1 · A09]* |
+| source_diversity | enum | N | 0..1 | SINGLE, MULTIPLE_RELATED, MULTIPLE_INDEPENDENT *[v0.1.1 · A09]* |
 | material_gaps | ref\[\] | N | 0..n | Gap references. |
 | last_reviewed_at | datetime | Y | 1 | Review timestamp. |
 | reviewer | principal | N | 0..1 | Reviewer if required. |
+
+### Normative rules: *[v0.1.1 · A09]*
+
+- INSUFFICIENT_BASIS means a judgement was attempted but the evidential basis is insufficient. It is NOT a level below LOW and SHALL NOT be converted to LOW, null, zero, or omitted in storage, APIs, exports, or visualizations.
+
+- `level = null` is permitted only on draft objects where no confidence judgement has been made yet. A finalized (approved, established, or disseminated) analytical object SHALL carry a non-null level.
+
+- No normalization, migration, or aggregation SHALL raise certainty (e.g. by mapping INSUFFICIENT_BASIS or null to any level, or LOW to MODERATE).
 
 # 15. Intelligence Product and Dissemination Model
 
@@ -629,15 +707,17 @@ Represents an approved analytical output for an identified audience.
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| product_type | enum | Y | 1 | financial_intelligence_note, investigation_brief, entity_profile, asset_profile, network_analysis, referral_package, publication_support |
+| product_type | enum | Y | 1 | FINANCIAL_INTELLIGENCE_NOTE, ENTITY_PROFILE, ASSET_PROFILE, NETWORK_ANALYSIS, REFERRAL_PACKAGE, CASE_REPORT, INVESTIGATION_BRIEF, PUBLICATION_SUPPORT. The first six are the MVP P0 templates (SRS-FR-PRD-001); INVESTIGATION_BRIEF and PUBLICATION_SUPPORT are not in MVP scope. *[v0.1.1 · A06, A09]* |
 | title | string | Y | 1 | Neutral title. |
 | assessment_refs | ref\[\] | Y | 1..n | Underlying assessments. |
 | evidence_manifest | ref\[\] | Y | 1..n | Evidence inventory. |
 | audience | enum/string\[\] | Y | 1..n | Authorized audience. |
 | classification | enum | Y | 1 | Sensitivity. |
-| approval_state | enum | Y | 1 | draft, reviewed, approved, disseminated, withdrawn |
+| approval_state | enum | Y | 1 | DRAFT, REVIEWED, APPROVED, DISSEMINATED, WITHDRAWN *[v0.1.1 · A09]* |
 | version | string | Y | 1 | Product version. |
 | published_at | datetime | N | 0..1 | If published/disseminated. |
+| review_required | boolean | Y | 1 | Set when a Fact underlying a referenced assessment becomes DISPUTED or SUPERSEDED (Section 7.5); a disseminated product is not mutated — a correction review task is created. *[v0.1.1 · A10]* |
+| review_trigger_ref | ref | N | 0..1 | VerificationDecision that triggered review_required. *[v0.1.1 · A10]* |
 
 ## 15.2 Review
 
@@ -645,11 +725,11 @@ Represents peer, legal, privacy, security, or red-team review.
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| review_type | enum | Y | 1 | peer, legal, privacy, security, red_team, editorial |
+| review_type | enum | Y | 1 | PEER, LEGAL, PRIVACY, SECURITY, RED_TEAM, EDITORIAL *[v0.1.1 · A09]* |
 | target_ref | ref | Y | 1 | Object/product reviewed. |
 | reviewer | principal | Y | 1 | Reviewer. |
 | findings | text/structured | Y | 1 | Review findings. |
-| decision | enum | Y | 1 | approve, approve_with_changes, return, reject |
+| decision | enum | Y | 1 | APPROVE, APPROVE_WITH_CHANGES, RETURN, REJECT *[v0.1.1 · A09]* |
 | completed_at | datetime | Y | 1 | Completion time. |
 
 ## 15.3 Dissemination
@@ -668,15 +748,40 @@ Records controlled release of a product or data package.
 
 # 16. Privacy, Classification, and Access-Control Metadata
 
-| **Classification** | **Meaning** |
-|----|----|
-| PUBLIC | Suitable for public release after normal review. |
-| INTERNAL | Routine internal operational information. |
-| SENSITIVE | Could create privacy, reputational, safety, or investigative harm if disclosed. |
-| RESTRICTED | High-risk information requiring named-role or case-specific authorization. |
-| SOURCE-PROTECTED | Information whose disclosure could identify or endanger a confidential source. |
+This section defines the authoritative CS-AML information-classification model. All other CS-AML documents SHALL use these levels and wire values. *[v0.1.1 · A08]*
+
+Levels are ordered from least to most restrictive:
+
+| **Classification (wire value)** | **Display label** | **Meaning** |
+|----|----|----|
+| PUBLIC | Public | Suitable for public release after normal review. |
+| INTERNAL | Internal | Routine internal operational information. |
+| SENSITIVE | Sensitive | Could create privacy, reputational, safety, or investigative harm if disclosed. |
+| RESTRICTED | Restricted | High-risk information requiring named-role or case-specific authorization. |
+| SOURCE_PROTECTED | Source-protected | Information whose disclosure could identify or endanger a confidential source. *[v0.1.1 · A08]* |
+
+v0.1 wrote the last level as `SOURCE-PROTECTED`; the v0.1.1 wire value is `SOURCE_PROTECTED`. *[v0.1.1 · A08, A09]*
 
 Access labels MAY add purpose, jurisdiction, source-protection, embargo, legal-review, or compartment restrictions. Implementations SHALL enforce the most restrictive applicable label.
+
+### Normative rules: *[v0.1.1 · A08]*
+
+- Access labels are additive restrictions on top of the classification level. Access requires satisfying the object's classification level and every applicable access label; neither replaces the other.
+
+- Derived objects and exports SHALL inherit the highest classification (and the union of access labels) of their inputs, unless a recorded reviewer downgrade decision exists for that object.
+
+- An unknown, missing, or unrecognized classification value SHALL fail closed: access is denied and the object is flagged for classification. It SHALL NOT default to a less restrictive level.
+
+### Legacy mapping from the Framework v0.1 four-level scheme *[v0.1.1 · A08]*
+
+The parent Framework v0.1 Expanded (Section 6.4) used Public / Internal / Restricted / Highly Restricted. Records migrated from that scheme SHALL be mapped as follows. The last two rows SHALL NOT be mapped automatically.
+
+| **Framework v0.1 label** | **v0.1.1 level** |
+|----|----|
+| Public | PUBLIC |
+| Internal | INTERNAL |
+| Restricted | SENSITIVE or RESTRICTED — chosen by the data owner during migration; RESTRICTED until decided (fail closed). |
+| Highly Restricted | SOURCE_PROTECTED only when the reason is source-identifying information; otherwise RESTRICTED plus the relevant access label (e.g. legal-privilege, physical-security). Never auto-map. |
 
 ## 16.1 RetentionRule
 
@@ -687,8 +792,8 @@ Represents retention and disposition policy attached to objects or classes.
 | rule_id | string | Y | 1 | Policy identifier. |
 | applies_to | enum/ref | Y | 1 | Object type/object. |
 | retention_period | duration/date | Y | 1 | Retention term. |
-| trigger | enum | Y | 1 | creation, case_closure, dissemination, legal_hold_release, other |
-| disposition | enum | Y | 1 | delete, anonymize, archive, review |
+| trigger | enum | Y | 1 | CREATION, CASE_CLOSURE, DISSEMINATION, LEGAL_HOLD_RELEASE, OTHER *[v0.1.1 · A09]* |
+| disposition | enum | Y | 1 | DELETE, ANONYMIZE, ARCHIVE, REVIEW *[v0.1.1 · A09]* |
 | legal_hold | boolean | Y | 1 | Whether disposition suspended. |
 
 # 17. Temporal, Versioning, and Audit Semantics
@@ -709,7 +814,7 @@ Append-only record of material actions.
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | actor | principal | Y | 1 | Human/service principal. |
-| action | enum/string | Y | 1 | create, update, merge, split, review, approve, disseminate, restrict, delete, export, login_sensitive, other |
+| action | enum/string | Y | 1 | CREATE, UPDATE, MERGE, SPLIT, REVIEW, APPROVE, DISSEMINATE, RESTRICT, DELETE, EXPORT, LOGIN_SENSITIVE, OTHER *[v0.1.1 · A09]* |
 | target_ref | ref | Y | 1 | Affected object. |
 | occurred_at | datetime | Y | 1 | Time. |
 | reason | text | N | 0..1 | Reason/context. |
@@ -735,8 +840,12 @@ Append-only record of material actions.
 | DM-I06 | A Relationship of type OWNS/BENEFICIAL_OWNER_OF/CONTROLS SHALL include basis and confidence. |
 | DM-I07 | Entity merge SHALL preserve precursor identifiers and generate AuditEvent. |
 | DM-I08 | External dissemination SHALL reference an approved IntelligenceProduct. |
-| DM-I09 | Source-protected information SHALL NOT be exported into lower-classification products without explicit de-identification review. |
+| DM-I09 | Source-protected information (classification SOURCE_PROTECTED or a source-protection access label) SHALL NOT be exported into lower-classification products without explicit de-identification review. *[v0.1.1 · A08]* |
 | DM-I10 | Deletion/anonymization SHALL respect evidence preservation obligations and legal holds. |
+| DM-I11 | Every Fact SHALL reference at least one VerificationDecision; a Claim SHALL NOT be stored, shown, or exported as a Fact without one. *[v0.1.1 · A10]* |
+| DM-I12 | A Fact with fact_status = SUPERSEDED SHALL reference its replacement Fact (superseded_by). *[v0.1.1 · A10]* |
+| DM-I13 | An object with missing or unrecognized classification SHALL be treated as inaccessible (fail closed) and flagged for classification. *[v0.1.1 · A08]* |
+| DM-I14 | A derived object or export SHALL carry a classification at least as restrictive as the highest classification of its inputs, unless a recorded reviewer downgrade decision exists. *[v0.1.1 · A08]* |
 
 # 19. Canonical Graph Mapping
 
@@ -762,6 +871,7 @@ sources
 evidence_items
 evidence_extracts
 claims
+verification_decisions   (v0.1.1 · A10)
 facts
 entities
 entity_identifiers
@@ -788,19 +898,21 @@ This list is illustrative. Implementations MAY normalize or denormalize differen
 
 # 21. Canonical JSON Example
 
+Enumeration values in this example use the UPPER_SNAKE_CASE wire form (Section 4.1). *[v0.1.1 · A09]*
+
 ``` text
 {
   "id": "vf-7c2e...",
   "object_type": "ValueFlow",
   "schema_version": "0.1",
-  "flow_class": "reconstructed",
-  "flow_type": "asset_purchase",
+  "flow_class": "RECONSTRUCTED",
+  "flow_type": "ASSET_PURCHASE",
   "origin_ref": "org-123",
   "destination_ref": "asset-456",
   "amount": {
     "value": 850000000,
     "currency": "IDR",
-    "precision": "estimated"
+    "precision": "ESTIMATED"
   },
   "occurred_at": {
     "from": "2026-05-01",
@@ -812,7 +924,7 @@ This list is illustrative. Implementations MAY normalize or denormalize differen
   ],
   "reconstruction_basis": "Contract award and subsequent deed records indicate a plausible economic link; no bank settlement record is available.",
   "confidence": {
-    "level": "moderate",
+    "level": "MODERATE",
     "basis": "Two independent documentary sources; settlement route unknown."
   },
   "classification": "SENSITIVE",
@@ -830,7 +942,7 @@ This list is illustrative. Implementations MAY normalize or denormalize differen
 
 - Systems SHALL reject writes that violate mandatory cross-object integrity rules.
 
-- Machine-generated analytical suggestions SHALL be marked with creator_type=automation/AI and SHALL require human review before becoming an Assessment.
+- Machine-generated analytical suggestions SHALL be marked with creator_type = AUTOMATION or AI and SHALL require human review before becoming an Assessment. *[v0.1.1 · A09]*
 
 # 23. Interoperability and External Identifiers
 
@@ -872,7 +984,7 @@ The canonical model is implementation-neutral and MAY map to external ontologies
 
 # 26. Data Model Conformance
 
-An implementation claiming CS-AML Data Model v0.1 conformance SHALL demonstrate the following minimum capabilities:
+An implementation claiming to implement CS-AML Data Model v0.1.1 SHALL demonstrate the following minimum capabilities:
 
 - Persistent canonical IDs and schema versioning.
 
@@ -894,21 +1006,28 @@ An implementation claiming CS-AML Data Model v0.1 conformance SHALL demonstrate 
 
 - Validation of the mandatory cross-object integrity rules in Section 18.
 
+No implementation has yet been assessed against these capabilities; they are targets, not evidence of conformance. *[v0.1.1 · A01]*
+
 > **Conformance principle**
 >
 > A schema is not conformant merely because it uses similar table or class names. Conformance depends on preserving the semantics, separations, provenance requirements, and integrity constraints defined by this specification.
 
 # Annex A. Controlled Enumerations (Baseline)
 
+Annex A, together with the enumerations stated in the field tables of this specification, is the controlled-enumeration registry for CS-AML. All wire values are UPPER_SNAKE_CASE (Section 4.1); display labels are separate and translatable. Enumeration lists in other CS-AML documents derive from this registry. *[v0.1.1 · A09]*
+
 | **Enumeration** | **Baseline values** |
 |----|----|
-| entity_type | person, organization, account, address, domain, phone, email, wallet, property, vehicle, vessel, aircraft, contract, project, other |
-| flow_class | direct, documented, reconstructed, hypothetical |
-| confidence.level | low, moderate, high |
-| classification | PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE-PROTECTED |
-| hypothesis.status | open, supported, weakened, rejected, inconclusive |
-| typology_match.consistency_level | no_basis, weak, plausible, strong, compelling |
-| review.decision | approve, approve_with_changes, return, reject |
+| entity_type | PERSON, ORGANIZATION, ACCOUNT, ADDRESS, DOMAIN, PHONE, EMAIL, WALLET, PROPERTY, VEHICLE, VESSEL, AIRCRAFT, CONTRACT, PROJECT, OTHER *[v0.1.1 · A09]* |
+| flow_class | DIRECT, DOCUMENTED, RECONSTRUCTED, HYPOTHETICAL *[v0.1.1 · A09]* |
+| confidence.level | HIGH, MODERATE, LOW, INSUFFICIENT_BASIS (`null` only on drafts with no judgement yet; INSUFFICIENT_BASIS is not a level below LOW — Section 14.1) *[v0.1.1 · A09]* |
+| classification | PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE_PROTECTED (ordered least → most restrictive; unknown/missing fails closed — Section 16) *[v0.1.1 · A08, A09]* |
+| hypothesis.status | OPEN, SUPPORTED, WEAKENED, REJECTED, INCONCLUSIVE *[v0.1.1 · A09]* |
+| typology_match.consistency_level | NO_BASIS, WEAK, PLAUSIBLE, STRONG, COMPELLING *[v0.1.1 · A09]* |
+| review.decision | APPROVE, APPROVE_WITH_CHANGES, RETURN, REJECT *[v0.1.1 · A09]* |
+| claim.claim_status | RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED (proposed; requires product-owner approval) *[v0.1.1 · A10]* |
+| fact.fact_status | PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED (proposed lifecycle; requires product-owner approval) *[v0.1.1 · A10]* |
+| verification_decision.decision | Claims: UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED; Facts: PROMOTE, ESTABLISH, DISPUTE, SUPERSEDE (proposed; requires product-owner approval) *[v0.1.1 · A10]* |
 
 # Annex B. Canonical Relationship Vocabulary (Baseline)
 
@@ -917,7 +1036,7 @@ An implementation claiming CS-AML Data Model v0.1 conformance SHALL demonstrate 
 | OWNS | Directed | Legal ownership unless subtype says otherwise. |
 | BENEFICIAL_OWNER_OF | Directed | Beneficial ownership/economic interest. |
 | CONTROLS | Directed | Control without requiring ownership. |
-| DIRECTOR_OF | Directed | Corporate role. |
+| DIRECTOR_OF | Directed | Corporate role; from Person to Organization (`Person --DIRECTOR_OF--> Organization`). *[v0.1.1 · A14]* |
 | OFFICER_OF | Directed | Organizational role. |
 | EMPLOYED_BY | Directed | Employment/role. |
 | RELATED_TO | Symmetric | Familial/known relation; subtype required where possible. |
@@ -941,6 +1060,8 @@ Case
 Source
 EvidenceItem
 EvidenceExtract
+Claim                  (v0.1.1 · A10)
+VerificationDecision   (v0.1.1 · A10)
 Fact
 Entity
 Relationship
@@ -960,42 +1081,47 @@ AuditEvent
 
 # Annex D. Example Analytical Chain
 
+The example below is drawn as a single vertical chain. Relationships are written `from --TYPE--> to`; the Event is a separate node and is not an endpoint of the relationship. *[v0.1.1 · A14]*
+
 ``` text
 SOURCE
   Government procurement portal
-       |
-       v
+    |
+    v
 EVIDENCE
   Contract award record
-       |
-       v
+    |
+    v
 FACT
   Company A received Contract X on 12 May
-       |
-       +---------------------------+
-       |                           |
-       v                           v
-ENTITY / RELATIONSHIP          EVENT
-  Company A --DIRECTOR_OF-->   Contract award
-  Person B
-       |
-       v
+    |
+    v
+EVENT
+  Contract award (participant: Company A; object: Contract X; date: 12 May)
+    |
+    v
+RELATIONSHIP
+  Person B --DIRECTOR_OF--> Company A
+    |
+    v
 INDICATOR
   Related entity acquired property shortly after award
-       |
-       v
+    |
+    v
 HYPOTHESIS
   Value may have been diverted through related entity
-       |
-       v
+    |
+    v
 VALUE FLOW (RECONSTRUCTED)
   Contract -> Company A -> related entity -> asset
-       |
-       v
+    |
+    v
 ASSESSMENT
   Pattern is consistent with procurement-value diversion;
   settlement route remains unknown.
-       |
-       v
+    |
+    v
 INTELLIGENCE PRODUCT
 ```
+
+Note: DIRECTOR_OF is directed from Person to Organization (Section 19; Annex B). The v0.1 drawing showed `Company A --DIRECTOR_OF--> Person B`, which reversed the edge; that was an error in the example, not a change in the relationship vocabulary. *[v0.1.1 · A14]*

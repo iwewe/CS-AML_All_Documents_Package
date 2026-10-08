@@ -1,22 +1,30 @@
 **CS-AML**
 
-**Sprint & Milestone Plan v0.1**
+**Sprint & Milestone Plan v0.1.1**
 
 Engineering Delivery Baseline for MVP 0.1
+
+> **Document status — v0.1.1**  
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Supersedes: CS-AML Sprint & Milestone Plan v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 
 > **Delivery axiom**  
 > Deliver vertical, reviewable investigation capabilities. Sprint completion is not measured by isolated component output if the end-to-end analytical chain remains broken.
 
 | **Field** | **Baseline** |
 |:---|:---|
-| Status | Planning baseline for MVP 0.1 |
-| Planning cadence | 2-week sprint baseline; capacity-adjustable |
+| Status | Draft for Review (Proposed Internal Baseline) — planning baseline for MVP 0.1 *[v0.1.1 · A01]* |
+| Planning cadence | 2-week sprint baseline; capacity-adjustable (planning assumption, not a measured velocity or commitment) *[v0.1.1 · N06]* |
 | Primary objective | Reach a releasable two-analyst end-to-end investigation workflow |
-| Source documents | PRD v0.1; SRS v0.1; MVP Engineering Breakdown v0.1; Technical Stack & Repository Specification v0.1 |
+| Source documents | PRD v0.1.1; SRS v0.1.1; MVP Engineering Breakdown v0.1.1; Technical Stack & Repository Specification v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) |
 
 # 1. Purpose and Planning Principles
 
-This plan converts the approved MVP engineering breakdown into an executable sprint and milestone sequence. It defines delivery order, dependencies, parallel work, exit criteria, review checkpoints, release evidence, and decision gates. It does not replace the SRS or backlog; it governs how those requirements are delivered and verified.
+This plan converts the MVP engineering breakdown (draft for review) *[v0.1.1 · A01]* into an executable sprint and milestone sequence. It defines delivery order, dependencies, parallel work, exit criteria, review checkpoints, release evidence, and decision gates. It does not replace the SRS or backlog; it governs how those requirements are delivered and verified.
 
 ## 1.1 Planning principles
 
@@ -30,13 +38,13 @@ This plan converts the approved MVP engineering breakdown into an executable spr
 
 - A milestone is accepted only when its exit criteria pass, not when its tickets are merely closed.
 
-- Unresolved high-severity security or data-integrity defects block promotion to the next release milestone.
+- Unresolved high-severity security or data-integrity defects block promotion to the next release milestone. Defects against a non-waivable invariant (authorization, source identity, evidence integrity/provenance, certainty promotion, approval bypass, audit history — see §7.2) can never be waived; the only release path is to disable the affected feature path with tested evidence of non-reachability. Other High defects may be waived only by the accountable authority with a tested compensating control, owner, and expiry date. *[v0.1.1 · A16]*
 
 - Sprint dates are planning aids; dependency order and release gates are normative for this baseline.
 
 ## 1.2 Assumed team shape
 
-This baseline assumes a small product engineering team. The sequence remains valid for a smaller or larger team, but parallelization should be adjusted.
+This baseline assumes a small product engineering team. Team shape, indicative capacity and the two-week cadence are planning assumptions, not measured velocity; sprint dates and durations are targets until task estimates and actual velocity exist. *[v0.1.1 · N06]* The sequence remains valid for a smaller or larger team, but parallelization should be adjusted.
 
 | **Role** | **Indicative Capacity** | **Primary Responsibilities** |
 |:---|:---|:---|
@@ -65,12 +73,12 @@ The baseline uses Sprint 0 followed by eight two-week delivery sprints. Each spr
 |:---|:---|:---|:---|:---|
 | Sprint 0 | Engineering Foundation | E0 + E1 bootstrap | Repo, CI/CD, PostgreSQL, evidence store, audit substrate, OIDC skeleton | M0 |
 | Sprint 1 | Identity + Governed Case Workspace | E1 + E2 partial | RBAC/case membership, protected source, case register, charter, basic activity |  |
-| Sprint 2 | Workflow + Evidence Intake | E2 remainder + E3 | Gates/tasks, source register, immutable evidence, hash, extracts, lineage | M1 |
+| Sprint 2 | Workflow + Evidence Intake | E2 remainder + E3 | Gates/tasks, source register, immutable evidence, hash, extracts, lineage, claim and fact lifecycle *[v0.1.1 · A10]* | M1 |
 | Sprint 3 | Entities + Relationships | E4 | Entity registry, identifiers, matching, merge/unmerge, relationships, ownership/control, assets |  |
 | Sprint 4 | Timeline + Follow-the-Value | E5 | Events/timeline, ValueFlow, multi-leg chains, uncertainty classes, flow visualization | M2 |
 | Sprint 5 | Typology + Hypothesis + Assessment | E6 | Indicators, typology worksheet, competing hypotheses, gaps, confidence assessment |  |
 | Sprint 6 | Search + Investigation Graph | E7 | Permission-aware search, facets, graph projection, provenance side panel | M3 |
-| Sprint 7 | Intelligence Product + Review + Dissemination | E8 | Products, evidence index, peer review, corrections, approvals, export/referral, sharing log |  |
+| Sprint 7 | Intelligence Product + Review + Dissemination | E8 | Products (six templates *[v0.1.1 · A06]*), evidence index, peer review, corrections, approvals, export/referral, sharing log |  |
 | Sprint 8 | Operational Release | E9 + full regression | Retention, backup/restore, hardening, E2E pilot, release evidence and remediation | M4 |
 
 # 4. Dependency and Critical Path
@@ -213,6 +221,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - ST-E3-06 Reliability and credibility ratings
 
+- ST-E3-07 Claim and fact lifecycle (proposed in v0.1.1; requires product-owner approval) *[v0.1.1 · A10]*
+
 ### Parallel work
 
 - Upload/preview UI
@@ -235,6 +245,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - Source reliability and information credibility are separate
 
+- A fact can be created only from claim/evidence refs with a recorded verification decision; establishing it requires an independent reviewer *[v0.1.1 · A10]*
+
 ### Required sprint evidence
 
 - Gate negative test
@@ -244,6 +256,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 - Lineage test
 
 - Source rating test
+
+- Claim/fact lifecycle test (promotion, establish, dispute/supersede, dependent flagging) *[v0.1.1 · A10]*
 
 - M1 review demonstration
 
@@ -443,7 +457,7 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 ### Committed scope
 
-- ST-E8-01 Intelligence product templates
+- ST-E8-01 Intelligence product templates (six: Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report) *[v0.1.1 · A06]*
 
 - ST-E8-02 Evidence index generation
 
@@ -467,6 +481,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 - Product has author/reviewer/classification/version
 
+- All six MVP templates generate from canonical objects with evidence index *[v0.1.1 · A06]*
+
 - Key findings have evidence index
 
 - Independent review enforced where required
@@ -488,6 +504,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 - Version supersession test
 
 - Referral package sample
+
+- One generated sample per template (six) *[v0.1.1 · A06]*
 
 ## 5.9 Sprint 8
 
@@ -575,8 +593,8 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 
 | **Severity** | **Examples** | **Release Treatment** |
 |:---|:---|:---|
-| Critical | Authorization bypass; source identity exposure; evidence corruption; unrecoverable DB/evidence mismatch | Immediate block |
-| High | Incorrect merge/unmerge; direct/reconstructed flow confusion; export without approval; broken audit history | Block M4 until fixed or formally waived by accountable authority |
+| Critical — non-waivable invariant | (1) Unauthorized access / authorization bypass; (2) source identity exposure; (3) evidence corruption or loss of provenance/integrity for material records, including unrecoverable DB/evidence mismatch; (4) certainty promotion — e.g. RECONSTRUCTED/HYPOTHETICAL shown or stored as DIRECT/DOCUMENTED (direct/reconstructed flow confusion), INSUFFICIENT_BASIS shown as a level, claim treated as fact without a decision; (5) approval bypass, including export without approval; (6) broken, missing, or editable audit history | Immediate block. No administrative waiver is possible. The only release path is to disable the affected feature path with tested evidence of non-reachability (the feature then ships disabled); the defect itself is never waived. *[v0.1.1 · A16]* |
+| High | Incorrect merge/unmerge where unmerge restores prior state and audit history is intact; other high-severity defects that do not violate a non-waivable invariant | Block M4 until fixed, or waived only by the accountable authority with a tested compensating control, a named owner, and an expiry date recorded in the milestone decision record. *[v0.1.1 · A16]* |
 | Medium | Workflow defect with safe workaround; non-critical UI/accessibility issue | May release with documented limitation and owner/date |
 | Low | Cosmetic or minor usability issue | Backlog; does not block release |
 
@@ -598,12 +616,12 @@ The following chain represents the minimum critical path for MVP. Parallel work 
 | E0 Foundation | 0 | M0 | CI, migrations, storage, audit, environment bootstrap |
 | E1 Identity/Access | 0-1 | M0/M1 | OIDC, ACL negative tests, protected-source test |
 | E2 Case Workflow | 1-2 | M1 | Case/charter/gates/tasks/activity demonstration |
-| E3 Evidence Intake | 2 | M1 | Hash, provenance, extract, lineage evidence |
+| E3 Evidence Intake | 2 | M1 | Hash, provenance, extract, lineage evidence; claim/fact lifecycle test *[v0.1.1 · A10]* |
 | E4 Entity/Relationship | 3 | M2 | Merge/unmerge, relationship provenance, asset attribution |
 | E5 Timeline/ValueFlow | 4 | M2 | Temporal precision, four-class flow export |
 | E6 Analytical Reasoning | 5 | M3 | Hypothesis matrix, typology version, assessment trace |
 | E7 Search/Graph | 6 | M3 | Leakage test, graph provenance, rebuild test |
-| E8 Products/Review/Dissemination | 7 | M4 | Review separation, evidence index, approved export, sharing log |
+| E8 Products/Review/Dissemination | 7 | M4 | Six-template generation, review separation, evidence index, approved export, sharing log *[v0.1.1 · A06]* |
 | E9 Operations/Release | 8 | M4 | Retention, restore, hardening, full pilot and traceability matrix |
 
 # 10. Capacity Adjustment and Scope Change Rules
@@ -642,7 +660,7 @@ If actual team capacity differs from the baseline, preserve dependency order and
 
 - Backup/restore test with evidence hash validation.
 
-- Known limitations and formally accepted exceptions.
+- Known limitations and formally accepted exceptions (none may cover a non-waivable invariant; each High waiver lists compensating control test, owner and expiry; each disabled feature path lists non-reachability test evidence). *[v0.1.1 · A16]*
 
 - Release sign-off and version/build identifiers.
 
@@ -652,7 +670,7 @@ If actual team capacity differs from the baseline, preserve dependency order and
 
 2.  Case owner assigns Analyst B as reviewer but not author and records lifecycle gate requirements.
 
-3.  Analyst A registers two sources, uploads evidence, verifies hashes, creates extracts, and records source reliability / information credibility separately.
+3.  Analyst A registers two sources, uploads evidence, verifies hashes, creates extracts, and records source reliability / information credibility separately; records a source claim and proposes a PROVISIONAL fact that an independent reviewer establishes. *[v0.1.1 · A10]*
 
 4.  Analyst A creates entities and identifiers, reviews a duplicate candidate, performs an evidence-backed merge, and verifies unmerge reversibility.
 
@@ -722,6 +740,8 @@ The following items remain outside MVP 0.1 unless promoted through formal scope 
 | Exit criteria result  |                             |
 | Critical/high defects |                             |
 | Accepted exceptions   |                             |
+| Non-waivable invariant check (none open, or affected path disabled with non-reachability evidence) *[v0.1.1 · A16]* | |
+| High waivers: compensating control test, owner, expiry *[v0.1.1 · A16]* | |
 | Decision              | GO / CONDITIONAL GO / NO-GO |
 | Required remediation  |                             |
 | Approver              |                             |

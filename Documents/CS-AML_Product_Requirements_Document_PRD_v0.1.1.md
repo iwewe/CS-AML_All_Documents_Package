@@ -1,10 +1,18 @@
-**PRD v0.1**
+**PRD v0.1.1**
+
+> **Document status — v0.1.1**  
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*  
+> Supersedes: CS-AML Product Requirements Document (PRD) v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 
 Civil Society Financial Intelligence & AML Investigation Platform
 
-Status: Product baseline for MVP planning and engineering handoff
+Status: Draft for Review (Proposed Internal Baseline) — proposed product baseline for MVP planning; not yet validated for engineering handoff *[v0.1.1 · A01]*
 
-Version: 0.1 \| Date: 7 October 2026
+Version: 0.1.1 \| Date: 7 October 2026 (v0.1); revised for v0.1.1
 
 > **Product axiom**  
 > The platform SHALL help civil-society investigators produce lawful, evidence-based, reproducible, and actionable financial intelligence while preserving analytical uncertainty and preventing inference from being presented as fact.
@@ -14,10 +22,10 @@ Version: 0.1 \| Date: 7 October 2026
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Product Requirements Document (PRD) |
-| Version | 0.1 |
-| Status | Baseline / implementation planning |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) / implementation planning *[v0.1.1 · A01]* |
 | Audience | Product, engineering, investigation leads, security/privacy reviewers, QA, governance |
-| Upstream specifications | CS-AML Framework; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification; Control Implementation Guide; Technology Architecture; Product & Feature Specification |
+| Upstream specifications | CS-AML Framework; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification; Control Implementation Guide; Technology Architecture; Product & Feature Specification (all v0.1.1 Markdown, `Documents/*_v0.1.1.md`) |
 | Normative intent | Defines product outcomes and MVP requirements. Detailed data semantics, controls, and architecture remain governed by their respective specifications. |
 
 # 1. Executive Summary
@@ -30,6 +38,9 @@ The product does not attempt to replicate a bank transaction-monitoring system. 
 > MVP 0.1 focuses on the complete investigation loop for one organisation: open a case, preserve sources/evidence, resolve entities, map relationships/assets/events/value flows, test typologies and hypotheses, draft an assessment, peer-review it, and generate a controlled intelligence product. Cross-organisation federation, advanced network science, crypto analytics, and autonomous AI are explicitly deferred.
 
 # 2. Product Problem
+
+> **Planning assumption** *[v0.1.1 · A01]*  
+> The problem statement, pain points, jobs-to-be-done, and outcome targets in this PRD are planning assumptions derived from the CS-AML framework design. They are not results of user research and SHALL be validated with pilot users before being treated as evidence.
 
 ## 2.1 Problem statement
 
@@ -110,6 +121,8 @@ CS-AML is best positioned as a Civil Society Financial Intelligence & Investigat
 
 # 5. Target Users and Jobs-to-be-Done
 
+The jobs and needs below are design assumptions, not user-research findings (see §2 planning assumption). *[v0.1.1 · A01]*
+
 | **Role** | **Primary job** | **Core need** |
 |----|----|----|
 | Investigator / Analyst | Build and test a financial-intelligence case | I need to collect, structure, connect, test, and explain information without losing provenance or uncertainty. |
@@ -179,14 +192,14 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 | **ID** | **Capability** | **MVP content** |
 |----|----|----|
 | C1 | Case & workflow | Case register, Charter, G0–G6 gates, tasks, activity history |
-| C2 | Sources & evidence | Source register, upload, originals, hashes, extracts, derivative lineage, source/credibility ratings |
+| C2 | Sources & evidence | Source register, upload, originals, hashes, extracts, derivative lineage, source/credibility ratings, claim and fact lifecycle (claims, verification decisions, fact promotion/revision — F-EVD-008, proposed; requires product-owner approval) *[v0.1.1 · A10]* |
 | C3 | Entities & relationships | Entity registry, aliases, candidate matching, reversible merge/unmerge, first-class relationships, ownership/control |
 | C4 | Assets, events & timeline | Asset records, events, timeline view |
 | C5 | Value-flow | Flow records, multi-leg flows, classification, visualisation, unknown/range handling |
 | C6 | Typology & indicators | Catalogue browser, indicator capture, typology worksheet |
 | C7 | Hypothesis & assessment | Hypothesis matrix, support/contradiction, gaps, assessment, confidence, disconfirming-search record |
 | C8 | Search & graph | Full-text search, object/entity search, graph exploration |
-| C9 | Review & product | Peer review, intelligence-product templates, versioning, evidence index |
+| C9 | Review & product | Peer review, six intelligence-product templates (Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report), versioning, evidence index *[v0.1.1 · A06]* |
 | C10 | Dissemination | Approval, secure export, referral package, sharing log |
 | C11 | Administration & security | Controlled vocabularies, retention, OIDC/MFA, object-level access, protected-source compartment, immutable audit, backup |
 
@@ -217,6 +230,7 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 | FR-EVD-03 | Evidence extracts | Create page/section/quote/table/image extracts with exact parent link. | Reviewer can navigate from extract to parent evidence and location. |
 | FR-EVD-04 | Derivative lineage | OCR, translation, crop, parsed data, or analyst dataset records parent and transformation metadata. | No derivative can be presented as an original. |
 | FR-EVD-05 | Source & information evaluation | Record source reliability separately from information credibility. | UI displays both dimensions independently. |
+| FR-EVD-06 | Claim and fact lifecycle | Record source claims without overwriting them; record each verification outcome as a separate decision; promote claims/evidence to provisional facts; establish (independent reviewer), dispute or supersede facts. | No extract or claim becomes a fact without a recorded verification decision; disputing/superseding a fact flags dependent assessments/products for review without altering published products. Proposed in v0.1.1; requires product-owner approval. *[v0.1.1 · A10]* |
 
 ## EPIC-03 Entity & Relationship
 
@@ -267,7 +281,7 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 | **Req ID** | **Requirement** | **Product behaviour** | **MVP acceptance** |
 |----|----|----|----|
 | FR-REV-01 | Peer review | Independent reviewer records findings, required changes, and approval/rejection. | Author cannot satisfy mandatory independent review alone. |
-| FR-PRD-01 | Intelligence product | Generate product from approved assessment, key facts, evidence index, alternatives, gaps, confidence, handling classification. | Output preserves analytical qualifiers and stable evidence references. |
+| FR-PRD-01 | Intelligence product | Generate product, using one of the six MVP templates (Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report) *[v0.1.1 · A06]*, from approved assessment, key facts, evidence index, alternatives, gaps, confidence, handling classification. | Output preserves analytical qualifiers and stable evidence references. |
 | FR-PRD-02 | Versioning/corrections | Products are versioned; corrections/supersession do not erase prior issued version. | Change history and reason are visible. |
 | FR-DIS-01 | Dissemination approval | External dissemination requires authorised decision and handling rules. | Export/referral action creates approval and audit record. |
 | FR-DIS-02 | Secure export/referral | Generate controlled package for legitimate recipient. | Package includes classification/handling and evidence index appropriate to recipient. |
@@ -354,7 +368,7 @@ MVP 0.1 is successful when a small civil-society investigation team can complete
 
 ## 12.1 Minimum canonical objects
 
-Case, Source, EvidenceItem, EvidenceExtract, Fact, Entity, Relationship, Asset, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct, Review, Dissemination, AuditEvent.
+Case, Source, EvidenceItem, EvidenceExtract, Claim, VerificationDecision, Fact, Entity, Relationship, Asset, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct, Review, Dissemination, AuditEvent. *[v0.1.1 · A10]*
 
 ## 12.2 Mandatory analytical chain
 
@@ -425,6 +439,8 @@ AI output used materially SHALL remain a derived analytical artefact until verif
 
 # 15. Success Metrics
 
+The values below are targets for the pilot; none has yet been measured. *[v0.1.1 · A01]*
+
 | **Metric** | **Target / interpretation** |
 |----|----|
 | Provenance coverage | ≥95% of material facts in pilot products trace to registered evidence. |
@@ -445,7 +461,7 @@ AI output used materially SHALL remain a derived analytical artefact until verif
 
 9.  Register at least three different source/evidence types and preserve originals.
 
-10. Create evidence extracts with lineage.
+10. Create evidence extracts with lineage; record a source claim and promote it to a provisional fact through a recorded verification decision. *[v0.1.1 · A10]*
 
 11. Create and resolve duplicate entity candidates, including one reversible merge.
 
@@ -475,7 +491,7 @@ AI output used materially SHALL remain a derived analytical artefact until verif
 
 | **ID** | **Risk** | **Failure mode** | **Mitigation** |
 |----|----|----|----|
-| R-01 | Scope explosion | Trying to implement all 87 catalogue features at once. | Freeze MVP capability list; phase integrations and advanced analytics. |
+| R-01 | Scope explosion | Trying to implement all 88 catalogue features at once. *[v0.1.1 · A10]* | Freeze MVP capability list; phase integrations and advanced analytics. |
 | R-02 | Graph overclaim | Users infer wrongdoing from visual proximity. | Evidence-backed edges, certainty labels, legends, relationship status and training. |
 | R-03 | Entity false merge | Common names/addresses create false networks. | Candidate state, reviewer decision, merge rationale, reversible merges. |
 | R-04 | Sensitive data exposure | Protected source or private data leaks through search/export/logs. | Compartmentalisation, object permissions, sanitised references, export approval, security tests. |
@@ -526,11 +542,11 @@ AI output used materially SHALL remain a derived analytical artefact until verif
 
 | **Dependency** | **Why it matters** | **Owner / decision** |
 |----|----|----|
-| Canonical Data Model v0.1 | Objects, statuses, IDs, lineage and validation drive API/database. | Architecture/Data |
-| Investigation Methodology v0.1 | Defines lifecycle and gates. | Investigation/Product |
-| Control Implementation Guide v0.1 | Defines security, privacy, review and audit controls. | Governance/Security |
-| Typology Catalogue v0.1 | Provides versioned typology content and indicators. | Methodology/AML |
-| Technology Architecture v0.1 | Constrains canonical vs derived stores, security, deployment and AI. | Architecture |
+| Canonical Data Model v0.1.1 | Objects, statuses, IDs, lineage and validation drive API/database. | Architecture/Data |
+| Investigation Methodology v0.1.1 | Defines lifecycle and gates. | Investigation/Product |
+| Control Implementation Guide v0.1.1 | Defines security, privacy, review and audit controls. | Governance/Security |
+| Typology Catalogue v0.1.1 | Provides versioned typology content and indicators. | Methodology/AML |
+| Technology Architecture v0.1.1 | Constrains canonical vs derived stores, security, deployment and AI. | Architecture |
 | Legal/privacy policy | Defines jurisdiction-specific lawful collection, retention, publication and sharing. | Governance/Legal |
 | Pilot cases/users | Needed for usability, conformance and outcome testing. | Product/Investigation |
 
@@ -575,7 +591,7 @@ A feature is done only when its user-visible behaviour, canonical data state, pe
 
 # Annex A — MVP P0 Feature IDs
 
-The Product & Feature Specification remains the authoritative detailed feature catalogue. The following list identifies the P0 baseline expected to be represented in MVP planning; final sprint sequencing is an engineering/product decision.
+The Product & Feature Specification remains the authoritative detailed feature catalogue. The following list identifies the P0 baseline expected to be represented in MVP planning; final sprint sequencing is an engineering/product decision. The v0.1.1 P0 baseline is 55 features (88 total = 55 P0 + 26 P1 + 7 P2), including F-EVD-008 Claim and fact lifecycle (proposed; requires product-owner approval). *[v0.1.1 · A10]*
 
 | **P0 Feature** | **P0 Feature** | **P0 Feature** |
 |----------------|----------------|----------------|
@@ -597,6 +613,7 @@ The Product & Feature Specification remains the authoritative detailed feature c
 | F-DIS-003      | F-DIS-004      | F-ADM-001      |
 | F-ADM-003      | F-SEC-001      | F-SEC-002      |
 | F-SEC-003      | F-AUD-001      | F-OPS-001      |
+| F-EVD-008 *[v0.1.1 · A10]* | | |
 
 # Annex B — Representative End-to-End Pilot Scenario
 

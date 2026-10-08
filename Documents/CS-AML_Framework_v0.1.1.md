@@ -4,6 +4,14 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
 **Version 0.1 \| Normative Draft \| October 2026**
 
+> **Document status — v0.1.1 (LEGACY)**
+> **Legacy — superseded by CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`); retained for history; do not use as an implementation source.** *[v0.1.1 · A01, N08]*
+> Version: 0.1.1 — Legacy (content unchanged from v0.1 except for the notes marked v0.1.1). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Framework v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy). Where this file and the Expanded framework differ, the Expanded framework governs.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
 > **Purpose**
 >
 > A structured, evidence-based framework for civil society organisations, investigative journalists, public-interest researchers, and accountability actors to develop lawful, reproducible, and responsible financial intelligence without assuming the powers or access rights of regulated financial institutions, FIUs, or law-enforcement agencies.
@@ -15,8 +23,8 @@ This document defines the minimum analytical, evidentiary, governance, and techn
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Framework v0.1 |
-| Status | Normative Draft |
-| Version | 0.1 |
+| Status | Legacy — superseded by CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`); retained for history; do not use as an implementation source *[v0.1.1 · A01, N08]* |
+| Version | 0.1.1 (legacy copy of v0.1 content) *[v0.1.1 · A01]* |
 | Date | October 2026 |
 | Primary audience | Civil society organisations, investigative journalists, public-interest researchers, accountability and anti-corruption actors |
 | Primary function | Open-source and lawfully sourced financial intelligence and AML-oriented investigation |
@@ -241,7 +249,7 @@ A Source describes where information originates. It SHALL be distinct from the e
 | Access status | Public, permissioned, confidential, restricted, unknown. |
 | Reliability | Source reliability rating plus rationale. |
 | Preservation | Archived copy or reason not retained. |
-| Sensitivity | Public, internal, confidential, highly restricted. |
+| Sensitivity | Public, internal, confidential, highly restricted. Superseded: use the five-level classification (PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE_PROTECTED) and legacy mapping in the Data Model Specification v0.1.1, Section 16, and Framework v0.1.1 Expanded, Section 6.4. *[v0.1.1 · A08]* |
 
 ## 4.3 Evidence
 
@@ -1068,7 +1076,7 @@ CS-AML v0.1 is an independent civil-society framework. It is informed by, but do
 |----|----|----|
 | FATF Recommendations | Risk-based approach, beneficial ownership, financial intelligence, NPO safeguards. | https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html |
 | FATF NPO guidance / Recommendation 8 | Focused, proportionate, risk-based measures and protection of legitimate NPO activity. | https://www.fatf-gafi.org/en/topics/non-profit-organisations.html |
-| UNODC Civil Society Guide to UNCAC | Civil society role in asset tracing, open-source and financial investigation, forensic audit, legal analysis. | https://www.unodc.org/documents/NGO/Corruption/251113-CSU-UNCAC_Guide-Web.pdf |
+| UNODC Civil Society Guide to UNCAC | Civil society role in asset tracing, open-source and financial investigation, forensic audit, legal analysis. Pending verification — page-level support not confirmed. | https://www.unodc.org/documents/NGO/Corruption/251113-CSU-UNCAC_Guide-Web.pdf *[v0.1.1 · A13]* |
 | UNODC Confiscation / asset tracing manual | Public records, internet sources, financial records, and evidence-access considerations in asset tracing. | https://www.unodc.org/documents/organized-crime/Publications/Confiscation_Manual_Ebook_E.pdf |
 | PPATK – Klinik Dumas NGO/CSO | Recognition of NGO/CSO and public information as useful inputs for early detection and financial-intelligence analysis. | https://www.ppatk.go.id/news/read/1570/klinik-dumas-special-edition-ppatk-dan-ngocso-perkuat-aduan-tppu-melalui-peluncuran-laporppatkgoid.html |
 | Indonesia Law No. 27/2022 on Personal Data Protection | Personal financial data and criminal records are specific personal data. | https://peraturan.bpk.go.id/Details/229798/uu-no-27-tahun-2022 |

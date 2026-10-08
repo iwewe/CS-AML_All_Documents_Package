@@ -2,25 +2,32 @@
 
 **API Specification**
 
-Version 0.1
+Version 0.1.1
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML API Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Purpose**  
-> Normative HTTP API baseline for CS-AML MVP 0.1. It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
+> Proposed normative HTTP API baseline (draft for review) for CS-AML MVP 0.1. *[v0.1.1 · A01]* It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
 
 > **Core API axiom**  
 > The API SHALL expose canonical data and authorized derived views without erasing provenance, uncertainty, version history or permission boundaries. It SHALL NOT convert candidate, reconstructed, hypothetical, inferred or derived data into stronger canonical truth through transport semantics.
 
-Status: Normative API contract baseline for MVP 0.1
+Status: Proposed normative API contract baseline for MVP 0.1 (draft for review) *[v0.1.1 · A01]*
 
-Dependencies: Framework · Data Model · SRS · Technology Architecture · Frontend Architecture · Security Controls
+Dependencies: Framework v0.1.1 · Data Model v0.1.1 · SRS v0.1.1 · Technology Architecture v0.1.1 · Frontend Architecture v0.1.1 · Control Implementation Guide v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
 
 # Document Control
 
 | **Attribute** | **Value** |
 |----|----|
 | Document ID | CSAML-API-0.1 |
-| Version | 0.1 |
-| Status | Normative API baseline |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
 | Primary audience | Backend Engineer, Frontend Engineer, QA, Security Reviewer, Integration Engineer |
 | Protocol | HTTPS + JSON; multipart/streaming where file transfer requires it |
 | Reference style | Resource-oriented REST API with explicit action endpoints for workflow decisions |
@@ -55,6 +62,7 @@ https://csaml.example.org/api/v1/
 Accept: application/json
 Content-Type: application/json
 X-Request-ID: <optional-client-correlation-id>
+X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 ```
 
 - Initial major version SHALL be `/api/v1/`.
@@ -65,29 +73,36 @@ X-Request-ID: <optional-client-correlation-id>
 
 - Clients SHALL ignore unknown response fields unless schema validation explicitly disallows them for a security reason.
 
-- API schema/OpenAPI document SHOULD be versioned with application releases.
+- The OpenAPI document (`contracts/openapi.yaml`, see §28) SHALL be versioned with application releases. *[v0.1.1 · A11]*
 
 # 4. Authentication and Principal Context
 
 | **Concern** | **Requirement** |
 |----|----|
-| Authentication | OIDC-authenticated session/bearer mechanism approved by security architecture. |
+| Authentication | Browser authentication is locked to a server-side session (BFF pattern). Django is a confidential OIDC client of Keycloak using Authorization Code + PKCE. Access, refresh and ID tokens stay server-side and are never exposed to JavaScript. Browsers SHALL NOT send `Authorization: Bearer`; bearer tokens from browsers are rejected. *[v0.1.1 · A11]* |
+| Auth endpoints | `GET /auth/login` (redirect to IdP) · `GET /auth/callback` (code exchange, session creation) · `POST /auth/logout` (session destroyed; IdP logout initiated) · `GET /auth/session` (current principal, session expiry, coarse capabilities; 401 when no session). These are served by the same origin outside `/api/v1`. *[v0.1.1 · A11]* |
+| Session cookie | The browser holds only `__Host-csaml_session` with attributes `HttpOnly; Secure; SameSite=Lax; Path=/` and no `Domain` attribute. *[v0.1.1 · A11]* |
+| CSRF | Every unsafe method (POST/PUT/PATCH/DELETE) SHALL carry the Django CSRF token in the `X-CSRFToken` header; missing/invalid token → 403. *[v0.1.1 · A11]* |
+| Origin / CORS | The API is same-origin (`/api/v1` behind Nginx). CORS is disabled by default. *[v0.1.1 · A11]* |
+| Session timeouts | Idle and absolute session timeouts are security-policy configuration. *[v0.1.1 · A11]* |
 | Principal | Server resolves user/service identity; client-submitted actor identity is not trusted. |
 | MFA | Required claims/policy enforced server-side for sensitive actions where configured. |
-| Service account | Distinct non-human principal; least privilege; no shared analyst identity. |
-| Logout/revocation | Subsequent requests fail according to session/token policy. |
+| Service account | Machine/service API clients are out of MVP scope. When introduced, each SHALL be a distinct non-human principal with least privilege and no shared analyst identity; its authentication mechanism requires a separate decision. *[v0.1.1 · A11]* |
+| Logout/revocation | After logout, session expiry or revocation, subsequent requests return 401. Keycloak back-channel logout SHOULD revoke the corresponding server-side sessions. *[v0.1.1 · A11]* |
 | Impersonation | Not supported in MVP unless separately controlled/audited. |
 
 # 5. Common Headers and Correlation
 
 | **Header** | **Direction** | **Use** |
 |----|----|----|
-| Authorization / session cookie | Request | Authentication according to deployment. |
+| Cookie (`__Host-csaml_session`) | Request | Browser session authentication (§4). `Authorization: Bearer` is not accepted from browsers. *[v0.1.1 · A11]* |
+| X-CSRFToken | Request | Django CSRF token; REQUIRED on every unsafe method (§4). *[v0.1.1 · A11]* |
 | X-Request-ID | Both | Correlation ID; server generates when absent. |
-| ETag | Response | Optional HTTP representation version token. |
-| If-Match | Request | Concurrency guard for version-aware mutation. |
-| Idempotency-Key | Request | Required/recommended for selected repeat-sensitive operations. |
-| Retry-After | Response | Rate limit/async polling guidance. |
+| ETag | Response | `"<record_version>"` returned on GET of every versioned resource (§10). *[v0.1.1 · A04]* |
+| If-Match | Request | `"<record_version>"`; REQUIRED on mutations of versioned resources (§10). Missing → 428; stale → 412. *[v0.1.1 · A04]* |
+| Idempotency-Key | Request | UUID; REQUIRED or SHOULD per §11. *[v0.1.1 · A11]* |
+| Idempotent-Replayed | Response | `true` when the response is a replay of an earlier request with the same Idempotency-Key (§11). *[v0.1.1 · A11]* |
+| Retry-After | Response | Rate limit/async polling guidance; also sent with 409 IDEMPOTENCY_IN_PROGRESS. *[v0.1.1 · A11]* |
 | Content-Disposition | Response | Safe filename for export/download. |
 
 # 6. Common Resource Envelope
@@ -98,7 +113,7 @@ X-Request-ID: <optional-client-correlation-id>
   "object_type": "entity",
   "schema_version": "1.0",
   "record_version": 7,
-  "status": "active",
+  "status": "ACTIVE",
   "classification": "RESTRICTED",
   "created_at": "2026-10-07T10:00:00Z",
   "created_by": {"id":"...","display_name":"..."},
@@ -107,6 +122,9 @@ X-Request-ID: <optional-client-correlation-id>
   "capabilities": ["read","update","link"]
 }
 ```
+
+> **Enum values and classification**  
+> Controlled enumeration values on the wire (including `status`) are UPPER_SNAKE_CASE machine values derived from the Data Model Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]* `classification` takes one of `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (least → most restrictive; display labels Public, Internal, Sensitive, Restricted, Source-protected). Access labels are additive restrictions; the most restrictive applicable level plus all labels apply. Derived objects and exports inherit the highest classification of their inputs unless a recorded reviewer downgrade decision exists. A resource with unknown or missing classification fails closed (access denied; flagged for classification). *[v0.1.1 · A08]*
 
 > **Capabilities**  
 > `capabilities` MAY help the UI render permitted actions, but SHALL NOT replace server authorization. Capabilities are contextual and may change between requests.
@@ -118,7 +136,7 @@ X-Request-ID: <optional-client-correlation-id>
 | Collection names | Plural kebab-case or consistent plural nouns: `/cases`, `/entities`, `/value-flows`. |
 | IDs | Opaque stable UUID-like identifiers; clients do not parse meaning from IDs. |
 | Timestamps | ISO 8601 UTC in transport; original timezone may be additional metadata. |
-| Enums | Stable machine values; user-facing localized labels are separate. |
+| Enums | Stable UPPER_SNAKE_CASE machine values derived from the Data Model Annex A registry; user-facing localized labels are separate. *[v0.1.1 · A09]* |
 | Unknown | Use `null`/explicit status per schema; never substitute 0/false/empty string when semantically different. |
 | Money | Amount + currency; ranges preserve min/max/approximate/original value semantics. |
 | Dates | Precision field accompanies partial/approximate dates where domain requires it. |
@@ -127,7 +145,7 @@ X-Request-ID: <optional-client-correlation-id>
 # 8. Pagination, Sorting and Filtering
 
 ``` text
-GET /api/v1/entities?case_id=...&type=COMPANY&status=confirmed&sort=-updated_at&page[size]=50&page[after]=...
+GET /api/v1/entities?case_id=...&type=COMPANY&status=CONFIRMED&classification=RESTRICTED,SOURCE_PROTECTED&sort=-updated_at&page[size]=50&page[after]=...
 ```
 
 | **Concern** | **Baseline** |
@@ -145,7 +163,7 @@ GET /api/v1/entities?case_id=...&type=COMPANY&status=confirmed&sort=-updated_at&
 ``` text
 {
   "error": {
-    "code": "VERSION_CONFLICT",
+    "code": "PRECONDITION_FAILED",
     "message": "The record changed after you opened it.",
     "request_id": "req_...",
     "details": {"current_record_version": 8},
@@ -159,12 +177,21 @@ GET /api/v1/entities?case_id=...&type=COMPANY&status=confirmed&sort=-updated_at&
 | 400 | INVALID_REQUEST | Malformed/semantically invalid request not tied to one field. |
 | 401 | AUTHENTICATION_REQUIRED | No valid authenticated principal. |
 | 403/404 | ACCESS_DENIED / NOT_FOUND | Deployment/policy chooses non-disclosing behavior consistently. |
-| 409 | VERSION_CONFLICT / STATE_CONFLICT | Stale version or workflow state prevents mutation. |
-| 412 | PRECONDITION_FAILED | If-Match/ETag failed. |
+| 409 | STATE_CONFLICT | Workflow/business-state conflict only (e.g. gate not satisfied, object already finalized, approving a rejected item). Not used for stale versions. *[v0.1.1 · A04]* |
+| 409 | IDEMPOTENCY_IN_PROGRESS | A request with the same Idempotency-Key is still in flight; `Retry-After` included (§11). *[v0.1.1 · A11]* |
+| 412 | PRECONDITION_FAILED | `If-Match` does not match the current `record_version`; `details.current_record_version` included. No silent overwrite. *[v0.1.1 · A04]* |
 | 422 | VALIDATION_FAILED | Field/domain validation. |
+| 422 | IDEMPOTENCY_KEY_REUSED | Same Idempotency-Key reused with a different payload (§11). *[v0.1.1 · A11]* |
+| 428 | PRECONDITION_REQUIRED | Mutation of a versioned resource sent without `If-Match`. *[v0.1.1 · A04]* |
 | 429 | RATE_LIMITED | Request rate or expensive operation threshold exceeded. |
 | 500 | INTERNAL_ERROR | Safe generic message; request ID for support. |
 | 503 | DEPENDENCY_UNAVAILABLE | Temporary backend dependency failure. |
+
+The error code `VERSION_CONFLICT` used in v0.1 is retired; stale versions are reported only as 412 PRECONDITION_FAILED, which clients map to the "record changed" recovery UI. *[v0.1.1 · A04]*
+
+**Evaluation order.** The server SHALL evaluate a request in this order and return the first failure: authentication (401) → authorization (403/404, non-disclosing) → header validation (400/428) → precondition (412) → body validation (422) → workflow state (409). *[v0.1.1 · A04]*
+
+The error envelope above (`error.code`, `message`, `request_id`, `details`, `field_errors`) is the normative error envelope for v1. *[v0.1.1 · A11]*
 
 > **Error safety**  
 > Error payloads SHALL not include raw SQL, stack traces, filesystem paths, evidence snippets, protected-source identity or authorization-policy internals.
@@ -173,11 +200,17 @@ GET /api/v1/entities?case_id=...&type=COMPANY&status=confirmed&sort=-updated_at&
 
 - Material mutable resources SHALL expose `record_version` or equivalent concurrency token.
 
-- Update requests SHALL send expected version through body and/or `If-Match`.
+- Versioned resources SHALL return `ETag: "<record_version>"` on GET. *[v0.1.1 · A04]*
 
-- On mismatch, API SHALL return conflict and current safe metadata needed for recovery; it SHALL NOT silently overwrite.
+- Mutations of versioned resources (PATCH/PUT/DELETE and state-changing commands on a versioned resource) SHALL send `If-Match: "<record_version>"`. Missing `If-Match` → **428 PRECONDITION_REQUIRED**. *[v0.1.1 · A04]*
 
-- Approvals, merges, dissemination and assessment finalization SHALL validate both version and current workflow state.
+- Stale `If-Match` → **412 PRECONDITION_FAILED** with `details.current_record_version` and other safe metadata needed for recovery; the API SHALL NOT silently overwrite. *[v0.1.1 · A04]*
+
+- A `record_version` in the body is optional; if present it SHALL equal the `If-Match` value, otherwise **400 INVALID_REQUEST**. *[v0.1.1 · A04]*
+
+- **409 STATE_CONFLICT** is reserved for workflow/business-state conflicts. Approvals, merges, dissemination and assessment finalization SHALL validate both the precondition (412) and current workflow state (409), in the evaluation order of §9. *[v0.1.1 · A04]*
+
+- A retried request carrying the same `Idempotency-Key` replays the original result (§11) instead of failing with 412. *[v0.1.1 · A04, A11]*
 
 - Immutable/audit resources reject ordinary update/delete methods.
 
@@ -186,19 +219,37 @@ PATCH /api/v1/assessments/{id}
 If-Match: "7"
 { "record_version": 7, "judgement": "..." }
 
-→ 409 VERSION_CONFLICT if current version is 8
+→ 412 PRECONDITION_FAILED if current version is 8
+  { "error": { "code": "PRECONDITION_FAILED", "details": {"current_record_version": 8}, ... } }
+→ 428 PRECONDITION_REQUIRED if If-Match is absent
 ```
+
+*[v0.1.1 · A04]*
 
 # 11. Idempotency
 
+Locked semantics: *[v0.1.1 · A11]*
+
+| **Aspect** | **Rule** |
+|----|----|
+| Header | `Idempotency-Key: <UUID>` |
+| Scope | (principal, HTTP method, route template + path parameters). |
+| Retention | 24 hours from the first request. |
+| Same key + same payload hash | Replay the original status and body with response header `Idempotent-Replayed: true`. |
+| Same key + different payload | **422 IDEMPOTENCY_KEY_REUSED**. |
+| Same key while the first request is in flight | **409 IDEMPOTENCY_IN_PROGRESS** with `Retry-After`. |
+| Interaction with If-Match | A replay returns the original result; it does not re-evaluate the precondition and does not fail with 412. |
+
 | **Operation** | **Idempotency requirement** |
 |----|----|
-| Normal PATCH with version token | Version conflict protection generally sufficient. |
-| Create case/entity | Client-generated idempotency key SHOULD be supported when retries may duplicate creation. |
-| Evidence ingest finalization | Idempotency key REQUIRED/recommended to avoid duplicate completion after retry. |
-| Merge/unmerge | Server action ID/idempotency key SHOULD prevent repeated action. |
-| Approve review/dissemination | Repeat submission SHALL return same completed decision or safe conflict, not duplicate decision. |
-| Export package generation | Idempotency key SHOULD tie retry to same approved package request. |
+| Normal PATCH with version token | `If-Match` protection (§10) generally sufficient; Idempotency-Key MAY be sent. *[v0.1.1 · A11]* |
+| Create case/entity (and other creates) | Idempotency-Key SHOULD be sent. *[v0.1.1 · A11]* |
+| Evidence ingest finalization | Idempotency-Key REQUIRED. *[v0.1.1 · A11]* |
+| Merge/unmerge | Idempotency-Key REQUIRED. *[v0.1.1 · A11]* |
+| Approve review/dissemination | Idempotency-Key REQUIRED; a repeat SHALL return the same completed decision, never a duplicate decision. *[v0.1.1 · A11]* |
+| Export package generation | Idempotency-Key REQUIRED; ties a retry to the same approved package request. *[v0.1.1 · A11]* |
+
+The response code for a request that omits a REQUIRED Idempotency-Key is not yet locked (open item, §28). *[v0.1.1 · A11]*
 
 # 12. Case and Workflow API
 
@@ -267,7 +318,7 @@ If-Match: "7"
 | GET | /value-flow-legend | Optional semantic metadata/labels for clients. |
 
 > **Flow semantics**  
-> Every ValueFlow response SHALL carry its epistemic class: DIRECT, DOCUMENTED, RECONSTRUCTED or HYPOTHETICAL. No endpoint may collapse these into a generic “transaction” representation.
+> Every ValueFlow response SHALL carry its epistemic class in `flow_class` with one of the wire values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL` (UPPER_SNAKE_CASE; from the Data Model Annex A registry). *[v0.1.1 · A09]* No endpoint may collapse these into a generic “transaction” representation.
 
 # 16. Typology, Hypothesis and Assessment API
 
@@ -283,6 +334,37 @@ If-Match: "7"
 | GET/POST | /assessments | Draft/versioned assessments. |
 | POST | /assessments/{id}/finalize | Controlled finalization action. |
 | GET | /assessments/{id}/provenance | Backward trace to hypotheses/facts/evidence. |
+
+> **Confidence semantics** *[v0.1.1 · A09]*  
+> `confidence.level` takes one of `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`; `confidence.rationale` is mandatory for every level. `INSUFFICIENT_BASIS` means a judgement was attempted but the evidential basis is insufficient; it is not a level below `LOW`, and the API SHALL NOT convert it to `LOW`, `null`, zero, or omit it, in any request, response, filter, sort or export. `null` is allowed only on drafts where no confidence judgement has been made yet; `POST /assessments/{id}/finalize` SHALL reject a null level (422). No normalization may raise certainty.
+
+# 16A. Claim and Fact API
+
+*[v0.1.1 · A10]* — Proposed in the v0.1.1 remediation; **requires product-owner approval** before implementation. Resource semantics follow Data Model §7.4 (Claim) and §7.5 (Fact). The paths follow this document's existing style for workflow decisions (`/resource/{id}/action` sub-paths, as in `/assessments/{id}/finalize`).
+
+| **Method** | **Endpoint** | **Purpose** |
+|----|----|----|
+| GET/POST | /cases/{caseId}/claims | List/record source claims for a case (attributed to a source and/or evidence extract). |
+| GET/PATCH | /claims/{claimId} | Claim detail; version-aware update of descriptive metadata and `claim_status`. The asserted proposition is never overwritten by analyst conclusions. |
+| POST | /claims/{claimId}/verification-decisions | Record an append-only VerificationDecision on a claim. |
+| GET/POST | /cases/{caseId}/facts | List facts; propose ("promote") a new fact, created as `PROVISIONAL`. |
+| GET | /facts/{factId} | Fact detail, including verification history and `superseded_by`. |
+| POST | /facts/{factId}/establish | Move a fact to `ESTABLISHED` (reviewer decision). |
+| POST | /facts/{factId}/dispute | Move a fact to `DISPUTED` with evidence. |
+| POST | /facts/{factId}/supersede | Move a fact to `SUPERSEDED` with a replacement fact reference. |
+| GET | /facts/{factId}/dependents | Assessments and intelligence products that depend on the fact, with their `review_required` state. |
+
+| **Concern** | **Rule** |
+|----|----|
+| Claim status | `claim_status`: `RECORDED`, `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`. The `disputed` boolean is kept for compatibility and is derived (status `CONTRADICTED` or an open dispute); it is read-only. |
+| VerificationDecision | Fields: `target_ref` (claim or fact), `decision`, `rationale`, `evidence_refs`, `decided_by` (server-resolved principal), `decided_at`, `review_ref` (optional). Append-only: no PATCH/DELETE; corrections are new decisions. |
+| Fact promotion | `POST /cases/{caseId}/facts` SHALL include source claim refs and/or evidence refs and a VerificationDecision ref; otherwise 422. The new fact starts as `PROVISIONAL`. |
+| Fact status | `fact_status`: `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`; `superseded_by` references the replacement fact. |
+| Permissions | Investigator/Analyst MAY record claims and propose `PROVISIONAL` facts. `establish` requires a Reviewer who is not the proposer (otherwise 403). Any authorized case member MAY `dispute` with evidence refs. `supersede` requires a replacement fact ref (otherwise 422). |
+| Preconditions | `PATCH /claims/{claimId}` and every fact command SHALL send `If-Match` (§10): missing → 428, stale → 412. An invalid transition (e.g. establishing a `SUPERSEDED` fact) → 409 STATE_CONFLICT. Commands SHOULD send `Idempotency-Key` (§11). |
+| Dependent impact | When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct is flagged `review_required` with a link to the triggering decision. Published products are never mutated; a correction review task is created. History is preserved. |
+| Certainty | A claim SHALL NOT be returned or exported as a fact without a VerificationDecision. |
+| Audit | Claim creation, every VerificationDecision and every fact status change emit audit events (§27). |
 
 # 17. Search API
 
@@ -379,7 +461,7 @@ POST /api/v1/graph/query
 
 ``` text
 202 Accepted
-{ "job": {"id":"job_...","status":"queued","poll_url":"/api/v1/jobs/job_..."} }
+{ "job": {"id":"job_...","status":"QUEUED","poll_url":"/api/v1/jobs/job_..."} }
 ```
 
 # 23. File Transfer and Content Safety
@@ -428,8 +510,8 @@ POST /api/v1/graph/query
 | API-SEC-03 | Object IDs are not authorization secrets. |
 | API-SEC-04 | Mass assignment is prevented by explicit writable-field schemas. |
 | API-SEC-05 | Input validation and output encoding are applied consistently. |
-| API-SEC-06 | CSRF protections apply when cookie-based browser auth is used. |
-| API-SEC-07 | CORS is explicit and minimal. |
+| API-SEC-06 | CSRF protection applies to every unsafe method: browser auth is a cookie-based BFF session and requests SHALL carry `X-CSRFToken` (§4). *[v0.1.1 · A11]* |
+| API-SEC-07 | The API is same-origin; CORS is disabled by default and any exception is explicit and minimal. *[v0.1.1 · A11]* |
 | API-SEC-08 | Sensitive payloads are excluded/redacted from routine access logs. |
 | API-SEC-09 | Export/download endpoints re-check authorization at retrieval time where appropriate. |
 | API-SEC-10 | Schema/docs do not expose privileged endpoints to unauthorized clients as an access control mechanism; actual authorization still applies. |
@@ -448,7 +530,7 @@ POST /api/v1/graph/query
 
 # 28. API Schema and OpenAPI Requirements
 
-- An OpenAPI 3.1-equivalent schema SHOULD be generated/published for v1.
+- An OpenAPI 3.1 document SHALL be generated from the implementation, committed as `contracts/openapi.yaml`, linted in CI, used to generate the TypeScript client, and exercised by contract tests. *[v0.1.1 · A11]*
 
 - Schemas SHALL identify required/nullable fields explicitly.
 
@@ -458,7 +540,18 @@ POST /api/v1/graph/query
 
 - High-impact action endpoints SHALL document preconditions and conflict/error codes.
 
-- Client TypeScript types MAY be generated from the schema; generated code SHALL not replace domain semantics documentation.
+- Client TypeScript types SHALL be generated from `contracts/openapi.yaml`; generated code SHALL not replace domain semantics documentation. *[v0.1.1 · A11]*
+
+> **Open items — not yet produced** *[v0.1.1 · A11]*  
+> This package does not yet contain the OpenAPI artefact or full per-operation contracts. This document is a convention and endpoint baseline, not an executable contract. Outstanding:
+> - `contracts/openapi.yaml` itself (OpenAPI 3.1), with CI lint and generated TypeScript client.
+> - Full per-operation request/response schemas for every endpoint in §12–§22 and §16A.
+> - Explicit required/nullable declarations per field.
+> - Upload, async job and approval preconditions per operation (upload session states, job lifecycle and status enum, approval/re-approval and export validity rules).
+> - Detailed contracts for task update, review comments and job lifecycle actions.
+> - Pagination envelope: cursor/page fields of list responses are not yet locked (§8 states the query parameters only).
+> - Policy-denial response details beyond the §9 error envelope.
+> - Response code for a missing REQUIRED Idempotency-Key (§11).
 
 # 29. Compatibility and Deprecation
 
@@ -478,10 +571,10 @@ POST /api/v1/graph/query
 | Schema | Responses validate against OpenAPI/schema. |
 | Authorization | Positive and negative tests for case membership/classification/protected source. |
 | Non-disclosure | Unauthorized IDs/search/facets do not reveal hidden resource metadata. |
-| Concurrency | Stale writes return conflict and do not overwrite. |
-| Idempotency | Retries do not duplicate selected actions. |
+| Concurrency | Stale `If-Match` → 412 PRECONDITION_FAILED; missing `If-Match` → 428; workflow conflict → 409 STATE_CONFLICT; no overwrite in any case. *[v0.1.1 · A04]* |
+| Idempotency | Retries do not duplicate selected actions; replay, key-reuse (422) and in-flight (409) behaviour per §11. *[v0.1.1 · A11]* |
 | Evidence | Upload/finalize/hash/content authorization and lineage. |
-| Analytical semantics | Flow classes, unknown/range values, candidate/disputed states preserved. |
+| Analytical semantics | Flow classes, unknown/range values, candidate/disputed states preserved; `INSUFFICIENT_BASIS` round-trips unchanged; claim/fact transitions per §16A. *[v0.1.1 · A09, A10]* |
 | Review/dissemination | Independent approval/preconditions/export manifest enforced. |
 | Audit | Material actions create expected correlated audit records. |
 | Performance | P0 list/search/graph endpoints meet documented MVP targets. |
@@ -505,7 +598,7 @@ POST /api/v1/graph/query
 | **Domain** | **Resources** |
 |----|----|
 | Case | Case, InvestigationQuestion/CharterVersion, Gate, Task, CaseActivity projection |
-| Evidence | Source, EvidenceItem, EvidenceExtract, Derivative/Lineage |
+| Evidence | Source, EvidenceItem, EvidenceExtract, Derivative/Lineage, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
 | Identity | Entity, Identifier/Alias, MatchCandidate, MergeDecision |
 | Relations/assets | Relationship, OwnershipInterest, ControlAssertion, Asset |
 | Time/value | Event, Timeline projection, ValueFlow, ValueFlowLeg |

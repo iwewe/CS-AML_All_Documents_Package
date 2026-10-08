@@ -3,11 +3,18 @@
 **Technical Stack & Repository  
 Specification**
 
-**Version 0.1**
+**Version 0.1.1**
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Technical Stack & Repository Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 Engineering implementation baseline for the CS-AML MVP
 
-Status: Normative implementation specification  
+Status: Proposed normative implementation specification (draft for review) *[v0.1.1 · A01]*  
 Architecture style: Modular monolith with replaceable infrastructure services  
 Target: CS-AML MVP 0.1
 
@@ -22,11 +29,12 @@ The document is intentionally more prescriptive than the Technology Architecture
 
 | **Upstream document** | **This specification consumes** |
 |----|----|
-| Technology Architecture | Logical boundaries, canonical vs derived data, security and deployment principles |
-| Data Model Specification | Canonical objects, identifiers, provenance, temporal semantics and integrity rules |
-| PRD | MVP product scope and release objective |
-| SRS | Testable software requirements and release gate |
-| MVP Engineering Breakdown | Epics, vertical slices, stories and delivery sequence |
+| Technology Architecture v0.1.1 | Logical boundaries, canonical vs derived data, security and deployment principles |
+| Data Model Specification v0.1.1 | Canonical objects, identifiers, provenance, temporal semantics and integrity rules |
+| PRD v0.1.1 | MVP product scope and release objective |
+| SRS v0.1.1 | Testable software requirements and release gate |
+| MVP Engineering Breakdown v0.1.1 | Epics, vertical slices, stories and delivery sequence |
+| API Specification v0.1.1 | HTTP contract, authentication (BFF session), concurrency and idempotency rules *[v0.1.1 · A01, A11]* |
 
 # 2. Engineering Principles
 
@@ -43,7 +51,7 @@ The document is intentionally more prescriptive than the Technology Architecture
 
 # 3. MVP Reference Stack
 
-The following stack is the CS-AML MVP reference profile. Exact patch versions SHOULD be pinned in lockfiles and container digests. Major-version changes require compatibility testing and, where they affect architecture or security assumptions, an ADR.
+The following stack is the proposed CS-AML MVP reference profile (draft for review). *[v0.1.1 · A01]* Exact patch versions SHOULD be pinned in lockfiles and container digests. Major-version changes require compatibility testing and, where they affect architecture or security assumptions, an ADR.
 
 | **Layer** | **Baseline** | **Rationale** | **MVP status** |
 |:--:|----|----|----|
@@ -51,13 +59,13 @@ The following stack is the CS-AML MVP reference profile. Exact patch versions SH
 | Containers | Docker Engine + Compose v2 | Simple reproducible deployment for small teams | Required reference |
 | Backend runtime | Python 3.12 | Long support horizon; mature security/data ecosystem | Required reference |
 | Web framework | Django 5.2 LTS | ORM, migrations, admin primitives, mature auth/ecosystem | Required reference |
-| API | Django REST Framework + OpenAPI schema | Explicit REST contract and testability | Required reference |
+| API | Django REST Framework + OpenAPI 3.1 schema committed as `contracts/openapi.yaml` | Explicit REST contract and testability | Required reference *[v0.1.1 · A11]* |
 | Database | PostgreSQL 17 | Canonical transactional store; JSONB/FTS available | Required reference |
 | GIS extension | PostGIS 3.5 | Optional geographic capability without separate GIS store | Enabled where GIS used |
 | Async jobs | Celery 5.x | Evidence processing, export and projection jobs | Required reference |
-| Broker/cache | Redis 7.x | Task broker, bounded cache, transient coordination | Required reference |
-| Object storage | S3-compatible store (MinIO reference) | Original/derivative evidence objects, versioning | Required capability |
-| Identity provider | Keycloak 26.x / standards-compliant OIDC | Central identity, MFA and session policy | External dependency |
+| Broker/cache | Valkey 8.x (BSD-3-Clause), Redis-protocol compatible; Celery uses the `redis://` transport scheme. Exact minor/patch release pinned in the dependency manifest/image digest; licence recorded in the SBOM (ADR-0006) | Task broker, bounded cache, transient coordination | Required reference *[v0.1.1 · A03]* |
+| Object storage | S3-compatible object store with versioning/object-lock-capable features; concrete product selected per ADR-0005 (MinIO is no longer the reference) | Original/derivative evidence objects, versioning | Required capability *[v0.1.1 · A02]* |
+| Identity provider | Keycloak 26.x / standards-compliant OIDC; Django is a confidential OIDC client (Authorization Code + PKCE) and the browser holds only a server-side session cookie (BFF) | Central identity, MFA and session policy | External dependency *[v0.1.1 · A11]* |
 | Frontend | React 19 + TypeScript + Vite | Typed analyst UI and component ecosystem | Required reference |
 | CSS/UI | Tailwind CSS 4 + accessible component primitives | Consistent UI without proprietary design system | Reference |
 | Graph UI | Cytoscape.js | Evidence-backed network exploration in browser | MVP visualization |
@@ -70,6 +78,9 @@ The following stack is the CS-AML MVP reference profile. Exact patch versions SH
 
 > **Version policy**  
 > The versions above are baseline major/minor families, not an instruction to remain on insecure patches. Security patches SHOULD be applied within supported lines after automated and regression testing. Dependency updates SHALL NOT silently alter analytical semantics.
+
+> **Dependency licence and maintenance note** *[v0.1.1 · A02, A03]*  
+> A version family does not imply a single licence. For each infrastructure dependency the pinned release, its licence and its maintenance status SHALL be recorded in the dependency manifest, the image digest and the SBOM, and they SHALL refer to the same version. Do not describe a release line as open-source or BSD without checking its licence: for example Redis ≤7.2 is BSD-3-Clause, Redis 7.4 is RSALv2/SSPLv1, and Redis 8.x adds AGPLv3 — which is why the broker/cache baseline is Valkey 8.x (ADR-0006). The upstream MinIO Community repository (minio/minio) was archived on 25 April 2026 and states it is no longer maintained; MinIO Community and commercial products (e.g. AIStor) are different products with different licences and support paths. The object store product is therefore chosen through ADR-0005, which SHALL record the chosen product and release line, maintenance status, licence, patch path, S3 compatibility test evidence, and backup/restore test evidence.
 
 # 4. Architecture Style: Modular Monolith
 
@@ -93,11 +104,13 @@ Django modular monolith
   |-- policy / audit / administration
       |
       +--> PostgreSQL (canonical)
-      +--> S3 evidence store
-      +--> Redis / Celery workers
-      +--> Keycloak (OIDC)
+      +--> object-store (S3-compatible; product per ADR-0005)
+      +--> Valkey / Celery workers
+      +--> Keycloak (OIDC; server-side BFF session)
       +--> rebuildable search/graph projections
 ```
+
+*[v0.1.1 · A02, A03, A11]* — diagram updated: object store per ADR-0005; Valkey replaces Redis; browser authentication is a server-side BFF session.
 
 Microservice extraction MAY occur after MVP when one or more of the following is demonstrated: materially different scaling profile; security isolation requirement; independent deployment cadence; dedicated operational ownership; external reuse; or unacceptable coupling that cannot be solved through module boundaries.
 
@@ -122,12 +135,15 @@ cs-aml/
 │   └── CODEOWNERS
 ├── backend/
 ├── frontend/
+├── contracts/       # openapi.yaml (OpenAPI 3.1, generated, linted in CI)
 ├── infra/
 ├── docs/
 ├── scripts/
 ├── tests/
 └── fixtures/
 ```
+
+*[v0.1.1 · A11]* — `contracts/openapi.yaml` added (see API Specification v0.1.1 §28).
 
 # 6. Backend Repository Structure
 
@@ -219,13 +235,13 @@ Frontend features SHALL mirror product capabilities rather than backend table na
 | DB-03 | Every canonical object SHALL use stable UUID identifiers and created/updated/version metadata. |
 | DB-04 | Material deletes SHOULD be logical/superseding operations where historical reconstruction is required. |
 | DB-05 | Entity merge/unmerge SHALL preserve merge decision history and original identifiers. |
-| DB-06 | ValueFlow.flow_class SHALL be constrained to DIRECT, DOCUMENTED, RECONSTRUCTED, HYPOTHETICAL. |
+| DB-06 | ValueFlow.flow_class SHALL be constrained to the UPPER_SNAKE_CASE values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL`; `confidence.level` to `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (never coerced to `LOW`/null/zero); classification to `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`. Enum values derive from the Data Model Annex A registry. *[v0.1.1 · A08, A09]* |
 | DB-07 | Unknown numeric values SHALL remain null/unknown and SHALL NOT be coerced to zero. |
 | DB-08 | Canonical records SHALL expose provenance links sufficient to reconstruct material assessments. |
 
 # 9. Evidence Storage and Integrity
 
-Evidence storage consists of canonical metadata in PostgreSQL plus immutable/versioned objects in S3-compatible storage. User-visible filenames are metadata only; object keys SHALL be opaque and collision-resistant.
+Evidence storage consists of canonical metadata in PostgreSQL plus immutable/versioned objects in S3-compatible storage (versioning/object-lock-capable; product per ADR-0005). *[v0.1.1 · A02]* User-visible filenames are metadata only; object keys SHALL be opaque and collision-resistant.
 
 | **Concern** | **MVP requirement** |
 |----|----|
@@ -255,6 +271,8 @@ CS-AML authorization policy
 Allow / deny + audit context
 ```
 
+- Browser authentication SHALL use a server-side session (BFF): Django is a confidential OIDC client of Keycloak (Authorization Code + PKCE); access/refresh/ID tokens stay server-side; the browser holds only the `__Host-csaml_session` cookie (HttpOnly, Secure, SameSite=Lax, Path=/) and sends `X-CSRFToken` on unsafe methods. Endpoints `/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/session` are defined in the API Specification v0.1.1 §4. *[v0.1.1 · A11]*
+
 - MFA policy SHOULD be enforced by the IdP and verified through authentication context/claims where available.
 
 - Administrative roles and investigative roles SHOULD be separable; platform administrators SHOULD NOT automatically receive access to case content.
@@ -265,20 +283,20 @@ Allow / deny + audit context
 
 # 11. API Design Standard
 
-The MVP API SHALL be REST/JSON and versioned under `/api/v1/`. OpenAPI documentation SHALL be generated from implementation and checked in CI for breaking changes. IDs SHALL be opaque UUIDs. Internal database primary-key assumptions SHALL NOT appear in public contracts.
+The MVP API SHALL be REST/JSON and versioned under `/api/v1/`. An OpenAPI 3.1 document SHALL be generated from implementation, committed as `contracts/openapi.yaml`, linted and checked in CI for breaking changes, used to generate the TypeScript client, and exercised by contract tests; it does not yet exist (open item). *[v0.1.1 · A11]* IDs SHALL be opaque UUIDs. Internal database primary-key assumptions SHALL NOT appear in public contracts.
 
 | **Area** | **Convention** |
 |----|----|
 | Base path | /api/v1/ |
-| Authentication | OIDC bearer/session integration; CSRF protection where cookie session is used |
+| Authentication | Server-side OIDC session (BFF); session cookie only, no bearer tokens from browsers; `X-CSRFToken` on every unsafe method; same-origin, CORS disabled by default *[v0.1.1 · A11]* |
 | Errors | Stable machine code + human message + correlation ID; no sensitive existence leakage |
 | Pagination | Cursor or stable page pagination for large collections |
 | Filtering | Explicit allowlisted fields; permission filtering occurs before result shaping |
-| Concurrency | Optimistic version/ETag SHOULD protect sensitive update collisions |
-| Idempotency | Required for retried high-impact commands where duplicate action is harmful |
-| Schema | Generated OpenAPI; contract diff in CI for release branches |
+| Concurrency | `ETag: "<record_version>"` on GET; `If-Match` REQUIRED on mutations of versioned resources; missing → 428, stale → 412 PRECONDITION_FAILED; 409 STATE_CONFLICT for workflow conflicts only *[v0.1.1 · A04]* |
+| Idempotency | `Idempotency-Key` (UUID) REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval, export generation; SHOULD for creates; scope, 24 h retention and replay/conflict semantics per API Specification §11 *[v0.1.1 · A11]* |
+| Schema | Generated OpenAPI 3.1 in `contracts/openapi.yaml`; lint and contract diff in CI *[v0.1.1 · A11]* |
 
-High-impact actions SHOULD use command-style endpoints when a generic CRUD update would obscure required checks, for example `/entities/{id}/merge`, `/reviews/{id}/approve`, `/disseminations/{id}/authorize`, and `/cases/{id}/gates/{gate}/approve`.
+High-impact actions SHOULD use command-style endpoints when a generic CRUD update would obscure required checks, for example `/entities/merge`, `/reviews/{id}/approve`, `/disseminations/{id}/approve`, and `/cases/{id}/gates/{gate}/approve` (aligned with the API Specification v0.1.1 endpoint catalogue). *[v0.1.1 · A11]*
 
 # 12. Background Jobs and Idempotency
 
@@ -330,8 +348,8 @@ Intelligence products SHALL be generated from versioned assessments and evidence
 | **Class** | **Examples** | **Rule** |
 |:--:|----|----|
 | Non-secret config | public base URL, feature flags, limits | Environment or config file; versionable defaults |
-| Secret | DB password, OIDC client secret, S3 key | Secret store/environment injection; never committed |
-| Security policy | session timeout, export limits, protected-source policy | Central server config; changes audited where material |
+| Secret | DB password, OIDC client secret, Django session/CSRF secret key, object-store (S3-compatible) access key, Valkey password | Secret store/environment injection; never committed *[v0.1.1 · A02, A03, A11]* |
+| Security policy | idle and absolute session timeout, export limits, protected-source policy | Central server config; changes audited where material |
 | Controlled vocabulary | relationship types, classifications, statuses | Canonical DB with versioning and admin audit |
 
 `.env.example` SHALL contain names and safe examples only. Production secrets SHALL be provisioned outside the repository. Secret rotation procedures SHALL not require rebuilding application source code.
@@ -356,13 +374,15 @@ compose project (reference deployment)
 ├── worker       (Celery)
 ├── scheduler    (Celery beat, only if required)
 ├── postgres
-├── redis
-├── object-store (MinIO reference / external S3 supported)
+├── valkey       (Valkey 8.x, pinned digest; ADR-0006)
+├── object-store (S3-compatible; product per ADR-0005; external S3-compatible service supported)
 └── telemetry    (deployment-specific collectors)
 
 External or separately managed:
 └── Keycloak / OIDC IdP
 ```
+
+*[v0.1.1 · A02, A03]* — MinIO is no longer the reference object store; Redis is replaced by Valkey.
 
 Database and object storage SHOULD be separately backed up and SHOULD use persistent volumes not coupled to application container lifecycle. Production deployments SHOULD pin container image digests after build/release approval.
 
@@ -374,7 +394,7 @@ Database and object storage SHOULD be separately backed up and SHOULD use persis
 
 - CI SHALL run dependency vulnerability scanning and container image scanning before release.
 
-- Generated SBOM SHOULD be attached to release artifacts.
+- Generated SBOM SHOULD be attached to release artifacts and SHALL record the licence of each pinned infrastructure dependency (including the broker/cache and object store). *[v0.1.1 · A03]*
 
 - Production images SHALL be built in CI, not on the production server.
 
@@ -410,7 +430,7 @@ Release Candidate
 | Tests | Unit + integration + authorization tests pass |
 | Migrations | No unapplied model drift; migration plan reviewed |
 | Security | Dependency/SAST/image findings triaged; release blocker policy applied |
-| Contract | OpenAPI generation succeeds; intentional breaking changes documented |
+| Contract | `contracts/openapi.yaml` generation and lint succeed; contract tests pass; intentional breaking changes documented *[v0.1.1 · A11]* |
 | Release | Version, changelog, build metadata and rollback/migration notes available |
 
 # 21. Testing Stack and Test Pyramid
@@ -504,9 +524,9 @@ P0 does not require OpenAleph, OpenSanctions, Flowintel, GraphSense, OpenSearch 
 
 # 28. Security Hardening Baseline
 
-- TLS for all non-local traffic; secure cookie/session attributes; HSTS where deployment permits.
+- TLS for all non-local traffic; session cookie `__Host-csaml_session` with HttpOnly, Secure, SameSite=Lax, Path=/; HSTS where deployment permits. *[v0.1.1 · A11]*
 
-- CSRF protection for cookie-authenticated state changes; strict CORS allowlist if cross-origin API is used.
+- CSRF protection (`X-CSRFToken`) for every unsafe method; API is same-origin and CORS is disabled by default. *[v0.1.1 · A11]*
 
 - File upload size/type limits, quarantine path, safe content-disposition and no direct executable serving.
 
@@ -558,9 +578,13 @@ docs/adr/
 ├── 0001-modular-monolith.md
 ├── 0002-postgresql-canonical-store.md
 ├── 0003-s3-evidence-storage.md
-├── 0004-keycloak-oidc.md
+├── 0004-keycloak-oidc.md          # Keycloak OIDC with server-side BFF session
+├── 0005-object-storage.md         # S3-compatible product selection
+├── 0006-broker-cache-valkey.md    # Valkey 8.x pinned release and licence
 └── ...
 ```
+
+*[v0.1.1 · A02, A03, A11]* — ADR-0004 records the BFF session decision (confidential client, Authorization Code + PKCE, session cookie, CSRF). ADR-0005 records the chosen object-store product and release line, maintenance status, licence, patch path, S3 compatibility test evidence and backup/restore test evidence. ADR-0006 records the pinned Valkey release, its licence (BSD-3-Clause) and the matching SBOM entry.
 
 # 33. Repository Documentation Set
 
@@ -595,8 +619,8 @@ docs/adr/
 
 | **Increment** | **Technical milestone** | **Exit evidence** |
 |:--:|----|----|
-| I0 | Repository + Compose + PostgreSQL + S3 + Redis + CI + audit skeleton | Fresh checkout boots; migrations/tests pass; evidence round-trip works |
-| I1 | OIDC + policy + case workspace | Two users with different permissions demonstrate isolation |
+| I0 | Repository + Compose + PostgreSQL + S3-compatible object store (ADR-0005) + Valkey + CI + audit skeleton *[v0.1.1 · A02, A03]* | Fresh checkout boots; migrations/tests pass; evidence round-trip works |
+| I1 | OIDC BFF session + policy + case workspace *[v0.1.1 · A11]* | Two users with different permissions demonstrate isolation |
 | I2 | Evidence + entity chain | Evidence-to-entity provenance trace demonstrated |
 | I3 | Relationships/assets/timeline/value flow | Case graph and flow preserve evidence and uncertainty class |
 | I4 | Typology/hypothesis/assessment | Competing hypotheses and confidence assessment complete |
@@ -669,7 +693,7 @@ MVP 0.1 SHALL NOT be considered technically releasable merely because all contai
 |----|----|
 | Architecture | Modular monolith; canonical PostgreSQL; evidence object storage; derived projections rebuildable |
 | Repository | Monorepo with backend/frontend/infra/docs/tests and documented ownership |
-| Identity | OIDC plus local object/case authorization; protected-source compartment |
+| Identity | OIDC with server-side BFF session plus local object/case authorization; protected-source compartment *[v0.1.1 · A11]* |
 | Data | Stable IDs, provenance, uncertainty classes, reversible entity merges |
 | Security | Server-side authorization, TLS, secret isolation, safe uploads, negative tests |
 | Audit | Material actions append auditable canonical events |
@@ -734,4 +758,4 @@ cs-aml/
 > **MVP technology posture**  
 > Build the distinctive CS-AML investigation and reasoning layer. Reuse mature infrastructure for identity, relational storage, object storage, async execution, telemetry and browser graph rendering. Avoid adding a dedicated search cluster, graph database, Kubernetes, microservices or AI gateway until a measured requirement justifies the operational cost.
 
-This specification is the technical baseline for implementation planning. The next planning artifact SHOULD be the CS-AML Sprint & Milestone Plan, which assigns the engineering stories to ordered increments, identifies parallel work, defines review checkpoints, and establishes release evidence for each milestone.
+This specification is the proposed technical baseline for implementation planning (draft for review). *[v0.1.1 · A01]* The next planning artifact SHOULD be the CS-AML Sprint & Milestone Plan, which assigns the engineering stories to ordered increments, identifies parallel work, defines review checkpoints, and establishes release evidence for each milestone.

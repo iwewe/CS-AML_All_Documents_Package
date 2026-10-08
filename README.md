@@ -2,10 +2,18 @@
 
 **Civil Society Anti-Money Laundering & Financial Intelligence Framework**
 
-Paket dokumentasi lengkap CS-AML versi **v0.1** (Oktober 2026): kerangka metodologi, spesifikasi produk, rekayasa, dan antarmuka untuk aplikasi intelijen keuangan berbasis masyarakat sipil, beserta hasil audit dokumentasinya.
+Paket dokumentasi lengkap CS-AML: kerangka metodologi, spesifikasi produk, rekayasa, dan antarmuka untuk aplikasi intelijen keuangan berbasis masyarakat sipil, beserta hasil audit dokumentasinya.
 
-> **Status: Normative Draft v0.1 — belum tervalidasi.**
-> Audit 7 Oktober 2026 mencatat 16 temuan terbuka (9 tinggi, 6 sedang, 1 rendah). Paket ini belum layak diperlakukan sebagai baseline implementasi final. Lihat [`Audit/`](Audit/) sebelum memakai dokumen ini sebagai acuan.
+> **Status: v0.1.1 — Draft for Review (Proposed Internal Baseline). Belum tervalidasi.**
+> Koreksi atas 16 temuan audit (7 Oktober 2026) sudah diterapkan pada file Markdown. Beberapa keputusan masih berstatus *usulan* dan menunggu persetujuan pemilik produk. Belum ada implementasi atau pengujian yang membuktikan isi spesifikasi ini. Lihat [`CHANGELOG.md`](CHANGELOG.md).
+
+## Panduan untuk programmer
+
+- **Gunakan file Markdown `Documents/*_v0.1.1*.md`.** File-file ini berisi teks lengkap setiap dokumen beserta koreksi audit, dan menjadi sumber acuan utama.
+- **DOCX dan PDF adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1, jadi jangan dipakai sebagai acuan implementasi.
+- Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*`. Axx adalah ID temuan di [`Audit/`](Audit/).
+- Untuk kerangka, gunakan `CS-AML_Framework_v0.1.1_Expanded.md`. File `CS-AML_Framework_v0.1.1.md` berstatus *legacy*.
+- Hal-hal yang belum selesai (OpenAPI, ADR, beberapa enum) tercantum di bagian **Still open** pada `CHANGELOG.md`.
 
 ## Rantai analitis inti
 
@@ -17,69 +25,82 @@ SOURCE → EVIDENCE → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INT
 
 ```
 .
-├── Documents/     23 dokumen spesifikasi (DOCX, PDF, dan sebagian Markdown)
-├── Audit/         Laporan audit dokumentasi, register temuan, dan rencana perbaikan
-└── MANIFEST.txt   Daftar seluruh file dalam paket
+├── Documents/      23 dokumen: Markdown v0.1.1 (acuan) + DOCX/PDF v0.1 (arsip)
+├── Audit/          Laporan audit, register temuan, rencana perbaikan
+├── tools/docx2md/  Konverter DOCX → Markdown yang dipakai untuk v0.1.1
+├── CHANGELOG.md    Keputusan dan perubahan v0.1.1 per temuan audit
+└── MANIFEST.txt    Daftar seluruh file
 ```
 
 ## Daftar dokumen
 
-Setiap dokumen tersedia dalam format **DOCX** (sumber normatif) dan **PDF**. Sebagian besar juga punya file **Markdown**, tetapi banyak di antaranya hanya *companion* ringkas, bukan salinan penuh (temuan audit A12). Untuk isi lengkap, gunakan DOCX.
+Nama file mengikuti pola `CS-AML_<Judul>_v0.1.1.md` (acuan) dan `CS-AML_<Judul>_v0.1.docx/.pdf` (arsip).
 
 ### Kerangka & metodologi
 
-| Dokumen | MD |
-|---|:-:|
-| CS-AML Framework | ✓ |
-| CS-AML Framework (Expanded) | ✓ |
-| Framework Goals and Non-Goals | — |
-| Investigation Methodology | ✓ |
-| Typology Catalogue | — |
-| Control Implementation Guide | ✓ |
+| Dokumen | Catatan |
+|---|---|
+| CS-AML Framework (Expanded) | Kerangka induk |
+| CS-AML Framework | *Legacy*, digantikan versi Expanded |
+| Framework Goals and Non-Goals | |
+| Investigation Methodology | |
+| Typology Catalogue | 20 tipologi; katalog CS-AML, bukan daftar resmi FATF |
+| Control Implementation Guide | |
 
 ### Produk & kebutuhan
 
-| Dokumen | MD |
-|---|:-:|
-| Product Requirements Document (PRD) | ✓ |
-| Product and Feature Specification | ✓ |
-| Software Requirements Specification (SRS) | ✓ |
+| Dokumen | Catatan |
+|---|---|
+| Product Requirements Document (PRD) | |
+| Product and Feature Specification | 88 fitur (55 P0, 26 P1, 7 P2) |
+| Software Requirements Specification (SRS) | |
 
 ### Arsitektur & rekayasa
 
-| Dokumen | MD |
-|---|:-:|
-| Technology Architecture | ✓ |
-| Technical Stack and Repository Specification | ✓ |
-| Data Model Specification | ✓ |
-| API Specification | ✓ |
-| Frontend Architecture and State Management Specification | ✓ |
-| MVP Engineering Breakdown | ✓ |
-| Sprint and Milestone Plan | ✓ |
+| Dokumen | Catatan |
+|---|---|
+| Technology Architecture | Kapabilitas memakai namespace `TA-CAP-xx` |
+| Technical Stack and Repository Specification | |
+| Data Model Specification | Registry enum (Annex A) |
+| API Specification | |
+| Frontend Architecture and State Management Specification | |
+| MVP Engineering Breakdown | |
+| Sprint and Milestone Plan | |
 
 ### UX & antarmuka
 
-| Dokumen | MD |
-|---|:-:|
-| UX Specification | ✓ |
-| Information Architecture Specification | ✓ |
-| Screen Inventory | ✓ |
-| Wireframe Specification | ✓ |
-| High-Fidelity UI Specification | ✓ |
-| UI Design System Specification | ✓ |
-| Component Inventory and Storybook Implementation Specification | ✓ |
+| Dokumen | Catatan |
+|---|---|
+| UX Specification | |
+| Information Architecture Specification | |
+| Screen Inventory | 53 ID layar (50 layar kerja + 3 layar status sistem) |
+| Wireframe Specification | |
+| High-Fidelity UI Specification | |
+| UI Design System Specification | |
+| Component Inventory and Storybook Implementation Specification | 65 komponen |
 
-Nama file mengikuti pola `CS-AML_<Judul>_v0.1.<ext>`.
+## Keputusan utama v0.1.1
+
+| Topik | Keputusan |
+|---|---|
+| Template produk MVP | 6: Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, Case Report |
+| Klasifikasi | `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`; label tak dikenal → akses ditolak (fail closed) |
+| Object storage | S3-compatible; produk dipilih lewat ADR-0005 (MinIO Community bukan lagi default) |
+| Broker/cache | Valkey 8.x (BSD-3-Clause), versi dikunci (ADR-0006) |
+| Autentikasi browser | Session cookie di server (BFF) lewat OIDC Keycloak; token tidak pernah sampai ke JavaScript |
+| Konflik versi | `If-Match` usang → 412, tanpa `If-Match` → 428, konflik workflow → 409 |
+| Enum | `UPPER_SNAKE_CASE`; confidence `HIGH/MODERATE/LOW/INSUFFICIENT_BASIS` |
+| Claim/Fact | Lifecycle dengan VerificationDecision (*usulan, perlu persetujuan*) |
 
 ## Audit
 
 | File | Isi |
 |---|---|
-| [`CS-AML_Documentation_Audit_2026-10-07.md`](Audit/CS-AML_Documentation_Audit_2026-10-07.md) | Laporan audit konsistensi, sumber, dan kesiapan paket |
+| [`CS-AML_Documentation_Audit_2026-10-07.md`](Audit/CS-AML_Documentation_Audit_2026-10-07.md) | Laporan audit konsistensi, sumber, dan kesiapan paket v0.1 |
 | [`CS-AML_Audit_Register_2026-10-07.json`](Audit/CS-AML_Audit_Register_2026-10-07.json) | Register temuan A01–A16 beserta bukti dan hash file |
 | [`audit-cs-ml.md`](Audit/audit-cs-ml.md) | Rencana siklus perbaikan dokumentasi |
 
-Dokumen sumber belum diubah sejak audit; semua temuan masih berstatus terbuka.
+File audit tidak diubah dan tetap menggambarkan kondisi v0.1. Status perbaikan setiap temuan ada di `CHANGELOG.md`.
 
 ## Catatan penggunaan
 

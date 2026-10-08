@@ -2,9 +2,16 @@
 
 **Technology Architecture**
 
-Version 0.1
+Version 0.1.1
 
-*Normative derivative specification*
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Technology Architecture v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
+*Derivative specification — proposed normative baseline (draft for review)* *[v0.1.1 · A01]*
 
 **Civil Society Financial Intelligence / AML Investigation Framework**
 
@@ -14,9 +21,10 @@ Version 0.1
 | **Document field** | **Value** |
 |----|----|
 | Document ID | CSAML-TA-0.1 |
-| Status | Normative baseline |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
 | Applies to | Systems implementing CS-AML investigations and intelligence workflows |
-| Dependency | CS-AML Framework, Investigation Methodology, Data Model Specification, Control Implementation Guide, Typology Catalogue |
+| Dependency | CS-AML Framework v0.1.1 (Expanded), Investigation Methodology v0.1.1, Data Model Specification v0.1.1, Control Implementation Guide v0.1.1, Typology Catalogue v0.1.1 (Markdown, `Documents/*_v0.1.1*.md`) *[v0.1.1 · A01]* |
 | Normative language | SHALL / MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Architecture stance | Implementation-neutral core with non-normative reference profiles |
 
@@ -184,24 +192,51 @@ A single-server deployment MAY host all zones on one machine, but the applicatio
 
 # 4. Capability Architecture
 
+Technology Architecture capabilities use the namespace `TA-CAP-xx` (v0.1 used `CAP-xx`; order and meaning are unchanged). The product capability registry `CAP-01…CAP-15` in the Product & Feature Specification v0.1.1 §7 is authoritative for product capabilities; the crosswalk in §4.1 maps between them. *[v0.1.1 · A07]*
+
 | **ID** | **Capability** | **Minimum responsibility** |
 |----|----|----|
-| CAP-01 | Case & workflow | Intake, charter, gates, tasks, review, closure |
-| CAP-02 | Source & evidence | Acquisition, registration, hashing, extracts, provenance |
-| CAP-03 | Entity & identity | Entity creation, aliases, external identifiers, resolution |
-| CAP-04 | Relationships & ownership | Ownership, control, role, kinship/association, provenance |
-| CAP-05 | Assets & events | Asset registry, event timeline, valuation metadata |
-| CAP-06 | Value flow | Direct/documented/reconstructed/hypothetical value flows |
-| CAP-07 | Graph analysis | Network traversal, communities, paths, shared attributes |
-| CAP-08 | Search & discovery | Full text, fielded search, faceting, relationship search |
-| CAP-09 | Typology analysis | Catalogue, indicators, matching, analytical cautions |
-| CAP-10 | Hypothesis & assessment | Competing hypotheses, support/contradiction, gaps, confidence |
-| CAP-11 | Intelligence products | Structured reports, redaction, review, dissemination |
-| CAP-12 | Privacy & protection | Classification, minimisation, retention, source protection |
-| CAP-13 | Security & IAM | Identity, authorization, secrets, secure administration |
-| CAP-14 | Audit & assurance | Immutable audit events, control evidence, review history |
-| CAP-15 | Integration | APIs, imports, exports, connectors, interoperability |
-| CAP-16 | Operations | Observability, backup, DR, patching, health monitoring |
+| TA-CAP-01 | Case & workflow | Intake, charter, gates, tasks, review, closure |
+| TA-CAP-02 | Source & evidence | Acquisition, registration, hashing, extracts, provenance |
+| TA-CAP-03 | Entity & identity | Entity creation, aliases, external identifiers, resolution |
+| TA-CAP-04 | Relationships & ownership | Ownership, control, role, kinship/association, provenance |
+| TA-CAP-05 | Assets & events | Asset registry, event timeline, valuation metadata |
+| TA-CAP-06 | Value flow | Direct/documented/reconstructed/hypothetical value flows |
+| TA-CAP-07 | Graph analysis | Network traversal, communities, paths, shared attributes |
+| TA-CAP-08 | Search & discovery | Full text, fielded search, faceting, relationship search |
+| TA-CAP-09 | Typology analysis | Catalogue, indicators, matching, analytical cautions |
+| TA-CAP-10 | Hypothesis & assessment | Competing hypotheses, support/contradiction, gaps, confidence |
+| TA-CAP-11 | Intelligence products | Structured reports, redaction, review, dissemination |
+| TA-CAP-12 | Privacy & protection | Classification, minimisation, retention, source protection |
+| TA-CAP-13 | Security & IAM | Identity, authorization, secrets, secure administration |
+| TA-CAP-14 | Audit & assurance | Immutable audit events, control evidence, review history |
+| TA-CAP-15 | Integration | APIs, imports, exports, connectors, interoperability |
+| TA-CAP-16 | Operations | Observability, backup, DR, patching, health monitoring |
+
+## 4.1 Crosswalk TA-CAP ↔ product CAP *[v0.1.1 · A07]*
+
+Primary mapping first; secondary mappings in parentheses. Product capability names are from the Product & Feature Specification v0.1.1 §7.
+
+| **TA-CAP** | **Technology capability** | **Product capability (CAP)** |
+|----|----|----|
+| TA-CAP-01 | Case & workflow | CAP-01 Case & Workflow |
+| TA-CAP-02 | Source & evidence | CAP-02 Source & Evidence (CAP-03 Document Intelligence for upload/extraction) |
+| TA-CAP-03 | Entity & identity | CAP-04 Entity & Identity |
+| TA-CAP-04 | Relationships & ownership | CAP-05 Relationship / Ownership / Asset |
+| TA-CAP-05 | Assets & events | CAP-05 Relationship / Ownership / Asset (assets); CAP-06 Timeline & Events (events) |
+| TA-CAP-06 | Value flow | CAP-07 Value-Flow |
+| TA-CAP-07 | Graph analysis | CAP-10 Search / Graph / Analytics |
+| TA-CAP-08 | Search & discovery | CAP-10 Search / Graph / Analytics |
+| TA-CAP-09 | Typology analysis | CAP-08 Typology & Indicator |
+| TA-CAP-10 | Hypothesis & assessment | CAP-09 Hypothesis & Assessment |
+| TA-CAP-11 | Intelligence products | CAP-11 Intelligence Products & Review (CAP-12 Dissemination & Referral) |
+| TA-CAP-12 | Privacy & protection | CAP-13 Administration & Governance (retention, policies); CAP-14 Security / Audit / Operations (classification enforcement, source protection) |
+| TA-CAP-13 | Security & IAM | CAP-14 Security / Audit / Operations |
+| TA-CAP-14 | Audit & assurance | CAP-14 Security / Audit / Operations |
+| TA-CAP-15 | Integration | CAP-15 Integrations & Automation (CAP-12 Dissemination & Referral for exports) |
+| TA-CAP-16 | Operations | CAP-14 Security / Audit / Operations |
+
+Product CAP-03 Document Intelligence and CAP-12 Dissemination & Referral have no dedicated TA-CAP; they are covered by TA-CAP-02 and TA-CAP-11/TA-CAP-15 respectively.
 
 # 5. Logical Architecture
 
@@ -256,11 +291,11 @@ The architecture SHALL distinguish canonical records from derived projections. S
 | **Store class** | **Normative responsibility** | **Typical implementation (non-normative)** |
 |----|----|----|
 | Relational store | Canonical structured objects, integrity constraints, workflow state | PostgreSQL / equivalent |
-| Object store | Evidence files, archived source captures, generated products | S3-compatible / encrypted filesystem |
+| Object store | Evidence files, archived source captures, generated products | S3-compatible (versioning/object-lock-capable; product selected per ADR, see Technical Stack v0.1.1 ADR-0005) / encrypted filesystem *[v0.1.1 · A02]* |
 | Graph store | Relationship traversal and network analytics projection | Neo4j / Memgraph / graph extension / relational graph queries |
 | Search index | Full-text and faceted retrieval | OpenSearch / Elasticsearch / PostgreSQL FTS |
 | Audit/event store | Tamper-evident security and business audit events | Append-only database/table, WORM-capable store |
-| Cache/queue | Async ingestion and analytics jobs | Redis / message broker |
+| Cache/queue | Async ingestion and analytics jobs | Valkey (Redis-protocol compatible) / message broker *[v0.1.1 · A03]* |
 
 ## 6.3 Object identity and referential integrity
 
@@ -324,7 +359,7 @@ ACQUIRE -> REGISTER -> HASH -> CLASSIFY -> PRESERVE ORIGINAL -> EXTRACT -> VERIF
 |----|----|----|
 | EvidenceExtract | Evidence | Evidence + source locator |
 | Claim | EvidenceExtract / Evidence | Supporting evidence |
-| Fact | Claim(s) | Evidence basis + verification status |
+| Fact | Claim(s) | Evidence basis + VerificationDecision record + fact_status (PROVISIONAL/ESTABLISHED/DISPUTED/SUPERSEDED) *[v0.1.1 · A10]* |
 | Indicator | Fact / event / relationship / value flow | Underlying facts |
 | Hypothesis | Indicators / facts | Support and contradiction |
 | Assessment | Hypotheses / gaps | Reasoning basis + reviewer |
@@ -463,6 +498,8 @@ The timeline service SHALL combine Events from multiple source types while retai
 | RECONSTRUCTED | Analyst reconstruction from contracts/assets/events | Dashed or otherwise distinct |
 | HYPOTHETICAL | Possible flow used to test a hypothesis | Dotted; never included as established fact |
 
+Wire values of `flow_class` in storage, APIs and exports are the UPPER_SNAKE_CASE values above (`DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL`), derived from the Data Model Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
+
 ## 12.4 Flow composition
 
 ``` text
@@ -517,6 +554,8 @@ Typology technology supports structured comparison with known mechanisms. It SHA
 ## 14.2 Assessment service
 
 Assessment authoring SHALL provide direct access to cited evidence, confidence rationale, intelligence gaps, alternative explanations, peer-review findings, and previous versions.
+
+Confidence levels use the wire values `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`, with mandatory rationale for every level. `INSUFFICIENT_BASIS` (a judgement was attempted but the evidential basis is insufficient) is not a level below `LOW` and SHALL NOT be converted to `LOW`, null, zero, or omitted by any service, projection, search index or export. *[v0.1.1 · A09]*
 
 ## 14.3 Product generation
 
@@ -577,6 +616,8 @@ The architecture SHOULD apply zero-trust principles: no implicit trust based sol
 
 - Recovery processes SHALL be documented and auditable.
 
+- In the MVP reference profile, browser authentication is a server-side session (BFF): the application is a confidential OIDC client (Authorization Code + PKCE); access/refresh/ID tokens stay server-side and the browser holds only an HttpOnly session cookie, with CSRF protection on unsafe methods (API Specification v0.1.1 §4). *[v0.1.1 · A11]*
+
 ## 16.2 Authorization model
 
 ``` text
@@ -595,7 +636,7 @@ ALLOW = Role Permission
 | Role            | Analyst, Reviewer, Approver, Admin, Auditor              |
 | Case scope      | Member of Case A but not Case B                          |
 | Object class    | Source identity, raw evidence, public source, assessment |
-| Sensitivity     | Internal, Sensitive, Restricted, Source-Protected        |
+| Sensitivity     | Public, Internal, Sensitive, Restricted, Source-protected (wire: `PUBLIC` … `SOURCE_PROTECTED`, §17.1) *[v0.1.1 · A08]* |
 | Action          | View, annotate, link, merge, export, approve, administer |
 | Purpose/context | Active case purpose, break-glass emergency, legal hold   |
 
@@ -617,7 +658,9 @@ Emergency access MAY exist but SHALL require explicit reason, stronger authentic
 
 - Deletion/anonymisation SHALL preserve audit evidence necessary to explain that a controlled disposal occurred.
 
-## 17.1 Suggested classification model
+## 17.1 Classification model *[v0.1.1 · A08]*
+
+The five-level model of the Data Model Specification v0.1.1 §16 is authoritative. Wire values, ordered least → most restrictive, are `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display labels Public, Internal, Sensitive, Restricted, Source-protected; v0.1 wrote `SOURCE-PROTECTED`). Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive restrictions; the most restrictive applicable level plus all labels apply. Derived objects and exports inherit the highest classification of their inputs unless a recorded reviewer downgrade decision exists. Unknown or missing classification fails closed (deny access, flag for classification).
 
 | **Class** | **Example** | **Default treatment** |
 |----|----|----|
@@ -625,7 +668,7 @@ Emergency access MAY exist but SHALL require explicit reason, stronger authentic
 | INTERNAL | Analyst notes | Case members only |
 | SENSITIVE | Personal financial context, private correspondence lawfully held | Need-to-know; export restricted |
 | RESTRICTED | High-risk identity data, unpublished allegation | Strong access restrictions |
-| SOURCE-PROTECTED | Whistleblower identity or contact channel | Dedicated policy, minimal disclosure |
+| SOURCE_PROTECTED | Whistleblower identity or contact channel | Dedicated policy, minimal disclosure *[v0.1.1 · A08]* |
 
 # 18. Cryptography, Secrets, and Key Management
 
@@ -919,11 +962,11 @@ The following profiles are non-normative examples. Conformance is determined by 
 | Web/API | Django + Django REST Framework or equivalent |
 | Canonical database | PostgreSQL |
 | Spatial | PostGIS where geographic analysis is needed |
-| Evidence storage | Encrypted filesystem or S3-compatible object storage |
+| Evidence storage | Encrypted filesystem or S3-compatible object storage (product and release line selected by ADR, with maintenance status, licence and restore evidence; MinIO Community is not a default — its upstream repository was archived on 25 April 2026) *[v0.1.1 · A02]* |
 | Search | PostgreSQL FTS initially; OpenSearch when corpus/search needs grow |
 | Graph | Relational graph queries initially; Neo4j/Memgraph optional projection |
-| Async jobs | Celery/RQ + Redis or equivalent |
-| IAM | Keycloak / OIDC provider |
+| Async jobs | Celery/RQ + Valkey 8.x (Redis-protocol compatible, BSD-3-Clause; pinned release) or equivalent *[v0.1.1 · A03]* |
+| IAM | Keycloak / OIDC provider; browser access via a server-side session (BFF) — tokens are not exposed to the browser *[v0.1.1 · A11]* |
 | Reverse proxy | Nginx / Caddy |
 | Observability | OpenTelemetry + Prometheus/Grafana or equivalent |
 | Deployment | Containers or VMs on Linux |
@@ -1126,7 +1169,7 @@ The CS-AML Technology Architecture is implementation-neutral. The following exte
 2. Evidence Service stores original + hash + acquisition metadata
 3. Extract created for relevant paragraph/page
 4. Claim created and linked to extract
-5. Fact verified from corroborating evidence
+5. Fact promoted from claim(s) as PROVISIONAL with a VerificationDecision citing corroborating evidence; ESTABLISHED only after review by someone other than the proposer   [v0.1.1 · A10]
 6. Entity created / resolved to canonical identity
 7. Relationship created with evidence + confidence + valid time
 8. Graph projection updates asynchronously
@@ -1142,4 +1185,4 @@ The CS-AML Technology Architecture is implementation-neutral. The following exte
 
 # Document Status and Change Control
 
-Version 0.1 is a normative baseline intended for controlled implementation and field testing. Architecture changes that alter trust boundaries, canonical object semantics, dissemination controls, source protection, audit integrity, or the distinction between evidence and analytical inference SHOULD be treated as framework-level changes rather than ordinary implementation choices.
+Version 0.1.1 is a proposed normative baseline (draft for review), not validated, intended for controlled implementation and field testing after review. *[v0.1.1 · A01]* Architecture changes that alter trust boundaries, canonical object semantics, dissemination controls, source protection, audit integrity, or the distinction between evidence and analytical inference SHOULD be treated as framework-level changes rather than ordinary implementation choices.

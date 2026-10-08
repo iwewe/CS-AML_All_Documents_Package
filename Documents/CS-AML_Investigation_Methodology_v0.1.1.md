@@ -1,24 +1,31 @@
 **CS-AML  
 INVESTIGATION METHODOLOGY**
 
-Official Derived Methodology · Version 0.1
+Derived Methodology · Version 0.1.1
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-Normative Draft · October 2026
+Draft for Review · October 2026
 
-Civil Society Anti-Money Laundering & Financial Intelligence Framework — Official Derived Methodology
+Civil Society Anti-Money Laundering & Financial Intelligence Framework — Derived Methodology
 
-Status: Normative Draft / Derived Standard \| Version: 0.1 \| Date: October 2026
+Status: Draft for Review (Proposed Internal Baseline) \| Version: 0.1.1 \| Date: October 2026 *[v0.1.1 · A01]*
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Investigation Methodology v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 # 0. Document Control
 
 | **Field** | **Value** |
 |----|----|
-| Document title | CS-AML Investigation Methodology v0.1 |
-| Parent standard | CS-AML Framework v0.1 |
-| Companion standard | CS-AML Typology Catalogue v0.1 |
-| Status | Normative Draft / Official Derived Methodology |
+| Document title | CS-AML Investigation Methodology v0.1.1 *[v0.1.1 · A01]* |
+| Parent standard | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) *[v0.1.1 · A01]* |
+| Companion standard | CS-AML Typology Catalogue v0.1.1 (`CS-AML_Typology_Catalogue_v0.1.1.md`) *[v0.1.1 · A01]* |
+| Status | Draft for Review (Proposed Internal Baseline) / Derived Methodology *[v0.1.1 · A01]* |
 | Primary audience | Civil society organisations, investigative journalists, public-interest researchers, anti-corruption organisations, environmental and human-rights organisations, digital-rights organisations, research institutions, and trusted technical partners. |
 | Primary use | Lawful, evidence-based financial investigation and intelligence analysis performed without coercive state powers or privileged access to regulated financial systems. |
 | Normative language | MUST/SHALL = mandatory; SHOULD = recommended unless documented justification exists; MAY = optional capability. |
@@ -65,14 +72,14 @@ This methodology does not authorise hacking, covert interception, credential the
 
 # 2. Foundations and External Alignment
 
-CS-AML adopts a risk-based and evidence-based approach. FATF standards treat understanding of money-laundering risk as central to prioritising resources. FATF financial-investigation guidance recognises financial investigation and asset tracing as core operational elements for competent authorities, while UNODC recognises that civil society can support asset tracing through open-source investigation, financial investigation, forensic auditing, and legal analysis. PPATK has publicly recognised that information from NGO/CSO and the public can support early detection and financial-intelligence analysis. CS-AML adapts these ideas to a non-coercive civil-society setting.
+CS-AML adopts a risk-based and evidence-based approach. FATF standards treat understanding of money-laundering risk as central to prioritising resources. FATF financial-investigation guidance recognises financial investigation and asset tracing as core operational elements for competent authorities (pending verification — specific publication/section not yet identified), while UNODC recognises that civil society can support asset tracing through open-source investigation, financial investigation, forensic auditing, and legal analysis (pending verification — page-level support not confirmed). *[v0.1.1 · A13]* PPATK has publicly recognised that information from NGO/CSO and the public can support early detection and financial-intelligence analysis. CS-AML adapts these ideas to a non-coercive civil-society setting.
 
 | **Reference lineage** | **Methodological implication** |
 |----|----|
 | FATF Recommendations (amended June 2026) | Risk-based proportionality; focus resources on higher-risk areas; distinguish technical controls from effectiveness. |
 | FATF Money Laundering National Risk Assessment Guidance (updated 2025) | Use structured, evidence-based, dynamic risk understanding; document assumptions and changing context. |
-| FATF Financial Investigations Guidance | Treat financial investigation and asset tracing as structured operational disciplines; maintain links between evidence, proceeds, assets, and offences. |
-| UNODC asset tracing / civil-society guidance | Use public records and lawful sources; generate information on assets, origin, ownership, and control; distinguish access authority from analytical usefulness. |
+| FATF Financial Investigations Guidance (pending verification — specific publication/section not yet identified) | Treat financial investigation and asset tracing as structured operational disciplines; maintain links between evidence, proceeds, assets, and offences. *[v0.1.1 · A13]* |
+| UNODC asset tracing / civil-society guidance (pending verification — page-level support not confirmed) | Use public records and lawful sources; generate information on assets, origin, ownership, and control; distinguish access authority from analytical usefulness. *[v0.1.1 · A13]* |
 | PPATK NGO/CSO public complaint initiative (2025) | Improve quality, structure, and supporting information in civil-society referrals. |
 
 # 3. Investigation Lifecycle
@@ -330,6 +337,8 @@ Analytical discipline requires separating what a source says from what the inves
 
 Facts SHALL be time-bounded where status may change. “Person A is director” without a date can be materially misleading.
 
+The stored states for these objects follow the Data Model Specification v0.1.1, Sections 7.4–7.6 (proposed lifecycle, pending product-owner approval): a Claim carries `claim_status` (RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED) — “Corroborated claim” above corresponds to CORROBORATED — and a Fact carries `fact_status` (PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED). A Claim becomes a Fact only through a recorded VerificationDecision. *[v0.1.1 · A09, A10]*
+
 # 12. Entity Resolution Methodology
 
 Entity resolution SHALL precede high-impact graph conclusions. Name similarity alone is insufficient for merging records.
@@ -359,7 +368,7 @@ Entity resolution SHALL precede high-impact graph conclusions. Name similarity a
 | **Outcome** | **Meaning** |
 |----|----|
 | MERGED | Records represent the same entity with sufficient confidence. |
-| LINKED-POSSIBLE | Likely or possible same entity; keep separate records with candidate link. |
+| LINKED_POSSIBLE | Likely or possible same entity; keep separate records with candidate link. *[v0.1.1 · A09]* |
 | SEPARATE | Evidence indicates distinct entities. |
 | UNRESOLVED | Insufficient evidence. |
 
@@ -465,12 +474,12 @@ Observed associated assets SHALL NOT be described as “hidden wealth” unless 
 
 # 16. Value-Flow Reconstruction
 
-Follow-the-value is the central analytical adaptation for civil society. A value flow may be direct, documentary, or reconstructed. The method SHALL preserve that distinction.
+Follow-the-value is the central analytical adaptation for civil society. A value flow SHALL be classified as DIRECT, DOCUMENTED, RECONSTRUCTED, or HYPOTHETICAL (wire values of `flow_class`, defined in the Data Model Specification v0.1.1, Annex A). The method SHALL preserve that distinction. *[v0.1.1 · A09]*
 
 | **Flow class** | **Evidence threshold** | **Example** |
 |----|----|----|
 | DIRECT | Direct transaction/account/blockchain record lawfully available. | Account A → Account B, amount/date supported by record. |
-| DOCUMENTED ECONOMIC | Contract, invoice, loan, dividend, asset sale, grant, procurement payment documented. | Agency awards Rp X contract to Company A. |
+| DOCUMENTED (display: Documented economic) *[v0.1.1 · A09]* | Contract, invoice, loan, dividend, asset sale, grant, procurement payment documented. | Agency awards Rp X contract to Company A. |
 | RECONSTRUCTED | Sequence inferred from multiple economic events without direct transfer record. | Contract revenue precedes related entity property acquisition; causal link not directly proven. |
 | HYPOTHETICAL | Analytical scenario requiring evidence. | Possible movement through intermediary Company C. |
 
@@ -498,7 +507,7 @@ Follow-the-value is the central analytical adaptation for civil society. A value
 
 ## 16.2 Reconstruction rule
 
-A reconstructed flow SHALL NOT be visualised or described in a way that is indistinguishable from a directly evidenced transaction. Diagrams SHOULD use different line styles or labels such as “documented”, “reconstructed”, and “hypothetical”.
+A reconstructed flow SHALL NOT be visualised or described in a way that is indistinguishable from a directly evidenced transaction. Diagrams SHOULD use different line styles and display labels (e.g. “Documented”, “Reconstructed”, “Hypothetical”) mapped from the stored `flow_class` value; display labels SHALL NOT replace the stored value. *[v0.1.1 · A09]*
 
 # 17. Typology Analysis
 
@@ -614,6 +623,9 @@ Confidence describes the analyst’s confidence in an assessment given evidence 
 | LOW | Material evidence is limited, conflicting, weakly corroborated, or core identity/value-flow questions remain unresolved. |
 | MODERATE | Multiple evidence lines support the judgement, but important gaps or viable alternatives remain. |
 | HIGH | Multiple independent, strong evidence lines converge; key alternatives have been tested and materially weakened; critical gaps are limited. |
+| INSUFFICIENT_BASIS | A judgement was attempted but the available evidential basis is insufficient to support any confidence level. This is not a level below LOW. *[v0.1.1 · A09]* |
+
+Confidence wire values are `HIGH`, `MODERATE`, `LOW`, and `INSUFFICIENT_BASIS` (Data Model Specification v0.1.1, Section 14.1 and Annex A). A rationale is mandatory for every value. INSUFFICIENT_BASIS SHALL NOT be converted to LOW, null, zero, or omitted; a missing (null) confidence is permitted only on drafts where no judgement has yet been made, and a finalized assessment SHALL carry a non-null value. *[v0.1.1 · A09]*
 
 ## 20.1 Confidence statement format
 
@@ -741,15 +753,19 @@ The same analysis may require different products for internal decision-makers, t
 
 ## 25.1 Dissemination classification
 
-- INTERNAL — organisation only.
+Every product SHALL carry an information classification from the five-level CS-AML model (Data Model Specification v0.1.1, Section 16): PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE_PROTECTED. Unknown or missing classification fails closed. A product inherits the highest classification of its inputs unless a recorded reviewer downgrade decision exists. *[v0.1.1 · A08]*
 
-- RESTRICTED — named project/partner group.
+The intended dissemination scope is recorded separately from the classification, with access labels where needed: *[v0.1.1 · A08]*
 
-- CONFIDENTIAL — need-to-know, sensitive sources or data.
+- Organisation only (internal use).
 
-- REFERRAL — prepared for competent authority or designated recipient.
+- Named project/partner group — recorded as a compartment/purpose access label, not as a classification level.
 
-- PUBLIC — approved for public release.
+- Referral — prepared for a competent authority or designated recipient; recorded as a Dissemination record (recipient, purpose), not as a classification level.
+
+- Public release — requires classification PUBLIC after review and approval.
+
+Legacy note: v0.1 listed INTERNAL / RESTRICTED / CONFIDENTIAL / REFERRAL / PUBLIC here. CONFIDENTIAL (need-to-know, sensitive sources or data) maps to SENSITIVE or RESTRICTED as decided by the data owner, or to SOURCE_PROTECTED where the reason is source-identifying information; it SHALL NOT be mapped automatically. *[v0.1.1 · A08]*
 
 ## 25.2 Referral threshold
 
@@ -905,7 +921,7 @@ Small organisations MAY combine roles, but high-impact dissemination SHOULD pres
 
 # 30. Conformance Requirements for Methodology
 
-An implementation claiming alignment with CS-AML Investigation Methodology v0.1 SHALL demonstrate the following minimum artefacts for a material investigation:
+An implementation claiming alignment with CS-AML Investigation Methodology v0.1.1 SHALL demonstrate the following minimum artefacts for a material investigation:
 
 - Intake/Triage Record.
 
@@ -1101,8 +1117,8 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1 
 | Matching attributes    |                                                  |
 | Conflicting attributes |                                                  |
 | Evidence               |                                                  |
-| Decision               | MERGED / LINKED-POSSIBLE / SEPARATE / UNRESOLVED |
-| Confidence             | LOW / MODERATE / HIGH                            |
+| Decision               | MERGED / LINKED_POSSIBLE / SEPARATE / UNRESOLVED *[v0.1.1 · A09]* |
+| Confidence             | HIGH / MODERATE / LOW / INSUFFICIENT_BASIS *[v0.1.1 · A09]* |
 | Analyst                |                                                  |
 | Reviewer               |                                                  |
 | Date                   |                                                  |
@@ -1244,18 +1260,20 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1 
 
 - FATF, Money Laundering National Risk Assessment Guidance, updated 28 August 2025.
 
-- FATF, Financial Investigations Guidance (Operational Issues).
+- FATF, Financial Investigations Guidance (Operational Issues). Pending verification — specific publication/section not yet identified. *[v0.1.1 · A13]*
 
 - FATF, Investigating Professional Money Laundering, Underground Banking, and the Use of Hawala and Other Similar Service Providers, 3 September 2026.
 
-- United Nations Office on Drugs and Crime (UNODC), Civil Society Guide to the UNCAC / civil-society entry points for asset tracing and recovery.
+- United Nations Office on Drugs and Crime (UNODC), Civil Society Guide to the UNCAC / civil-society entry points for asset tracing and recovery (https://www.unodc.org/documents/NGO/Corruption/251113-CSU-UNCAC_Guide-Web.pdf). Pending verification — page-level support not confirmed. *[v0.1.1 · A13]*
 
-- UNODC, Manual on International Cooperation for the Purposes of Confiscation of Proceeds of Crime — asset tracing sections.
+- UNODC, Manual on International Cooperation for the Purposes of Confiscation of Proceeds of Crime — asset tracing sections. Pending verification — specific publication/section not yet identified. *[v0.1.1 · A13]*
 
 - PPATK, Klinik Dumas Special Edition: PPATK dan NGO/CSO Perkuat Aduan TPPU melalui peluncuran lapor.ppatk.go.id, 26 November 2025.
 
-- CS-AML Framework v0.1 Expanded Normative Specification.
+- CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`). *[v0.1.1 · A01]*
 
-- CS-AML Typology Catalogue v0.1.
+- CS-AML Typology Catalogue v0.1.1 (`CS-AML_Typology_Catalogue_v0.1.1.md`). *[v0.1.1 · A01]*
 
-Reference lineage informs the methodology but does not transform CS-AML into an official FATF, UNODC, PPATK, FIU, law-enforcement, or regulated-entity standard. Jurisdiction-specific legal advice remains necessary for sensitive collection, data processing, referral, and publication decisions.
+- CS-AML Data Model Specification v0.1.1 (`CS-AML_Data_Model_Specification_v0.1.1.md`) — authoritative registry for classification, flow-class, and confidence enumerations. *[v0.1.1 · A08, A09]*
+
+Reference lineage informs the methodology; it does not mean that each CS-AML step, gate (G0–G6), grade, or threshold is derived from a cited source — these are CS-AML design conventions unless a specific source is cited. *[v0.1.1 · A13, N01]* Reference lineage does not transform CS-AML into an official FATF, UNODC, PPATK, FIU, law-enforcement, or regulated-entity standard. Jurisdiction-specific legal advice remains necessary for sensitive collection, data processing, referral, and publication decisions.

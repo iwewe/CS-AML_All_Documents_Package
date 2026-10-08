@@ -2,15 +2,22 @@
 
 **High-Fidelity UI Specification**
 
-Version 0.1
+Version 0.1.1
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML High-Fidelity UI Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Purpose**  
-> Normative visual-composition baseline for translating CS-AML wireframes and UI design-system rules into production-ready desktop interfaces for MVP 0.1.
+> Proposed visual-composition baseline (draft for review) for translating CS-AML wireframes and UI design-system rules into desktop interfaces for MVP 0.1. This document is a composition reference written in prose; it is not a set of finished mockups, and no screen described here has been designed at high fidelity, implemented or usability-tested. *[v0.1.1 · A01; N07]*
 
 > **Core visual axiom**  
 > High visual fidelity SHALL improve comprehension without manufacturing certainty. Visual hierarchy may emphasize task relevance, state, and provenance, but SHALL NOT imply guilt, criminality, reliability, or analytical importance beyond the underlying record.
 
-Status: Normative UI composition baseline for MVP 0.1
+Status: Draft for Review (Proposed Internal Baseline) — proposed UI composition baseline for MVP 0.1 *[v0.1.1 · A01]*
 
 Dependencies: UX Specification · Information Architecture · Screen Inventory · Wireframe Specification · UI Design System
 
@@ -19,8 +26,8 @@ Dependencies: UX Specification · Information Architecture · Screen Inventory �
 | **Attribute** | **Value** |
 |----|----|
 | Document ID | CSAML-HIFI-UI-0.1 |
-| Version | 0.1 |
-| Status | Normative high-fidelity UI baseline |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) — proposed high-fidelity UI composition reference *[v0.1.1 · A01]* |
 | Primary audience | Product Designer, UX Engineer, Frontend Engineer, QA, Product Owner |
 | Applies to | MVP 0.1 production interfaces |
 | Primary source IDs | SCR-\* screen IDs; WF-PAT-\* layout patterns |
@@ -28,7 +35,7 @@ Dependencies: UX Specification · Information Architecture · Screen Inventory �
 
 # 1. Scope and Boundary
 
-This specification defines visual composition at production fidelity. It determines how approved wireframe regions and design-system primitives are assembled into concrete screens. It does not replace the UX specification, information architecture, canonical screen inventory, or component implementation specification.
+This specification defines visual composition at production fidelity. It determines how the wireframe regions and design-system primitives are assembled into concrete screens. *[v0.1.1 · A01]* It does not replace the UX specification, information architecture, canonical screen inventory, or component implementation specification.
 
 | **Document** | **Owns** |
 |----|----|
@@ -114,10 +121,10 @@ This specification defines visual composition at production fidelity. It determi
 | Object identity block | Type icon + canonical name + stable ID + state badges | No allegation language; aliases secondary. |
 | Case context block | Case title + case ID + classification + owner/status | Case is context, not container identity for canonical object. |
 | Provenance strip | Source/Evidence ID + citation location + reliability/credibility + open action | Direct route to underlying evidence where authorized. |
-| Analytical-state badge | Label + icon/pattern | Claim, Fact, Inference, Candidate, Disputed, Unknown distinct. |
-| Flow-class legend | Line sample + label | DIRECT, DOCUMENTED, RECONSTRUCTED, HYPOTHETICAL always explicit. |
+| Analytical-state badge | Label + icon/pattern | Claim, Fact, Inference, Candidate, Disputed, Unknown distinct. A claim is never shown with the Fact treatment unless a recorded verification decision exists. *[v0.1.1 · A10]* |
+| Flow-class legend | Line sample + label | DIRECT, DOCUMENTED, RECONSTRUCTED, HYPOTHETICAL always explicit (these are the `flow_class` wire values; display labels map from them). *[v0.1.1 · A09]* |
 | Review block | Reviewer, version, status, issues, approval action | Author and reviewer identity separate. |
-| Classification banner | Classification + handling note | Only when materially useful; source identity never leaked. |
+| Classification banner | Classification + handling note | Only when materially useful; source identity never leaked. Levels: Public, Internal, Sensitive, Restricted, Source-protected (wire `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`); access labels shown as additional restrictions, not levels. *[v0.1.1 · A08]* |
 | Integrity warning | Prominent error surface + object ID + next action | Reserved for hash/version/integrity failures. |
 | Version chip | Version number + status + supersession | Current/superseded/retracted clear without relying on color. |
 
@@ -147,7 +154,7 @@ This specification defines visual composition at production fidelity. It determi
 | **Field** | **Specification** |
 |----|----|
 | Purpose | Find and enter authorized cases efficiently. |
-| Wireframe pattern | WF-PAT-01 |
+| Wireframe pattern | WF-PAT-01 (Register/List; Wireframe Specification mapping corrected to match) *[v0.1.1 · A15]* |
 | Primary composition | Header + compact filter bar + dense table + optional saved views. |
 | Primary components | DataGrid; FilterBar; SearchField; ClassificationBadge; StatusBadge; OwnerAvatar |
 | Required states | Loading; empty; no-results; permission-filtered |
@@ -277,7 +284,7 @@ This specification defines visual composition at production fidelity. It determi
 
 - Unknown value displays “Unknown”, not 0.
 
-- Reconstructed/hypothetical flows cannot use direct-flow styling.
+- Reconstructed/hypothetical flows cannot use direct-flow or documented-flow styling. *[v0.1.1 · A09]*
 
 - Selected edge reveals evidence/class/confidence in inspector.
 
@@ -337,7 +344,7 @@ This specification defines visual composition at production fidelity. It determi
 
 **Engineering acceptance**
 
-- Confidence is a controlled label with rationale, not numeric guilt meter.
+- Confidence is a controlled label with rationale, not numeric guilt meter. Options are High, Moderate, Low and Insufficient basis (wire `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`); Insufficient basis is shown as a neutral, separate option, never as a level below Low. *[v0.1.1 · A09]*
 
 - Missing alternatives/gaps produce review warning, not hidden validation.
 
@@ -534,6 +541,8 @@ This specification defines visual composition at production fidelity. It determi
 | Responsive | Required desktop/compact-desktop breakpoints preserve the task. |
 | Review/export | Screenshot/PDF/export retains required analytical distinctions. |
 | Engineering parity | Implemented screen uses shared components/tokens and passes visual regression for critical states. |
+
+> The criteria above are targets for future implementation. No visual-regression, accessibility or usability results exist for CS-AML at this baseline; accessibility work targets WCAG 2.2 AA and does not constitute a conformance claim. *[v0.1.1 · A01; N07]*
 
 # 14. Screen Coverage Matrix
 

@@ -1,9 +1,16 @@
 **CS-AML**
 
 UI Design System  
-Specification v0.1
+Specification v0.1.1
 
-Normative visual and component baseline for the CS-AML MVP analyst interface
+Proposed visual and component baseline (draft for review) for the CS-AML MVP analyst interface *[v0.1.1 · A01]*
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML UI Design System Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Design-system axiom**
 >
@@ -12,7 +19,8 @@ Normative visual and component baseline for the CS-AML MVP analyst interface
 | **Document control** | **Value** |
 |----|----|
 | Document ID | CSAML-UI-DS-0.1 |
-| Status | Normative UI design-system baseline for MVP 0.1 |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) — proposed normative UI design-system baseline for MVP 0.1 *[v0.1.1 · A01]* |
 | Depends on | UX Specification; Information Architecture Specification; Screen Inventory; Wireframe Specification |
 | Primary consumers | Product design, frontend engineering, QA, accessibility, product owner |
 | Baseline theme | Light, calm, data-dense, evidence-first |
@@ -237,7 +245,7 @@ Analytical state is domain meaning, not generic UI status. These states require 
 | **State** | **Visual treatment** | **Meaning** |
 |----|----|----|
 | Claim | Outlined neutral badge + “Claim” label | Statement attributed to a source; not verified fact |
-| Fact | Solid neutral/blue badge + “Fact” label | Verified/time-bounded proposition per methodology |
+| Fact | Solid neutral/blue badge + “Fact” label plus fact status (Provisional / Established / Disputed / Superseded) | Proposition with a recorded VerificationDecision; a Claim SHALL NOT receive the Fact badge without one *[v0.1.1 · A10]* |
 | Inference | Purple outlined badge + “Inference” | Analytical interpretation |
 | Disputed | Amber patterned/outlined badge | Material contradiction or challenge exists |
 | Unknown | Gray dashed treatment + “Unknown” | Information not established |
@@ -247,10 +255,14 @@ Analytical state is domain meaning, not generic UI status. These states require 
 
 | **Level** | **Treatment** | **Constraint** |
 |----|----|----|
-| High | Label + strong border | Never represented as certainty/proof |
-| Moderate | Label + medium border | Basis must remain inspectable |
-| Low | Label + light/dashed border | Do not hide as secondary metadata |
-| Insufficient basis | Neutral warning-style label | Must not look like adverse result |
+| High (`HIGH`) | Label + strong border | Never represented as certainty/proof |
+| Moderate (`MODERATE`) | Label + medium border | Basis must remain inspectable |
+| Low (`LOW`) | Label + light/dashed border | Do not hide as secondary metadata |
+| Insufficient basis (`INSUFFICIENT_BASIS`) | Neutral label, separate from the High/Moderate/Low scale | Must not look like an adverse result and SHALL NOT be styled, ordered or worded as a level below Low *[v0.1.1 · A09]* |
+
+- Wire values are `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (UPPER_SNAKE_CASE, derived from the Data Model Annex A registry); the labels in the first column are translatable display labels. *[v0.1.1 · A09]*
+
+- `INSUFFICIENT_BASIS` means a judgement was attempted but the evidential basis is insufficient. The UI SHALL NOT render it as Low, empty, zero or a missing value, and SHALL NOT place it on a graded scale or meter. A draft with no confidence judgement yet (null) SHALL be shown as "Not yet assessed", which is distinct from Insufficient basis. Rationale SHALL be reachable for every level. *[v0.1.1 · A09]*
 
 > **Confidence rule**
 >
@@ -264,6 +276,8 @@ Analytical state is domain meaning, not generic UI status. These states require 
 | DOCUMENTED | Solid/double-accent line | DOCUMENTED label | Documented value relationship such as contract, award, purchase |
 | RECONSTRUCTED | Dashed line | RECONSTRUCTED label | Analyst reconstruction from multiple records |
 | HYPOTHETICAL | Dotted line | HYPOTHETICAL label | Analytical possibility/hypothesis |
+
+- The class names above are the `flow_class` wire values (`DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL`, derived from the Data Model Annex A registry); visual tokens and display labels map from them and SHALL NOT promote RECONSTRUCTED or HYPOTHETICAL flows to the DIRECT/DOCUMENTED treatment. *[v0.1.1 · A09]*
 
 - Color MAY supplement but SHALL NOT replace line style and text label.
 
@@ -405,10 +419,10 @@ Tables are a primary professional workspace and SHALL support dense information 
 |----|----|----|
 | Lifecycle | Draft, Active, Closed, Superseded | Operational state |
 | Analytical | Claim, Fact, Inference, Disputed, Unknown | Epistemic state |
-| Confidence | High, Moderate, Low, Insufficient basis | Assessment confidence |
-| Classification | Public, Internal, Sensitive, Restricted, Source-Protected | Handling requirement |
+| Confidence | High, Moderate, Low, Insufficient basis (wire: `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`) | Assessment confidence; Insufficient basis is neutral, not a low level *[v0.1.1 · A09]* |
+| Classification | Public, Internal, Sensitive, Restricted, Source-protected (wire: `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`) | Handling requirement *[v0.1.1 · A08]* |
 | Review | Needs review, Changes requested, Approved | Workflow state |
-| Flow | Direct, Documented, Reconstructed, Hypothetical | Value-flow epistemics |
+| Flow | Direct, Documented, Reconstructed, Hypothetical (wire: `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL`) | Value-flow epistemics *[v0.1.1 · A09]* |
 
 ## 18.2 Banner hierarchy
 
@@ -473,7 +487,9 @@ Evidence/provenance components are first-class design-system elements, not featu
 | INTERNAL | Blue-gray label | Internal handling |
 | SENSITIVE | Amber-outline label | Attention to handling, not suspicion |
 | RESTRICTED | Strong amber/brown label + lock icon/text | Need-to-know handling |
-| SOURCE-PROTECTED | Distinct shield/lock label; minimal detail | Identity compartmentalisation; avoid source name |
+| SOURCE_PROTECTED (display: Source-protected) | Distinct shield/lock label; minimal detail | Identity compartmentalisation; avoid source name *[v0.1.1 · A08]* |
+
+- The five levels above are the authoritative classification model (Data Model §16), ordered least to most restrictive; the first column shows wire values. Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive restrictions shown alongside the level badge, not extra levels. Unknown or missing classification fails closed (access denied, object flagged for classification); where an authorised user can see such an object, it SHALL be shown as an explicit "Classification missing" state, never defaulted to Public or Internal. The legacy Framework v0.1 label "Highly Restricted" is not a level in this model; legacy labels are mapped only through the Data Model migration rule and never automatically to Source-protected. *[v0.1.1 · A08]*
 
 - Classification styling SHALL represent handling requirements, not analytical severity.
 
@@ -498,7 +514,7 @@ CS-AML is desktop-first because graph, evidence review, and analytical compariso
 
 # 24. Accessibility Baseline
 
-The design system SHALL target WCAG 2.2 AA-equivalent accessibility for product UI wherever applicable, with special attention to keyboard use, focus, contrast, color independence, dense tables, graph alternatives, and error recovery.
+The design system SHALL target WCAG 2.2 AA-equivalent accessibility for product UI wherever applicable, with special attention to keyboard use, focus, contrast, color independence, dense tables, graph alternatives, and error recovery. This is a design target, not a conformance claim: no accessibility audit or WCAG conformance evaluation of CS-AML has been performed, and conformance may only be stated once a recorded evaluation of the implemented product exists. *[v0.1.1 · A01; N07]*
 
 | **ID** | **Requirement** |
 |----|----|
@@ -555,7 +571,7 @@ frontend/   src/     design-system/       tokens/       components/       patter
 
 # 27. Component API and Composition Rules
 
-- Prefer semantic props: `state="disputed"`, `flowClass="reconstructed"`, `classification="restricted"` rather than `color="orange"`.
+- Prefer semantic props: `state="disputed"`, `flowClass="RECONSTRUCTED"`, `classification="RESTRICTED"` rather than `color="orange"`. Semantic props take the canonical UPPER_SNAKE_CASE wire values; display labels are resolved separately. *[v0.1.1 · A08, A09]*
 
 - Components SHOULD expose slots/composition points for provenance and metadata without requiring feature forks.
 
@@ -667,7 +683,7 @@ These values are a reference implementation baseline. Semantic meaning is normat
 | RECONSTRUCTED flow | RECONSTRUCTED label + dashed line | Purple/neutral |
 | HYPOTHETICAL flow | HYPOTHETICAL label + dotted line | Gray/purple |
 | Restricted classification | Text + lock symbol | Amber/brown |
-| Source-Protected | Text + shield/lock symbol | Distinct secure treatment |
+| Source-protected (`SOURCE_PROTECTED`) | Text + shield/lock symbol | Distinct secure treatment *[v0.1.1 · A08]* |
 
 # Annex C — UI Design Review Checklist
 

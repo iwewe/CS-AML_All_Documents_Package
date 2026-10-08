@@ -2,33 +2,40 @@
 
 **Frontend Architecture & State Management Specification**
 
-Version 0.1
+Version 0.1.1
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Frontend Architecture & State Management Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Purpose**  
-> Normative frontend architecture baseline for the CS-AML MVP. It defines frontend module boundaries, routing, state ownership, server-state synchronization, form and visualization state, authorization-aware rendering, concurrency handling, error recovery, accessibility, testing and frontend delivery conventions.
+> Proposed normative frontend architecture baseline (draft for review) for the CS-AML MVP. *[v0.1.1 · A01]* It defines frontend module boundaries, routing, state ownership, server-state synchronization, form and visualization state, authorization-aware rendering, concurrency handling, error recovery, accessibility, testing and frontend delivery conventions.
 
 > **Core architecture axiom**  
 > Frontend state SHALL preserve canonical server truth, workflow versioning, permission boundaries and analytical uncertainty. The client SHALL NOT manufacture durable truth by promoting local, cached, inferred or visualization-only state into canonical state.
 
-Status: Normative frontend implementation baseline for MVP 0.1
+Status: Proposed normative frontend implementation baseline for MVP 0.1 (draft for review) *[v0.1.1 · A01]*
 
-Dependencies: SRS · Technical Stack · UX · IA · Screen Inventory · Wireframe · UI Design System · High-Fidelity UI · Storybook
+Dependencies: SRS v0.1.1 · Technical Stack v0.1.1 · API Specification v0.1.1 · UX v0.1.1 · IA v0.1.1 · Screen Inventory v0.1.1 · Wireframe v0.1.1 · UI Design System v0.1.1 · High-Fidelity UI v0.1.1 · Storybook (Component Inventory) v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
 
 # Document Control
 
 | **Attribute** | **Value** |
 |----|----|
 | Document ID | CSAML-FEARCH-0.1 |
-| Version | 0.1 |
-| Status | Normative frontend architecture baseline |
+| Version | 0.1.1 |
+| Status | Draft for Review (Proposed Internal Baseline) *[v0.1.1 · A01]* |
 | Primary audience | Frontend Engineer, UX Engineer, Tech Lead, QA, Security Reviewer |
 | Reference stack | React 19 + TypeScript + Vite + Tailwind CSS 4 + shared Storybook design system |
-| API assumption | Versioned REST API; canonical authorization and validation remain server-side |
+| API assumption | Versioned same-origin REST API (`/api/v1`) with server-side BFF session; canonical authorization and validation remain server-side (API Specification v0.1.1) *[v0.1.1 · A11]* |
 | Normative verbs | SHALL / MUST / SHOULD / MAY |
 
 # 1. Scope and Non-Goals
 
-This specification defines the frontend application architecture for the CS-AML MVP. It translates the approved screen and component specifications into implementation boundaries and state-management rules. It does not define backend business logic, canonical data schemas, authorization policy decisions, or API endpoint payloads; those are owned by backend specifications and the separate API Specification.
+This specification defines the frontend application architecture for the CS-AML MVP. It translates the screen and component specifications (draft for review) into implementation boundaries and state-management rules. It does not define backend business logic, canonical data schemas, authorization policy decisions, or API endpoint payloads; those are owned by backend specifications and the separate API Specification. *[v0.1.1 · A01]*
 
 | **In scope** | **Out of scope** |
 |----|----|
@@ -64,7 +71,7 @@ This specification defines the frontend application architecture for the CS-AML 
 | Routing | React Router or equivalent | Routes use stable canonical IDs; case context is explicit. |
 | Server state | TanStack Query or equivalent | Remote cache, invalidation, deduplication and mutation lifecycle are centralized here. |
 | Forms | React Hook Form + schema validation or equivalent | Form state stays local to form boundary; server validation is mapped back to fields. |
-| Schema types | Generated/OpenAPI-derived TypeScript types where feasible | Handwritten duplicate DTO types SHOULD be minimized. |
+| Schema types | TypeScript client/types generated from `contracts/openapi.yaml` (OpenAPI 3.1; not yet produced — open item in API Specification §28) | Handwritten duplicate DTO types SHOULD be minimized; enum types use the UPPER_SNAKE_CASE wire values. *[v0.1.1 · A09, A11]* |
 | Visualization | Cytoscape.js + approved timeline/value-flow primitives | Visualization state remains non-canonical. |
 | Storybook | Storybook | Shared components and compound patterns require stories/test coverage. |
 | Tests | Vitest/Jest + Testing Library + Playwright | Behavior first; implementation-detail tests discouraged. |
@@ -151,7 +158,7 @@ frontend/
 | Workflow UI state | Wizard step, review panel state | Feature component | Memory; derive from server when material |
 | Visualization state | Selected graph nodes, zoom, hidden layers, timeline scale | Visualization controller | Memory; optional saved view, never canonical relationship truth |
 | Ephemeral UI state | Modal open, tooltip, toast, drawer | Local component | Memory |
-| Session/auth state | Authenticated principal, session expiry, coarse capabilities | Auth provider | Memory + IdP/session cookie/token model |
+| Session/auth state | Authenticated principal, session expiry, coarse capabilities (from `GET /auth/session`) | Auth provider | Memory only; the HttpOnly session cookie is not readable by JavaScript and no tokens exist in the browser *[v0.1.1 · A11]* |
 | Preference state | Density, reduced motion, column visibility | Preference service/local storage if approved | Local or server preference; no sensitive case content |
 
 > **Hard rule**  
@@ -165,13 +172,13 @@ frontend/
 
 - Unauthorized/forbidden responses SHALL not be cached as if they were ordinary empty data.
 
-- Query retries SHOULD be disabled or limited for 401/403/404 non-disclosing authorization outcomes.
+- Query retries SHOULD be disabled or limited for 401/403/404 non-disclosing authorization outcomes. Mutations SHALL NOT be automatically retried on 409, 412, 422 or 428; automatic retry of a high-impact command after a network failure SHALL reuse the same `Idempotency-Key`. *[v0.1.1 · A04, A11]*
 
 - Background refetch MAY refresh read screens; editable screens require version-aware reconciliation before replacing user-visible data.
 
-- Prefetch MAY be used for ordinary objects but SHALL NOT prefetch protected-source identity or highly restricted content without an explicit authorized task.
+- Prefetch MAY be used for ordinary objects but SHALL NOT prefetch protected-source identity or `RESTRICTED`/`SOURCE_PROTECTED` content without an explicit authorized task. *[v0.1.1 · A08]*
 
-- Client caches SHALL be cleared on logout/session revocation and SHOULD be scoped to the authenticated principal.
+- Client caches SHALL be cleared on logout/session revocation (including a 401 after back-channel revocation) and SHOULD be scoped to the authenticated principal. *[v0.1.1 · A11]*
 
 | **Query example**     | **Key shape**                                      |
 |-----------------------|----------------------------------------------------|
@@ -194,8 +201,18 @@ frontend/
 | Dissemination approval/export | NO | Server authorization/audit must succeed first. |
 | Graph selection/layout | Local only | Not a canonical mutation. |
 
-> **Concurrency contract**  
-> Editable canonical resources SHOULD use an explicit version token (for example record_version/ETag). On conflict, the frontend SHALL present stale-version recovery and SHALL NOT silently overwrite the newer server version.
+> **Concurrency contract** *[v0.1.1 · A04]*  
+> Editable canonical resources carry `record_version`, returned as `ETag: "<record_version>"` on GET. Every mutation of a versioned resource SHALL send `If-Match: "<record_version>"` from the version the user is editing. The frontend SHALL NOT silently overwrite the newer server version. Response mapping:
+>
+> | **Response** | **Frontend behavior** |
+> |----|----|
+> | 412 PRECONDITION_FAILED | "Record changed" recovery: keep the user's unsaved edits, show `details.current_record_version`, offer compare/reload/re-apply. |
+> | 409 STATE_CONFLICT | Workflow message explaining the state that blocks the action (e.g. gate not satisfied, already finalized); refetch the object state; no compare/merge flow. |
+> | 428 PRECONDITION_REQUIRED | Client bug (missing `If-Match`): generic error with correlation ID, reported to telemetry; never shown as a user conflict. |
+> | 409 IDEMPOTENCY_IN_PROGRESS | Wait per `Retry-After` and poll/retry with the same key. |
+> | 422 IDEMPOTENCY_KEY_REUSED | Client bug: a key was reused with a different payload. |
+>
+> The v0.1 error code `VERSION_CONFLICT` is retired and SHALL NOT be mapped.
 
 # 9. Form Architecture
 
@@ -210,6 +227,10 @@ frontend/
 - High-impact forms SHALL include explicit review summary before final action where defined by UX.
 
 - Dynamic controlled-vocabulary fields SHALL retain term IDs and display labels; labels alone are not canonical values.
+
+- Controlled enumerations are submitted and stored in client state as UPPER_SNAKE_CASE wire values (Data Model Annex A registry), e.g. `flow_class` `DIRECT`/`DOCUMENTED`/`RECONSTRUCTED`/`HYPOTHETICAL`; display labels are separate and translatable. *[v0.1.1 · A09]*
+
+- `confidence.level` `INSUFFICIENT_BASIS` SHALL be rendered as its own neutral state (not as a level below Low, not as adverse, not as empty). Forms, sorting, filters and export previews SHALL NOT convert it to `LOW`, null, zero, or drop it; a null level is shown as "not yet assessed" and is allowed only on drafts. Rationale is required for every level. *[v0.1.1 · A09]*
 
 - Protected-source identity SHALL not be auto-filled into ordinary evidence or export forms.
 
@@ -232,16 +253,19 @@ frontend/
 | Protected source | Protected-source identity components SHALL exist in separately permissioned feature boundary and SHALL not be imported into ordinary evidence screens. |
 | Export preview | Only server-authorized export candidates are rendered as selectable. |
 | Counts/facets | Counts returned by API are treated as already permission-filtered; frontend SHALL not reconstruct hidden totals. |
+| Classification | Render the five levels from wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (labels Public … Source-protected) together with access labels. An unknown or missing classification value SHALL render as restricted (fail closed), never default to Public. *[v0.1.1 · A08]* |
 
 # 11. Error and Recovery Architecture
 
 | **Failure class** | **UI behavior** |
 |----|----|
 | Network/transient | Local retry with clear status; preserve safe unsaved state where feasible. |
-| Authentication expired | Suspend protected work, re-authenticate; do not discard local form without warning where secure recovery is possible. |
+| Authentication expired | On 401, suspend protected work and re-authenticate via `GET /auth/login`; do not discard local form without warning where secure recovery is possible. *[v0.1.1 · A11]* |
 | Authorization changed | Remove restricted cached content and transition to non-disclosing access state. |
 | Validation | Field/non-field errors near source; no generic toast-only failure. |
-| Concurrency conflict | Open compare/reload/resolve flow; never auto-force overwrite. |
+| Concurrency conflict (412 PRECONDITION_FAILED) | Open "record changed" compare/reload/resolve flow; never auto-force overwrite. *[v0.1.1 · A04]* |
+| Workflow state conflict (409 STATE_CONFLICT) | Show workflow message and refreshed state; no compare flow. *[v0.1.1 · A04]* |
+| Missing precondition (428) / CSRF failure (403) | Treat as client defect: generic error with correlation ID; for CSRF, refresh the token via session bootstrap once before reporting. *[v0.1.1 · A04, A11]* |
 | Integrity warning | Blocking error treatment for evidence integrity issue. |
 | Partial feature failure | Local error boundary keeps surrounding case workspace usable. |
 | Fatal application failure | Global recovery boundary with correlation ID; no sensitive payload in error display/log. |
@@ -273,13 +297,19 @@ frontend/
 
 # 14. Session, Authentication and Logout
 
-- Frontend SHALL use standards-based OIDC session integration and SHALL not store long-lived secrets in application code.
+- Browser authentication is a server-side session (BFF) as defined in API Specification v0.1.1 §4. The frontend is not an OIDC client: it holds no client ID/secret, never receives access, refresh or ID tokens, and SHALL NOT send `Authorization: Bearer`. *[v0.1.1 · A11]*
 
-- On logout, user switch or confirmed session revocation, query caches and sensitive in-memory state SHALL be cleared.
+- Login: navigate the browser to `GET /auth/login` (full-page redirect); the backend completes `GET /auth/callback` and sets the `__Host-csaml_session` cookie (HttpOnly, Secure, SameSite=Lax, Path=/). *[v0.1.1 · A11]*
+
+- Bootstrap: on app start and after login, call `GET /auth/session` to obtain principal, session expiry and coarse capabilities; 401 means unauthenticated. *[v0.1.1 · A11]*
+
+- CSRF: every unsafe request (POST/PUT/PATCH/DELETE) SHALL send the Django CSRF token in the `X-CSRFToken` header. All API calls are same-origin (`/api/v1`) with credentials included; no cross-origin API calls. *[v0.1.1 · A11]*
+
+- Logout: `POST /auth/logout`, then clear query caches, feature state and sensitive in-memory state. The same clearing SHALL happen on user switch, on any 401 indicating session expiry or revocation (including Keycloak back-channel logout), and on a `GET /auth/session` principal change. *[v0.1.1 · A11]*
 
 - Idle/session expiry behavior SHALL provide clear re-authentication path.
 
-- Browser storage SHALL not contain raw evidence content, protected-source identity or durable access tokens unless the security architecture explicitly approves the mechanism.
+- Browser storage SHALL not contain raw evidence content, protected-source identity or any authentication token. *[v0.1.1 · A11]*
 
 - Multi-tab session expiry SHOULD converge safely without preserving stale privileged UI.
 
@@ -331,6 +361,7 @@ frontend/
 | FE-SEC-06 | File previews SHALL be sandboxed/isolated as appropriate and not execute active content. |
 | FE-SEC-07 | Browser storage use for case-sensitive state requires explicit security review. |
 | FE-SEC-08 | Logout/user switch clears sensitive caches and feature state. |
+| FE-SEC-09 | No authentication tokens in JavaScript-accessible memory or storage; no `Authorization: Bearer` from the browser; `X-CSRFToken` on every unsafe method. *[v0.1.1 · A11]* |
 
 # 19. Testing Strategy
 
@@ -338,7 +369,7 @@ frontend/
 |----|----|
 | Design-system component | Storybook stories + interaction + accessibility + visual regression. |
 | Feature component | Behavior, permission variants, loading/error, domain-state semantics. |
-| Data hooks | Query keys, invalidation, mutation error mapping, conflict handling. |
+| Data hooks | Query keys, invalidation, mutation error mapping, conflict handling (412 / 409 / 428 mapping per §8), `INSUFFICIENT_BASIS` round-trip. *[v0.1.1 · A04, A09]* |
 | Route/screen | Critical happy path + permission denied + stale version + responsive smoke. |
 | End-to-end | Case → evidence → entity → value flow → hypothesis → assessment → review → dissemination. |
 | Security | Direct route guesses, cached-data logout, hidden-action API bypass expectation, non-leaking denied states. |
@@ -359,7 +390,7 @@ frontend/
 | **Config** | **Rule** |
 |----|----|
 | API base URL | Build/deployment configuration; no hardcoded production URL. |
-| OIDC config | Environment configuration, public client metadata only. |
+| OIDC config | None in the browser bundle: OIDC client configuration lives server-side (BFF); the frontend only knows the same-origin `/auth/*` endpoints. *[v0.1.1 · A11]* |
 | Feature flags | Server/environment policy is authoritative for high-risk features; client flag alone cannot enable API capability. |
 | Build metadata | Version/commit SHOULD be visible in diagnostics. |
 | Experimental graph/AI features | Disabled by default unless approved deployment policy enables them. |
@@ -434,7 +465,7 @@ Is the value canonical or returned by API?
 
 - No optimistic high-impact approval/merge/dissemination.
 
-- Stale-version conflict tested.
+- Stale-version conflict tested: 412 → "record changed" recovery; 409 → workflow message; 428 → client bug. *[v0.1.1 · A04]*
 
 - Graph/timeline/value-flow derived state does not mutate canonical objects.
 

@@ -2,13 +2,20 @@
 
 Civil Society Financial Intelligence / AML Investigation
 
-**Version 0.1 \| Normative Typology Standard**
+**Version 0.1.1 \| Proposed Typology Standard (Draft for Review)**
+
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Typology Catalogue v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 
 > **Purpose**
 >
 > This catalogue provides a controlled vocabulary and analytical standard for identifying, documenting, testing, and communicating money-laundering typologies using lawful civil-society information. A typology match is an analytical lead, not a finding of criminal liability.
 
-**Status: Baseline v0.1**
+**Status: Draft for Review (Proposed Internal Baseline) v0.1.1** *[v0.1.1 · A01]*
 
 Intended users: CSOs, investigative journalists, anti-corruption researchers, public-interest investigators, and partner analysts.
 
@@ -17,9 +24,9 @@ Intended users: CSOs, investigative journalists, anti-corruption researchers, pu
 |  |  |
 |----|----|
 | Document | CS-AML Typology Catalogue |
-| Version | 0.1 |
-| Status | Normative derivative / baseline catalogue |
-| Parent framework | CS-AML Framework v0.1 |
+| Version | 0.1.1 *[v0.1.1 · A01]* |
+| Status | Draft for Review (Proposed Internal Baseline) — derivative catalogue *[v0.1.1 · A01]* |
+| Parent framework | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) *[v0.1.1 · A01]* |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Review cycle | At least annually, and upon material typology or legal change |
 | Primary orientation | Civil-society financial intelligence using lawful and proportionate sources |
@@ -100,6 +107,8 @@ Every typology analysis SHALL record the status of relevant indicators using the
 | G | Gap | Material information that is missing and limits confidence. |
 
 # 6. Typology Index
+
+The 20 typology identifiers below (CSAML-TYP-xxx), the family structure, the indicator classes, and the assessment levels are a CS-AML catalogue and CS-AML design conventions. They are not an official FATF, APG, or PPATK list. Each entry's "Primary reference lineage" names sources that informed the entry; see Annex A, "Source verification status". *[v0.1.1 · A13]* *[v0.1.1 · N01]*
 
 | **ID** | **Typology** | **Family** | **Primary function** |
 |----|----|----|----|
@@ -281,7 +290,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 - FATF-Egmont, Concealment of Beneficial Ownership (2018)
 
-- FATF Beneficial Ownership guidance
+- FATF Beneficial Ownership guidance — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-B01**
 
@@ -351,7 +360,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 ## Primary reference lineage
 
-- APG Yearly Typologies Reports
+- APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 - FATF Professional Money Laundering (2018)
 
@@ -420,9 +429,9 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 ## Primary reference lineage
 
-- FATF Methods and Trends
+- FATF Methods and Trends — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
-- APG typologies case studies
+- APG typologies case studies — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-B03**
 
@@ -636,7 +645,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 - FATF Trade-Based Money Laundering (2006 and later updates)
 
-- APG Yearly Typologies Reports
+- APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-C03**
 
@@ -710,9 +719,9 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 ## Primary reference lineage
 
-- PPATK court-based typology research
+- PPATK court-based typology research — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
-- FATF corruption/beneficial ownership work
+- FATF corruption/beneficial ownership work — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-C04**
 
@@ -781,9 +790,9 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 ## Primary reference lineage
 
-- FATF Methods and Trends case studies
+- FATF Methods and Trends case studies — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
-- FATF real estate typologies
+- FATF real estate typologies — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-D01**
 
@@ -924,7 +933,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 - FATF Professional Money Laundering (2018)
 
-- APG typologies reports
+- APG typologies reports — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-E01**
 
@@ -1279,7 +1288,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 - FATF Cyber-Enabled Fraud paper (2026)
 
-- PPATK cybercrime risk assessments
+- PPATK cybercrime risk assessments — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-F03**
 
@@ -1346,7 +1355,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 - FATF Recommendation 32 context
 
-- PPATK cross-border cash risk assessments
+- PPATK cross-border cash risk assessments — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-F04**
 
@@ -1413,7 +1422,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 - FATF Money Laundering Using New Payment Methods
 
-- PPATK fintech sectoral risk assessments
+- PPATK fintech sectoral risk assessments — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-D03**
 
@@ -1476,9 +1485,9 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 ## Primary reference lineage
 
-- APG Yearly Typologies Reports
+- APG Yearly Typologies Reports — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
-- FATF methods and trends
+- FATF methods and trends — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 **CSAML-TYP-C05**
 
@@ -1547,7 +1556,7 @@ The analyst SHALL document which mechanism-specific indicators are observed, whi
 
 ## Primary reference lineage
 
-- FATF environmental crime work and national risk-assessment materials
+- FATF environmental crime work and national risk-assessment materials — pending verification — specific publication/section not yet identified *[v0.1.1 · A13]*
 
 - PPATK smuggling typology (2025)
 
@@ -1637,9 +1646,16 @@ Money-laundering schemes frequently combine several typologies. Analysts SHALL p
 
 # Annex A — Source Lineage and Reference Basis
 
+**Source verification status.** *[v0.1.1 · A13]*
+
+- Reference lineage is not per-indicator support. A source listed under an entry's "Primary reference lineage" informed the typology as a whole; it does not mean that each indicator, indicator class, assessment threshold, or the entry's wording is taken from, or endorsed by, that source. Indicator-to-source mapping at section/page level has not yet been produced and remains an open item.
+- The 20 typology IDs and the catalogue structure are a CS-AML catalogue, not an official FATF list. *[v0.1.1 · N01]*
+- Lineage entries that name only a programme, topic page, or body of work (for example "FATF Methods and Trends", "APG typologies reports", or "PPATK … risk assessments") are labelled `pending verification — specific publication/section not yet identified` until a specific publication, edition, and section are recorded.
+- Publications named with a title and year are listed below by their official location; per-indicator page support for them has not been confirmed.
+
 FATF Recommendations, updated June 2026 — [<u>https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html</u>](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Fatf-recommendations.html)
 
-FATF Methods and Trends — [<u>https://www.fatf-gafi.org/en/topics/methods-and-trends.html</u>](https://www.fatf-gafi.org/en/topics/methods-and-trends.html)
+FATF Methods and Trends — [<u>https://www.fatf-gafi.org/en/topics/methods-and-trends.html</u>](https://www.fatf-gafi.org/en/topics/methods-and-trends.html) (topic index page; pending verification — specific publication/section not yet identified) *[v0.1.1 · A13]*
 
 FATF Professional Money Laundering (2018) — [<u>https://www.fatf-gafi.org/content/dam/fatf-gafi/reports/Professional-Money-Laundering.pdf</u>](https://www.fatf-gafi.org/content/dam/fatf-gafi/reports/Professional-Money-Laundering.pdf)
 
@@ -1665,7 +1681,7 @@ PPATK Riset Tipologi Tahun 2021 — [<u>https://www.ppatk.go.id/publikasi/read/1
 
 PPATK Tipologi Pencucian Uang yang Berasal dari Penyelundupan (2025) — [<u>https://www.ppatk.go.id/publikasi/read/250/tipologi-pencucian-uang-yang-berasal-dari-penyelundupan.html</u>](https://www.ppatk.go.id/publikasi/read/250/tipologi-pencucian-uang-yang-berasal-dari-penyelundupan.html)
 
-PPATK Publications / Risk Assessments — [<u>https://www.ppatk.go.id/dalam_negeri/read/1397/publikasi-penilaian-risiko.html</u>](https://www.ppatk.go.id/dalam_negeri/read/1397/publikasi-penilaian-risiko.html)
+PPATK Publications / Risk Assessments — [<u>https://www.ppatk.go.id/dalam_negeri/read/1397/publikasi-penilaian-risiko.html</u>](https://www.ppatk.go.id/dalam_negeri/read/1397/publikasi-penilaian-risiko.html) (publication index page; pending verification — specific publication/section not yet identified) *[v0.1.1 · A13]*
 
 # Annex B — Controlled Interpretation Language
 
@@ -1678,4 +1694,4 @@ PPATK Publications / Risk Assessments — [<u>https://www.ppatk.go.id/dalam_nege
 | Avoid | “The company is a shell company” unless the factual basis and definition are established. |
 | Avoid | “X owns Y” when the evidence supports only association, management, use, or inferred control. |
 
-**END OF CS-AML TYPOLOGY CATALOGUE v0.1**
+**END OF CS-AML TYPOLOGY CATALOGUE v0.1.1**

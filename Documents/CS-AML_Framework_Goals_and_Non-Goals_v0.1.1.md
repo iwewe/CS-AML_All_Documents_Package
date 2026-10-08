@@ -1,19 +1,26 @@
-**CS-AML FRAMEWORK v0.1**
+**CS-AML FRAMEWORK v0.1.1**
 
 **Framework Goals and Non-Goals**
 
 *Civil Society Financial Intelligence / AML Investigation*
 
-| **Document status** | Normative component |
+> **Document status — v0.1.1**
+> Version: 0.1.1 — Draft for Review (Proposed Internal Baseline). *[v0.1.1 · A01]*
+> Supersedes: CS-AML Framework Goals and Non-Goals v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
+> Validation: not validated. No recorded approval decision, implementation test result, or independent audit exists for this baseline. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
+> Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+
+| **Document status** | Draft for Review (Proposed Internal Baseline) — framework component *[v0.1.1 · A01]* |
 |----|----|
-| **Version** | 0.1 |
+| **Version** | 0.1.1 *[v0.1.1 · A01]* |
 | **Intended audience** | Civil society organisations, investigative journalists, researchers, public-interest investigators, technology implementers |
 | **Normative language** | MUST / SHALL, SHOULD, MAY |
 | **Purpose** | Define what CS-AML is intended to achieve, and the boundaries it MUST NOT cross |
 
 # 1. Normative Purpose
 
-This document defines the formal goals, intended outcomes, operational objectives, and non-goals of the CS-AML Framework v0.1. It is a normative component of the framework and SHALL be used to interpret the scope of all subordinate controls, procedures, data models, analytical methods, and technology implementations.
+This document defines the formal goals, intended outcomes, operational objectives, and non-goals of the CS-AML Framework v0.1.1 (parent: `CS-AML_Framework_v0.1.1_Expanded.md`). It is a normative component of the framework and SHALL be used to interpret the scope of all subordinate controls, procedures, data models, analytical methods, and technology implementations.
 
 > **Primary Goal**  
 > CS-AML SHALL enable civil society organisations to produce lawful, evidence-based, reproducible, proportionate, and actionable financial intelligence that can support public-interest investigation, referral, advocacy, or publication without assuming or exercising the powers of a regulator, financial intelligence unit, law-enforcement agency, or regulated financial institution.
@@ -150,6 +157,8 @@ Investigators SHALL apply purpose limitation, necessity, proportionality, retent
 The framework MAY support public-interest investigations into corruption, fraud, environmental crime, illicit trade, procurement abuse, sanctions evasion, trafficking, or other financial-crime contexts where following ownership, assets, and value is relevant.
 
 # 7. Success Criteria
+
+These goals and criteria express product intent. They are not measured results: no baseline, target value, or effectiveness measurement has yet been recorded for any CS-AML implementation. *[v0.1.1 · A01, N06]*
 
 CS-AML SHOULD be considered effective when it improves the quality of investigative decision-making rather than merely increasing activity volume. Implementations SHOULD measure success against criteria such as:
 
