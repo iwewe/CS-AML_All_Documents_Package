@@ -2,15 +2,16 @@
 
 **API Specification**
 
-Version 0.1.2
+Version 0.1.3
 
-> **Document status — v0.1.2**
-> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
+> **Document status — v0.1.3**
+> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*
 > Supersedes: CS-AML API Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
+> Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
 
 > **Purpose**  
 > Normative HTTP API baseline for CS-AML MVP 0.1 (approved internal specification baseline v0.1.1). *[v0.1.1 · A01]* It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
@@ -20,15 +21,15 @@ Version 0.1.2
 
 Status: Normative API contract baseline for MVP 0.1 (approved internal specification baseline v0.1.1, 2026-10-08) *[v0.1.1 · A01]*
 
-Dependencies: Framework v0.1.1 · Data Model v0.1.2 · SRS v0.1.2 · Technology Architecture v0.1.1 · Frontend Architecture v0.1.2 · Control Implementation Guide v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
+Dependencies: Framework v0.1.1 · Data Model v0.1.3 · SRS v0.1.3 · Technology Architecture v0.1.1 · Frontend Architecture v0.1.2 · Control Implementation Guide v0.1.3 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
 
 # Document Control
 
 | **Attribute** | **Value** |
 |----|----|
 | Document ID | CSAML-API-0.1 |
-| Version | 0.1.2 *[v0.1.2]* |
-| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) *[v0.1.1 · A01]* |
+| Version | 0.1.3 *[v0.1.3]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) *[v0.1.1 · A01]* |
 | Primary audience | Backend Engineer, Frontend Engineer, QA, Security Reviewer, Integration Engineer |
 | Protocol | HTTPS + JSON; multipart/streaming where file transfer requires it |
 | Reference style | Resource-oriented REST API with explicit action endpoints for workflow decisions |
@@ -302,9 +303,10 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | PUT | /evidence/uploads/{uploadId}/content | Stream/upload bytes (PUT only). *[v0.1.1 · C18]* |
 | POST | /evidence/uploads/{uploadId}/complete | Finalize immutable evidence record and hash. |
 | GET | /evidence/{evidenceId} | Evidence metadata. |
-| GET | /evidence/{evidenceId}/content | Authorized content stream/download; supports range where safe. An invalid `Range` → 400 (no 416). *[v0.1.2 · CR-I2-02]* |
+| GET | /evidence/{evidenceId}/content | Authorized content stream/download; supports range where safe. An invalid `Range` → 400 (no 416). *[v0.1.2 · CR-I2-02]* An original whose stored bytes were purged by an executed DELETE disposition (§20A) → 409 STATE_CONFLICT, `details.reason = "EVIDENCE_DISPOSED"`; the metadata record stays as the tombstone. *[v0.1.3 · CR-I7-07]* |
 | POST | /evidence/{evidenceId}/verify-integrity | Recompute/verify integrity. |
 | GET/POST | /evidence/{evidenceId}/extracts | List the readable extracts of an evidence item; create citation/extract. *[v0.1.2 · CR-I2-06]* |
+| GET | /evidence-extracts/{extractId} | Canonical single-extract resource (`getEvidenceExtract`): the extract's `links.self` and the back-link used by search hits, product citations and provenance traces; readable exactly when the parent evidence item is readable (non-disclosing 404 otherwise); `links.evidence` points to the parent. *[v0.1.3 · CR-I5-07]* |
 | GET | /evidence/{evidenceId}/lineage | Original/derivative lineage. |
 | POST | /evidence/{evidenceId}/derivatives | Register approved derivative metadata/output. The bytes come from an upload session whose content upload has completed (`CONTENT_RECEIVED`, not yet completed); registering the derivative finalizes that session. *[v0.1.2 · CR-I2-02]* |
 
@@ -472,10 +474,24 @@ GET /api/v1/search?q=company+x&type=entity,evidence&case_id=...&status=...&page[
 | source | Canonical object type + stable ID. |
 | projection marker | Derived/extracted text result identifies derivative source when applicable. |
 
+> **Adopted for v0.1.3** *[v0.1.3 · CR-I5-01]*
+> The search operation is `GET /api/v1/search` (`searchObjects`) in `contracts/openapi.yaml`. Search results are a derived, rebuildable projection over canonical records (API-P07); every hit is a pointer to the canonical object, not a copy.
+
+| **Element** | **Rule (v0.1.3)** |
+|----|----|
+| Parameters | `q` (≤ 200 characters, ≤ 12 word tokens, each matched as a prefix with accents and case folded; names, aliases and identifiers also match by trigram similarity), `type` (registry `search_object_type`), `case_id`, `classification`, `status`, `entity_type`, `flow_class` (a value flow's own class or any leg's class), `date_from` / `date_to` (the object's domain date), `include_source_protected`, `facets`, `sort` (`relevance`, `updated_at`, `created_at`, `title`; `-` prefix for descending; default `relevance` with `q`, `updated_at` without), cursor page (default 25, maximum 100). *[v0.1.3 · CR-I5-01]* |
+| Hit | `object_type` (registry `search_object_type`: CASE, ENTITY, SOURCE, EVIDENCE_ITEM, EVIDENCE_EXTRACT, CLAIM, FACT, RELATIONSHIP, ASSET, EVENT, VALUE_FLOW, PRODUCT), `canonical_type`, `title`, snippet as plain-text segments `{text, match}` (never HTML), `classification`, `status`, `epistemic_status` (registry `search_epistemic_status`: CLAIM, FACT, EXCERPT, RECORD — a claim is never shown as a fact), `derived_from` (projection marker), `case_context` (readable cases only), `relevance` (text match only; SHALL NOT be labelled risk or suspicion), `links.self` (canonical API resource) and `links.ui` (SPA route). *[v0.1.3 · CR-I5-01, CR-I5-03]* |
+| Facets | `object_type`, `classification`, `status`, `entity_type`, `flow_class`, `case`; computed on the authorized, filtered set only. *[v0.1.3 · CR-I5-01]* |
+| Authorization | Applied in the query before results, `total_count`, facets, snippets and ordering; page rows are re-checked against the canonical objects (fail closed). Relevance is a per-document score without corpus statistics, so hidden objects never influence ordering. *[v0.1.3 · CR-I5-01]* |
+| SOURCE_PROTECTED | Excluded by default, including ordinary objects whose only readable context is a SOURCE_PROTECTED case. Returned only with `include_source_protected=true` **and** the per-case protected-source grant (IdP eligibility role plus `protected_source_authorized` membership); without the grant the flag changes nothing — no hit, count, facet or snippet. Protected-source *identity* stays outside generic search (§21). *[v0.1.3 · CR-I5-04]* |
+| Index scope | Cases; entities (names, aliases, identifiers); sources; evidence **metadata**; extracts (cited text); claims; facts; relationships (type and dates only — never endpoint names, which may be unreadable); assets; events; value flows; products. Evidence file content (OCR / full text) is not indexed (Phase 2); hypotheses, assessments and indicators are not indexed in MVP 0.1. An extract hit links to `GET /evidence-extracts/{extractId}`. *[v0.1.3 · CR-I5-07]* |
+| Limits | 120 requests per minute per user (429 RATE_LIMITED); statement timeout 5 s (503). See §25 for the timing channel. *[v0.1.3 · CR-I5-08]* |
+| Performance | SRS-NFR-PERF-002 (global search, first page ≤ 3 s) and the case-scoped target (p95 < 2 s) both apply, measured on the synthetic reference corpus (SRS-NFR-PERF-004). *[v0.1.3 · CR-I5-09]* |
+
 # 18. Graph API
 
 > **Adopted for v0.1.2** *[v0.1.2 · CR-I3-07]*  
-> The adopted graph operation is the per-case projection `GET /api/v1/cases/{caseId}/graph` (filters `include`, `flow_class`, `relationship_type`): policy-filtered nodes (Entity, Asset, Event) and edges (Relationship incl. ownership/control details, ValueFlow, ValueFlowLeg with its own class, event participation) with confidence, status and readable provenance refs; computed on demand and marked `meta.derived`; budgets apply. `POST /graph/query` below is not specified in the contract and remains open for v0.2.
+> The adopted graph operation is the per-case projection `GET /api/v1/cases/{caseId}/graph` (filters `include`, `flow_class`, `relationship_type`): policy-filtered nodes (Entity, Asset, Event) and edges (Relationship incl. ownership/control details, ValueFlow, ValueFlowLeg with its own class, event participation) with confidence, status and readable provenance refs; computed on demand and marked `meta.derived`; budgets apply. `POST /graph/query` below was left open in v0.1.2; v0.1.3 specifies it (next block).
 
 ``` text
 POST /api/v1/graph/query
@@ -497,6 +513,20 @@ POST /api/v1/graph/query
 | Limits | Server enforces depth/node/edge budgets and rate limits. |
 | Rebuildability | Graph projection is never the sole canonical source. |
 
+> **Adopted for v0.1.3** *[v0.1.3 · CR-I5-02]*
+> `POST /graph/query` (`queryGraph`) and `POST /graph/paths` (`findGraphPaths`) are specified in `contracts/openapi.yaml`. Nodes and edges reuse the shapes of the per-case projection (`GraphNode`, `GraphEdge`).
+
+| **Element** | **Rule (v0.1.3)** |
+|----|----|
+| Query | The sketch fields above plus `seed_assets`, `flow_classes`, `include_events`, `include_relationships`, `include_leads`, and lower `max_nodes` / `max_edges`. Undirected breadth-first expansion over readable Relationships, ValueFlows / ValueFlowLegs (each with its own flow class) and Event participation. Nodes add `depth`, `seed`, `lead_only` and `case_refs` (readable cases only). *[v0.1.3 · CR-I5-02]* |
+| Paths | `from`, `to`, `max_depth` (default 3), `max_paths` (default 5, maximum 10); shortest paths over the same authorized expansion. A path is not proof of control, causality or wrongdoing. *[v0.1.3 · CR-I5-02]* |
+| Scope | With `case_id` the walk stays inside that case; without it, it crosses into other cases only where the caller may read the objects. *[v0.1.3 · CR-I5-02]* |
+| Budgets | Depth default 2, cap 3 (422 above); 500 nodes; 1,500 edges; 4 s wall clock. A request may only lower the caps. *[v0.1.3 · CR-I5-02]* |
+| Partial results | A node, edge, time or lead budget returns a partial result with `meta.truncated = true` and `meta.truncation_reasons` (registry `graph_truncation_reason`: NODE_BUDGET, EDGE_BUDGET, TIME_BUDGET, LEAD_BUDGET); the client shows the reasons. Only the statement-timeout backstop (5 s) is an error: 503 with `details.reason = "QUERY_TIME_BUDGET"`. *[v0.1.3 · CR-I5-06]* |
+| Errors | An unreadable seed or path endpoint → non-disclosing 404 (audited); a readable seed outside `case_id` → 422. *[v0.1.3 · CR-I5-02]* |
+| Leads | With `include_leads`, readable entities in scope that record the same normalized value are returned as leads (registry `graph_lead_type`): SHARED_IDENTIFIER (same identifier type and value), SHARED_PHONE, SHARED_EMAIL, SHARED_ADDRESS. Normalization: values are case-folded, accent-stripped and reduced to letters and digits; phone numbers to digits only; values shorter than 4 characters are ignored; ADDRESS / PHONE / EMAIL entities whose name is the value count. Every lead is confirmed against the canonical identifiers. A lead has `status: CANDIDATE`, `is_fact: false`, `merge_performed: false`; it is never an edge, never stored, and nothing is written. An analyst who confirms one records a relationship (e.g. SHARES_PHONE_WITH) or a resolution decision as usual. *[v0.1.3 · CR-I5-05]* |
+| Limits | 60 requests per minute per user for query and paths together (429 RATE_LIMITED). *[v0.1.3 · CR-I5-08]* |
+
 # 19. Product, Review and Dissemination API
 
 | **Method** | **Endpoint** | **Purpose** |
@@ -515,18 +545,65 @@ POST /api/v1/graph/query
 | GET | /disseminations/{id}/export-candidates | Authorized selectable export objects. |
 | POST | /disseminations/{id}/exports | Generate export package. |
 | GET | /sharing-log | Immutable authorized sharing records. |
+| GET | /product-templates | The six MVP templates with typed sections and bindings. *[v0.1.3 · CR-I6-01]* |
+| GET | /products/{productId}/rendering | Live rendering of the working version from readable canonical objects. *[v0.1.3 · CR-I6-01]* |
+| GET | /products/{productId}/versions/{version} | One frozen version with its document and `content_sha256`. *[v0.1.3 · CR-I6-01]* |
+| POST | /products/{productId}/corrections | Open a correction version. *[v0.1.3 · CR-I6-05]* |
+| POST | /products/{productId}/withdraw | Withdraw a product (case LEAD). *[v0.1.3 · CR-I6-05]* |
+| POST | /assessments/{assessmentId}/submit-review | Submit a finalized assessment for review. *[v0.1.3 · CR-I6-02]* |
+| POST | /review-requests | Request a REVIEW_FLAG_CLEARANCE or HANDLING_CHANGE review. *[v0.1.3 · CR-I6-02, CR-I6-12]* |
+| GET | /disseminations | Dissemination requests and approvals. *[v0.1.3 · CR-I6-06]* |
+| POST | /disseminations/{id}/revoke | Revoke a dissemination (requester or an approver). *[v0.1.3 · CR-I6-06]* |
+| GET | /export-packages, /export-packages/{exportId} | Export packages with manifest, hashes and approval validity. *[v0.1.3 · CR-I6-08]* |
+| GET | /export-packages/{exportId}/content | Download; re-checks authorization and approval validity (409 when invalid). *[v0.1.3 · CR-I6-08]* |
+
+| **Concern** | **Rule (v0.1.3)** |
+|----|----|
+| Templates and document | Six templates with typed sections (SUBJECTS, FACTS, CLAIMS, ANALYSIS, UNKNOWNS, CONTEXT) and bindings. Products add `subject_refs` (Entity, Asset) and `contact_point`; template requirements → 422. The product document (`csaml.product-document/1`) keeps each item's epistemic kind and carries an evidence index (facts → decisions, claims, extracts with locators → evidence → sources). `/rendering` is live; `/versions/{version}` is frozen with `content_sha256`. Responses add `author`, `contributors`, `reviewers`, `reviews`, `frozen_version`, `approved_version`, `editable`. *[v0.1.3 · CR-I6-01]* |
+| Review kinds | `review_kind` (registry): PRODUCT_VERSION, ASSESSMENT, REVIEW_FLAG_CLEARANCE, HANDLING_CHANGE, CORRECTION — all decided through approve / request-changes / reject. Authors, contributors and the requester can never decide (403, also a database trigger); deciding needs a REVIEWER or LEAD membership. *[v0.1.3 · CR-I6-02]* |
+| Review / version lifecycle | Review status (registry `review_status`): OPEN → DECIDED / CANCELLED. Frozen version status (registry `product_version_status`): SUBMITTED → APPROVED / APPROVED_WITH_CHANGES / RETURNED / REJECTED → SUPERSEDED / RETRACTED. APPROVE → product APPROVED; APPROVE_WITH_CHANGES → product REVIEWED (not disseminable: the change needs a new version and review); RETURN / REJECT → product DRAFT. The first edit after a frozen version opens version n+1. Assessment reviews: APPROVE → APPROVED, APPROVE_WITH_CHANGES → PEER_REVIEWED. *[v0.1.3 · CR-I6-03]* |
+| review_required | Reasons (registry `review_reason`): FACT_DISPUTED, FACT_SUPERSEDED, INPUT_HANDLING_UPGRADED. Approval → 409 REVIEW_REQUIRED while an assessment in scope is flagged, or while the product is flagged unless the reviewer sets `clear_review_required` (recorded as `cleared_review_required`). A REVIEW_FLAG_CLEARANCE review clears an assessment or product. A DISSEMINATED product is never mutated: an OPEN CORRECTION review is created and new disseminations are blocked (409 CORRECTION_REVIEW_OPEN). *[v0.1.3 · CR-I6-04]* |
+| Corrections and withdrawal | A correction turns an APPROVED / REVIEWED / DISSEMINATED product into DRAFT version n+1 with `correction_note`; earlier versions stay valid until the correction is approved, then become SUPERSEDED together with their disseminations. Withdrawal (case LEAD): versions RETRACTED, open reviews CANCELLED, disseminations REVOKED. *[v0.1.3 · CR-I6-05]* |
+| Dissemination | `handling_classification` (at least the product's, 422 otherwise); status (registry `dissemination_status`): REQUESTED → APPROVED / REVOKED → SUPERSEDED; an approved release is immutable. Approver: a REVIEWER or LEAD member (DISSEMINATION_APPROVE), never the requester (403). Approval marks the product DISSEMINATED and writes the sharing log. *[v0.1.3 · CR-I6-06]* |
+| Source-protected release | Objects classified SOURCE_PROTECTED (including a source-protected product) are inside an approved scope only with `source_protected_release` set by an approver holding the per-case protected-source grant, with a rationale (403 / 422 otherwise). Without it, packages withhold every source-protected item, index entry and citation; the count is recorded in `redactions`, the content never. *[v0.1.3 · CR-I6-07]* |
+| Export packages | Format (registry `export_package_format`): CSAML_PACKAGE_ZIP_V1 — a deterministic ZIP with README, `product/document.json` and `.html`, `objects/*.json`, evidence originals and `manifest.json` with the SHA-256 of every file. Status (registry `export_package_status`): QUEUED → GENERATING → READY / FAILED. Fields `files`, `package_sha256`, `manifest_sha256`, `redactions`, `approval_valid`. The download answers 409 when the approval was revoked or superseded, the version superseded or retracted, or the product withdrawn. Sharing-log entries add `entry_type` (registry `sharing_log_entry_type`: RELEASE_APPROVED, EXPORT_GENERATED, RELEASE_REVOKED), `product_version`, `handling_caveats`, `handling_classification`. *[v0.1.3 · CR-I6-08]* |
+| Export generation | `POST /disseminations/{id}/exports` always answers 202 `JobAccepted` (with `Location: /api/v1/jobs/{id}` and the QUEUED `export_package`); a retry with the same Idempotency-Key replays the same job. Export candidates are computed from the frozen version and returned as one page (`next_cursor: null`) with `source_protected` and `in_approved_scope`; single-page derived lists are allowed. *[v0.1.3 · CR-I6-11]* |
+| Handling changes | Every classification / access-label change of a canonical object is an append-only HandlingChange (Data Model §16.4): UPGRADE applied directly, DOWNGRADE only with its approved HANDLING_CHANGE review. A product keeps `handling_decision_ref`. `review_trigger_ref` of a flagged assessment or product names a VerificationDecision or a HandlingChange. *[v0.1.3 · CR-I6-12]* |
 
 # 20. Administration and Audit API
 
 | **Method** | **Endpoint** | **Purpose** |
 |----|----|----|
 | GET/POST | /vocabularies | Controlled vocabulary management. |
-| GET/POST | /retention-policies | Retention policy management. |
+| GET/POST | /retention-policies | Retention policy management. Specified in v0.1.3 as `/retention-rules` (§20A). *[v0.1.3 · CR-I7-01]* |
 | GET/POST · PATCH/DELETE | /cases/{caseId}/memberships · /case-memberships/{membershipId} | Case membership/access administration (§12; `If-Match` on PATCH/DELETE; managed by the case LEAD). *[v0.1.2 · CR-I1-02]* |
 | GET | /audit-events | Permission-aware immutable audit explorer. |
 | GET | /system/info | Build/schema/API version and safe diagnostics. |
-| GET | /system/health | Health check; public/private detail according to deployment. |
+| GET | /system/health | Health check; public/private detail according to deployment. Specified in v0.1.3 as `GET /health` (`getHealth`): unauthenticated readiness probe reporting status and latency of the database, Valkey and the object store, plus build version, commit and schema version — never case content, hostnames or credentials; a failed dependency → 503 DEPENDENCY_UNAVAILABLE. The Prometheus endpoint `/metrics` is internal (scraped inside the deployment network, never routed by the reverse proxy) and is not part of the API. *[v0.1.3 · CR-I7-08]* |
 | GET | /capabilities | Optional principal/deployment capability summary. |
+
+# 20A. Retention, Legal Hold and Disposition API *[v0.1.3 · CR-I7-01]*
+
+| **Method** | **Endpoint** | **Purpose** |
+|----|----|----|
+| GET/POST | /retention-rules | Retention rules (Data Model §16.1); platform administrators. |
+| GET/PATCH | /retention-rules/{ruleId} | Rule detail; versioned update (`If-Match`, `change_reason`). `applies_to` never changes; RETIRED is final. |
+| POST | /retention-evaluations | Evaluate rules: REPORT (counts only) or PROPOSE (opens disposition records). Nothing executes. Also scheduled daily in REPORT mode. |
+| GET/POST | /legal-holds | Legal holds (Data Model §16.2); placed by an administrator or the case LEAD. |
+| GET | /legal-holds/{holdId} | Hold detail. |
+| POST | /legal-holds/{holdId}/release | Release a hold, once, with a reason. Idempotency-Key REQUIRED. |
+| GET | /disposition-records, /disposition-records/{recordId} | The disposition log (Data Model §16.3). |
+| POST | /disposition-records/{recordId}/approve, …/reject | Decision by the LEAD of every case the target is linked to, never the proposer (403). Refused under an active legal hold (409). Idempotency-Key REQUIRED. |
+| POST | /disposition-records/{recordId}/execute | Execute an approved disposition (administrator or approver). |
+
+| **Concern** | **Rule** |
+|----|----|
+| Targets | `applies_to` / `target_type` (registry `retention_target_type`): EVIDENCE_ITEM, EXPORT_PACKAGE, CASE; a rule MAY be narrowed by `applies_to_classifications`. A legal hold on a case covers every object linked to it. *[v0.1.3 · CR-I7-02]* |
+| Statuses | Rule `rule_status` (registry `retention_rule_status`): ACTIVE, RETIRED. Hold `hold_status` (registry `legal_hold_status`): ACTIVE, RELEASED. Disposition `disposition_status` (registry `disposition_status`): PROPOSED → APPROVED / REJECTED → EXECUTING → EXECUTED. *[v0.1.3 · CR-I7-03, CR-I7-04]* |
+| Evaluation | Several matching rules: the most protective governs (eligible only when all have expired; the latest date wins). The trigger CASE_CLOSURE uses `Case.closed_at`. *[v0.1.3 · CR-I7-01, CR-I7-06]* |
+| Supported dispositions (MVP 0.1) | DELETE purges the stored bytes (every object version) of an evidence original or export package and keeps the row (hash, size, storage reference) as the tombstone; ARCHIVE and REVIEW record the retention state. Rows and audit events are never deleted. ANONYMIZE and whole-case DELETE are refused (422) and deferred to v0.2 (they need a reviewed anonymiser and a case-level tombstone design). *[v0.1.3 · CR-I7-05]* |
+| Execution | `execute` re-checks the rule and legal holds (409; the database refuses it too) and commits in two steps (EXECUTING, then EXECUTED) so purged bytes are never without a record; a failed purge stays EXECUTING (503) and may be retried. It is not under the Idempotency-Key ledger: the state machine makes a repeat harmless (409). Disposed evidence content answers 409 (§13). *[v0.1.3 · CR-I7-01, CR-I7-07]* |
+| Visibility | Records about a target carry its classification, labels and case links, so they are visible exactly where the target is; administrators see references only. *[v0.1.3 · CR-I7-04]* |
 
 # 21. Protected Source API Boundary
 
@@ -557,6 +634,8 @@ POST /api/v1/graph/query
 202 Accepted
 { "job": {"id":"job_...","status":"QUEUED","poll_url":"/api/v1/jobs/job_..."} }
 ```
+
+Job status (registry `job_status`): QUEUED → RUNNING → SUCCEEDED / FAILED. Jobs add `job_type`, `target_type`, `target_ref` and `result_url`; a job is readable by whoever may read its target. Export package generation is always asynchronous (202, §19). *[v0.1.3 · CR-I6-09, CR-I6-11]*
 
 # 23. File Transfer and Content Safety
 
@@ -594,6 +673,8 @@ POST /api/v1/graph/query
 - Privileged/bulk APIs require stronger authorization and audit.
 
 - Automated clients/service accounts SHOULD have separately identifiable quotas.
+
+- MVP 0.1 limits: search 120 requests per minute per user; graph query and paths 60 per minute per user (429 RATE_LIMITED); search statement timeout 5 s. Hidden objects never influence results, counts, facets or ordering, but query latency still depends on the total corpus size. This residual timing channel is **accepted for MVP 0.1 with synthetic data only** and SHALL be re-reviewed (and mitigated or re-accepted by the accountable authority) before real, non-synthetic data is processed. *[v0.1.3 · CR-I5-08]*
 
 # 26. API Security Requirements
 
@@ -644,9 +725,12 @@ POST /api/v1/graph/query
 > **v0.1.2 scope** *[v0.1.2 · CR-I1-01…CR-I4-14]*  
 > `contracts/openapi.yaml` v0.1.2 merges the I3 and I4 implementation extensions (`contracts/extensions/i3.yaml`, `i4.yaml` of the reference implementation) and the I1/I2 additions into the main contract: 111 paths, 149 operations (v0.1.1: 72 paths, 92 operations). Added: memberships, back-channel logout, provenance traces, assets/ownership interests/control assertions, events/timeline, value-flow view and legend, the case graph, the typology catalogue, indicators, typology matches, the hypothesis matrix, intelligence gaps and assessment revisions. Items decided on 2026-10-09 carry the release class **DECIDED_V0_1_2** (`x-csaml-status: decided`) and `x-csaml-cr` with their change-request IDs; `x-csaml-ref-types` lists the permitted target classes of a reference field. `/entity-match-candidates/{id}/decisions` is marked `deprecated` (removal in v0.2). Closed since v0.1.1: upload-session status, `risk_rating`, amount precision, CSRF-token delivery and the match-candidate overlap.
 >
+> **v0.1.3 scope** *[v0.1.3 · CR-I5-01…CR-I7-08]*
+> `contracts/openapi.yaml` v0.1.3 merges the I5, I6 and I7 implementation extensions (`contracts/extensions/i5.yaml`, `i6.yaml`, `i7.yaml` of the reference implementation) and adds `GET /evidence-extracts/{extractId}` and `GET /health`: 138 paths, 180 operations (v0.1.2: 111 paths, 149 operations). Added: search; graph query and paths; product templates, rendering, frozen versions, corrections and withdrawal; assessment review submission and review requests; dissemination list and revocation; export package list, detail and download; retention rules, evaluations, legal holds and disposition records. Changed: `generateExportPackage` answers 202 only; `getEvidenceContent` documents 409 for disposed originals; `CaseMembershipList` and `EvidenceExtractList` carry the page under `items` only (v0.1.2 defect). New items carry the release class **DECIDED_V0_1_3**. Closed since v0.1.2: search, `POST /graph/query`, job status, export format, retention API, health.
+>
 > Still outstanding:
-> - Endpoints outside the contract: search, `POST /graph/query`, administration/audit, protected sources, `GET /capabilities`. *[v0.1.2 · CR-I3-07]*
-> - Open value sets still typed as plain strings: job, gate and task status; export format; `Asset.valuation_basis` vocabulary (free text, required when a valuation is given); Methodology §14.1 event statuses (not registered). *[v0.1.2 · CR-I2-02, CR-I1-08, CR-I3-05, CR-I3-06]*
+> - Endpoints outside the contract: administration/audit (other than retention and health), protected sources, `GET /capabilities`. *[v0.1.3 · CR-I5-01, CR-I5-02, CR-I7-01, CR-I7-08]*
+> - Open value sets still typed as plain strings: gate and task status; `Asset.valuation_basis` vocabulary (free text, required when a valuation is given); Methodology §14.1 event statuses (not registered). *[v0.1.2 · CR-I2-02, CR-I1-08, CR-I3-05, CR-I3-06]* *[v0.1.3 · CR-I6-08, CR-I6-09]*
 > - Per-resource sort allowlists.
 > - Task contracts (`Task`, `TaskCreate`) — DEFER_V0_2.
 >
@@ -710,7 +794,7 @@ POST /api/v1/graph/query
 | Time/value | Event, Timeline projection, ValueFlow, ValueFlowLeg |
 | Analysis | Indicator, Typology, TypologyMatch, Hypothesis, IntelligenceGap, Assessment |
 | Products | IntelligenceProduct, ProductVersion, Review, Dissemination, ExportPackage, SharingLog |
-| Governance | Vocabulary, RetentionPolicy, CaseMembership, AuditEvent, Job |
+| Governance | Vocabulary, RetentionPolicy (RetentionRule), LegalHold, DispositionRecord, HandlingChange, CaseMembership, AuditEvent, Job *[v0.1.3 · CR-I7-03, CR-I7-04, CR-I6-12]* |
 
 # Annex B — Request Review Checklist
 

@@ -4,26 +4,27 @@
 
 Paket dokumentasi lengkap CS-AML: kerangka metodologi, spesifikasi produk, rekayasa, dan antarmuka untuk aplikasi intelijen keuangan berbasis masyarakat sipil, beserta hasil audit dokumentasinya.
 
-> **Status: v0.1.2 — Approved Internal Specification Baseline (tag `v0.1.2-spec`, 9 Oktober 2026; menggantikan `v0.1.1-spec`).**
-> v0.1.2 memuat 52 change request (CR-I1-01…CR-I4-14) yang muncul saat implementasi increment I1–I4. Semua rekomendasi disetujui product owner pada 2026-10-09, dengan satu perubahan (CR-I4-10). Dua keputusan masih perlu review eksternal: CR-I4-03 (ambang konsistensi tipologi, oleh spesialis AML) dan CR-I1-10 (model clearance, oleh reviewer keamanan). Ini bukan review independen. Lihat [`CHANGELOG.md`](CHANGELOG.md).
+> **Status: v0.1.3 — Approved Internal Specification Baseline (tag `v0.1.3-spec`, 9 Oktober 2026; menggantikan `v0.1.2-spec`).**
+> v0.1.3 memuat 30 change request (CR-I5-01…CR-I7-08) yang muncul saat implementasi increment I5–I7 (search & graph, produk/review/diseminasi, retensi/hardening). Semua rekomendasi disetujui product owner pada 2026-10-09 tanpa perubahan. Dua syarat: celah timing pada search (CR-I5-08) hanya diterima untuk MVP dengan data sintetis dan wajib ditinjau ulang sebelum data nyata diproses; disposisi ANONYMIZE dan DELETE seluruh kasus (CR-I7-05) ditunda ke v0.2.
+> v0.1.2 memuat 52 change request (CR-I1-01…CR-I4-14) dari increment I1–I4. Dua keputusan v0.1.2 masih perlu review eksternal: CR-I4-03 (ambang konsistensi tipologi, oleh spesialis AML) dan CR-I1-10 (model clearance, oleh reviewer keamanan). Ini bukan review independen. Lihat [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Kapan sebuah rilis spesifikasi dianggap selesai
 
 > A specification release is considered complete when all release-blocking semantic, safety, traceability, and contract inconsistencies are resolved; automated consistency checks pass; remaining limitations are explicitly documented; and unresolved non-blocking items are assigned to a future release. Absence of known imperfections is not required.
 
-Artinya: spesifikasi tidak harus bebas kekurangan, tetapi harus bebas dari kekurangan yang membuat implementasi berbahaya, ambigu, atau tidak dapat diuji. Setelah sebuah tag spesifikasi, dokumen tidak diaudit ulang kecuali ada perubahan substantif. Masalah yang ditemukan saat implementasi masuk sebagai issue → change request → rilis berikutnya (v0.1.2 adalah rilis pertama lewat jalur ini).
+Artinya: spesifikasi tidak harus bebas kekurangan, tetapi harus bebas dari kekurangan yang membuat implementasi berbahaya, ambigu, atau tidak dapat diuji. Setelah sebuah tag spesifikasi, dokumen tidak diaudit ulang kecuali ada perubahan substantif. Masalah yang ditemukan saat implementasi masuk sebagai issue → change request → rilis berikutnya (v0.1.2 adalah rilis pertama lewat jalur ini, v0.1.3 yang kedua).
 
 ## Panduan untuk programmer
 
-- **Gunakan file Markdown versi terbaru setiap dokumen** (lihat tabel *Daftar dokumen*: delapan dokumen kini `*_v0.1.2.md`, sisanya tetap `*_v0.1.1*.md` karena tidak berubah). Setiap dokumen hanya punya satu file Markdown yang berlaku; riwayat v0.1.1 tersimpan di git (`git log --follow`, tag `v0.1.1-spec`).
-- Rujukan "<dokumen> v0.1.1" di dalam dokumen yang tidak berubah berarti versi terbaru dokumen tersebut.
+- **Gunakan file Markdown versi terbaru setiap dokumen** (lihat tabel *Daftar dokumen*: enam dokumen kini `*_v0.1.3.md`, empat tetap `*_v0.1.2.md`, sisanya tetap `*_v0.1.1*.md` karena tidak berubah). Setiap dokumen hanya punya satu file Markdown yang berlaku; versi lama tersimpan di git (`git log --follow`, tag `v0.1.1-spec`, `v0.1.2-spec`).
+- Rujukan "<dokumen> v0.1.1" atau "v0.1.2" di dalam dokumen yang tidak berubah berarti versi terbaru dokumen tersebut.
 - **DOCX dan PDF adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1/v0.1.2, jadi jangan dipakai sebagai acuan implementasi.
-- Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*` (Axx = ID temuan di [`Audit/`](Audit/)) atau `*[v0.1.2 · CR-xx-yy]*` (ID change request di `CHANGELOG.md`).
+- Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*` (Axx = ID temuan di [`Audit/`](Audit/)), `*[v0.1.2 · CR-xx-yy]*` atau `*[v0.1.3 · CR-xx-yy]*` (ID change request di `CHANGELOG.md`).
 - Untuk kerangka, gunakan `CS-AML_Framework_v0.1.1_Expanded.md`. File `CS-AML_Framework_v0.1.1.md` berstatus *legacy*.
   > `CS-AML_Framework_v0.1.1_Expanded.md` is the authoritative framework document. The non-expanded Framework is retained for historical reference only.
-- Kontrak API ada di `contracts/openapi.yaml` (OpenAPI 3.1, versi 0.1.2: 111 path, 149 operasi; ekstensi I3/I4 sudah digabung). Nilai enum ada di `schemas/enums.yaml` (registry 0.1.2, 60 enum), dan keputusan arsitektur di `docs/adr/`.
+- Kontrak API ada di `contracts/openapi.yaml` (OpenAPI 3.1, versi 0.1.3: 138 path, 180 operasi; ekstensi I3–I7 sudah digabung). Nilai enum ada di `schemas/enums.yaml` (registry 0.1.3, 78 enum), dan keputusan arsitektur di `docs/adr/`.
 - Sebelum commit perubahan spesifikasi, jalankan `python3 tools/check_consistency.py`. Hasilnya harus 0 error.
-- Hal-hal yang belum selesai tercantum di bagian **Still open after v0.1.2** pada `CHANGELOG.md`.
+- Hal-hal yang belum selesai tercantum di bagian **Still open after v0.1.3** pada `CHANGELOG.md`.
 
 ## Rantai analitis inti
 
@@ -35,14 +36,14 @@ SOURCE → EVIDENCE → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INT
 
 ```
 .
-├── Documents/      23 dokumen: Markdown v0.1.2/v0.1.1 (acuan) + DOCX/PDF v0.1 (arsip)
+├── Documents/      23 dokumen: Markdown v0.1.3/v0.1.2/v0.1.1 (acuan) + DOCX/PDF v0.1 (arsip)
 ├── Audit/          Laporan audit, register temuan, rencana perbaikan
-├── contracts/      OpenAPI 3.1 (v0.1.2)
+├── contracts/      OpenAPI 3.1 (v0.1.3)
 ├── schemas/        Registry enum (enums.yaml)
 ├── sources/        Peta sumber indikator tipologi (verifikasi A13)
 ├── docs/adr/       Architecture Decision Records (0004–0006)
 ├── tools/          Konverter DOCX → Markdown dan pengecek konsistensi
-├── CHANGELOG.md    Register keputusan dan perubahan (v0.1.2, v0.1.1)
+├── CHANGELOG.md    Register keputusan dan perubahan (v0.1.3, v0.1.2, v0.1.1)
 └── MANIFEST.txt    Daftar seluruh file
 ```
 
@@ -59,7 +60,7 @@ Nama file mengikuti pola `CS-AML_<Judul>_v<versi>.md` (acuan) dan `CS-AML_<Judul
 | Framework Goals and Non-Goals | 0.1.1 | |
 | Investigation Methodology | **0.1.2** | |
 | Typology Catalogue | **0.1.2** | 20 tipologi; katalog CS-AML, bukan daftar resmi FATF |
-| Control Implementation Guide | 0.1.1 | |
+| Control Implementation Guide | **0.1.3** | |
 
 ### Produk & kebutuhan
 
@@ -67,16 +68,16 @@ Nama file mengikuti pola `CS-AML_<Judul>_v<versi>.md` (acuan) dan `CS-AML_<Judul
 |---|---|---|
 | Product Requirements Document (PRD) | 0.1.1 | |
 | Product and Feature Specification | 0.1.1 | 88 fitur (55 P0, 26 P1, 7 P2) |
-| Software Requirements Specification (SRS) | **0.1.2** | |
+| Software Requirements Specification (SRS) | **0.1.3** | |
 
 ### Arsitektur & rekayasa
 
 | Dokumen | Versi | Catatan |
 |---|---|---|
 | Technology Architecture | 0.1.1 | Kapabilitas memakai namespace `TA-CAP-xx` |
-| Technical Stack and Repository Specification | **0.1.2** | |
-| Data Model Specification | **0.1.2** | Registry enum (Annex A) |
-| API Specification | **0.1.2** | |
+| Technical Stack and Repository Specification | **0.1.3** | |
+| Data Model Specification | **0.1.3** | Registry enum (Annex A) |
+| API Specification | **0.1.3** | |
 | Frontend Architecture and State Management Specification | **0.1.2** | |
 | MVP Engineering Breakdown | 0.1.1 | |
 | Sprint and Milestone Plan | 0.1.1 | |
@@ -86,12 +87,22 @@ Nama file mengikuti pola `CS-AML_<Judul>_v<versi>.md` (acuan) dan `CS-AML_<Judul
 | Dokumen | Versi | Catatan |
 |---|---|---|
 | UX Specification | 0.1.1 | |
-| Information Architecture Specification | 0.1.1 | |
+| Information Architecture Specification | **0.1.3** | |
 | Screen Inventory | 0.1.1 | 53 ID layar (50 layar kerja + 3 layar status sistem) |
 | Wireframe Specification | 0.1.1 | |
 | High-Fidelity UI Specification | 0.1.1 | |
 | UI Design System Specification | **0.1.2** | |
 | Component Inventory and Storybook Implementation Specification | 0.1.1 | 65 komponen |
+
+## Keputusan utama v0.1.3
+
+| Topik | Keputusan |
+|---|---|
+| Change request | 30 CR dari implementasi I5–I7 disetujui product owner (2026-10-09) tanpa perubahan |
+| Kontrak | Ekstensi I5/I6/I7 digabung ke `contracts/openapi.yaml` 0.1.3: search, graph query/paths, template & versi produk, koreksi/withdraw, review kinds, diseminasi & export package, retensi/legal hold/disposisi; baru `GET /evidence-extracts/{extractId}` dan `GET /health` (`/metrics` internal, di luar API); `generateExportPackage` selalu 202 |
+| Registry | 18 enum baru (mis. `search_object_type`, `review_kind`, `dissemination_status`, `export_package_format`, `job_status`, `retention_target_type`, `disposition_status`) |
+| Kebijakan | SOURCE_PROTECTED di search hanya dengan opt-in eksplisit + grant per kasus; rilis SOURCE_PROTECTED hanya dengan `source_protected_release` oleh approver ber-grant; disposisi selalu lewat keputusan LEAD (bukan pengusul), ditolak saat legal hold aktif |
+| Syarat | CR-I5-08: celah timing search ditinjau ulang sebelum data nyata; CR-I7-05: ANONYMIZE dan DELETE seluruh kasus ditunda ke v0.2 |
 
 ## Keputusan utama v0.1.2
 

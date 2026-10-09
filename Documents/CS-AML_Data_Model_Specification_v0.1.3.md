@@ -4,15 +4,16 @@ Data Model Specification
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1.2 \| Data Specification (Approved Internal Specification Baseline)**
+**Version 0.1.3 \| Data Specification (Approved Internal Specification Baseline)**
 
-> **Document status — v0.1.2**
-> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
+> **Document status — v0.1.3**
+> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*
 > Supersedes: CS-AML Data Model Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
+> Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
 
 > **Status**
 >
@@ -23,8 +24,8 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Data Model Specification |
-| Version | 0.1.2 *[v0.1.2]* |
-| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) *[v0.1.1 · A01]* |
+| Version | 0.1.3 *[v0.1.3]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) *[v0.1.1 · A01]* |
 | Applies to | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) and derivative implementations *[v0.1.1 · A01]* |
 | Primary audience | Framework maintainers, investigators, data architects, software engineers, security/privacy reviewers, assurance reviewers |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
@@ -189,6 +190,7 @@ Represents the bounded investigative context in which questions, scope, risks, a
 | lead_analyst | principal | Y | 1 | Accountable analyst. |
 | risk_rating | enum | Y | 1 | Operational/harm risk rating; registry enum risk_rating: LOW, MEDIUM, HIGH, CRITICAL (ordered; minimal set defined in v0.1.2). *[v0.1.2 · CR-I1-08]* |
 | closure_reason | enum | N | 0..1 | Reason case closed; registry enum closure_reason: OBJECTIVES_MET, INSUFFICIENT_BASIS_TO_CONTINUE, REFERRED, OUT_OF_SCOPE, DUPLICATE, LEGAL_OR_SAFETY_CONSTRAINT, OTHER (minimal set defined in v0.1.2). *[v0.1.2 · CR-I1-08]* |
+| closed_at | datetime | N | 0..1 | Time the case entered CLOSED; null otherwise (set by the lifecycle, read-only for clients). The retention trigger CASE_CLOSURE (Section 16.1) uses it. *[v0.1.3 · CR-I7-06]* |
 
 ### Normative rules:
 
@@ -200,7 +202,7 @@ Represents the bounded investigative context in which questions, scope, risks, a
 
 - A case SHALL NOT be activated (gate transition to ACTIVE) without at least one InvestigationQuestion (SRS-FR-CASE-001). *[v0.1.2 · CR-I1-01]*
 
-- Only the case LEAD (Section 6.3) MAY change the classification or access labels of a Case, and only as an upgrade (higher classification, added labels). Downgrades and label removal SHALL require a recorded reviewer decision; until that workflow exists (increment I6, with review) they SHALL be rejected (403). Every change SHALL generate an AuditEvent. *[v0.1.2 · CR-I1-09]*
+- Only the case LEAD (Section 6.3) MAY change the classification or access labels of a Case, and only as an upgrade (higher classification, added labels). Downgrades and label removal SHALL require a recorded reviewer decision; until that workflow exists (increment I6, with review) they SHALL be rejected (403). Every change SHALL generate an AuditEvent. *[v0.1.2 · CR-I1-09]* The reviewer decision is an approved HANDLING_CHANGE review recorded as a HandlingChange (Section 16.4); a direct PATCH downgrade stays 403. *[v0.1.3 · CR-I6-12]*
 
 ### Lifecycle states:
 
@@ -657,7 +659,7 @@ Represents movement, conversion, allocation, or inferred transfer of economic va
 
 - ValueFlow has no stored lifecycle; its envelope status is RECORDED. *[v0.1.2 · CR-I3-05]*
 
-- **Aggregation.** Value SHALL be aggregated per (flow_class, flow_type, currency) with no grand total across classes; CONTRACT and SUBCONTRACT groups are obligations, not settlements, and only DIRECT groups count as settlement evidenced; lower/upper/exact totals SHALL count unknown amounts and never treat them as 0; legs SHALL NOT be added to their flow's totals. Details: API Specification v0.1.2 §15. *[v0.1.2 · CR-I3-12]*
+- **Aggregation.** Value SHALL be aggregated per (flow_class, flow_type, currency) with no grand total across classes; CONTRACT and SUBCONTRACT groups are obligations, not settlements, and only DIRECT groups count as settlement evidenced; lower/upper/exact totals SHALL count unknown amounts and never treat them as 0; legs SHALL NOT be added to their flow's totals. Details: API Specification v0.1.3 §15. *[v0.1.2 · CR-I3-12]*
 
 ## 11.2 ValueFlowLeg
 
@@ -784,7 +786,21 @@ Represents a reasoned analytical judgment supported by evidence and explicit con
 | review_status | enum | Y | 1 | DRAFT, PEER_REVIEWED, APPROVED, SUPERSEDED *[v0.1.1 · A09]* |
 | finalized | boolean | Y | 1 | Set by controlled finalization, with finalized_at, finalized_by and finalization_rationale. Finalized and reviewed are distinct states. *[v0.1.2 · CR-I4-09]* |
 | review_required | boolean | Y | 1 | Set when a supporting Fact becomes DISPUTED or SUPERSEDED (Section 7.5). *[v0.1.1 · A10]* Also set for indirect dependencies (Section 7.5); a flagged draft cannot be finalized. *[v0.1.2 · CR-I4-11]* |
-| review_trigger_ref | ref | N | 0..1 | VerificationDecision that triggered review_required. *[v0.1.1 · A10]* |
+| review_trigger_ref | ref | N | 0..1 | VerificationDecision that triggered review_required. *[v0.1.1 · A10]* Since v0.1.3 it MAY also name the HandlingChange that upgraded an input (Section 16.4). *[v0.1.3 · CR-I6-12]* |
+| review_reason | enum | N | 0..1 | Why review_required is set; registry enum review_reason: FACT_DISPUTED, FACT_SUPERSEDED, INPUT_HANDLING_UPGRADED. *[v0.1.3 · CR-I6-04]* |
+| subject_refs | ref\[\] | N | 0..n | Subjects of profiles and referrals (Entity, Asset), as the template requires. *[v0.1.3 · CR-I6-01]* |
+| contact_point | text | N | 0..1 | Contact point of a referral package (template requirement). *[v0.1.3 · CR-I6-01]* |
+| handling_decision_ref | ref | N | 0..1 | HandlingChange whose approved review downgraded the product; later inheritance floor checks accept the downgraded handling. *[v0.1.3 · CR-I6-12]* |
+
+### Product versions and lifecycle *[v0.1.3 · CR-I6-01, CR-I6-03, CR-I6-05]*
+
+- Submitting a product for review freezes a ProductVersion: an immutable snapshot with the rendered document (format `csaml.product-document/1`, including the evidence index) and its `content_sha256`. The first edit after a frozen version opens version n+1. *[v0.1.3 · CR-I6-01]*
+
+- ProductVersion `version_status` (registry enum product_version_status): SUBMITTED → APPROVED / APPROVED_WITH_CHANGES / RETURNED / REJECTED → SUPERSEDED / RETRACTED. APPROVE sets the product APPROVED; APPROVE_WITH_CHANGES sets it REVIEWED, which is not disseminable until a new version is reviewed; RETURN and REJECT set it back to DRAFT. *[v0.1.3 · CR-I6-03]*
+
+- A correction turns an APPROVED, REVIEWED or DISSEMINATED product into DRAFT version n+1 with a correction note; earlier versions remain valid until the correction is approved and then become SUPERSEDED, together with their disseminations. Withdrawal (case LEAD) sets the product WITHDRAWN, its versions RETRACTED, open reviews CANCELLED and disseminations REVOKED. *[v0.1.3 · CR-I6-05]*
+
+- Clearing review_required is a review action: the approving reviewer sets it explicitly, or a REVIEW_FLAG_CLEARANCE review clears it. A DISSEMINATED product is never mutated; a CORRECTION review is opened instead. *[v0.1.3 · CR-I6-04]*
 | high_impact_adverse | boolean | N | 0..1 | Defaults to false. True when the assessment is adverse to a named person or organization or is otherwise designated high-impact by the case's review policy. *[v0.1.1 · C10]* |
 | disconfirming_searches | structured\[\] | C | 0..n | Recorded searches for information that would disconfirm the judgment. Each entry: searched_for (text), sources_consulted\[\] (1..n; each a source_ref and/or a description), result (text), rationale (text), recorded_by (principal), recorded_at (datetime). At least one entry is required before review approval when high_impact_adverse is true. Append-only. *[v0.1.1 · C10]* |
 
@@ -867,6 +883,16 @@ Represents peer, legal, privacy, security, or red-team review.
 | findings | text/structured | Y | 1 | Review findings. |
 | decision | enum | Y | 1 | APPROVE, APPROVE_WITH_CHANGES, RETURN, REJECT *[v0.1.1 · A09]* |
 | completed_at | datetime | Y | 1 | Completion time. |
+| review_kind | enum | Y | 1 | What the review decides; registry enum review_kind: PRODUCT_VERSION, ASSESSMENT, REVIEW_FLAG_CLEARANCE, HANDLING_CHANGE, CORRECTION. *[v0.1.3 · CR-I6-02]* |
+| review_status | enum | Y | 1 | Registry enum review_status: OPEN, DECIDED, CANCELLED. reviewer, decision and completed_at are null while OPEN. *[v0.1.3 · CR-I6-03]* |
+| target_version | string | N | 0..1 | Frozen product version under review (PRODUCT_VERSION reviews). *[v0.1.3 · CR-I6-03]* |
+| requested_by | principal | Y | 1 | Principal who submitted or requested the review. *[v0.1.3 · CR-I6-02]* |
+
+### Normative rules: *[v0.1.3 · CR-I6-02]*
+
+- A Review targets a frozen product version, a finalized assessment, a review_required clearance, a handling change (classification downgrade or label removal) or a correction task. All kinds are decided through the same approve / request-changes / reject actions.
+
+- Authors, contributors and the requester SHALL NOT decide a review (403; enforced by the database as well). Deciding requires a REVIEWER or LEAD case membership.
 
 ## 15.3 Dissemination
 
@@ -881,6 +907,21 @@ Records controlled release of a product or data package.
 | released_by | principal | Y | 1 | Authorizer. |
 | handling_caveats | string\[\] | N | 0..n | Restrictions. |
 | receipt_or_reference | string | N | 0..1 | Acknowledgement/reference. |
+| product_version | string | Y | 1 | Frozen product version released. *[v0.1.3 · CR-I6-06]* |
+| handling_classification | enum | Y | 1 | Handling classification of the release; at least the product's classification (defaults to it). *[v0.1.3 · CR-I6-06]* |
+| dissemination_status | enum | Y | 1 | Registry enum dissemination_status: REQUESTED, APPROVED, REVOKED, SUPERSEDED. released_at / released_by are set on approval. *[v0.1.3 · CR-I6-06]* |
+| package_scope_refs | ref\[\] | N | 0..n | Complete approved scope of export packages. *[v0.1.3 · CR-I6-06]* |
+| source_protected_release | boolean | Y | 1 | SOURCE_PROTECTED objects are in the approved scope only when true. *[v0.1.3 · CR-I6-07]* |
+
+### Normative rules: *[v0.1.3 · CR-I6-06, CR-I6-07]*
+
+- REQUESTED → APPROVED / REVOKED; APPROVED → REVOKED / SUPERSEDED. An approved release is immutable (database trigger). The approver is a REVIEWER or LEAD case member and never the requester.
+
+- `source_protected_release` MAY be set only by an approver holding the per-case protected-source grant, with a rationale. Without it every SOURCE_PROTECTED object, index entry and citation is withheld from export packages; only the count is recorded.
+
+## 15.4 ExportPackage and sharing log *[v0.1.3 · CR-I6-08, CR-I6-09]*
+
+An ExportPackage is bound to one approved Dissemination and its product version. It records `format` (registry enum export_package_format: CSAML_PACKAGE_ZIP_V1), `package_status` (registry enum export_package_status: QUEUED, GENERATING, READY, FAILED), the requested `object_refs`, the `files` with their SHA-256, `package_sha256`, `manifest_sha256` and the `redactions` (counts and reasons, never content). Every download re-checks authorization and approval validity. Sharing-log entries are immutable and carry `entry_type` (registry enum sharing_log_entry_type: RELEASE_APPROVED, EXPORT_GENERATED, RELEASE_REVOKED), product version, handling caveats and handling classification. Package generation runs as a Job (registry enum job_status: QUEUED, RUNNING, SUCCEEDED, FAILED).
 
 # 16. Privacy, Classification, and Access-Control Metadata
 
@@ -912,9 +953,11 @@ Access labels MAY add purpose, jurisdiction, source-protection, embargo, legal-r
 
 - Case classification and labels are changed only by the case LEAD, upgrades only (Section 6.1). *[v0.1.2 · CR-I1-09]*
 
+- The "recorded reviewer downgrade decision" is a HandlingChange with direction DOWNGRADE that names its approved HANDLING_CHANGE review (Section 16.4). *[v0.1.3 · CR-I6-12]*
+
 ### Principal clearance model *[v0.1.2 · CR-I1-10]*
 
-A principal's clearance is represented by identity-provider (Keycloak realm) roles; see also Technical Stack v0.1.2 §10. *[v0.1.2 · CR-I1-10]*
+A principal's clearance is represented by identity-provider (Keycloak realm) roles; see also Technical Stack v0.1.3 §10. *[v0.1.2 · CR-I1-10]*
 
 | **IdP role** | **Effect** |
 |----|----|
@@ -944,11 +987,84 @@ Represents retention and disposition policy attached to objects or classes.
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | rule_id | string | Y | 1 | Policy identifier. |
-| applies_to | enum/ref | Y | 1 | Object type/object. |
+| applies_to | enum/ref | Y | 1 | Object type/object. Registry enum retention_target_type: EVIDENCE_ITEM, EXPORT_PACKAGE, CASE (MVP 0.1). Never changes after creation. *[v0.1.3 · CR-I7-02]* |
+| applies_to_classifications | enum\[\] | N | 0..n | Narrows the rule to objects of these classifications (SRS-FR-ADM-003 "by object type/classification"); empty = all. *[v0.1.3 · CR-I7-02]* |
 | retention_period | duration/date | Y | 1 | Retention term. |
 | trigger | enum | Y | 1 | CREATION, CASE_CLOSURE, DISSEMINATION, LEGAL_HOLD_RELEASE, OTHER *[v0.1.1 · A09]* |
 | disposition | enum | Y | 1 | DELETE, ANONYMIZE, ARCHIVE, REVIEW *[v0.1.1 · A09]* |
 | legal_hold | boolean | Y | 1 | Whether disposition suspended. |
+| rule_status | enum | Y | 1 | Registry enum retention_rule_status: ACTIVE, RETIRED (final; rules are never deleted). *[v0.1.3 · CR-I7-03]* |
+
+### Normative rules: *[v0.1.3 · CR-I7-01, CR-I7-05, CR-I7-06]*
+
+- Rules are versioned by record_version and never deleted; every change is audited.
+
+- When several active rules match a target, the most protective governs: the target is eligible only when every matching period has expired, and the latest date wins. CASE_CLOSURE uses Case.closed_at (Section 6.1).
+
+- Evaluation only reports or proposes; nothing is disposed of automatically. Disposition requires an approved DispositionRecord (Section 16.3).
+
+- MVP 0.1 executes DELETE (evidence originals and export packages: the stored bytes are purged and the record stays as the tombstone), ARCHIVE and REVIEW (recorded retention state). ANONYMIZE and whole-case DELETE SHALL be refused (422) in MVP 0.1; their semantics (a reviewed anonymiser, a case-level tombstone) are deferred to v0.2. *[v0.1.3 · CR-I7-05]*
+
+## 16.2 LegalHold *[v0.1.3 · CR-I7-03]*
+
+Suspends disposition of a case (and every object linked to it) or of one object. Required as the legal hold record of CIG PRI-02.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| target_type | enum | Y | 1 | Registry enum retention_target_type. |
+| target_ref | ref | Y | 1 | Held case or object. |
+| reason | text | Y | 1 | Why the hold is placed. |
+| authority_reference | string | N | 0..1 | Order, request or authority reference. |
+| hold_status | enum | Y | 1 | Registry enum legal_hold_status: ACTIVE, RELEASED. |
+| placed_by / placed_at | principal / datetime | Y | 1 | Placed by a platform administrator or the case LEAD. |
+| released_by / released_at / release_reason | principal / datetime / text | N | 0..1 | Recorded once, on release. |
+
+### Normative rules:
+
+- A legal hold is never deleted; only its release is recorded, once. While a hold is ACTIVE, approval and execution of any disposition of the held target SHALL be refused (409; also enforced by the database).
+
+## 16.3 DispositionRecord *[v0.1.3 · CR-I7-04]*
+
+The disposition log required by CIG PRI-02: one record per proposed disposition of one target.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| rule_ref / rule_version | ref / integer | Y | 1 | Governing RetentionRule and its version. |
+| target_type / target_ref | enum / ref | Y | 1 | Target (registry enum retention_target_type). |
+| disposition / trigger | enum | Y | 1 | From the rule (retention_disposition, retention_trigger). |
+| trigger_at / eligible_at | datetime | Y | 1 | Trigger time and the date the target became eligible. |
+| disposition_status | enum | Y | 1 | Registry enum disposition_status: PROPOSED, APPROVED, REJECTED, EXECUTING, EXECUTED. |
+| proposed_by / proposed_at | principal / datetime | Y | 1 | Proposer (the evaluation). |
+| decided_by / decided_at / decision_rationale | principal / datetime / text | N | 0..1 | Decision. |
+| executed_by / executed_at / outcome | principal / datetime / structured | N | 0..1 | Execution and its outcome (e.g. purged versions, retained hash and size). |
+
+### Normative rules:
+
+- PROPOSED → APPROVED / REJECTED → EXECUTING → EXECUTED. The decider is the LEAD of every case the target is linked to and never the proposer (403; database CHECK). A target linked to no case cannot be approved (fail closed).
+
+- Execution re-checks the rule and legal holds and commits in two steps (EXECUTING, then EXECUTED) so that purged bytes are never without a record. Terminal records are frozen. Records and audit events are never deleted.
+
+- A record carries the target's classification, access labels and case links and is visible exactly where the target is.
+
+## 16.4 HandlingChange *[v0.1.3 · CR-I6-12]*
+
+Append-only record of a classification or access-label change of a canonical object.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| target_type / target_ref | string / ref | Y | 1 | Changed object. |
+| from_classification / to_classification | enum | Y | 1 | Classification before and after. |
+| from_labels / to_labels | string\[\] | Y | 0..n | Access labels before and after. |
+| direction | enum | Y | 1 | Registry enum handling_change_direction: UPGRADE, DOWNGRADE. |
+| review_ref | ref | C | 0..1 | Approved HANDLING_CHANGE review; required for DOWNGRADE (database CHECK). |
+| flagged_refs | ref\[\] | N | 0..n | Derived objects flagged review_required by an upgrade (Section 16, CR-I2-05). |
+| changed_by / changed_at | principal / datetime | Y | 1 | Actor and time. |
+
+### Normative rules:
+
+- UPGRADE is applied directly; DOWNGRADE (including label removal) only with its approved review. Records are never updated or deleted.
+
+- review_trigger_ref of a flagged assessment or product MAY name the HandlingChange; a downgraded product keeps it as handling_decision_ref (Section 15.1).
 
 # 17. Temporal, Versioning, and Audit Semantics
 
@@ -1050,12 +1166,23 @@ assessments
 assessment_disconfirming_searches
 assessment_revisions     (v0.1.2 · CR-I4-05)
 intelligence_products
+product_versions
 reviews
 disseminations
+export_packages
+sharing_log_entries
+jobs
+handling_changes
+retention_rules
+legal_holds
+disposition_records
+search_documents
 audit_events
 ```
 
 v0.1.2 adds case_memberships, upload_sessions, evidence_integrity_checks, assessment_disconfirming_searches and assessment_revisions to the list; hypothesis_links holds the append-only matrix cells (Section 13.1). *[v0.1.2 · CR-I1-02, CR-I4-04, CR-I4-05]*
+
+v0.1.3 adds product_versions, export_packages, sharing_log_entries, jobs, handling_changes, retention_rules, legal_holds and disposition_records; search_documents is a derived, rebuildable search projection, never canonical. *[v0.1.3 · CR-I6-01, CR-I6-08, CR-I6-09, CR-I6-12, CR-I7-01, CR-I7-03, CR-I7-04, CR-I5-01]*
 
 This list is illustrative. Implementations MAY normalize or denormalize differently provided semantic and integrity requirements are preserved.
 
@@ -1147,7 +1274,7 @@ The canonical model is implementation-neutral and MAY map to external ontologies
 
 # 26. Data Model Conformance
 
-An implementation claiming to implement CS-AML Data Model v0.1.2 SHALL demonstrate the following minimum capabilities:
+An implementation claiming to implement CS-AML Data Model v0.1.3 SHALL demonstrate the following minimum capabilities:
 
 - Persistent canonical IDs and schema versioning.
 
@@ -1203,6 +1330,24 @@ Annex A, together with the enumerations stated in the field tables of this speci
 | temporal_value.precision | DATETIME, DAY, MONTH, YEAR, RANGE, UNKNOWN (string shape must match) *[v0.1.2 · CR-I3-06]* |
 | hypothesis.role | PRINCIPAL, ALTERNATIVE_LEGITIMATE, ALTERNATIVE_MECHANISM, INSUFFICIENT_INFORMATION *[v0.1.2 · CR-I4-06]* |
 | hypothesis_link.effect | SUPPORTS, CONTRADICTS, NEUTRAL, UNKNOWN *[v0.1.2 · CR-I4-07]* |
+| search_hit.object_type | CASE, ENTITY, SOURCE, EVIDENCE_ITEM, EVIDENCE_EXTRACT, CLAIM, FACT, RELATIONSHIP, ASSET, EVENT, VALUE_FLOW, PRODUCT *[v0.1.3 · CR-I5-03]* |
+| search_hit.epistemic_status | CLAIM, FACT, EXCERPT, RECORD (a claim is never shown as a fact) *[v0.1.3 · CR-I5-03]* |
+| graph_lead.lead_type | SHARED_IDENTIFIER, SHARED_PHONE, SHARED_EMAIL, SHARED_ADDRESS (candidates, never facts or edges) *[v0.1.3 · CR-I5-05]* |
+| graph_query.truncation_reason | NODE_BUDGET, EDGE_BUDGET, TIME_BUDGET, LEAD_BUDGET *[v0.1.3 · CR-I5-06]* |
+| review.review_kind | PRODUCT_VERSION, ASSESSMENT, REVIEW_FLAG_CLEARANCE, HANDLING_CHANGE, CORRECTION *[v0.1.3 · CR-I6-02]* |
+| review.review_status | OPEN, DECIDED, CANCELLED *[v0.1.3 · CR-I6-03]* |
+| product_version.version_status | SUBMITTED, APPROVED, APPROVED_WITH_CHANGES, RETURNED, REJECTED, SUPERSEDED, RETRACTED *[v0.1.3 · CR-I6-03]* |
+| intelligence_product.review_reason | FACT_DISPUTED, FACT_SUPERSEDED, INPUT_HANDLING_UPGRADED *[v0.1.3 · CR-I6-04]* |
+| dissemination.dissemination_status | REQUESTED, APPROVED, REVOKED, SUPERSEDED *[v0.1.3 · CR-I6-06]* |
+| export_package.format | CSAML_PACKAGE_ZIP_V1 *[v0.1.3 · CR-I6-08]* |
+| export_package.package_status | QUEUED, GENERATING, READY, FAILED *[v0.1.3 · CR-I6-08]* |
+| sharing_log.entry_type | RELEASE_APPROVED, EXPORT_GENERATED, RELEASE_REVOKED *[v0.1.3 · CR-I6-08]* |
+| job.status | QUEUED, RUNNING, SUCCEEDED, FAILED *[v0.1.3 · CR-I6-09]* |
+| handling_change.direction | UPGRADE, DOWNGRADE *[v0.1.3 · CR-I6-12]* |
+| retention_rule.applies_to | EVIDENCE_ITEM, EXPORT_PACKAGE, CASE (MVP 0.1) *[v0.1.3 · CR-I7-02]* |
+| retention_rule.rule_status | ACTIVE, RETIRED *[v0.1.3 · CR-I7-03]* |
+| legal_hold.hold_status | ACTIVE, RELEASED *[v0.1.3 · CR-I7-03]* |
+| disposition_record.disposition_status | PROPOSED, APPROVED, REJECTED, EXECUTING, EXECUTED *[v0.1.3 · CR-I7-04]* |
 
 # Annex B. Canonical Relationship Vocabulary (Baseline)
 

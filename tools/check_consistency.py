@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-document consistency checks for the CS-AML specification set (v0.1.1 / v0.1.2).
+"""Cross-document consistency checks for the CS-AML specification set (v0.1.1 / v0.1.2 / v0.1.3).
 
 Checks:
   1. schemas/enums.yaml: value pattern and uniqueness.
@@ -9,11 +9,12 @@ Checks:
   4. Specs: retired terms are not used outside explicit legacy/retired notes.
   5. Traceability: referenced feature, SRS and story IDs exist; Technology Architecture uses TA-CAP.
   6. Markdown code fences are balanced.
-  7. Versioning: exactly one current Markdown file per document (v0.1.2 supersedes v0.1.1), every v0.1.2 file
-     carries a v0.1.2 status block, and every change-request ID cited (CR-Ix-yy) is listed in CHANGELOG.md.
+  7. Versioning: exactly one current Markdown file per document (a newer release supersedes older files), every
+     v0.1.2 / v0.1.3 file carries the status block of its version, and every change-request ID cited (CR-Ix-yy) is
+     listed in CHANGELOG.md.
 
-Documents are resolved by title: the highest version present (v0.1.2 before v0.1.1) is the current file. A superseded
-v0.1.1 file must not remain next to its v0.1.2 successor (git mv preserves history).
+Documents are resolved by title: the highest version present (v0.1.3 before v0.1.2 before v0.1.1) is the current file.
+A superseded file must not remain next to its successor (git mv preserves history).
 
 Usage: python3 tools/check_consistency.py   (exit code 1 when any error is found)
 """
@@ -29,7 +30,7 @@ DOCS = os.path.join(ROOT, 'Documents')
 errors, warnings = [], []
 
 
-VERSIONS = ('0.1.2', '0.1.1')  # newest first
+VERSIONS = ('0.1.3', '0.1.2', '0.1.1')  # newest first
 
 
 def doc(name):
@@ -47,18 +48,18 @@ def read(path):
         return f.read()
 
 
-ALL_MD = sorted(glob.glob(os.path.join(DOCS, '*_v0.1.[12]*.md')))
+ALL_MD = sorted(glob.glob(os.path.join(DOCS, '*_v0.1.[123]*.md')))
 by_title = {}
 for path in ALL_MD:
-    title = re.sub(r'_v0\.1\.[12]', '_v{}', os.path.basename(path))
+    title = re.sub(r'_v0\.1\.[123]', '_v{}', os.path.basename(path))
     by_title.setdefault(title, []).append(path)
 SPECS = []
 for title, paths in sorted(by_title.items()):
     if len(paths) > 1:
         errors.append(f'{title.format("x")}: both {", ".join(os.path.basename(p) for p in paths)} exist; '
                       f'keep only the current version')
-    SPECS.append(max(paths, key=lambda p: '_v0.1.2' in p))
-TAG = re.compile(r'\*\[v0\.1\.[12][^\]]*\]\*')
+    SPECS.append(max(paths, key=lambda p: next(i for i, v in enumerate(reversed(VERSIONS)) if f'_v{v}' in p)))
+TAG = re.compile(r'\*\[v0\.1\.[123][^\]]*\]\*')
 TOKEN = re.compile(r'\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*\b')
 
 # 1. Registry --------------------------------------------------------------------------------
@@ -104,6 +105,25 @@ ANNEX_TO_REGISTRY = {
     'temporal_value.precision': 'temporal_precision',
     'hypothesis.role': 'hypothesis_role',
     'hypothesis_link.effect': 'hypothesis_link_effect',
+    # v0.1.3
+    'search_hit.object_type': 'search_object_type',
+    'search_hit.epistemic_status': 'search_epistemic_status',
+    'graph_lead.lead_type': 'graph_lead_type',
+    'graph_query.truncation_reason': 'graph_truncation_reason',
+    'review.review_kind': 'review_kind',
+    'review.review_status': 'review_status',
+    'product_version.version_status': 'product_version_status',
+    'intelligence_product.review_reason': 'review_reason',
+    'dissemination.dissemination_status': 'dissemination_status',
+    'export_package.format': 'export_package_format',
+    'export_package.package_status': 'export_package_status',
+    'sharing_log.entry_type': 'sharing_log_entry_type',
+    'job.status': 'job_status',
+    'handling_change.direction': 'handling_change_direction',
+    'retention_rule.applies_to': 'retention_target_type',
+    'retention_rule.rule_status': 'retention_rule_status',
+    'legal_hold.hold_status': 'legal_hold_status',
+    'disposition_record.disposition_status': 'disposition_status',
 }
 dm = read(doc('CS-AML_Data_Model_Specification_v0.1.1.md'))
 annex = dm.split('# Annex A.', 1)[1].split('# Annex B.', 1)[0]
@@ -254,10 +274,11 @@ CR = re.compile(r'\bCR-I\d-\d{2}\b')
 known_cr = set(CR.findall(changelog.split('## v0.1.1', 1)[0]))
 for path in SPECS:
     name, text = os.path.basename(path), read(path)
-    if '_v0.1.2' in name:
-        head = text[:4000]
-        if 'Document status — v0.1.2' not in head or 'v0.1.2-spec' not in head:
-            errors.append(f'{name}: missing v0.1.2 status block')
+    for ver in ('0.1.2', '0.1.3'):
+        if f'_v{ver}' in name:
+            head = text[:4000]
+            if f'Document status — v{ver}' not in head or f'v{ver}-spec' not in head:
+                errors.append(f'{name}: missing v{ver} status block')
     in_fence = False
     for n, line in enumerate(text.splitlines(), 1):
         if line.startswith('```'):
@@ -265,10 +286,10 @@ for path in SPECS:
         elif in_fence and TAG.search(line):
             errors.append(f'{name}:{n}: change tag inside a code fence')
     for cr in sorted(set(CR.findall(text)) - known_cr):
-        errors.append(f'{name}: change request {cr} is not listed in CHANGELOG.md v0.1.2')
+        errors.append(f'{name}: change request {cr} is not listed in CHANGELOG.md (v0.1.2 / v0.1.3)')
 for extra in ('contracts/openapi.yaml', 'schemas/enums.yaml'):
     for cr in sorted(set(CR.findall(read(os.path.join(ROOT, extra)))) - known_cr):
-        errors.append(f'{extra}: change request {cr} is not listed in CHANGELOG.md v0.1.2')
+        errors.append(f'{extra}: change request {cr} is not listed in CHANGELOG.md (v0.1.2 / v0.1.3)')
 
 for w in warnings:
     print('WARN ', w)

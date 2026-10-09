@@ -2,15 +2,16 @@
 
 **Software Requirements Specification (SRS)**
 
-Version 0.1.2
+Version 0.1.3
 
-> **Document status — v0.1.2**  
-> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*  
+> **Document status — v0.1.3**  
+> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*  
 > Supersedes: CS-AML Software Requirements Specification (SRS) v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
+> Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
 
 > **Document status**  
 > Proposed normative software baseline for MVP 0.1 implementation (draft for review). This SRS translates the PRD (draft for review), Product & Feature Specification, Data Model Specification, Control Implementation Guide, Investigation Methodology, and Technology Architecture into testable software requirements. *[v0.1.1 · A01]*
@@ -21,11 +22,11 @@ Version 0.1.2
 
 | **Document** | CS-AML Software Requirements Specification |
 |----|----|
-| **Version** | 0.1.2 *[v0.1.2]* |
-| **Status** | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) *[v0.1.1 · A01]* |
+| **Version** | 0.1.3 *[v0.1.3]* |
+| **Status** | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) *[v0.1.1 · A01]* |
 | **Primary product scope** | MVP 0.1 |
 | **Audience** | Product, engineering, QA, security, data, reviewers, governance |
-| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.2; Technology Architecture v0.1.1; Control Implementation Guide v0.1.1; Investigation Methodology v0.1.2 (Markdown, `Documents/*_v0.1.1.md`) |
+| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.3; Technology Architecture v0.1.1; Control Implementation Guide v0.1.3; Investigation Methodology v0.1.2 (Markdown, `Documents/*_v0.1.1.md`) |
 | **Normative terms** | SHALL / MUST = mandatory; SHOULD = recommended; MAY = optional |
 
 # Contents
@@ -152,7 +153,7 @@ SOURCE → EVIDENCE → CLAIM/FACT → INDICATOR → HYPOTHESIS → ASSESSMENT �
 DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 ```
 
-These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.2 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
+These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.3 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
 
 # 3. Definitions and Conventions
 
@@ -164,7 +165,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | Protected source | Human/source identity requiring compartmentalisation | Identity access separate from routine evidence access |
 | High-impact product | Product containing potentially harmful adverse findings or public attribution | Requires independent review and dissemination approval |
 | MVP | Minimum release satisfying end-to-end case completion | All P0 requirements required unless explicitly waived; a defect against a non-waivable invariant (§21) can never be waived *[v0.1.1 · A16]* |
-| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.2 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]*. A declared classification below the inputs' maximum (or labels missing an input label) is rejected (422), never silently raised; when an input is later upgraded, derived objects are flagged for re-review and their classification is not raised automatically *[v0.1.2 · CR-I2-05]* |
+| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.3 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]*. A declared classification below the inputs' maximum (or labels missing an input label) is rejected (422), never silently raised; when an input is later upgraded, derived objects are flagged for re-review and their classification is not raised automatically *[v0.1.2 · CR-I2-05]* |
 
 # 4. System Boundary and Actors
 
@@ -326,7 +327,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 ## 6.2a Claim and Fact Lifecycle *[v0.1.1 · A10]*
 
 > **Status of this family**  
-> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.2 §7.4 Claim and §7.5 Fact.
+> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.3 §7.4 Claim and §7.5 Fact.
 
 ### SRS-FR-CLM-001 — Claim record and attribution
 
@@ -617,7 +618,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-SCH-001 — Full-text and object search
 
-| **Requirement** | The system SHALL search authorised cases, entities, sources, evidence metadata, extracts, assets, events, and products using full-text and structured filters. |
+| **Requirement** | The system SHALL search authorised cases, entities, sources, evidence metadata, extracts, assets, events, and products using full-text and structured filters. MVP 0.1 implements it as `GET /search` (API §17). Indexed: cases, entities (names, aliases, identifiers), sources, evidence metadata, extracts (cited text), claims, facts, relationships (type and dates only, never endpoint names), assets, events, value flows and products. Evidence file content (OCR / full text) is not indexed in MVP 0.1 (Phase 2); hypotheses, assessments and indicators are not indexed yet. Every hit links to its canonical object. *[v0.1.3 · CR-I5-01, CR-I5-07]* |
 |----|----|
 | **Rationale** | Supports investigation retrieval. |
 | **Verification** | Search known fixture and verify expected scoped results. |
@@ -626,16 +627,16 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-SCH-002 — Permission-filtered results
 
-| **Requirement** | The system SHALL apply object-level authorization before returning search results or counts. |
+| **Requirement** | The system SHALL apply object-level authorization before returning search results or counts. Authorization SHALL also precede facets, snippets and ordering. SOURCE_PROTECTED material (and objects whose only readable context is a SOURCE_PROTECTED case) SHALL be returned only on explicit request (`include_source_protected=true`) by a principal holding the per-case protected-source grant; otherwise it SHALL produce no hit, count, facet or snippet. *[v0.1.3 · CR-I5-04]* Rate limits: search 120 and graph 60 requests per minute per user; search statement timeout 5 s. The residual timing channel (query latency depends on the total corpus size) is accepted for MVP 0.1 with synthetic data only and SHALL be re-reviewed before real (non-synthetic) data is processed. *[v0.1.3 · CR-I5-08]* |
 |----|----|
 | **Rationale** | Prevents existence leakage. |
-| **Verification** | Compare user with/without access and verify hidden objects do not affect result counts. |
+| **Verification** | Compare user with/without access and verify hidden objects do not affect result counts. Repeat with and without the protected-source grant and with and without `include_source_protected`; verify that counts and facets change only for the authorized, opted-in principal. *[v0.1.3 · CR-I5-04]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-SCH-002; SEC-01 |
 
 ### SRS-FR-GRF-001 — Graph exploration
 
-| **Requirement** | The system SHALL display authorised entities and canonical relationships with evidence/status/confidence access from each edge. The MVP graph is the per-case, policy-filtered projection `GET /cases/{caseId}/graph` (entities, assets and events as nodes; relationships with ownership/control details, value flows and legs with their own class, and event participation as edges), computed on demand and marked derived. *[v0.1.2 · CR-I3-07]* |
+| **Requirement** | The system SHALL display authorised entities and canonical relationships with evidence/status/confidence access from each edge. The MVP graph is the per-case, policy-filtered projection `GET /cases/{caseId}/graph` (entities, assets and events as nodes; relationships with ownership/control details, value flows and legs with their own class, and event participation as edges), computed on demand and marked derived. *[v0.1.2 · CR-I3-07]* Cross-object exploration uses `POST /graph/query` and `POST /graph/paths` (API §18): depth ≤ 3, 500 nodes, 1,500 edges and a 4 s wall-clock budget return partial results with stated truncation reasons; only the 5 s statement timeout is an error (503). Shared-attribute leads (same normalized identifier, phone, e-mail or address) are labelled candidates and SHALL NOT be stored, drawn as edges or treated as facts or merges. *[v0.1.3 · CR-I5-02, CR-I5-05, CR-I5-06]* |
 |----|----|
 | **Rationale** | Supports network analysis without hiding provenance. |
 | **Verification** | Expand graph and open edge evidence. |
@@ -646,7 +647,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-PRD-001 — Product templates
 
-| **Requirement** | The system SHALL generate Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, and Case Report from canonical objects. |
+| **Requirement** | The system SHALL generate Financial Intelligence Note, Entity Profile, Asset Profile, Network Analysis, Referral Package, and Case Report from canonical objects. Each template defines typed sections (SUBJECTS, FACTS, CLAIMS, ANALYSIS, UNKNOWNS, CONTEXT) bound to canonical objects; submission freezes a version with its rendered document and content hash. *[v0.1.3 · CR-I6-01]* |
 |----|----|
 | **Rationale** | Standardises outputs. |
 | **Verification** | Generate each baseline template with metadata/evidence index. |
@@ -655,7 +656,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-REV-001 — Peer review workflow
 
-| **Requirement** | The system SHALL support comment, request-change, approve, and reject; high-impact approval SHALL be attributable and independent where policy requires. |
+| **Requirement** | The system SHALL support comment, request-change, approve, and reject; high-impact approval SHALL be attributable and independent where policy requires. Review kinds: product version, assessment, review_required clearance, handling change and correction. Authors, contributors and the requester SHALL NOT decide a review. *[v0.1.3 · CR-I6-02, CR-I6-03]* |
 |----|----|
 | **Rationale** | Implements quality gate. |
 | **Verification** | Author attempts self-approval under independent-review policy and is denied. |
@@ -664,7 +665,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-PRD-002 — Versioning and corrections
 
-| **Requirement** | The system SHALL preserve prior intelligence-product versions and mark superseded/corrected versions explicitly. |
+| **Requirement** | The system SHALL preserve prior intelligence-product versions and mark superseded/corrected versions explicitly. A correction opens version n+1; earlier versions remain valid until the correction is approved, then become SUPERSEDED with their disseminations. Withdrawal retracts every version and revokes disseminations. *[v0.1.3 · CR-I6-05]* |
 |----|----|
 | **Rationale** | Prevents historical rewriting. |
 | **Verification** | Issue correction and verify old version remains immutable/readable. |
@@ -682,7 +683,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-DIS-001 — Dissemination approval
 
-| **Requirement** | The system SHALL block external export until required handling classification, recipient, purpose, and approval are recorded. |
+| **Requirement** | The system SHALL block external export until required handling classification, recipient, purpose, and approval are recorded. The handling classification of a release SHALL be at least the product's classification; the approver SHALL be a REVIEWER or LEAD case member other than the requester. *[v0.1.3 · CR-I6-06]* |
 |----|----|
 | **Rationale** | Controls harm and confidentiality. |
 | **Verification** | Attempt export before approval and verify denial. |
@@ -691,7 +692,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-DIS-002 — Secure export
 
-| **Requirement** | The system SHALL export only explicitly approved objects and SHALL support minimisation/redaction. |
+| **Requirement** | The system SHALL export only explicitly approved objects and SHALL support minimisation/redaction. SOURCE_PROTECTED objects SHALL be exported only when the approval explicitly releases them (approver with the per-case protected-source grant, with rationale); otherwise they, their index entries and citations are withheld and only their count is recorded. *[v0.1.3 · CR-I6-07]* |
 |----|----|
 | **Rationale** | Prevents accidental over-disclosure. |
 | **Verification** | Export package and verify excluded restricted object is absent. |
@@ -729,7 +730,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ADM-003 — Retention policies
 
-| **Requirement** | The system SHALL support retention/disposition policy by object type/classification and SHALL audit disposition actions. |
+| **Requirement** | The system SHALL support retention/disposition policy by object type/classification and SHALL audit disposition actions. MVP 0.1: rules apply to evidence items, export packages and cases, optionally narrowed by classification; evaluation reports or proposes, and every disposition needs an approved, logged decision and is refused under an active legal hold. Supported dispositions are DELETE (stored bytes purged, record kept as tombstone), ARCHIVE and REVIEW. ANONYMIZE and whole-case DELETE are refused and deferred to v0.2. *[v0.1.3 · CR-I7-01, CR-I7-02, CR-I7-05]* |
 |----|----|
 | **Rationale** | Implements data minimisation lifecycle. |
 | **Verification** | Preview and execute test disposition with audit evidence. |
@@ -790,7 +791,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Aligns SRS with canonical data model. |
 | **Verification** | Schema review and CRUD contract tests for all required object types. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.2 |
+| **Traceability** | Data Model v0.1.3 |
 
 ### SRS-DR-002 — Stable identifiers
 
@@ -799,7 +800,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Supports audit and linking. |
 | **Verification** | Rename object and verify identifier unchanged. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.2 |
+| **Traceability** | Data Model v0.1.3 |
 
 ### SRS-DR-003 — Version semantics
 
@@ -817,7 +818,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Supports imperfect open-source data. |
 | **Verification** | Store year-only and approximate event date. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.2 |
+| **Traceability** | Data Model v0.1.3 |
 
 ### SRS-DR-005 — Provenance references
 
@@ -830,7 +831,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-DR-006 — Deletion semantics
 
-| **Requirement** | Deletion of canonical investigative objects SHALL be soft-delete/tombstone or equivalent where audit/history obligations require preservation; hard deletion SHALL be controlled by retention/disposition policy. |
+| **Requirement** | Deletion of canonical investigative objects SHALL be soft-delete/tombstone or equivalent where audit/history obligations require preservation; hard deletion SHALL be controlled by retention/disposition policy. In MVP 0.1 hard deletion is limited to the stored bytes of evidence originals and export packages through an approved DELETE disposition; the database record remains as the tombstone and disposed content answers 409. *[v0.1.3 · CR-I7-05, CR-I7-07]* |
 |----|----|
 | **Rationale** | Balances history with minimisation. |
 | **Verification** | Delete test object and verify policy-compliant behaviour. |
@@ -850,7 +851,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-IF-002 — REST/HTTP API
 
-| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.2 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
+| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.3 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
 |----|----|
 | **Rationale** | Enables integration and testability. |
 | **Verification** | API contract tests plus authorization parity tests. |
@@ -1009,7 +1010,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-NFR-PERF-002 — Search latency
 
-| **Requirement** | Permission-filtered search SHOULD return first-page results within 3 seconds at reference MVP scale. |
+| **Requirement** | Permission-filtered search SHOULD return first-page results within 3 seconds at reference MVP scale. Both targets apply: global permission-filtered search, first page ≤ 3 s; case-scoped search, p95 < 2 s (Technical Stack §29). They are SHOULD-level targets measured on the reference corpus (SRS-NFR-PERF-004), not guarantees. *[v0.1.3 · CR-I5-09]* |
 |----|----|
 | **Rationale** | Analyst productivity. |
 | **Verification** | Search benchmark under concurrent users. |
@@ -1027,7 +1028,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-NFR-PERF-004 — Reference scale
 
-| **Requirement** | MVP SHALL support at least 25 concurrent authenticated users, 100,000 canonical entities/relationships combined, and 100 GB evidence storage in a reference small-organisation deployment, subject to deployment profile tuning. |
+| **Requirement** | MVP SHALL support at least 25 concurrent authenticated users, 100,000 canonical entities/relationships combined, and 100 GB evidence storage in a reference small-organisation deployment, subject to deployment profile tuning. The reference corpus for search and graph measurements is the synthetic generator of the reference implementation (`backend/tests/synthetic_corpus.py`, about 97,000 search rows); measurements on it are evidence for the targets, not a guarantee. *[v0.1.3 · CR-I5-09]* |
 |----|----|
 | **Rationale** | Provides engineering sizing target. |
 | **Verification** | Synthetic scale/load test. |
@@ -1257,7 +1258,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-OPS-002 — Health endpoints
 
-| **Requirement** | Application services SHALL provide health/readiness indicators that do not reveal case-sensitive content. |
+| **Requirement** | Application services SHALL provide health/readiness indicators that do not reveal case-sensitive content. MVP 0.1: `GET /api/v1/health` (unauthenticated) reports only status and latency of the database, Valkey and the object store plus build version; the Prometheus `/metrics` endpoint is internal and never routed externally. *[v0.1.3 · CR-I7-08]* |
 |----|----|
 | **Rationale** | Operational monitoring. |
 | **Verification** | Health endpoint test. |
@@ -1367,7 +1368,7 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 
 # Annex B — State Models
 
-State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.2 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
+State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.3 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
 
 ``` text
 Case (case_status): DRAFT → AUTHORIZED → ACTIVE → REVIEW → CLOSED → MONITORING → REOPENED
@@ -1417,7 +1418,7 @@ Lifecycle-less classes (envelope_status): Source, EvidenceExtract, Asset → REG
 
 # Annex C — API Resource Baseline
 
-Paths are relative to `/api/v1` and follow API Specification v0.1.2 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
+Paths are relative to `/api/v1` and follow API Specification v0.1.3 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
 
 - /cases, /cases/{caseId}/charter, /cases/{caseId}/gates, /cases/{caseId}/tasks
 

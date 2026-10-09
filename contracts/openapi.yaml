@@ -1,17 +1,17 @@
-# CS-AML API — OpenAPI 3.1 contract. Version 0.1.2 — Approved Internal Specification Baseline (v0.1.2-spec; supersedes v0.1.1).
-# Source of truth for prose semantics: Documents/CS-AML_API_Specification_v0.1.2.md and
-# Documents/CS-AML_Data_Model_Specification_v0.1.2.md. Wire enums: schemas/enums.yaml.
-# Contract choices not fixed by those specifications carry x-csaml-release-class (MUST_DECIDE_V0_1_1 / ACCEPT_DEFAULT_V0_1_1 / DEFER_V0_2 / DECIDED_V0_1_2).
+# CS-AML API — OpenAPI 3.1 contract. Version 0.1.3 — Approved Internal Specification Baseline (v0.1.3-spec; supersedes v0.1.2).
+# Source of truth for prose semantics: Documents/CS-AML_API_Specification_v0.1.3.md and
+# Documents/CS-AML_Data_Model_Specification_v0.1.3.md. Wire enums: schemas/enums.yaml.
+# Contract choices not fixed by those specifications carry x-csaml-release-class (MUST_DECIDE_V0_1_1 / ACCEPT_DEFAULT_V0_1_1 / DEFER_V0_2 / DECIDED_V0_1_2 / DECIDED_V0_1_3).
 openapi: 3.1.0
 info:
   title: CS-AML API
-  version: 0.1.2
-  summary: Approved Internal Specification Baseline v0.1.2 (2026-10-09). Validated against the I1–I4 implementation only through its contract
+  version: 0.1.3
+  summary: Approved Internal Specification Baseline v0.1.3 (2026-10-09). Validated against the I1–I7 implementation only through its contract
     tests.
   description: |-
-    Status: **Approved Internal Specification Baseline v0.1.2** (2026-10-09, tag `v0.1.2-spec`; supersedes v0.1.1). The P0 vertical slice of v0.1.1 plus the change requests approved by the product owner on 2026-10-09 (CR-I1-01…CR-I4-14, `CHANGELOG.md`): case memberships, back-channel logout, provenance traces, assets/ownership/control, events/timeline, value-flow view and legend, case graph, typology catalogue, indicators, typology matches, the hypothesis matrix, intelligence gaps and assessment revisions. Derived from `Documents/CS-AML_API_Specification_v0.1.2.md` (endpoints, conventions) and `Documents/CS-AML_Data_Model_Specification_v0.1.2.md` (fields, enums). Maintained contract-first; once an implementation exists, the schema generated from it is diffed against this file in CI (API §28).
+    Status: **Approved Internal Specification Baseline v0.1.3** (2026-10-09, tag `v0.1.3-spec`; supersedes v0.1.2). The P0 vertical slice of v0.1.1 plus the change requests approved by the product owner on 2026-10-09 (CR-I1-01…CR-I4-14, `CHANGELOG.md`): case memberships, back-channel logout, provenance traces, assets/ownership/control, events/timeline, value-flow view and legend, case graph, typology catalogue, indicators, typology matches, the hypothesis matrix, intelligence gaps and assessment revisions. v0.1.3 adds the change requests CR-I5-01…CR-I7-08 (`CHANGELOG.md`, v0.1.3): search, graph query and paths, product templates, rendering, frozen versions, corrections and withdrawal, review kinds and review requests, dissemination list and revocation, export package format, download and statuses, job status, retention rules, legal holds and disposition records, the canonical single-extract resource and the health probe. Derived from `Documents/CS-AML_API_Specification_v0.1.3.md` (endpoints, conventions) and `Documents/CS-AML_Data_Model_Specification_v0.1.3.md` (fields, enums). Maintained contract-first; once an implementation exists, the schema generated from it is diffed against this file in CI (API §28).
 
-    Conventions: wire enums are UPPER_SNAKE_CASE from the Data Model Annex A registry (`schemas/enums.yaml`); contract choices not fixed by the prose specifications carry `x-csaml-release-class`: MUST_DECIDE_V0_1_1 (decided, `x-csaml-status: decided`), ACCEPT_DEFAULT_V0_1_1 (frozen default, `accepted-default`; may evolve compatibly) or DEFER_V0_2 (`deferred`); items decided on 2026-10-09 carry DECIDED_V0_1_2 (`decided`) and `x-csaml-cr` with the change-request IDs. `x-csaml-ref-types` lists the permitted target classes of a reference field. Evaluation order: 401 → 403/404 → 400/428 → 412 → 422 → 409. Versioned resources return `ETag: "<record_version>"`; mutations send `If-Match`, except multi-entity commands (merge, unmerge, resolution decisions, match-candidate decisions), which send the body map `expected_versions` (412 carries details.current_record_versions). Idempotency-Key is REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval and export package generation; SHOULD for creates.
+    Conventions: wire enums are UPPER_SNAKE_CASE from the Data Model Annex A registry (`schemas/enums.yaml`); contract choices not fixed by the prose specifications carry `x-csaml-release-class`: MUST_DECIDE_V0_1_1 (decided, `x-csaml-status: decided`), ACCEPT_DEFAULT_V0_1_1 (frozen default, `accepted-default`; may evolve compatibly) or DEFER_V0_2 (`deferred`); items decided on 2026-10-09 carry DECIDED_V0_1_2 or DECIDED_V0_1_3 (`decided`) and `x-csaml-cr` with the change-request IDs. `x-csaml-ref-types` lists the permitted target classes of a reference field. Evaluation order: 401 → 403/404 → 400/428 → 412 → 422 → 409. Versioned resources return `ETag: "<record_version>"`; mutations send `If-Match`, except multi-entity commands (merge, unmerge, resolution decisions, match-candidate decisions), which send the body map `expected_versions` (412 carries details.current_record_versions). Idempotency-Key is REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation, legal-hold release and disposition decisions; SHOULD for creates.
   x-csaml-document-status: APPROVED_INTERNAL_SPECIFICATION_BASELINE
   license:
     name: Internal — not for external distribution
@@ -60,6 +60,12 @@ tags:
   description: Derived case graph projection
 - name: Typologies
   description: Typology catalogue, indicators and typology matches
+- name: Search
+  description: Permission-aware search over canonical objects (derived projection; API §17).
+- name: Retention
+  description: Retention rules, legal holds and the disposition workflow (API §20A).
+- name: Operations
+  description: Operational probes (API §20). /metrics is internal and not part of the API.
 paths:
   /auth/login:
     get:
@@ -1549,7 +1555,8 @@ paths:
       tags:
       - Evidence
       description: Authorization is re-checked on every request. Safe Content-Type/Content-Disposition; active documents are not executed in the
-        CS-AML origin.
+        CS-AML origin. An original whose stored bytes were purged by an executed DELETE disposition answers 409 STATE_CONFLICT with details.reason
+        = EVIDENCE_DISPOSED; the metadata record (hash, size, storage reference) remains as the tombstone. [v0.1.3 · CR-I7-07]
       parameters:
       - $ref: '#/components/parameters/evidenceId'
       - name: Range
@@ -1589,6 +1596,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
         '429':
           $ref: '#/components/responses/RateLimited'
         '500':
@@ -1597,6 +1606,8 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      x-csaml-cr:
+      - CR-I7-07
   /evidence/{evidenceId}/verify-integrity:
     post:
       operationId: verifyEvidenceIntegrity
@@ -6634,6 +6645,8 @@ paths:
       - sessionCookie: []
         csrfHeader: []
       x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-cr:
+      - CR-I6-03
   /reviews:
     get:
       operationId: listReviews
@@ -6768,6 +6781,9 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      description: RETURN / REJECT set the version RETURNED / REJECTED and the product back to DRAFT. [v0.1.3 · CR-I6-03]
+      x-csaml-cr:
+      - CR-I6-03
   /reviews/{reviewId}/approve:
     post:
       operationId: approveReview
@@ -6777,7 +6793,10 @@ paths:
       description: 'Reviewer independent of the author where policy requires (403). Approving a rejected/closed review → 409. A repeat with the
         same key returns the same completed decision, never a duplicate. Idempotency-Key REQUIRED. SRS-FR-ASM-004: approving a review whose target
         is, or depends on, a high-impact or adverse assessment with no disconfirming_searches entry → 409 STATE_CONFLICT with details.reason =
-        DISCONFIRMATION_REQUIRED.'
+        DISCONFIRMATION_REQUIRED. Effects: APPROVE → product APPROVED (assessment APPROVED); APPROVE_WITH_CHANGES → product REVIEWED, not disseminable
+        until a new version is reviewed (assessment PEER_REVIEWED). 409 REVIEW_REQUIRED while an assessment in scope is flagged, or while the
+        product is flagged unless clear_review_required = true. Authors, contributors and the requester can never decide (403). [v0.1.3 · CR-I6-03,
+        CR-I6-04]'
       parameters:
       - $ref: '#/components/parameters/reviewId'
       - $ref: '#/components/parameters/XRequestID'
@@ -6866,6 +6885,10 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-I6-02
+      - CR-I6-03
+      - CR-I6-04
   /reviews/{reviewId}/reject:
     post:
       operationId: rejectReview
@@ -6922,6 +6945,9 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      description: RETURN / REJECT set the version RETURNED / REJECTED and the product back to DRAFT. [v0.1.3 · CR-I6-03]
+      x-csaml-cr:
+      - CR-I6-03
   /disseminations:
     post:
       operationId: createDissemination
@@ -6972,6 +6998,55 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+    get:
+      operationId: listDisseminations
+      summary: Dissemination requests and approvals
+      tags:
+      - Disseminations
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/ClassificationFilter'
+      - $ref: '#/components/parameters/CaseIdFilter'
+      - $ref: '#/components/parameters/StatusFilter'
+      - name: product_id
+        in: query
+        required: false
+        description: Disseminations of one product.
+        schema:
+          $ref: '#/components/schemas/Ref'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisseminationList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-06
   /disseminations/{disseminationId}:
     get:
       operationId: getDissemination
@@ -7018,7 +7093,11 @@ paths:
       summary: Authorize recipient/purpose/package scope
       tags:
       - Disseminations
-      description: Independent approval; never a duplicate decision on retry. Idempotency-Key REQUIRED.
+      description: 'Independent approval; never a duplicate decision on retry. Idempotency-Key REQUIRED. Approver: a REVIEWER or LEAD member of
+        the product''s case (DISSEMINATION_APPROVE), never the requester (403). Approval marks the product DISSEMINATED and writes a RELEASE_APPROVED
+        sharing-log entry. Objects classified SOURCE_PROTECTED enter the approved scope only with source_protected_release = true set by an approver
+        holding the per-case protected-source grant, with a rationale (403 / 422 otherwise); without it every source-protected item, index entry
+        and citation is withheld from packages (count recorded, content never). [v0.1.3 · CR-I6-06, CR-I6-07]'
       parameters:
       - $ref: '#/components/parameters/disseminationId'
       - $ref: '#/components/parameters/XRequestID'
@@ -7069,6 +7148,9 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-I6-06
+      - CR-I6-07
   /disseminations/{disseminationId}/export-candidates:
     get:
       operationId: listExportCandidates
@@ -7108,6 +7190,11 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      description: Computed from the frozen product version of the dissemination and returned as one page (page.next_cursor = null, has_more =
+        false); a single-page derived list is allowed. Each candidate states whether it is source-protected and inside the approved scope. [v0.1.3
+        · CR-I6-11]
+      x-csaml-cr:
+      - CR-I6-11
   /disseminations/{disseminationId}/exports:
     post:
       operationId: generateExportPackage
@@ -7115,7 +7202,8 @@ paths:
       tags:
       - Disseminations
       description: Only for an approved dissemination (409 otherwise; export without approval is a non-waivable invariant). Idempotency-Key REQUIRED;
-        a retry is tied to the same approved package request.
+        a retry is tied to the same approved package request. Always 202 Accepted with the job and the QUEUED export package (no synchronous 201);
+        a retry with the same Idempotency-Key replays the same job. [v0.1.3 · CR-I6-11]
       parameters:
       - $ref: '#/components/parameters/disseminationId'
       - $ref: '#/components/parameters/XRequestID'
@@ -7128,30 +7216,22 @@ paths:
             schema:
               $ref: '#/components/schemas/ExportCreate'
       responses:
-        '201':
-          description: Created
-          headers:
-            X-Request-ID:
-              $ref: '#/components/headers/XRequestID'
-            ETag:
-              $ref: '#/components/headers/ETag'
-            Idempotent-Replayed:
-              $ref: '#/components/headers/IdempotentReplayed'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExportPackage'
         '202':
-          description: 'Large package: generated asynchronously (API §22).'
+          description: 'Accepted: the package is generated asynchronously (API §22); poll the job, then GET /export-packages/{exportId}.'
           headers:
-            Idempotent-Replayed:
-              $ref: '#/components/headers/IdempotentReplayed'
             X-Request-ID:
               $ref: '#/components/headers/XRequestID'
+            Location:
+              description: 'The job: /api/v1/jobs/{jobId}.'
+              schema:
+                type: string
+                format: uri-reference
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobAccepted'
+                $ref: '#/components/schemas/ExportJobAccepted'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -7177,6 +7257,8 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-I6-11
   /sharing-log:
     get:
       operationId: listSharingLog
@@ -7254,6 +7336,1564 @@ paths:
       security:
       - sessionCookie: []
       x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-cr:
+      - CR-I6-09
+  /search:
+    get:
+      operationId: searchObjects
+      summary: Permission-aware full-text and structured search (SRS-FR-SCH-001/002)
+      tags:
+      - Search
+      description: 'Searches authorised cases, entities, sources, evidence metadata, extracts, claims, facts, relationships, assets, events, value
+        flows and products. Hidden objects never affect results, total_count, facets, snippets or ordering (relevance is a per-document text score
+        without corpus statistics; it is not a risk or significance score). SOURCE_PROTECTED material (and material whose only readable context
+        is a SOURCE_PROTECTED case) is returned only with include_source_protected=true AND the per-case protected-source grant. Every hit is
+        a pointer with canonical back-links (links.self = API resource, links.ui = SPA route in a readable case context); case_context lists readable
+        cases only. q: up to 200 characters, at most 12 word tokens, each matched as a prefix (accents and case folded); names, aliases and identifiers
+        also match by trigram similarity. Rate limit: 120 requests per minute per user (429 RATE_LIMITED); statement timeout 5 s (503). Residual
+        timing channel: query latency still depends on the total corpus size; accepted for MVP with synthetic data and SHALL be re-reviewed before
+        real (non-synthetic) data is processed. [v0.1.3 · CR-I5-01, CR-I5-03, CR-I5-04, CR-I5-07, CR-I5-08]'
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+        description: Free text. Omit for a structured (filter-only) search.
+      - name: type
+        in: query
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchObjectType'
+      - $ref: '#/components/parameters/CaseIdFilter'
+      - $ref: '#/components/parameters/ClassificationFilter'
+      - $ref: '#/components/parameters/StatusFilter'
+      - name: entity_type
+        in: query
+        required: false
+        style: form
+        explode: false
+        description: Restricts the result to entities of these types.
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityType'
+      - name: flow_class
+        in: query
+        required: false
+        style: form
+        explode: false
+        description: Restricts the result to value flows whose own class or any leg's class is listed.
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowClass'
+      - name: date_from
+        in: query
+        required: false
+        description: ISO date or date-time; compared with the object's domain date (object_date).
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        required: false
+        description: ISO date (whole day, UTC) or date-time.
+        schema:
+          type: string
+      - name: include_source_protected
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          default: 'false'
+      - name: facets
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          default: 'true'
+      - name: sort
+        in: query
+        required: false
+        description: relevance (default with q, descending), updated_at (default without q), created_at, title; `-` prefix for descending.
+        schema:
+          type: string
+          enum:
+          - relevance
+          - -relevance
+          - updated_at
+          - -updated_at
+          - created_at
+          - -created_at
+          - title
+          - -title
+      - name: page[size]
+        in: query
+        required: false
+        style: form
+        explode: true
+        description: Default 25, maximum 100.
+        schema:
+          type: integer
+          minimum: 1
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-01
+      - CR-I5-03
+      - CR-I5-04
+      - CR-I5-07
+      - CR-I5-08
+  /graph/query:
+    post:
+      operationId: queryGraph
+      summary: Seeded, depth- and budget-limited graph exploration (API §18 sketch)
+      tags:
+      - Graph
+      description: 'Breadth-first, undirected expansion from readable seeds over readable canonical Relationships, ValueFlows / ValueFlowLegs
+        (each with its own flow class) and Event participation. With case_id the walk stays inside that case; without it, it crosses into other
+        cases only where the caller may read the objects. A seed the caller may not read answers the non-disclosing 404 (audited); a readable
+        seed outside case_id answers 422. Budgets: depth <= server cap (3), node / edge caps (the request may only lower them), a wall-clock budget
+        (partial result, meta.truncated with reasons) and a statement timeout (503, details.reason = QUERY_TIME_BUDGET). Read-only: nothing is
+        written; leads are candidates, never facts, relationships or merges. Defaults: depth 2 (cap 3), 500 nodes, 1500 edges, 4 s wall clock,
+        5 s statement timeout. Rate limit: 60 requests per minute per user (429 RATE_LIMITED). Leads (include_leads): readable entities in scope
+        that record the same normalized identifier (same identifier type), phone, e-mail or address value (values are case-folded, accent-stripped
+        and reduced to letters and digits; phone numbers to digits only; values shorter than 4 characters are ignored); status CANDIDATE, never
+        an edge, never stored. [v0.1.3 · CR-I5-02, CR-I5-05, CR-I5-06, CR-I5-08]'
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphQueryRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphQueryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+      - CR-I5-05
+      - CR-I5-06
+      - CR-I5-08
+  /graph/paths:
+    post:
+      operationId: findGraphPaths
+      summary: Shortest paths between two readable nodes within a depth limit
+      tags:
+      - Graph
+      description: 'Shortest paths (up to max_paths) over the same authorized expansion as /graph/query. A path in the authorized graph is not
+        proof of control, causality or wrongdoing. Unreadable endpoints answer the non-disclosing 404. Rate limit: 60 requests per minute per
+        user (shared with /graph/query). [v0.1.3 · CR-I5-02, CR-I5-06, CR-I5-08]'
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphPathsRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphPathsResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+      - CR-I5-06
+      - CR-I5-08
+  /product-templates:
+    get:
+      operationId: listProductTemplates
+      summary: The six MVP product templates
+      tags:
+      - Products
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductTemplateList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      description: Six templates with typed sections (SUBJECTS, FACTS, CLAIMS, ANALYSIS, UNKNOWNS, CONTEXT) and their canonical-object bindings.
+        [v0.1.3 · CR-I6-01]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+  /products/{productId}/rendering:
+    get:
+      operationId: getProductRendering
+      summary: Live rendering of the working version
+      tags:
+      - Products
+      parameters:
+      - $ref: '#/components/parameters/productId'
+      - $ref: '#/components/parameters/XRequestID'
+      description: 'Preview: renders the working version from the canonical objects the principal may read. The frozen document of a submitted
+        version is /products/{productId}/versions/{version}. [v0.1.3 · CR-I6-01]'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+  /products/{productId}/versions/{version}:
+    get:
+      operationId: getProductVersion
+      summary: One frozen product version with its document
+      tags:
+      - Products
+      parameters:
+      - $ref: '#/components/parameters/productId'
+      - $ref: '#/components/parameters/productVersion'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntelligenceProductVersionDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+      - CR-I6-03
+  /products/{productId}/corrections:
+    post:
+      operationId: startProductCorrection
+      summary: Open a correction version
+      tags:
+      - Products
+      parameters:
+      - $ref: '#/components/parameters/productId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: 'ST-E8-04: an APPROVED / REVIEWED / DISSEMINATED product opens version n+1 as DRAFT. Earlier versions stay immutable and valid
+        until the correction is approved (then they become SUPERSEDED and their disseminations too). [v0.1.3 · CR-I6-05]'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCorrectionRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntelligenceProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-05
+  /products/{productId}/withdraw:
+    post:
+      operationId: withdrawProduct
+      summary: Withdraw a product
+      tags:
+      - Products
+      parameters:
+      - $ref: '#/components/parameters/productId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: Case LEAD only. Versions become RETRACTED, open reviews CANCELLED, disseminations REVOKED (sharing log). [v0.1.3 · CR-I6-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductWithdrawRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntelligenceProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-05
+  /assessments/{assessmentId}/submit-review:
+    post:
+      operationId: submitAssessmentForReview
+      summary: Submit a finalized assessment for review
+      tags:
+      - Reviews
+      parameters:
+      - $ref: '#/components/parameters/assessmentId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: 'Opens an ASSESSMENT review (SRS-FR-ASM-004 enforced at approval). Approval sets review_status APPROVED (APPROVE_WITH_CHANGES:
+        PEER_REVIEWED) and freezes the disconfirming searches (CR-I4-10). [v0.1.3 · CR-I6-02, CR-I6-03]'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitReviewRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-02
+      - CR-I6-03
+  /review-requests:
+    post:
+      operationId: createReviewRequest
+      summary: Request a recorded reviewer decision
+      tags:
+      - Reviews
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: 'REVIEW_FLAG_CLEARANCE: clearing review_required on an assessment / product is a review action (CR-I4-11). HANDLING_CHANGE:
+        classification downgrades and label removals are applied only by an approved review (CR-I1-09, Data Model §16); upgrades are applied by
+        PATCH (422 here). [v0.1.3 · CR-I6-02, CR-I6-04, CR-I6-12]'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequestCreate'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-02
+      - CR-I6-04
+      - CR-I6-12
+  /disseminations/{disseminationId}/revoke:
+    post:
+      operationId: revokeDissemination
+      summary: Revoke a dissemination
+      tags:
+      - Disseminations
+      parameters:
+      - $ref: '#/components/parameters/disseminationId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: Requester or an approver. A revoked approval invalidates every export package of it (downloads -> 409). [v0.1.3 · CR-I6-06]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisseminationRevokeRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dissemination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-06
+  /export-packages:
+    get:
+      operationId: listExportPackages
+      summary: Export packages
+      tags:
+      - Disseminations
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/ClassificationFilter'
+      - $ref: '#/components/parameters/CaseIdFilter'
+      - $ref: '#/components/parameters/StatusFilter'
+      - name: dissemination_id
+        in: query
+        required: false
+        description: Packages of one dissemination.
+        schema:
+          $ref: '#/components/schemas/Ref'
+      - name: product_id
+        in: query
+        required: false
+        description: Packages of one product.
+        schema:
+          $ref: '#/components/schemas/Ref'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportPackageList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-08
+  /export-packages/{exportId}:
+    get:
+      operationId: getExportPackage
+      summary: Export package with its manifest and hashes
+      tags:
+      - Disseminations
+      parameters:
+      - $ref: '#/components/parameters/exportId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportPackage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-08
+  /export-packages/{exportId}/content:
+    get:
+      operationId: downloadExportPackage
+      summary: Download an export package
+      tags:
+      - Disseminations
+      parameters:
+      - $ref: '#/components/parameters/exportId'
+      - $ref: '#/components/parameters/XRequestID'
+      description: 'Re-checks authorization (the package and every object in it) and approval validity at retrieval time (API §22, API-SEC-09):
+        a revoked or superseded approval, a superseded / retracted version or a withdrawn product -> 409. [v0.1.3 · CR-I6-08]'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-08
+  /retention-rules:
+    get:
+      operationId: listRetentionRules
+      summary: Retention rules
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/StatusFilter'
+      - $ref: '#/components/parameters/RetentionTargetTypeFilter'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionRuleList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      description: Platform administrators manage rules; rules are never deleted, only RETIRED (final). [v0.1.3 · CR-I7-01]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+    post:
+      operationId: createRetentionRule
+      summary: Create a retention rule (administrators)
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetentionRuleCreate'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+      - CR-I7-02
+      - CR-I7-05
+  /retention-rules/{ruleId}:
+    get:
+      operationId: getRetentionRule
+      summary: Retention rule
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/ruleId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+    patch:
+      operationId: updateRetentionRule
+      summary: Change or retire a retention rule (administrators)
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/ruleId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetentionRuleUpdate'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionRule'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+  /retention-evaluations:
+    post:
+      operationId: evaluateRetention
+      summary: Run the retention evaluation now (administrators)
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      description: Also scheduled daily by Celery beat (CSAML_RETENTION_MODE, default REPORT). [v0.1.3 · CR-I7-01]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetentionEvaluationRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionEvaluationReport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+  /legal-holds:
+    get:
+      operationId: listLegalHolds
+      summary: Legal holds
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/ClassificationFilter'
+      - $ref: '#/components/parameters/CaseIdFilter'
+      - $ref: '#/components/parameters/StatusFilter'
+      - $ref: '#/components/parameters/RetentionTargetIdFilter'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalHoldList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+    post:
+      operationId: placeLegalHold
+      summary: Place a legal hold
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalHoldCreate'
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalHold'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      description: A legal hold on a case covers every object linked to it. [v0.1.3 · CR-I7-03]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+  /legal-holds/{holdId}:
+    get:
+      operationId: getLegalHold
+      summary: Legal hold
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/holdId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalHold'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+  /legal-holds/{holdId}/release:
+    post:
+      operationId: releaseLegalHold
+      summary: Release a legal hold
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/holdId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-03]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalHoldRelease'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalHold'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+  /disposition-records:
+    get:
+      operationId: listDispositionRecords
+      summary: Disposition log
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/ClassificationFilter'
+      - $ref: '#/components/parameters/CaseIdFilter'
+      - $ref: '#/components/parameters/StatusFilter'
+      - $ref: '#/components/parameters/RetentionTargetTypeFilter'
+      - $ref: '#/components/parameters/RetentionTargetIdFilter'
+      description: Administrators see every record (references only); others the records of targets they may read. [v0.1.3 · CR-I7-04]
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispositionRecordList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+  /disposition-records/{recordId}:
+    get:
+      operationId: getDispositionRecord
+      summary: Disposition record
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/recordId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispositionRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+  /disposition-records/{recordId}/approve:
+    post:
+      operationId: approveDisposition
+      summary: Approve a proposed disposition
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/recordId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: The LEAD of every case the target is linked to; never the proposer (403, and a database CHECK). Refused under an active legal
+        hold (409). Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-04]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionDecision'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispositionRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+  /disposition-records/{recordId}/reject:
+    post:
+      operationId: rejectDisposition
+      summary: Reject a proposed disposition
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/recordId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      description: Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-04]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionDecision'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispositionRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+  /disposition-records/{recordId}/execute:
+    post:
+      operationId: executeDisposition
+      summary: Execute an approved disposition
+      tags:
+      - Retention
+      parameters:
+      - $ref: '#/components/parameters/recordId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      description: An administrator or the approver. Re-checks rule and legal holds (409; the database refuses it too). Two committed steps (EXECUTING,
+        EXECUTED); a failed purge stays EXECUTING (503) and may be retried. [v0.1.3 · CR-I7-04, CR-I7-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispositionExecute'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispositionRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+      - CR-I7-05
+  /evidence-extracts/{extractId}:
+    get:
+      operationId: getEvidenceExtract
+      summary: Evidence extract detail (canonical single-extract resource)
+      tags:
+      - Evidence
+      description: Canonical URL of one EvidenceExtract; its links.self and the canonical back-link of search hits, product citations and provenance
+        traces. Readable exactly when the parent evidence item is readable (same case context, classification and labels); an unknown or unreadable
+        extract answers the non-disclosing 404. provenance_refs = [evidence_id]; links.evidence points to the parent item. The list GET /evidence/{evidenceId}/extracts
+        is unchanged. [v0.1.3 · CR-I5-07]
+      parameters:
+      - $ref: '#/components/parameters/extractId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceExtract'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-07
+  /health:
+    get:
+      operationId: getHealth
+      summary: Readiness probe (database, Valkey, object store)
+      tags:
+      - Operations
+      description: 'Unauthenticated operational probe (SRS-OPS-002): dependency status and latency only, no case content. A failed dependency
+        answers 503 DEPENDENCY_UNAVAILABLE with details.checks. The Prometheus endpoint /metrics is internal (scraped inside the deployment network,
+        never routed by the reverse proxy) and is deliberately not part of this API. [v0.1.3 · CR-I7-08]'
+      parameters:
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: All dependencies available
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-08
 components:
   securitySchemes:
     sessionCookie:
@@ -7616,6 +9256,61 @@ components:
       schema:
         type: string
       description: 'Catalogue version (default: the current one).'
+    productVersion:
+      name: version
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9]+$
+    exportId:
+      name: exportId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ref'
+    ruleId:
+      name: ruleId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ref'
+    holdId:
+      name: holdId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ref'
+    recordId:
+      name: recordId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ref'
+    RetentionTargetTypeFilter:
+      name: target_type
+      in: query
+      required: false
+      description: Comma-separated target types.
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RetentionTargetType'
+    RetentionTargetIdFilter:
+      name: target_id
+      in: query
+      required: false
+      description: Records about one target.
+      schema:
+        $ref: '#/components/schemas/Ref'
+    extractId:
+      name: extractId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ref'
   headers:
     ETag:
       description: '`"<record_version>"` of the returned versioned resource.'
@@ -8350,7 +10045,9 @@ components:
             resource. Classes with their own lifecycle mirror it (Claim claim_status, Fact fact_status, Entity resolution_status, Relationship
             relationship_status, OwnershipInterest interest_status, ControlAssertion assertion_status, Hypothesis status, Indicator status, IntelligenceGap
             status). Classes without one use the registry enum envelope_status: REGISTERED (Source, EvidenceExtract, Asset), RECORDED (Event,
-            ValueFlow, TypologyMatch), DRAFT / FINALIZED (Assessment until review; then its review_status). [v0.1.2 · CR-I2-03, CR-I3-05, CR-I4-09]'
+            ValueFlow, TypologyMatch), DRAFT / FINALIZED (Assessment until review; then its review_status). [v0.1.2 · CR-I2-03, CR-I3-05, CR-I4-09]
+            Review: review_status; Dissemination: dissemination_status; ExportPackage: package_status; RetentionRule: rule_status; LegalHold:
+            hold_status; DispositionRecord: disposition_status. [v0.1.3 · CR-I6-03, CR-I6-06, CR-I6-08, CR-I7-03, CR-I7-04]'
         classification:
           allOf:
           - $ref: '#/components/schemas/Classification'
@@ -8619,22 +10316,91 @@ components:
       x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
     Job:
       type: object
-      description: Asynchronous job (API Specification §22).
+      description: Asynchronous job (API Specification §22). [v0.1.3 · CR-I6-09]
       properties:
         id:
           $ref: '#/components/schemas/Ref'
         status:
-          type: string
-          description: Job status (e.g. QUEUED). The job lifecycle/status enum is an open item (API Specification §28).
-          examples:
-          - QUEUED
+          $ref: '#/components/schemas/JobStatus'
+          description: Job status (registry job_status). [v0.1.3 · CR-I6-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
         poll_url:
           type: string
           format: uri-reference
+        job_type:
+          type: string
+          description: Kind of work, e.g. EXPORT_PACKAGE. [v0.1.3 · CR-I6-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        target_type:
+          type: string
+          description: Object type of the target. [v0.1.3 · CR-I6-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        target_ref:
+          $ref: '#/components/schemas/Ref'
+          description: The object the job produces or processes. A job is readable by whoever may read its target. [v0.1.3 · CR-I6-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        result_url:
+          type:
+          - string
+          - 'null'
+          format: uri-reference
+          description: Where the result is read once SUCCEEDED. [v0.1.3 · CR-I6-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        created_at:
+          type: string
+          format: date-time
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        started_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        finished_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
+        error:
+          type:
+          - string
+          - 'null'
+          description: Safe failure summary (no internals). [v0.1.3 · CR-I6-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-09
       required:
       - id
       - status
       - poll_url
+      x-csaml-cr:
+      - CR-I6-09
     JobAccepted:
       type: object
       description: 202 Accepted body (API Specification §22).
@@ -8714,6 +10480,17 @@ components:
             - type: 'null'
           status:
             $ref: '#/components/schemas/CaseStatus'
+          closed_at:
+            oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+            readOnly: true
+            description: Time the case entered CLOSED; null otherwise. The retention trigger CASE_CLOSURE uses it. [v0.1.3 · CR-I7-06]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I7-06
         required:
         - title
         - case_code
@@ -9269,7 +11046,8 @@ components:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
       - type: object
-        description: EvidenceExtract (Data Model §7.3).
+        description: EvidenceExtract (Data Model §7.3). links.self = /api/v1/evidence-extracts/{extractId} (canonical single-extract URL); links.evidence
+          = the parent evidence item. [v0.1.3 · CR-I5-07]
         properties:
           evidence_id:
             $ref: '#/components/schemas/Ref'
@@ -9292,6 +11070,8 @@ components:
         required:
         - evidence_id
         - locator
+        x-csaml-cr:
+        - CR-I5-07
     EvidenceExtractCreate:
       type: object
       properties:
@@ -11224,6 +13004,14 @@ components:
             - $ref: '#/components/schemas/Ref'
             - type: 'null'
             readOnly: true
+            x-csaml-ref-types:
+            - VerificationDecision
+            - HandlingChange
+            description: 'What flagged review_required: a VerificationDecision or a HandlingChange. [v0.1.3 · CR-I6-12]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-12
           finalized:
             type: boolean
             readOnly: true
@@ -11558,6 +13346,154 @@ components:
             - $ref: '#/components/schemas/Ref'
             - type: 'null'
             readOnly: true
+            x-csaml-ref-types:
+            - VerificationDecision
+            - HandlingChange
+            description: 'What flagged review_required: a VerificationDecision (fact disputed / superseded) or a HandlingChange (input upgraded).
+              [v0.1.3 · CR-I6-12]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-12
+          template_label:
+            type: string
+            readOnly: true
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          subject_refs:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ref'
+            x-csaml-ref-types:
+            - Entity
+            - Asset
+            description: Subjects of profiles / referrals (Entity, Asset); template requirements → 422. [v0.1.3 · CR-I6-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          contact_point:
+            type:
+            - string
+            - 'null'
+            description: Contact point of a referral package (template requirement). [v0.1.3 · CR-I6-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          review_reason:
+            oneOf:
+            - $ref: '#/components/schemas/ReviewRequiredReason'
+            - type: 'null'
+            readOnly: true
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-04
+          frozen_version:
+            type:
+            - string
+            - 'null'
+            readOnly: true
+            description: Latest frozen (submitted) version. [v0.1.3 · CR-I6-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          approved_version:
+            type:
+            - string
+            - 'null'
+            readOnly: true
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          author:
+            $ref: '#/components/schemas/PrincipalRef'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          contributors:
+            type: array
+            items:
+              $ref: '#/components/schemas/PrincipalRef'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          reviewers:
+            type: array
+            items:
+              $ref: '#/components/schemas/PrincipalRef'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          reviews:
+            type: array
+            items:
+              $ref: '#/components/schemas/ReviewSummary'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          open_review_ref:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          editable:
+            type: boolean
+            readOnly: true
+            description: DRAFT without an open review. [v0.1.3 · CR-I6-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
+          correction_of_version:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-05
+          correction_note:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-05
+          handling_decision_ref:
+            oneOf:
+            - $ref: '#/components/schemas/Ref'
+            - type: 'null'
+            readOnly: true
+            x-csaml-ref-types:
+            - HandlingChange
+            description: HandlingChange whose approved review downgraded the product; later floor checks accept the downgraded handling. [v0.1.3
+              · CR-I6-12]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-12
+          withdrawal_rationale:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-05
         required:
         - product_type
         - title
@@ -11567,6 +13503,11 @@ components:
         - approval_state
         - version
         - review_required
+        x-csaml-cr:
+        - CR-I6-01
+        - CR-I6-04
+        - CR-I6-05
+        - CR-I6-12
     IntelligenceProductCreate:
       type: object
       properties:
@@ -11603,6 +13544,27 @@ components:
           maxItems: 20
           description: Required, 1..20 case IDs. The creator needs case.update on every named case (404/403 otherwise); an object without case
             context would be reachable by no one. [v0.1.2 · CR-I2-01, CR-I3-13, CR-I4-12]
+        subject_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+          x-csaml-ref-types:
+          - Entity
+          - Asset
+          description: Subjects (Entity, Asset) bound by the template. [v0.1.3 · CR-I6-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-01
+        contact_point:
+          type:
+          - string
+          - 'null'
+          description: Referral contact point. [v0.1.3 · CR-I6-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-01
       required:
       - product_type
       - title
@@ -11611,6 +13573,8 @@ components:
       - audience
       - classification
       - case_links
+      x-csaml-cr:
+      - CR-I6-01
     IntelligenceProductPatch:
       type: object
       description: Only DRAFT products are editable; otherwise 409 STATE_CONFLICT.
@@ -11640,7 +13604,30 @@ components:
           type: array
           items:
             type: string
+        subject_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+          x-csaml-ref-types:
+          - Entity
+          - Asset
+          description: Subjects (Entity, Asset) bound by the template. [v0.1.3 · CR-I6-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-01
+        contact_point:
+          type:
+          - string
+          - 'null'
+          description: Referral contact point. [v0.1.3 · CR-I6-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-01
       minProperties: 1
+      x-csaml-cr:
+      - CR-I6-01
     SubmitReviewRequest:
       type: object
       x-csaml-status: accepted-default
@@ -11684,9 +13671,124 @@ components:
             - type: string
               format: date-time
             - type: 'null'
+          review_kind:
+            $ref: '#/components/schemas/ReviewKind'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          target_type:
+            type: string
+            description: Object type of target_ref. [v0.1.3 · CR-I6-02]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          review_status:
+            $ref: '#/components/schemas/ReviewStatus'
+            description: Envelope status mirrors it. [v0.1.3 · CR-I6-03]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-03
+          requested_by:
+            $ref: '#/components/schemas/PrincipalRef'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          request_note:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          request:
+            type:
+            - object
+            - 'null'
+            description: Proposed change of a HANDLING_CHANGE review (classification / access_labels). [v0.1.3 · CR-I6-02, CR-I6-12]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+            - CR-I6-12
+          trigger_ref:
+            oneOf:
+            - $ref: '#/components/schemas/Ref'
+            - type: 'null'
+            description: What opened the review (e.g. the VerificationDecision of a CORRECTION task). [v0.1.3 · CR-I6-04]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-04
+          cleared_review_required:
+            type: boolean
+            description: The approval cleared review_required on the target. [v0.1.3 · CR-I6-04]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-04
+          independent_of_principal:
+            type: boolean
+            description: The current principal is not an author, contributor or the requester. [v0.1.3 · CR-I6-02]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          can_decide:
+            type: boolean
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          disconfirmation:
+            type: array
+            items:
+              type: object
+            description: SRS-FR-ASM-004 status of the assessments in scope. [v0.1.3 · CR-I6-02]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          disconfirmation_satisfied:
+            type: boolean
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-02
+          target_review_required:
+            type:
+            - boolean
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-04
+          previous_version:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-03
+          content_sha256:
+            type: string
+            description: Hash of the frozen version under review. [v0.1.3 · CR-I6-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-01
         required:
         - review_type
         - target_ref
+        x-csaml-cr:
+        - CR-I6-02
+        - CR-I6-03
+        - CR-I6-04
     ReviewApproveRequest:
       type: object
       x-csaml-status: decided
@@ -11704,9 +13806,19 @@ components:
           x-csaml-enum-subset: true
         findings:
           description: Review findings (text or structured).
+        clear_review_required:
+          type: boolean
+          default: false
+          description: The reviewer explicitly clears review_required on the product (recorded as cleared_review_required). [v0.1.3 · CR-I6-04]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-04
       required:
       - findings
       x-csaml-release-class: MUST_DECIDE_V0_1_1
+      x-csaml-cr:
+      - CR-I6-04
     ReviewDecisionRequest:
       type: object
       description: request-changes records decision RETURN; reject records REJECT (rationale required).
@@ -11730,10 +13842,20 @@ components:
           type: array
           items:
             type: string
+        handling_classification:
+          $ref: '#/components/schemas/Classification'
+          description: Handling classification of the release (SRS-FR-DIS-001); at least the product's classification (422 otherwise); defaults
+            to it. [v0.1.3 · CR-I6-06]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-06
       required:
       - product_ref
       - recipient
       - purpose
+      x-csaml-cr:
+      - CR-I6-06
     Dissemination:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -11763,10 +13885,97 @@ components:
             type:
             - string
             - 'null'
+          product_version:
+            type: string
+            description: Frozen product version released. [v0.1.3 · CR-I6-06]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          handling_classification:
+            $ref: '#/components/schemas/Classification'
+            description: Handling classification of the release; at least the product's classification. [v0.1.3 · CR-I6-06]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          dissemination_status:
+            $ref: '#/components/schemas/DisseminationStatus'
+            description: Envelope status mirrors it. [v0.1.3 · CR-I6-06]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          package_scope_refs:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ref'
+            description: Complete approved scope (set on approval). [v0.1.3 · CR-I6-06]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          source_protected_release:
+            type: boolean
+            description: SOURCE_PROTECTED objects are in the approved scope only when true (set by an approver holding the per-case protected-source
+              grant, with a rationale). [v0.1.3 · CR-I6-07]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-07
+          approval_rationale:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          requested_by:
+            $ref: '#/components/schemas/PrincipalRef'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          approver_independent_of_principal:
+            type: boolean
+            description: Whether the current principal may approve (is not the requester). [v0.1.3 · CR-I6-06]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          revoked_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          revoked_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
+          revocation_rationale:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-06
         required:
         - product_ref
         - recipient
         - purpose
+        x-csaml-cr:
+        - CR-I6-06
+        - CR-I6-07
     DisseminationApproveRequest:
       type: object
       x-csaml-status: decided
@@ -11780,7 +13989,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Ref'
+        source_protected_release:
+          type: boolean
+          default: false
+          description: Explicitly release SOURCE_PROTECTED objects in scope. Requires the per-case protected-source grant (403) and a rationale
+            (422). [v0.1.3 · CR-I6-07]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-07
       x-csaml-release-class: MUST_DECIDE_V0_1_1
+      x-csaml-cr:
+      - CR-I6-06
+      - CR-I6-07
     ExportCandidate:
       type: object
       x-csaml-status: accepted-default
@@ -11794,11 +14015,28 @@ components:
           $ref: '#/components/schemas/Classification'
         display_label:
           type: string
+        source_protected:
+          type: boolean
+          description: Classified SOURCE_PROTECTED. [v0.1.3 · CR-I6-07, CR-I6-11]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-07
+          - CR-I6-11
+        in_approved_scope:
+          type: boolean
+          description: Inside package_scope_refs of the approval. [v0.1.3 · CR-I6-11]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-11
       required:
       - object_type
       - id
       - classification
       x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-cr:
+      - CR-I6-11
     ExportCreate:
       type: object
       x-csaml-status: decided
@@ -11811,11 +14049,19 @@ components:
             $ref: '#/components/schemas/Ref'
           minItems: 1
         format:
-          type: string
-          description: Package format. Value set not yet defined.
+          allOf:
+          - $ref: '#/components/schemas/ExportFormat'
+          default: CSAML_PACKAGE_ZIP_V1
+          description: Package format; default CSAML_PACKAGE_ZIP_V1. [v0.1.3 · CR-I6-08]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
       required:
       - object_refs
       x-csaml-release-class: MUST_DECIDE_V0_1_1
+      x-csaml-cr:
+      - CR-I6-08
     ExportPackage:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -11845,11 +14091,117 @@ components:
             - string
             - 'null'
             format: uri-reference
+            description: Download URL (/export-packages/{exportId}/content); null while the approval is not valid. [v0.1.3 · CR-I6-08]
+          package_status:
+            $ref: '#/components/schemas/ExportPackageStatus'
+            description: Envelope status mirrors it. [v0.1.3 · CR-I6-08]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          format:
+            $ref: '#/components/schemas/ExportFormat'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          object_refs:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ref'
+            description: Objects requested (inside the approved scope). [v0.1.3 · CR-I6-08]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          files:
+            type: array
+            items:
+              type: object
+            description: Package files with path, size and SHA-256 (manifest.json lists the same). [v0.1.3 · CR-I6-08]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          redactions:
+            type:
+            - object
+            - array
+            - 'null'
+            description: 'What was withheld (e.g. source-protected items without source_protected_release): counts and reasons, never the content.
+              [v0.1.3 · CR-I6-07, CR-I6-08]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-07
+            - CR-I6-08
+          package_sha256:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          manifest_sha256:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          byte_size:
+            type:
+            - integer
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          generated_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          job_ref:
+            oneOf:
+            - $ref: '#/components/schemas/Ref'
+            - type: 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          approval_valid:
+            type: boolean
+            description: 'Re-checked on every read and download: false when the approval was revoked or superseded, the version superseded or
+              retracted, the product withdrawn, the package not READY or its bytes disposed (download → 409). [v0.1.3 · CR-I6-08]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+          approval_problem:
+            type:
+            - string
+            - 'null'
+            description: 'Why approval_valid is false: PACKAGE_NOT_READY, PACKAGE_DISPOSED, APPROVAL_<status>, PRODUCT_WITHDRAWN, VERSION_<status>.
+              [v0.1.3 · CR-I6-08, CR-I7-04]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_3
+            x-csaml-cr:
+            - CR-I6-08
+            - CR-I7-04
         required:
         - dissemination_ref
         - product_ref
         - manifest
         x-csaml-release-class: MUST_DECIDE_V0_1_1
+        x-csaml-cr:
+        - CR-I6-08
     SharingLogEntry:
       type: object
       x-csaml-status: accepted-default
@@ -11874,6 +14226,59 @@ components:
           oneOf:
           - $ref: '#/components/schemas/Ref'
           - type: 'null'
+        entry_type:
+          $ref: '#/components/schemas/SharingLogEntryType'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        product_version:
+          type: string
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        handling_caveats:
+          type: array
+          items:
+            type: string
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        handling_classification:
+          $ref: '#/components/schemas/Classification'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        classification:
+          $ref: '#/components/schemas/Classification'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        case_links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        recorded_at:
+          type: string
+          format: date-time
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
+        recorded_by:
+          $ref: '#/components/schemas/PrincipalRef'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-cr:
+          - CR-I6-08
       required:
       - id
       - dissemination_ref
@@ -11883,6 +14288,8 @@ components:
       - released_at
       - released_by
       x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-cr:
+      - CR-I6-08
     CaseList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
@@ -12184,24 +14591,34 @@ components:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
       - type: object
+        description: The page is under `items` (ListEnvelope); the v0.1.2 `data` member was a contract defect. [v0.1.3 · CR-I6-10]
         properties:
-          data:
+          items:
             type: array
             items:
               $ref: '#/components/schemas/CaseMembership'
         required:
-        - data
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I6-10
     EvidenceExtractList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
       - type: object
+        description: The page is under `items` (ListEnvelope); the v0.1.2 `data` member was a contract defect. [v0.1.3 · CR-I6-10]
         properties:
-          data:
+          items:
             type: array
             items:
               $ref: '#/components/schemas/EvidenceExtract'
         required:
-        - data
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I6-10
     AssetType:
       type: string
       enum:
@@ -14584,3 +17001,1608 @@ components:
       x-csaml-release-class: DECIDED_V0_1_2
       x-csaml-cr:
       - CR-I2-08
+    SearchObjectType:
+      type: string
+      enum:
+      - CASE
+      - ENTITY
+      - SOURCE
+      - EVIDENCE_ITEM
+      - EVIDENCE_EXTRACT
+      - CLAIM
+      - FACT
+      - RELATIONSHIP
+      - ASSET
+      - EVENT
+      - VALUE_FLOW
+      - PRODUCT
+      description: Searchable canonical object types (API §17). Registry `search_object_type`. [v0.1.3 · CR-I5-03]
+      x-csaml-enum: search_object_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-03
+    SearchEpistemicStatus:
+      type: string
+      enum:
+      - CLAIM
+      - FACT
+      - EXCERPT
+      - RECORD
+      description: 'How a hit must be read: CLAIM = an assertion attributed to a source, never a fact; FACT = a fact record with its own status;
+        EXCERPT = text cited from an evidence item (derived); RECORD = any other canonical record. Registry `search_epistemic_status`. [v0.1.3
+        · CR-I5-03]'
+      x-csaml-enum: search_epistemic_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-03
+    SnippetSegment:
+      type: object
+      description: Plain-text snippet segment from the hit's own readable fields (never HTML). [v0.1.3 · CR-I5-01]
+      properties:
+        text:
+          type: string
+        match:
+          type: boolean
+      required:
+      - text
+      - match
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-01
+    SearchCaseContext:
+      type: object
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Ref'
+        case_code:
+          type: string
+        title:
+          type: string
+      required:
+      - case_id
+      - case_code
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-01
+    SearchHit:
+      type: object
+      description: A pointer to a canonical object (not a copy). Open links.self for the current record. [v0.1.3 · CR-I5-01, CR-I5-03, CR-I5-07]
+      properties:
+        id:
+          $ref: '#/components/schemas/Ref'
+        object_type:
+          $ref: '#/components/schemas/SearchObjectType'
+        canonical_type:
+          type: string
+          description: Canonical object_type of the record (e.g. EvidenceExtract).
+        title:
+          type: string
+        subtitle:
+          type: string
+        snippet:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnippetSegment'
+        classification:
+          $ref: '#/components/schemas/Classification'
+        status:
+          type:
+          - string
+          - 'null'
+        subtype:
+          type:
+          - string
+          - 'null'
+          description: entity_type, source_type, evidence_type, relationship_type, asset_type, event_type, flow_type, product_type or the case
+            risk_rating.
+        epistemic_status:
+          $ref: '#/components/schemas/SearchEpistemicStatus'
+        epistemic_note:
+          type:
+          - string
+          - 'null'
+        flow_classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowClass'
+        derived_from:
+          oneOf:
+          - type: object
+            properties:
+              object_type:
+                $ref: '#/components/schemas/SearchObjectType'
+              id:
+                $ref: '#/components/schemas/Ref'
+            required:
+            - object_type
+            - id
+          - type: 'null'
+          description: Projection marker (API §17) for derived text, e.g. the evidence item an extract cites.
+        case_context:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchCaseContext'
+        object_date:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        relevance:
+          type: number
+          description: Text-match relevance only; SHALL NOT be presented as risk or suspicion.
+        links:
+          $ref: '#/components/schemas/Links'
+      required:
+      - id
+      - object_type
+      - title
+      - snippet
+      - classification
+      - epistemic_status
+      - case_context
+      - links
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-01
+      - CR-I5-03
+      - CR-I5-07
+    SearchFacetValue:
+      type: object
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+        title:
+          type: string
+        count:
+          type: integer
+          minimum: 0
+      required:
+      - value
+      - count
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-01
+    SearchFacets:
+      type: object
+      description: Counts over the authorized, filtered result set only. [v0.1.3 · CR-I5-01]
+      properties:
+        object_type:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFacetValue'
+        classification:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFacetValue'
+        status:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFacetValue'
+        entity_type:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFacetValue'
+        flow_class:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFacetValue'
+        case:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFacetValue'
+      required:
+      - object_type
+      - classification
+      - case
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-01
+    SearchMeta:
+      allOf:
+      - $ref: '#/components/schemas/ProjectionMeta'
+      - type: object
+        properties:
+          text_search_configs:
+            type: array
+            items:
+              type: string
+          include_source_protected:
+            type: boolean
+          relevance_note:
+            type: string
+          canonical_note:
+            type: string
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I5-01
+        - CR-I5-04
+    SearchResults:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/SearchHit'
+          facets:
+            oneOf:
+            - $ref: '#/components/schemas/SearchFacets'
+            - type: 'null'
+          meta:
+            $ref: '#/components/schemas/SearchMeta'
+        required:
+        - meta
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I5-01
+    GraphQueryRequest:
+      type: object
+      description: API §18 sketch (seed_entities, relationship_types, depth, include_value_flows, case_id) plus seed_assets, flow_classes, include_events,
+        include_relationships, include_leads and lower node / edge budgets (CR-I5-02). [v0.1.3 · CR-I5-02]
+      properties:
+        case_id:
+          oneOf:
+          - $ref: '#/components/schemas/Ref'
+          - type: 'null'
+        seed_entities:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/Ref'
+        seed_assets:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/Ref'
+        depth:
+          type: integer
+          minimum: 1
+          default: 2
+          description: Server cap 3 (422 above it).
+        relationship_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationshipType'
+        flow_classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowClass'
+        include_value_flows:
+          type: boolean
+          default: true
+        include_events:
+          type: boolean
+          default: true
+        include_relationships:
+          type: boolean
+          default: true
+        include_leads:
+          type: boolean
+          default: true
+        max_nodes:
+          type: integer
+          minimum: 1
+        max_edges:
+          type: integer
+          minimum: 1
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+    GraphQueryNode:
+      allOf:
+      - $ref: '#/components/schemas/GraphNode'
+      - type: object
+        properties:
+          depth:
+            type:
+            - integer
+            - 'null'
+            description: Hops from the nearest seed; null for nodes present only through a lead.
+          seed:
+            type: boolean
+          lead_only:
+            type: boolean
+          case_refs:
+            type: array
+            description: The node's case contexts the caller may read.
+            items:
+              $ref: '#/components/schemas/Ref'
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I5-02
+    GraphLeadType:
+      type: string
+      enum:
+      - SHARED_IDENTIFIER
+      - SHARED_PHONE
+      - SHARED_EMAIL
+      - SHARED_ADDRESS
+      description: Shared-attribute lead kinds (API §18). Registry `graph_lead_type`. [v0.1.3 · CR-I5-05]
+      x-csaml-enum: graph_lead_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-05
+    GraphLead:
+      type: object
+      description: Candidate lead — two or more readable entities record the same normalized identifier / phone / e-mail / address value. Not
+        a relationship, not a fact, not an identity match; nothing is merged. [v0.1.3 · CR-I5-05]
+      properties:
+        id:
+          type: string
+        lead_type:
+          $ref: '#/components/schemas/GraphLeadType'
+        status:
+          type: string
+          const: CANDIDATE
+        attribute_type:
+          type:
+          - string
+          - 'null'
+        attribute_value:
+          type:
+          - string
+          - 'null'
+        entity_refs:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/Ref'
+        label:
+          type: string
+        basis:
+          type: string
+        provenance_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+        is_fact:
+          type: boolean
+          const: false
+        is_relationship:
+          type: boolean
+          const: false
+        merge_performed:
+          type: boolean
+          const: false
+        note:
+          type: string
+      required:
+      - id
+      - lead_type
+      - status
+      - entity_refs
+      - is_fact
+      - merge_performed
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-05
+    GraphTruncationReason:
+      type: string
+      enum:
+      - NODE_BUDGET
+      - EDGE_BUDGET
+      - TIME_BUDGET
+      - LEAD_BUDGET
+      description: Why a graph result is partial (API §18). Budgets return partial results; only the statement-timeout backstop is an error (503).
+        Registry `graph_truncation_reason`. [v0.1.3 · CR-I5-06]
+      x-csaml-enum: graph_truncation_reason
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-06
+    GraphQueryMeta:
+      allOf:
+      - $ref: '#/components/schemas/ProjectionMeta'
+      - type: object
+        properties:
+          truncation_reasons:
+            type: array
+            items:
+              $ref: '#/components/schemas/GraphTruncationReason'
+          limits:
+            type: object
+            properties:
+              max_depth:
+                type: integer
+              max_nodes:
+                type: integer
+              max_edges:
+                type: integer
+              time_budget_ms:
+                type: integer
+          elapsed_ms:
+            type: integer
+          scope:
+            type: string
+            enum:
+            - CASE
+            - AUTHORIZED_CASES
+          note:
+            type: string
+          leads_note:
+            type: string
+        required:
+        - truncation_reasons
+        - limits
+        - scope
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I5-02
+        - CR-I5-06
+    GraphQueryResult:
+      type: object
+      properties:
+        seeds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+        case_id:
+          oneOf:
+          - $ref: '#/components/schemas/Ref'
+          - type: 'null'
+        depth:
+          type: integer
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQueryNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        leads:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphLead'
+        meta:
+          $ref: '#/components/schemas/GraphQueryMeta'
+      required:
+      - seeds
+      - nodes
+      - edges
+      - leads
+      - meta
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+    GraphPathsRequest:
+      type: object
+      properties:
+        from:
+          $ref: '#/components/schemas/Ref'
+        to:
+          $ref: '#/components/schemas/Ref'
+        case_id:
+          oneOf:
+          - $ref: '#/components/schemas/Ref'
+          - type: 'null'
+        max_depth:
+          type: integer
+          minimum: 1
+          default: 3
+          description: Server cap 3 (422 above it).
+        max_paths:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+        relationship_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationshipType'
+        flow_classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowClass'
+        include_value_flows:
+          type: boolean
+          default: true
+        include_events:
+          type: boolean
+          default: true
+        include_relationships:
+          type: boolean
+          default: true
+      required:
+      - from
+      - to
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+    GraphPath:
+      type: object
+      properties:
+        length:
+          type: integer
+        node_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+        edge_ids:
+          type: array
+          items:
+            type: string
+      required:
+      - length
+      - node_ids
+      - edge_ids
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+    GraphPathsResult:
+      type: object
+      properties:
+        from:
+          $ref: '#/components/schemas/Ref'
+        to:
+          $ref: '#/components/schemas/Ref'
+        case_id:
+          oneOf:
+          - $ref: '#/components/schemas/Ref'
+          - type: 'null'
+        max_depth:
+          type: integer
+        found:
+          type: boolean
+        paths:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphPath'
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQueryNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        meta:
+          $ref: '#/components/schemas/GraphQueryMeta'
+      required:
+      - from
+      - to
+      - found
+      - paths
+      - nodes
+      - edges
+      - meta
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I5-02
+    ReviewKind:
+      type: string
+      enum:
+      - PRODUCT_VERSION
+      - ASSESSMENT
+      - REVIEW_FLAG_CLEARANCE
+      - HANDLING_CHANGE
+      - CORRECTION
+      description: 'What a Review decides: a frozen product version, a finalized assessment, the clearing of review_required, a classification
+        downgrade / label removal, or a correction task of a disseminated product. Registry `review_kind`. [v0.1.3 · CR-I6-02]'
+      x-csaml-enum: review_kind
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-02
+    ReviewStatus:
+      type: string
+      enum:
+      - OPEN
+      - DECIDED
+      - CANCELLED
+      description: Review status (envelope status of a Review). Registry `review_status`. [v0.1.3 · CR-I6-03]
+      x-csaml-enum: review_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-03
+    ProductVersionStatus:
+      type: string
+      enum:
+      - SUBMITTED
+      - APPROVED
+      - APPROVED_WITH_CHANGES
+      - RETURNED
+      - REJECTED
+      - SUPERSEDED
+      - RETRACTED
+      description: 'Status of a frozen product version: SUBMITTED → APPROVED / APPROVED_WITH_CHANGES / RETURNED / REJECTED → SUPERSEDED / RETRACTED.
+        Registry `product_version_status`. [v0.1.3 · CR-I6-03]'
+      x-csaml-enum: product_version_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-03
+    ReviewRequiredReason:
+      type: string
+      enum:
+      - FACT_DISPUTED
+      - FACT_SUPERSEDED
+      - INPUT_HANDLING_UPGRADED
+      description: Why a product or assessment was flagged review_required. Registry `review_reason`. [v0.1.3 · CR-I6-04]
+      x-csaml-enum: review_reason
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-04
+    DisseminationStatus:
+      type: string
+      enum:
+      - REQUESTED
+      - APPROVED
+      - REVOKED
+      - SUPERSEDED
+      description: 'Dissemination status: REQUESTED → APPROVED / REVOKED → SUPERSEDED. An approved release is immutable. Registry `dissemination_status`.
+        [v0.1.3 · CR-I6-06]'
+      x-csaml-enum: dissemination_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-06
+    ExportPackageStatus:
+      type: string
+      enum:
+      - QUEUED
+      - GENERATING
+      - READY
+      - FAILED
+      description: Export package status. Registry `export_package_status`. [v0.1.3 · CR-I6-08]
+      x-csaml-enum: export_package_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-08
+    ExportFormat:
+      type: string
+      enum:
+      - CSAML_PACKAGE_ZIP_V1
+      description: 'Export package format. CSAML_PACKAGE_ZIP_V1 = deterministic ZIP: README, product/document.json + .html, objects/*.json, evidence
+        originals, manifest.json with the SHA-256 of every file. Registry `export_package_format`. [v0.1.3 · CR-I6-08]'
+      x-csaml-enum: export_package_format
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-08
+    SharingLogEntryType:
+      type: string
+      enum:
+      - RELEASE_APPROVED
+      - EXPORT_GENERATED
+      - RELEASE_REVOKED
+      description: Kind of sharing-log entry. Registry `sharing_log_entry_type`. [v0.1.3 · CR-I6-08]
+      x-csaml-enum: sharing_log_entry_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-08
+    JobStatus:
+      type: string
+      enum:
+      - QUEUED
+      - RUNNING
+      - SUCCEEDED
+      - FAILED
+      description: 'Job status: QUEUED → RUNNING → SUCCEEDED / FAILED. Registry `job_status`. [v0.1.3 · CR-I6-09]'
+      x-csaml-enum: job_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-09
+    ProductTemplateSection:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+          - SUBJECTS
+          - FACTS
+          - CLAIMS
+          - ANALYSIS
+          - UNKNOWNS
+          - CONTEXT
+        item_kinds:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+      required:
+      - key
+      - title
+      - kind
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+    ProductTemplate:
+      type: object
+      description: 'One of the six MVP templates: sections and canonical-object bindings (SRS-FR-PRD-001; ST-E8-01). [v0.1.3 · CR-I6-01]'
+      properties:
+        product_type:
+          $ref: '#/components/schemas/ProductType'
+        label:
+          type: string
+        purpose:
+          type: string
+        format:
+          type: string
+        requires:
+          type: array
+          items:
+            type: string
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductTemplateSection'
+      required:
+      - product_type
+      - label
+      - sections
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+    ProductTemplateList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductTemplate'
+        language_notice:
+          type: string
+      required:
+      - items
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+    ProductDocumentItem:
+      type: object
+      description: 'A rendered item. Its kind keeps the epistemic status: FACT (with fact_status), CLAIM (attributed, never a fact), ASSESSMENT
+        (confidence level + basis), VALUE_FLOW (flow_class per flow and leg), INDICATOR / TYPOLOGY_MATCH (never proof), GAP (unknown). [v0.1.3
+        · CR-I6-01]'
+      properties:
+        kind:
+          type: string
+        ref:
+          type:
+          - string
+          - 'null'
+        text:
+          type: string
+        classification:
+          type: string
+        citations:
+          type: array
+          items:
+            type: string
+        redacted:
+          type: boolean
+      required:
+      - kind
+      - text
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+    ProductDocument:
+      type: object
+      description: 'Rendered product (format csaml.product-document/1; ADR-0025): template sections and the evidence index (SRS-FR-PRD-003). [v0.1.3
+        · CR-I6-01, CR-I6-07]'
+      properties:
+        format:
+          type: string
+        template:
+          type: object
+        product_ref:
+          type: string
+        version:
+          type: string
+        title:
+          type: string
+        classification:
+          type: string
+        access_labels:
+          type: array
+          items:
+            type: string
+        audience:
+          type: array
+          items:
+            type: string
+        author:
+          $ref: '#/components/schemas/PrincipalRef'
+        language_notice:
+          type: string
+        handling_notice:
+          type: string
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              title:
+                type: string
+              kind:
+                type: string
+              note:
+                type: string
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDocumentItem'
+            required:
+            - key
+            - title
+            - kind
+            - items
+        evidence_index:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              ref:
+                type:
+                - string
+                - 'null'
+              object_type:
+                type: string
+              label:
+                type: string
+              fact_status:
+                type: string
+              citations:
+                type: array
+                items:
+                  type: object
+            required:
+            - id
+            - citations
+        frozen:
+          type: boolean
+        content_sha256:
+          type:
+          - string
+          - 'null'
+      required:
+      - format
+      - template
+      - version
+      - title
+      - sections
+      - evidence_index
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+      - CR-I6-07
+    IntelligenceProductVersionDetail:
+      allOf:
+      - $ref: '#/components/schemas/IntelligenceProduct'
+      - type: object
+        properties:
+          version_status:
+            $ref: '#/components/schemas/ProductVersionStatus'
+          content_sha256:
+            type: string
+          frozen_at:
+            type: string
+            format: date-time
+          document:
+            $ref: '#/components/schemas/ProductDocument'
+        required:
+        - version_status
+        - content_sha256
+        - document
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I6-01
+        - CR-I6-03
+    ReviewRequestCreate:
+      type: object
+      description: 'Open a REVIEW_FLAG_CLEARANCE (CR-I4-11) or HANDLING_CHANGE (CR-I1-09: classification downgrade / access-label removal) review.
+        Decided with /reviews/{id}/approve | request-changes | reject by an independent reviewer. [v0.1.3 · CR-I6-02, CR-I6-04, CR-I6-12]'
+      properties:
+        review_kind:
+          type: string
+          enum:
+          - REVIEW_FLAG_CLEARANCE
+          - HANDLING_CHANGE
+          x-csaml-enum: review_kind
+          x-csaml-enum-subset: true
+        target_ref:
+          $ref: '#/components/schemas/Ref'
+        review_type:
+          $ref: '#/components/schemas/ReviewType'
+        note:
+          type: string
+        classification:
+          $ref: '#/components/schemas/Classification'
+        access_labels:
+          type: array
+          items:
+            type: string
+      required:
+      - review_kind
+      - target_ref
+      - note
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-02
+      - CR-I6-04
+      - CR-I6-12
+    ProductCorrectionRequest:
+      type: object
+      properties:
+        correction_note:
+          type: string
+      required:
+      - correction_note
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-05
+    ProductWithdrawRequest:
+      type: object
+      properties:
+        rationale:
+          type: string
+      required:
+      - rationale
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-05
+    DisseminationRevokeRequest:
+      type: object
+      properties:
+        rationale:
+          type: string
+      required:
+      - rationale
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-06
+    DisseminationList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Dissemination'
+        required:
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I6-06
+    ExportPackageList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ExportPackage'
+        required:
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I6-08
+    RetentionTrigger:
+      type: string
+      x-csaml-enum: retention_trigger
+      enum:
+      - CREATION
+      - CASE_CLOSURE
+      - DISSEMINATION
+      - LEGAL_HOLD_RELEASE
+      - OTHER
+      description: RetentionRule.trigger (Data Model §16.1). [v0.1.3 · CR-I7-01]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+    RetentionDisposition:
+      type: string
+      x-csaml-enum: retention_disposition
+      enum:
+      - DELETE
+      - ANONYMIZE
+      - ARCHIVE
+      - REVIEW
+      description: RetentionRule.disposition (Data Model §16.1). MVP 0.1 executes DELETE, ARCHIVE and REVIEW; ANONYMIZE (and whole-case DELETE)
+        is refused with 422 and deferred to v0.2. [v0.1.3 · CR-I7-01, CR-I7-05]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+      - CR-I7-05
+    RetentionTargetType:
+      type: string
+      enum:
+      - EVIDENCE_ITEM
+      - EXPORT_PACKAGE
+      - CASE
+      description: Object types a retention rule, legal hold or disposition record applies to in MVP 0.1 (Data Model §16.1). Registry `retention_target_type`.
+        [v0.1.3 · CR-I7-02]
+      x-csaml-enum: retention_target_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-02
+    RetentionRuleStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - RETIRED
+      description: Retention rule status; RETIRED is final. Registry `retention_rule_status`. [v0.1.3 · CR-I7-03]
+      x-csaml-enum: retention_rule_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+    LegalHoldStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - RELEASED
+      description: Legal hold status; only the release is recorded, once. Registry `legal_hold_status`. [v0.1.3 · CR-I7-03]
+      x-csaml-enum: legal_hold_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+    DispositionStatus:
+      type: string
+      enum:
+      - PROPOSED
+      - APPROVED
+      - REJECTED
+      - EXECUTING
+      - EXECUTED
+      description: 'Disposition record status: PROPOSED → APPROVED / REJECTED → EXECUTING → EXECUTED. Registry `disposition_status`. [v0.1.3 ·
+        CR-I7-04]'
+      x-csaml-enum: disposition_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+    RetentionRule:
+      allOf:
+      - $ref: '#/components/schemas/ResourceEnvelope'
+      - type: object
+        description: Retention and disposition policy for one object type (Data Model §16.1). Versioned by record_version, never deleted; legal_hold=true
+          suspends every disposition under it. [v0.1.3 · CR-I7-01, CR-I7-02]
+        properties:
+          name:
+            type: string
+          applies_to:
+            $ref: '#/components/schemas/RetentionTargetType'
+          applies_to_classifications:
+            type: array
+            items:
+              $ref: '#/components/schemas/Classification'
+          retention_period:
+            type: string
+            pattern: ^P[1-9][0-9]{0,4}[DMY]$
+            description: ISO 8601 duration in days, months or years (PnD, PnM, PnY).
+          trigger:
+            $ref: '#/components/schemas/RetentionTrigger'
+          disposition:
+            $ref: '#/components/schemas/RetentionDisposition'
+          legal_hold:
+            type: boolean
+          rule_status:
+            $ref: '#/components/schemas/RetentionRuleStatus'
+          rationale:
+            type: string
+        required:
+        - name
+        - applies_to
+        - retention_period
+        - trigger
+        - disposition
+        - legal_hold
+        - rule_status
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I7-01
+        - CR-I7-02
+    RetentionRuleList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/RetentionRule'
+        required:
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I7-01
+    RetentionRuleCreate:
+      type: object
+      additionalProperties: false
+      description: Administrators only. MVP 0.1 executes DELETE / ARCHIVE / REVIEW for evidence originals and export packages, ARCHIVE / REVIEW
+        for cases; other combinations -> 422 (CR-I7-05). [v0.1.3 · CR-I7-01, CR-I7-02, CR-I7-05]
+      properties:
+        name:
+          type: string
+        applies_to:
+          $ref: '#/components/schemas/RetentionTargetType'
+        applies_to_classifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Classification'
+          maxItems: 5
+        retention_period:
+          type: string
+          pattern: ^P[1-9][0-9]{0,4}[DMY]$
+          description: ISO 8601 duration in days, months or years (PnD, PnM, PnY).
+        trigger:
+          $ref: '#/components/schemas/RetentionTrigger'
+        disposition:
+          $ref: '#/components/schemas/RetentionDisposition'
+        legal_hold:
+          type: boolean
+        rationale:
+          type: string
+      required:
+      - name
+      - applies_to
+      - retention_period
+      - trigger
+      - disposition
+      - rationale
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+      - CR-I7-02
+      - CR-I7-05
+    RetentionRuleUpdate:
+      type: object
+      additionalProperties: false
+      description: applies_to never changes; RETIRED is final (409 afterwards). [v0.1.3 · CR-I7-01, CR-I7-02]
+      properties:
+        name:
+          type: string
+        applies_to_classifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Classification'
+          maxItems: 5
+        retention_period:
+          type: string
+          pattern: ^P[1-9][0-9]{0,4}[DMY]$
+          description: ISO 8601 duration in days, months or years (PnD, PnM, PnY).
+        trigger:
+          $ref: '#/components/schemas/RetentionTrigger'
+        disposition:
+          $ref: '#/components/schemas/RetentionDisposition'
+        legal_hold:
+          type: boolean
+        rule_status:
+          $ref: '#/components/schemas/RetentionRuleStatus'
+        rationale:
+          type: string
+        change_reason:
+          type: string
+      required:
+      - change_reason
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+      - CR-I7-02
+    RetentionEvaluationRequest:
+      type: object
+      additionalProperties: false
+      description: REPORT counts only; PROPOSE opens disposition records for review. Nothing executes. [v0.1.3 · CR-I7-01]
+      properties:
+        mode:
+          type: string
+          enum:
+          - REPORT
+          - PROPOSE
+          default: REPORT
+      required: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+    RetentionEvaluationReport:
+      type: object
+      properties:
+        mode:
+          type: string
+        evaluated_at:
+          type: string
+          format: date-time
+        rules_active:
+          type: integer
+        by_target_type:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              examined:
+                type: integer
+              not_triggered:
+                type: integer
+              not_due:
+                type: integer
+              suspended_by_rule:
+                type: integer
+              held:
+                type: integer
+              already_decided:
+                type: integer
+              eligible:
+                type: integer
+              proposed:
+                type: integer
+        proposed_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+      required:
+      - mode
+      - evaluated_at
+      - by_target_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-01
+    LegalHold:
+      allOf:
+      - $ref: '#/components/schemas/ResourceEnvelope'
+      - type: object
+        description: Suspends disposition of a case (and everything linked to it) or of one object. Never deleted; only its release is recorded.
+          [v0.1.3 · CR-I7-03]
+        properties:
+          target_type:
+            $ref: '#/components/schemas/RetentionTargetType'
+          target_ref:
+            $ref: '#/components/schemas/Ref'
+          reason:
+            type: string
+          authority_reference:
+            type:
+            - string
+            - 'null'
+          hold_status:
+            $ref: '#/components/schemas/LegalHoldStatus'
+          placed_by:
+            $ref: '#/components/schemas/PrincipalRef'
+          placed_at:
+            type: string
+            format: date-time
+          released_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+          released_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+          release_reason:
+            type:
+            - string
+            - 'null'
+        required:
+        - target_type
+        - target_ref
+        - reason
+        - hold_status
+        - placed_by
+        - placed_at
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I7-03
+    LegalHoldList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/LegalHold'
+        required:
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I7-03
+    LegalHoldCreate:
+      type: object
+      additionalProperties: false
+      description: Platform administrators (any target) or the case LEAD (the case and objects linked to it). [v0.1.3 · CR-I7-03]
+      properties:
+        target_type:
+          $ref: '#/components/schemas/RetentionTargetType'
+        target_ref:
+          $ref: '#/components/schemas/Ref'
+        reason:
+          type: string
+        authority_reference:
+          type: string
+      required:
+      - target_type
+      - target_ref
+      - reason
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+    LegalHoldRelease:
+      type: object
+      additionalProperties: false
+      description: Why the hold ends. [v0.1.3 · CR-I7-03]
+      properties:
+        reason:
+          type: string
+      required:
+      - reason
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-03
+    DispositionRecord:
+      allOf:
+      - $ref: '#/components/schemas/ResourceEnvelope'
+      - type: object
+        description: Disposition log entry (CIG PRI-02). DELETE purges stored bytes (every object version) of an evidence original or export package
+          and keeps the row with hash, size and storage reference as the tombstone; rows and audit history are never deleted. [v0.1.3 · CR-I7-04,
+          CR-I7-05]
+        properties:
+          rule_ref:
+            $ref: '#/components/schemas/Ref'
+          rule_version:
+            type: integer
+          target_type:
+            $ref: '#/components/schemas/RetentionTargetType'
+          target_ref:
+            $ref: '#/components/schemas/Ref'
+          disposition:
+            $ref: '#/components/schemas/RetentionDisposition'
+          trigger:
+            $ref: '#/components/schemas/RetentionTrigger'
+          trigger_at:
+            type: string
+            format: date-time
+          eligible_at:
+            type: string
+            format: date-time
+          disposition_status:
+            $ref: '#/components/schemas/DispositionStatus'
+          proposed_by:
+            $ref: '#/components/schemas/PrincipalRef'
+          proposed_at:
+            type: string
+            format: date-time
+          decided_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+          decided_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+          decision_rationale:
+            type:
+            - string
+            - 'null'
+          executed_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+          executed_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+          outcome:
+            type: object
+          error:
+            type:
+            - string
+            - 'null'
+        required:
+        - rule_ref
+        - target_type
+        - target_ref
+        - disposition
+        - disposition_status
+        - eligible_at
+        - proposed_by
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I7-04
+        - CR-I7-05
+    DispositionRecordList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/DispositionRecord'
+        required:
+        - items
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_3
+        x-csaml-cr:
+        - CR-I7-04
+    DispositionDecision:
+      type: object
+      additionalProperties: false
+      description: Decision rationale. [v0.1.3 · CR-I7-04]
+      properties:
+        rationale:
+          type: string
+      required:
+      - rationale
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+    DispositionExecute:
+      type: object
+      additionalProperties: false
+      properties: {}
+      description: Empty body. [v0.1.3 · CR-I7-04]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-04
+    HealthCheck:
+      type: object
+      description: Status of one dependency; never hostnames, credentials or error internals. [v0.1.3 · CR-I7-08]
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          - unavailable
+        latency_ms:
+          type: number
+      required:
+      - status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-08
+    HealthStatus:
+      type: object
+      description: Readiness of the API and its dependencies (SRS-OPS-002). Contains no case content, no principal data and no configuration secrets.
+        [v0.1.3 · CR-I7-08]
+      properties:
+        status:
+          type: string
+          const: ok
+        version:
+          type: string
+          description: Build version.
+        commit:
+          type: string
+          description: Build commit.
+        schema_version:
+          type: string
+        checks:
+          type: object
+          description: database, valkey, object_store.
+          additionalProperties:
+            $ref: '#/components/schemas/HealthCheck'
+        request_id:
+          type: string
+      required:
+      - status
+      - checks
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I7-08
+    ExportJobAccepted:
+      allOf:
+      - $ref: '#/components/schemas/JobAccepted'
+      - type: object
+        properties:
+          export_package:
+            $ref: '#/components/schemas/ExportPackage'
+        required:
+        - export_package
+      description: '202 body of generateExportPackage: the job and the QUEUED export package. [v0.1.3 · CR-I6-11]'
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-11
+    ReviewSummary:
+      type: object
+      description: Short form of a Review embedded in a product. [v0.1.3 · CR-I6-01, CR-I6-03]
+      properties:
+        id:
+          $ref: '#/components/schemas/Ref'
+        review_kind:
+          $ref: '#/components/schemas/ReviewKind'
+        review_type:
+          $ref: '#/components/schemas/ReviewType'
+        target_version:
+          type:
+          - string
+          - 'null'
+        review_status:
+          $ref: '#/components/schemas/ReviewStatus'
+        decision:
+          oneOf:
+          - $ref: '#/components/schemas/ReviewDecision'
+          - type: 'null'
+        reviewer:
+          oneOf:
+          - $ref: '#/components/schemas/PrincipalRef'
+          - type: 'null'
+        completed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - id
+      - review_kind
+      - review_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_3
+      x-csaml-cr:
+      - CR-I6-01
+      - CR-I6-03

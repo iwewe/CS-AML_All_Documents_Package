@@ -4,14 +4,15 @@ Control Implementation Guide
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1.1 \| Implementation Guide (Approved Internal Specification Baseline)**
+**Version 0.1.3 \| Implementation Guide (Approved Internal Specification Baseline)**
 
-> **Document status — v0.1.1**  
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*  
+> **Document status — v0.1.3**  
+> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec); unchanged in v0.1.2. *[v0.1.3]*  
 > Supersedes: CS-AML Control Implementation Guide v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.3 changes come from change requests raised while implementing increments I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
 
 
 > **Status**
@@ -23,10 +24,10 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 | **Field** | **Specification** |
 |----|----|
 | Document | CS-AML Control Implementation Guide |
-| Version | 0.1.1 |
-| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — derivative implementation guide *[v0.1.1 · A01]* |
+| Version | 0.1.3 *[v0.1.3]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) — derivative implementation guide *[v0.1.1 · A01]* |
 | Parent | CS-AML Framework v0.1.1 (Markdown, `Documents/CS-AML_Framework_v0.1.1_Expanded.md`) |
-| Related specifications | Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.1 |
+| Related specifications | Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.3 |
 | Primary audience | CSO leadership, investigators, compliance/ethics leads, privacy/security staff, system owners, reviewers, assurance teams |
 | Normative language | SHALL/MUST = mandatory; SHOULD = strongly recommended unless justified; MAY = optional |
 | Control population | 26 minimum controls inherited from the CS-AML v0.1 control catalogue |
@@ -1132,6 +1133,9 @@ The following profiles are normative implementation guidance for the minimum CS-
 - Legal hold record
 
 - Retention review
+
+> **Reference implementation (MVP 0.1)** *[v0.1.3 · CR-I7-01, CR-I7-03, CR-I7-04, CR-I7-05]*
+> The retention schedule is the set of RetentionRules (Data Model §16.1), the legal hold record is the LegalHold (§16.2) and the disposition log is the DispositionRecord (§16.3), managed through the retention API (API Specification §20A). Disposition is never automatic: evaluation reports or proposes, the case LEAD (never the proposer) approves, and execution is refused under an active legal hold. MVP 0.1 supports DELETE (stored bytes purged; the record remains as a tombstone with hash and size), ARCHIVE and REVIEW; irreversible anonymisation and whole-case deletion are not available until v0.2, so the "log irreversible anonymisation" requirement has no MVP 0.1 occurrence.
 
 #### Assurance test
 

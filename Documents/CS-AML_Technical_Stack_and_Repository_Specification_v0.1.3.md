@@ -3,15 +3,16 @@
 **Technical Stack & Repository  
 Specification**
 
-**Version 0.1.2**
+**Version 0.1.3**
 
-> **Document status — v0.1.2**
-> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
+> **Document status — v0.1.3**
+> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*
 > Supersedes: CS-AML Technical Stack & Repository Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
+> Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
 
 Engineering implementation baseline for the CS-AML MVP
 
@@ -31,11 +32,11 @@ The document is intentionally more prescriptive than the Technology Architecture
 | **Upstream document** | **This specification consumes** |
 |----|----|
 | Technology Architecture v0.1.1 | Logical boundaries, canonical vs derived data, security and deployment principles |
-| Data Model Specification v0.1.2 | Canonical objects, identifiers, provenance, temporal semantics and integrity rules |
+| Data Model Specification v0.1.3 | Canonical objects, identifiers, provenance, temporal semantics and integrity rules |
 | PRD v0.1.1 | MVP product scope and release objective |
-| SRS v0.1.2 | Testable software requirements and release gate |
+| SRS v0.1.3 | Testable software requirements and release gate |
 | MVP Engineering Breakdown v0.1.1 | Epics, vertical slices, stories and delivery sequence |
-| API Specification v0.1.2 | HTTP contract, authentication (BFF session), concurrency and idempotency rules *[v0.1.1 · A01, A11]* |
+| API Specification v0.1.3 | HTTP contract, authentication (BFF session), concurrency and idempotency rules *[v0.1.1 · A01, A11]* |
 
 # 2. Engineering Principles
 
@@ -144,7 +145,7 @@ cs-aml/
 └── fixtures/
 ```
 
-*[v0.1.1 · A11]* — `contracts/openapi.yaml` added (see API Specification v0.1.2 §28).
+*[v0.1.1 · A11]* — `contracts/openapi.yaml` added (see API Specification v0.1.3 §28).
 
 # 6. Backend Repository Structure
 
@@ -235,7 +236,7 @@ Frontend features SHALL mirror product capabilities rather than backend table na
 | DB-02 | Evidence binaries SHALL NOT be stored as large database blobs unless a deployment ADR explicitly chooses that mode. |
 | DB-03 | Every canonical object SHALL use stable UUID identifiers and created/updated/version metadata. |
 | DB-04 | Material deletes SHOULD be logical/superseding operations where historical reconstruction is required. |
-| DB-05 | Entity merge/unmerge SHALL preserve merge decision history and original identifiers. Decisions are stored in an append-only `resolution_decisions` table (Data Model v0.1.2 §8.4); entity `resolution_status` is updated only as their effect. *[v0.1.1 · ER]* |
+| DB-05 | Entity merge/unmerge SHALL preserve merge decision history and original identifiers. Decisions are stored in an append-only `resolution_decisions` table (Data Model v0.1.3 §8.4); entity `resolution_status` is updated only as their effect. *[v0.1.1 · ER]* |
 | DB-06 | ValueFlow.flow_class SHALL be constrained to the UPPER_SNAKE_CASE values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL`; `confidence.level` to `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS` (never coerced to `LOW`/null/zero); classification to `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`. Enum values derive from the Data Model Annex A registry. *[v0.1.1 · A08, A09]* |
 | DB-07 | Unknown numeric values SHALL remain null/unknown and SHALL NOT be coerced to zero. |
 | DB-08 | Canonical records SHALL expose provenance links sufficient to reconstruct material assessments. |
@@ -272,7 +273,7 @@ CS-AML authorization policy
 Allow / deny + audit context
 ```
 
-- Browser authentication SHALL use a server-side session (BFF): Django is a confidential OIDC client of Keycloak (Authorization Code + PKCE); access/refresh/ID tokens stay server-side; the browser holds only the `__Host-csaml_session` cookie (HttpOnly, Secure, SameSite=Lax, Path=/) and sends `X-CSRFToken` on unsafe methods. Endpoints `/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/session` are defined in the API Specification v0.1.2 §4. *[v0.1.1 · A11]* The CSRF token is delivered as `csrf_token` in `GET /auth/session`; its secret lives in the server-side session and there is no JavaScript-readable CSRF cookie. Logout is a top-level form POST that may carry the token as `csrfmiddlewaretoken`. `POST /auth/backchannel-logout` (OIDC Back-Channel Logout 1.0, signed `logout_token`, CSRF-exempt) lets Keycloak revoke server-side sessions. *[v0.1.2 · CR-I1-03, CR-I1-04, CR-I1-05]*
+- Browser authentication SHALL use a server-side session (BFF): Django is a confidential OIDC client of Keycloak (Authorization Code + PKCE); access/refresh/ID tokens stay server-side; the browser holds only the `__Host-csaml_session` cookie (HttpOnly, Secure, SameSite=Lax, Path=/) and sends `X-CSRFToken` on unsafe methods. Endpoints `/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/session` are defined in the API Specification v0.1.3 §4. *[v0.1.1 · A11]* The CSRF token is delivered as `csrf_token` in `GET /auth/session`; its secret lives in the server-side session and there is no JavaScript-readable CSRF cookie. Logout is a top-level form POST that may carry the token as `csrfmiddlewaretoken`. `POST /auth/backchannel-logout` (OIDC Back-Channel Logout 1.0, signed `logout_token`, CSRF-exempt) lets Keycloak revoke server-side sessions. *[v0.1.2 · CR-I1-03, CR-I1-04, CR-I1-05]*
 
 - Principal attribute model (clearance). Object classification is matched against IdP realm roles carried in the session: without a clearance role a principal is cleared to `INTERNAL` (and `PUBLIC`); `csaml-clearance-sensitive` clears up to `SENSITIVE`; `csaml-clearance-restricted` clears up to `RESTRICTED`. `SOURCE_PROTECTED` access needs the eligibility role `csaml-protected-source` plus the explicit per-case membership grant `protected_source_authorized` (neither alone suffices). Access labels are matched by roles `csaml-label-<label>`; a principal needs a role for every label on an object. Unknown or missing classifications or labels fail closed (deny). Clearance is a ceiling on top of case membership and role checks, never a substitute for them (Data Model §16). *[v0.1.2 · CR-I1-10]*
 
@@ -299,7 +300,7 @@ The MVP API SHALL be REST/JSON and versioned under `/api/v1/`. The OpenAPI 3.1 c
 | Idempotency | `Idempotency-Key` (UUID) REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval, export generation; SHOULD for creates; scope, 24 h retention and replay/conflict semantics per API Specification §11 *[v0.1.1 · A11]* |
 | Schema | Generated OpenAPI 3.1 in `contracts/openapi.yaml`; lint and contract diff in CI *[v0.1.1 · A11]* |
 
-High-impact actions SHOULD use command-style endpoints when a generic CRUD update would obscure required checks, for example `/entities/merge`, `/reviews/{id}/approve`, `/disseminations/{id}/approve`, and `/cases/{id}/gates/{gate}/approve` (aligned with the API Specification v0.1.2 endpoint catalogue). *[v0.1.1 · A11]*
+High-impact actions SHOULD use command-style endpoints when a generic CRUD update would obscure required checks, for example `/entities/merge`, `/reviews/{id}/approve`, `/disseminations/{id}/approve`, and `/cases/{id}/gates/{gate}/approve` (aligned with the API Specification v0.1.3 endpoint catalogue). *[v0.1.1 · A11]*
 
 # 12. Background Jobs and Idempotency
 
@@ -318,6 +319,8 @@ Celery tasks SHALL be idempotent or carry deduplication/idempotency keys. A fail
 MVP search SHALL use PostgreSQL full-text search, trigram matching and purpose-built indexes. This avoids a second authorization/indexing system before search requirements stabilize. Search is permission-aware at query time and MUST NOT reveal counts, snippets or existence of inaccessible objects.
 
 - Index case title/metadata, source metadata, evidence extracted text when permitted, entity names/aliases/identifiers, relationships, assets, events and products.
+
+- MVP 0.1 index scope (decided): cases; entities (names, aliases, identifiers); sources; evidence **metadata**; extracts (cited text); claims; facts; relationships (type and dates only — never endpoint names); assets; events; value flows; products. Evidence file content (OCR / full text) is not indexed in MVP 0.1 (Phase 2); hypotheses, assessments and indicators are not indexed yet. The projection (`search_documents`) is rebuildable from canonical records; authorization is applied in SQL before results, counts, facets, snippets and ordering, and relevance uses per-document scores without corpus statistics. Limits: search 120 and graph 60 requests per minute per user, search statement timeout 5 s (API §17, §18, §25). *[v0.1.3 · CR-I5-01, CR-I5-07, CR-I5-08]*
 
 - Search results MUST link to canonical object IDs and display object type, case context and provenance cues.
 
@@ -494,6 +497,8 @@ Operational telemetry SHALL help operate the platform without becoming a shadow 
 
 - Metrics: request latency/error rate, queue depth, job failures, DB pool health, storage capacity, backup status.
 
+- Health and metrics endpoints: `GET /api/v1/health` is part of the API contract (unauthenticated readiness probe; dependency status and latency only, no case content). The Prometheus `/metrics` endpoint is internal: scraped inside the deployment network, never routed by the reverse proxy, and not part of the API contract. *[v0.1.3 · CR-I7-08]*
+
 - Traces: optional OpenTelemetry traces with sensitive attribute allowlist.
 
 - Application errors: structured logs with correlation IDs and user-safe error responses.
@@ -551,8 +556,8 @@ MVP performance targets are designed for a small civil-society investigation tea
 |----|----|
 | Typical authenticated API read | p95 under 800 ms excluding large file transfer |
 | Typical write command | p95 under 1.5 s excluding background processing |
-| Case-scoped search | Interactive response for representative MVP corpus; target p95 under 2 s |
-| Graph view | Initial authorized subgraph loads interactively; pagination/expansion prevents unbounded graphs |
+| Case-scoped search | Interactive response for representative MVP corpus; target p95 under 2 s. Reconciled with SRS-NFR-PERF-002: both apply — global search first page ≤ 3 s and case-scoped search p95 < 2 s, measured on the synthetic reference corpus (`backend/tests/synthetic_corpus.py`, about 97,000 search rows; SRS-NFR-PERF-004); SHOULD-level targets, not guarantees. *[v0.1.3 · CR-I5-09]* |
+| Graph view | Initial authorized subgraph loads interactively; pagination/expansion prevents unbounded graphs. Graph query budgets: depth ≤ 3, 500 nodes, 1,500 edges, 4 s wall clock (partial result), 5 s statement timeout (503). *[v0.1.3 · CR-I5-02, CR-I5-06]* |
 | Evidence upload | Streaming upload; request memory does not scale with file size |
 | Background jobs | Observable progress/failure; retries bounded and idempotent |
 

@@ -1,5 +1,115 @@
 # CS-AML Changelog
 
+## v0.1.3 — 2026-10-09 — Change requests from implementation increments I5–I7
+
+**Status:** **Approved Internal Specification Baseline** — tag `v0.1.3-spec`, 2026-10-09, product owner. Supersedes `v0.1.2-spec`.
+This is not an independent review. The change requests come from implementing increments I5 (search, graph exploration), I6
+(products, review, dissemination) and I7 (retention, backup, hardening, release) of the reference implementation, where each
+deviation or gap was recorded as a change-request candidate (`docs/change-requests.md` in the implementation repository; the
+implementation extensions `contracts/extensions/i5.yaml`, `i6.yaml`, `i7.yaml` and ADR-0025…ADR-0035 there).
+
+### Decision
+
+**All 30 change-request recommendations (CR-I5-01…CR-I5-09, CR-I6-01…CR-I6-13, CR-I7-01…CR-I7-08) were approved by the
+product owner on 2026-10-09**, without changes. Decision authority for every row below: product owner, 2026-10-09.
+
+**Conditions attached to the decisions:**
+
+| ID | Condition |
+|---|---|
+| CR-I5-08 | The residual search timing channel (query latency depends on the total corpus size) is accepted **for MVP 0.1 with synthetic data only**. It SHALL be re-reviewed — mitigated or explicitly re-accepted by the accountable authority — **before real (non-synthetic) data is processed**. |
+| CR-I7-05 | ANONYMIZE and whole-case DELETE dispositions are refused (422) in MVP 0.1 and **deferred to v0.2** (they need a reviewed anonymiser and a case-level tombstone design). |
+| CR-I5-09 | Performance targets stay SHOULD-level; measurements on the synthetic reference corpus are evidence, not guarantees. |
+
+The external reviews required by v0.1.2 (CR-I4-03, AML specialist; CR-I1-10, security) are still outstanding.
+
+### Dispositions
+
+Columns as in v0.1.2 (`adopted`, `registry`, `contract`, `text`). Changes are tagged in place as `*[v0.1.3 · CR-xx-yy]*`
+(Markdown) and `x-csaml-cr` with `x-csaml-release-class: DECIDED_V0_1_3` (OpenAPI).
+
+| ID | Area | Decision | Disposition | Where |
+|---|---|---|---|---|
+| CR-I5-01 | Search API | `GET /search` (`searchObjects`): parameter set, `SearchHit` / `SearchFacets` / `SearchResults`, plain-text snippet segments, canonical back-links, authorization before results, counts, facets, snippets and ordering | contract | Contract; API §17; SRS-FR-SCH-001; Technical Stack §13 |
+| CR-I5-02 | Graph exploration | `POST /graph/query` and `POST /graph/paths` with budget defaults (depth ≤ 3, 500 nodes, 1,500 edges, 4 s, 5 s statement timeout) and error rules (unreadable seed → 404, readable seed outside `case_id` → 422) | contract | Contract; API §18; SRS-FR-GRF-001; Technical Stack §29 |
+| CR-I5-03 | Search value sets | Registry `search_object_type`, `search_epistemic_status` | registry | `schemas/enums.yaml`; contract; Data Model Annex A |
+| CR-I5-04 | SOURCE_PROTECTED in search | Only with explicit `include_source_protected=true` AND the per-case protected-source grant; otherwise no hit, count, facet or snippet | adopted | Contract `searchObjects`; API §17; SRS-FR-SCH-002; Information Architecture §6 (roles and classification), §17 |
+| CR-I5-05 | Shared-attribute leads | Registry `graph_lead_type`; normalization rules (case- and accent-folded alphanumerics, phone digits, ≥ 4 characters); leads are candidates, never edges, facts or merges | registry | `schemas/enums.yaml`; contract `GraphLead`; API §18; SRS-FR-GRF-001 |
+| CR-I5-06 | Graph budget semantics | Partial result with `truncation_reasons` (registry `graph_truncation_reason`); only the statement-timeout backstop is 503 | registry | `schemas/enums.yaml`; contract; API §18 |
+| CR-I5-07 | Index scope; canonical extract URL | Index scope confirmed (evidence metadata, cited extract text, relationships without endpoint names; no file content in MVP); new `GET /evidence-extracts/{extractId}` (`getEvidenceExtract`) as the canonical single-extract resource — **code change** | contract | Contract; API §13, §17; Technical Stack §13; Information Architecture §17.2; SRS-FR-SCH-001 |
+| CR-I5-08 | Rate limits and timing | Search 120/min, graph 60/min per user (429 RATE_LIMITED); search statement timeout 5 s; timing channel accepted for MVP — **re-review before real data** | adopted | Contract; API §17, §18, §25; SRS-FR-SCH-002; Technical Stack §13 |
+| CR-I5-09 | Performance targets | Reference corpus = synthetic generator `backend/tests/synthetic_corpus.py` (~97k search rows); both targets apply: global search first page ≤ 3 s, case-scoped search p95 < 2 s (SHOULD) | text | SRS-NFR-PERF-002, SRS-NFR-PERF-004; Technical Stack §29; API §17 |
+| CR-I6-01 | Templates, rendering, evidence index | `/product-templates`, `/products/{id}/rendering`, `/products/{id}/versions/{version}`; product document `csaml.product-document/1` with evidence index; `subject_refs`, `contact_point` and product response fields | contract | Contract; API §19; Data Model §15.1; SRS-FR-PRD-001 |
+| CR-I6-02 | Review kinds | Registry `review_kind`; `/assessments/{id}/submit-review`, `/review-requests`; reviewer independence (authors, contributors, requester never decide) | registry + contract | `schemas/enums.yaml`; contract; API §19; Data Model §15.2; SRS-FR-REV-001 |
+| CR-I6-03 | Review / version lifecycle | As implemented: Review OPEN/DECIDED/CANCELLED (registry `review_status`); version SUBMITTED → APPROVED / APPROVED_WITH_CHANGES / RETURNED / REJECTED → SUPERSEDED / RETRACTED (registry `product_version_status`); APPROVE_WITH_CHANGES → product REVIEWED, not disseminable until a new version is reviewed; RETURN/REJECT → DRAFT | adopted | `schemas/enums.yaml`; contract; API §19; Data Model §15.1–§15.2 |
+| CR-I6-04 | `review_required` reasons and clearing | Registry `review_reason`; approval 409 REVIEW_REQUIRED unless `clear_review_required`; REVIEW_FLAG_CLEARANCE review; disseminated products get a CORRECTION review | registry + contract | `schemas/enums.yaml`; contract; API §19; Data Model §15.1 |
+| CR-I6-05 | Corrections and withdrawal | `/products/{id}/corrections`, `/products/{id}/withdraw` | contract | Contract; API §19; Data Model §15.1; SRS-FR-PRD-002 |
+| CR-I6-06 | Dissemination | `handling_classification` (≥ product), registry `dissemination_status`, `GET /disseminations`, `/disseminations/{id}/revoke`; approver = REVIEWER/LEAD member, never the requester | registry + contract | `schemas/enums.yaml`; contract; API §19; Data Model §15.3; SRS-FR-DIS-001 |
+| CR-I6-07 | Source-protected release | SOURCE_PROTECTED objects enter an approved scope only with `source_protected_release` set by an approver holding the per-case protected-source grant, with rationale; redaction as implemented (withheld, count recorded) | adopted | Contract `DisseminationApproveRequest`, `ExportPackage.redactions`; API §19; Data Model §15.3; SRS-FR-DIS-002 |
+| CR-I6-08 | Export package format, statuses, download | Registry `export_package_format` (CSAML_PACKAGE_ZIP_V1), `export_package_status`, `sharing_log_entry_type`; `/export-packages`, `/export-packages/{id}`, `/export-packages/{id}/content` (409 when the approval is no longer valid) | registry + contract | `schemas/enums.yaml`; contract; API §19; Data Model §15.4 |
+| CR-I6-09 | Job status | Registry `job_status` QUEUED → RUNNING → SUCCEEDED / FAILED; job fields `job_type`, `target_type`, `target_ref`, `result_url` | registry | `schemas/enums.yaml`; contract `Job`; API §22 |
+| CR-I6-10 | Contract defect | `CaseMembershipList` and `EvidenceExtractList` use `items` only (`data` dropped); implementations may stop sending the duplicate `data` member | contract (fix) | Contract |
+| CR-I6-11 | Export generation and candidates | `generateExportPackage` always 202 `ExportJobAccepted` (job + QUEUED package, `Location`); export candidates one page, `source_protected`, `in_approved_scope`; single-page derived lists allowed | contract | Contract; API §19, §22 |
+| CR-I6-12 | Recorded reviewer downgrade | HandlingChange record (append-only; DOWNGRADE only with its approved review; registry `handling_change_direction`); `review_trigger_ref` may name a HandlingChange; `handling_decision_ref` | adopted | Data Model §6.1, §15.1, §16, §16.4; contract `IntelligenceProduct`, `Assessment`; `schemas/enums.yaml`; API §19 |
+| CR-I6-13 | Typology source map | Re-imported with the next catalogue version; no content change now | text (no change) | — |
+| CR-I7-01 | Retention API | `/retention-rules`, `/retention-evaluations`, `/legal-holds`, `/disposition-records` (+ approve / reject / execute) | contract | Contract; API §20, §20A; SRS-FR-ADM-003; Control Implementation Guide PRI-02 |
+| CR-I7-02 | `RetentionRule.applies_to` | Registry `retention_target_type` (EVIDENCE_ITEM, EXPORT_PACKAGE, CASE); `applies_to_classifications` | registry | `schemas/enums.yaml`; Data Model §16.1; contract; API §20A |
+| CR-I7-03 | LegalHold; rule / hold status | Data Model class LegalHold; registry `retention_rule_status`, `legal_hold_status` | registry + contract | Data Model §16.1–§16.2; `schemas/enums.yaml`; contract; Control Implementation Guide PRI-02 |
+| CR-I7-04 | DispositionRecord | Data Model class DispositionRecord (the disposition log); registry `disposition_status`; decider = LEAD of every linked case, never the proposer | registry + contract | Data Model §16.3; `schemas/enums.yaml`; contract; API §20A; Control Implementation Guide PRI-02 |
+| CR-I7-05 | Supported dispositions | MVP: DELETE (purge stored bytes, row kept as tombstone), ARCHIVE, REVIEW; ANONYMIZE and whole-case DELETE refused (422) — **deferred to v0.2** | adopted | Data Model §16.1; API §20A; SRS-FR-ADM-003, SRS-DR-006; contract `RetentionDisposition`, `RetentionRuleCreate` |
+| CR-I7-06 | Case closure time | `Case.closed_at` (read-only); trigger CASE_CLOSURE uses it — **code change** | contract | Data Model §6.1; contract `Case`; API §20A |
+| CR-I7-07 | Disposed evidence content | `getEvidenceContent` documents 409 STATE_CONFLICT (`EVIDENCE_DISPOSED`) | contract | Contract; API §13; SRS-DR-006 |
+| CR-I7-08 | Health / metrics | `GET /health` (`getHealth`, unauthenticated, dependency status only, no case content) in the contract; `/metrics` internal and outside the API | contract | Contract; API §20; SRS-OPS-002; Technical Stack §25 |
+
+### What changed
+
+- **Documents.** Six documents changed and were renamed with `git mv` to `*_v0.1.3.md` (history preserved): API Specification,
+  Data Model, SRS, Technical Stack and Repository (from v0.1.2), Information Architecture and Control Implementation Guide (from
+  v0.1.1). The other 17 Markdown documents are unchanged and keep their current version (v0.1.2 or v0.1.1). A reference to an
+  older version of a document inside an unchanged document means the current version (see `README.md`). Technology
+  Architecture needed no change (its search, graph and backup statements remain consistent).
+- **`contracts/openapi.yaml` 0.1.3.** v0.1.2 plus `contracts/extensions/i5.yaml`, `i6.yaml` and `i7.yaml` of the implementation
+  (merged; the extension files are no longer needed), `GET /evidence-extracts/{extractId}` and `GET /health`: 111 → 138 paths,
+  149 → 180 operations. Changed operations: `generateExportPackage` (202 only), `getEvidenceContent` (409),
+  `listExportCandidates`, `approveDissemination`, review decisions (descriptions). New items carry `x-csaml-status: decided`,
+  `x-csaml-release-class: DECIDED_V0_1_3` and `x-csaml-cr`.
+- **`schemas/enums.yaml` 0.1.3.** 60 → 78 enums (345 → 417 values): `search_object_type`, `search_epistemic_status`,
+  `graph_lead_type`, `graph_truncation_reason`, `review_kind`, `review_status`, `product_version_status`, `review_reason`,
+  `dissemination_status`, `export_package_format`, `export_package_status`, `sharing_log_entry_type`, `job_status`,
+  `retention_target_type`, `retention_rule_status`, `legal_hold_status`, `disposition_status`, `handling_change_direction`.
+  Values are exactly those of the implementation (backend constants and extension enums). `RetentionRule.applies_to` left
+  `unregistered_fields`.
+- **`tools/check_consistency.py`.** Resolves v0.1.3 files, maps the new Annex A rows and checks v0.1.3 status blocks and tags.
+
+### Release gates (2026-10-09)
+
+| Gate | Result |
+|---|---|
+| G1–G3 Domain consistency, safety invariants, traceability | `tools/check_consistency.py`: 0 errors |
+| G4 Machine contract | Redocly lint (recommended): 0 errors, 4 warnings — the three `/auth/*` redirect operations (no 2xx) and `GET /health` (no 4xx; an unauthenticated probe). The v0.1.2 warning "unused `StateConflict`" is gone (now used by `getEvidenceContent`) |
+| G5 Decisions | All 30 change requests decided (this section) |
+| G6 Known limitations | Listed below |
+
+### Implementation follow-up (reference implementation)
+
+Re-import contract and registry v0.1.3 byte-for-byte and retire `contracts/extensions/i5.yaml`, `i6.yaml`, `i7.yaml`. Code changes:
+`GET /evidence-extracts/{extractId}` with `links.self` pointing to it (CR-I5-07); `Case.closed_at`, set on closure and used by
+CASE_CLOSURE (CR-I7-06; replaces the `updated_at` fallback); `/api/v1/health` moves from `OUTSIDE_CONTRACT` to the contract
+(CR-I7-08); the duplicate `data` member of the two list responses may be dropped (CR-I6-10). CR-I6-13: re-import
+`sources/typology-source-map.yaml` with the next catalogue version.
+
+### Still open after v0.1.3
+
+| Item | Target |
+|---|---|
+| Re-review of the search timing channel (CR-I5-08) | Before real (non-synthetic) data is processed |
+| ANONYMIZE and whole-case DELETE dispositions (CR-I7-05) | v0.2 |
+| Indexing of evidence file content (OCR / full text); hypotheses, assessments, indicators in search | Phase 2 / v0.2 |
+| Administration/audit API (other than retention and health), protected sources, `GET /capabilities` | v0.2 (per epic) |
+| Gate and task status value sets; sort allowlists; task contracts | v0.2 |
+| External review of CR-I4-03 (AML specialist) and CR-I1-10 (security) | Before external reliance |
+| Items of the v0.1.2 "Still open" table not listed here | Unchanged |
+
 ## v0.1.2 — 2026-10-09 — Change requests from implementation increments I1–I4
 
 **Status:** **Approved Internal Specification Baseline** — tag `v0.1.2-spec`, 2026-10-09, product owner. Supersedes `v0.1.1-spec`.
