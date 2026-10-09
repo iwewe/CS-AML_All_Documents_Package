@@ -2,14 +2,15 @@
 
 **API Specification**
 
-Version 0.1.1
+Version 0.1.2
 
-> **Document status — v0.1.1**
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
+> **Document status — v0.1.2**
+> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
 > Supersedes: CS-AML API Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 
 > **Purpose**  
 > Normative HTTP API baseline for CS-AML MVP 0.1 (approved internal specification baseline v0.1.1). *[v0.1.1 · A01]* It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
@@ -19,15 +20,15 @@ Version 0.1.1
 
 Status: Normative API contract baseline for MVP 0.1 (approved internal specification baseline v0.1.1, 2026-10-08) *[v0.1.1 · A01]*
 
-Dependencies: Framework v0.1.1 · Data Model v0.1.1 · SRS v0.1.1 · Technology Architecture v0.1.1 · Frontend Architecture v0.1.1 · Control Implementation Guide v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
+Dependencies: Framework v0.1.1 · Data Model v0.1.2 · SRS v0.1.2 · Technology Architecture v0.1.1 · Frontend Architecture v0.1.2 · Control Implementation Guide v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) *[v0.1.1 · A01]*
 
 # Document Control
 
 | **Attribute** | **Value** |
 |----|----|
 | Document ID | CSAML-API-0.1 |
-| Version | 0.1.1 |
-| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
+| Version | 0.1.2 *[v0.1.2]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) *[v0.1.1 · A01]* |
 | Primary audience | Backend Engineer, Frontend Engineer, QA, Security Reviewer, Integration Engineer |
 | Protocol | HTTPS + JSON; multipart/streaming where file transfer requires it |
 | Reference style | Resource-oriented REST API with explicit action endpoints for workflow decisions |
@@ -80,15 +81,17 @@ X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 | **Concern** | **Requirement** |
 |----|----|
 | Authentication | Browser authentication is locked to a server-side session (BFF pattern). Django is a confidential OIDC client of Keycloak using Authorization Code + PKCE. Access, refresh and ID tokens stay server-side and are never exposed to JavaScript. Browsers SHALL NOT send `Authorization: Bearer`; bearer tokens from browsers are rejected. *[v0.1.1 · A11]* |
-| Auth endpoints | `GET /auth/login` (redirect to IdP) · `GET /auth/callback` (code exchange, session creation) · `POST /auth/logout` (session destroyed; IdP logout initiated) · `GET /auth/session` (current principal, session expiry, coarse capabilities; 401 when no session). These are served by the same origin outside `/api/v1`. *[v0.1.1 · A11]* |
+| Auth endpoints | `GET /auth/login` (redirect to IdP) · `GET /auth/callback` (code exchange, session creation) · `POST /auth/logout` (session destroyed; IdP logout initiated) · `GET /auth/session` (current principal, session expiry, coarse capabilities; 401 when no session). These are served by the same origin outside `/api/v1`. *[v0.1.1 · A11]* `GET /auth/session` additionally returns the optional fields `username` (display only, never an authorization identifier) and `csrf_token`. *[v0.1.2 · CR-I1-07, CR-I1-03]* |
+| Back-channel logout | `POST /auth/backchannel-logout` implements OpenID Connect Back-Channel Logout 1.0: the IdP posts the form field `logout_token` (signed JWT); the server validates issuer, audience, signature and events claim and revokes the matching server-side sessions. The endpoint is authenticated by the signed token only (no session cookie, `security: []`) and is CSRF-exempt. Responses: 200 (sessions revoked or none matched), 400 (missing or invalid token). *[v0.1.2 · CR-I1-05]* |
 | Session cookie | The browser holds only `__Host-csaml_session` with attributes `HttpOnly; Secure; SameSite=Lax; Path=/` and no `Domain` attribute. *[v0.1.1 · A11]* |
-| CSRF | Every unsafe method (POST/PUT/PATCH/DELETE) SHALL carry the Django CSRF token in the `X-CSRFToken` header; missing/invalid token → 403. *[v0.1.1 · A11]* |
+| CSRF | Every unsafe method (POST/PUT/PATCH/DELETE) SHALL carry the Django CSRF token in the `X-CSRFToken` header; missing/invalid token → 403. *[v0.1.1 · A11]* Delivery: the SPA reads the token from the `csrf_token` field of `GET /auth/session`; the CSRF secret is kept in the server-side session and no JavaScript-readable CSRF cookie exists. *[v0.1.2 · CR-I1-03]* |
+| Logout from the browser | A cross-origin 303 to the IdP end-session endpoint cannot be followed by `fetch()`, so the browser SHALL log out with a top-level form POST (`application/x-www-form-urlencoded`) to `/auth/logout` carrying the CSRF token as the form field `csrfmiddlewaretoken`. API clients and tests MAY send `X-CSRFToken` instead. The CSRF check and the 303 response are the same in both cases; the form field is accepted for this endpoint only. *[v0.1.2 · CR-I1-04]* |
 | Origin / CORS | The API is same-origin (`/api/v1` behind Nginx). CORS is disabled by default. *[v0.1.1 · A11]* |
 | Session timeouts | Idle and absolute session timeouts are security-policy configuration. *[v0.1.1 · A11]* |
 | Principal | Server resolves user/service identity; client-submitted actor identity is not trusted. |
 | MFA | Required claims/policy enforced server-side for sensitive actions where configured. |
 | Service account | Machine/service API clients are out of MVP scope. When introduced, each SHALL be a distinct non-human principal with least privilege and no shared analyst identity; its authentication mechanism requires a separate decision. *[v0.1.1 · A11]* |
-| Logout/revocation | After logout, session expiry or revocation, subsequent requests return 401. Keycloak back-channel logout SHOULD revoke the corresponding server-side sessions. *[v0.1.1 · A11]* |
+| Logout/revocation | After logout, session expiry or revocation, subsequent requests return 401. Keycloak back-channel logout SHOULD revoke the corresponding server-side sessions. *[v0.1.1 · A11]* It is delivered to `POST /auth/backchannel-logout` (above). *[v0.1.2 · CR-I1-05]* |
 | Impersonation | Not supported in MVP unless separately controlled/audited. |
 
 # 5. Common Headers and Correlation
@@ -96,7 +99,7 @@ X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 | **Header** | **Direction** | **Use** |
 |----|----|----|
 | Cookie (`__Host-csaml_session`) | Request | Browser session authentication (§4). `Authorization: Bearer` is not accepted from browsers. *[v0.1.1 · A11]* |
-| X-CSRFToken | Request | Django CSRF token; REQUIRED on every unsafe method (§4). *[v0.1.1 · A11]* |
+| X-CSRFToken | Request | Django CSRF token; REQUIRED on every unsafe method (§4). *[v0.1.1 · A11]* Obtained from `GET /auth/session` (`csrf_token`); `POST /auth/logout` MAY carry it as the form field `csrfmiddlewaretoken` instead. *[v0.1.2 · CR-I1-03, CR-I1-04]* |
 | X-Request-ID | Both | Correlation ID; server generates when absent. |
 | ETag | Response | `"<record_version>"` returned on GET of every versioned resource (§10). *[v0.1.1 · A04]* |
 | If-Match | Request | `"<record_version>"`; REQUIRED on mutations of versioned resources (§10). Missing → 428; stale → 412. *[v0.1.1 · A04]* Exception: multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions) send a body map `expected_versions` instead (missing → 428, mismatch → 412 with `details.current_record_versions`; §10, §14). *[v0.1.1 · C03]* |
@@ -125,6 +128,11 @@ X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 
 > **Enum values and classification**  
 > Controlled enumeration values on the wire (including `status`) are UPPER_SNAKE_CASE machine values derived from the Data Model Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]* `classification` takes one of `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (least → most restrictive; display labels Public, Internal, Sensitive, Restricted, Source-protected). Access labels are additive restrictions; the most restrictive applicable level plus all labels apply. Derived objects and exports inherit the highest classification of their inputs unless a recorded reviewer downgrade decision exists. A resource with unknown or missing classification fails closed (access denied; flagged for classification). *[v0.1.1 · A08]*
+
+> **Classification inheritance and case links** *[v0.1.2 · CR-I2-05, CR-I2-01, CR-I3-13, CR-I4-12]*  
+> A create request whose declared `classification` is below the highest classification of its inputs, or whose `access_labels` miss a label of an input, is rejected with 422; omitted fields default to the inherited value. `PATCH` may only upgrade the classification or add labels; downgrades and label removal → 403 until a recorded reviewer decision exists. When an input is later upgraded, dependent objects are flagged for re-review; their classification is never raised automatically. *[v0.1.2 · CR-I2-05]*  
+> Every create request that carries `case_links` SHALL send it with 1..20 case IDs (sources, upload sessions, entities, relationships, value flows, hypotheses, assessments, intelligence products, assets, ownership interests, control assertions, events, indicators, typology matches, intelligence gaps); missing or empty → 422. The creator needs `case.update` on every named case (404/403, non-disclosing). An object without case context would be reachable by no one. Extracts and derivatives inherit the parent's links; claims, facts and decisions belong to their path case. *[v0.1.2 · CR-I2-01, CR-I3-13, CR-I4-12]*  
+> Classes without their own lifecycle carry the registry enum `envelope_status` in `status`: `REGISTERED` (Source, EvidenceExtract, Asset), `RECORDED` (Event, ValueFlow, TypologyMatch), `DRAFT`/`FINALIZED` (Assessment until a review outcome, then its `review_status`). Classes with a lifecycle mirror it (`claim_status`, `fact_status`, `resolution_status`, `relationship_status`, …). *[v0.1.2 · CR-I2-03, CR-I3-05, CR-I4-09]*
 
 > **Capabilities**  
 > `capabilities` MAY help the UI render permitted actions, but SHALL NOT replace server authorization. Capabilities are contextual and may change between requests.
@@ -272,6 +280,16 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | GET | /cases/{caseId}/tasks | Tasks. |
 | POST | /cases/{caseId}/tasks | Create task. |
 | GET | /cases/{caseId}/activity | Material case activity projection. |
+| GET/POST | /cases/{caseId}/memberships | List active memberships; grant a membership (`principal_id`, `role` = `LEAD`/`ANALYST`/`REVIEWER`, `protected_source_authorized`). An active membership for the same principal → 409. *[v0.1.2 · CR-I1-02]* |
+| PATCH/DELETE | /case-memberships/{membershipId} | Change role or protected-source grant; revoke (soft: `revoked_at`, 204). `If-Match` REQUIRED. The LEAD membership cannot be revoked (409). *[v0.1.2 · CR-I1-02]* |
+| GET | /cases/{caseId}/graph | Per-case graph projection (§18). *[v0.1.2 · CR-I3-07]* |
+
+| **Concern** | **Rule** |
+|----|----|
+| Investigation questions | `Case.investigation_questions` may be empty while the case is `DRAFT` (questions are created through the charter). At least one question is a precondition of case activation (gate), not of the response schema (SRS-FR-CASE-001). *[v0.1.2 · CR-I1-01]* |
+| Value sets | `risk_rating`: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; `closure_reason`: `OBJECTIVES_MET`, `INSUFFICIENT_BASIS_TO_CONTINUE`, `REFERRED`, `OUT_OF_SCOPE`, `DUPLICATE`, `LEGAL_OR_SAFETY_CONSTRAINT`, `OTHER` (registry `schemas/enums.yaml`). *[v0.1.2 · CR-I1-08]* |
+| Classification change | Only the case `LEAD` may change a case's `classification` or `access_labels` via `PATCH /cases/{caseId}`, and only upwards (higher level, added labels). Downgrades and label removal require a recorded reviewer decision (workflow delivered with review, I6) and are rejected with 403 until then. *[v0.1.2 · CR-I1-09]* |
+| Memberships | Managed by the case `LEAD` (403 otherwise). A case keeps exactly one `LEAD`; the lead changes through `PATCH /cases/{caseId}` (`lead_analyst_id`). `protected_source_authorized` is effective only for principals holding the IdP eligibility role `csaml-protected-source`. Every grant, change and revocation is audited. *[v0.1.2 · CR-I1-02, CR-I1-10]* |
 
 # 13. Source, Evidence and File API
 
@@ -284,14 +302,20 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | PUT | /evidence/uploads/{uploadId}/content | Stream/upload bytes (PUT only). *[v0.1.1 · C18]* |
 | POST | /evidence/uploads/{uploadId}/complete | Finalize immutable evidence record and hash. |
 | GET | /evidence/{evidenceId} | Evidence metadata. |
-| GET | /evidence/{evidenceId}/content | Authorized content stream/download; supports range where safe. |
+| GET | /evidence/{evidenceId}/content | Authorized content stream/download; supports range where safe. An invalid `Range` → 400 (no 416). *[v0.1.2 · CR-I2-02]* |
 | POST | /evidence/{evidenceId}/verify-integrity | Recompute/verify integrity. |
-| POST | /evidence/{evidenceId}/extracts | Create citation/extract. |
+| GET/POST | /evidence/{evidenceId}/extracts | List the readable extracts of an evidence item; create citation/extract. *[v0.1.2 · CR-I2-06]* |
 | GET | /evidence/{evidenceId}/lineage | Original/derivative lineage. |
-| POST | /evidence/{evidenceId}/derivatives | Register approved derivative metadata/output. |
+| POST | /evidence/{evidenceId}/derivatives | Register approved derivative metadata/output. The bytes come from an upload session whose content upload has completed (`CONTENT_RECEIVED`, not yet completed); registering the derivative finalizes that session. *[v0.1.2 · CR-I2-02]* |
 
 > **Evidence invariant**  
 > File upload success SHALL NOT by itself mean evidence is complete. The completion endpoint SHALL only succeed after required metadata, storage write and integrity record succeed atomically or with documented compensating behavior.
+
+| **Concern** | **Rule** |
+|----|----|
+| Upload session | `status`: `INITIATED` → `CONTENT_RECEIVED` (after `PUT …/content`) → `COMPLETED` (completed into an EvidenceItem, or consumed by a derivative registration). Responses add `received_size_bytes` and `detected_media_type`. Sessions are private to their initiator (404 for others) and expire after 24 h (`expires_at`; there is no expired status). A size-limit violation or an empty body → 422 (no 413). *[v0.1.2 · CR-I2-02]* |
+| EvidenceItem fields | Responses add `byte_size`, `hash_algorithm`, `derived_from` and `derivation_type` (free text in v0.1.2). `storage_ref` is the opaque `evidence:<id>`; bucket and key are never disclosed. *[v0.1.2 · CR-I2-06]* |
+| Status | Source and EvidenceExtract carry envelope `status` = `REGISTERED` (§6). *[v0.1.2 · CR-I2-03]* |
 
 # 14. Entity, Relationship and Asset API
 
@@ -301,61 +325,108 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | GET/PATCH | /entities/{entityId} | Canonical entity detail/update. |
 | GET | /entities/{entityId}/identifiers | Identifiers/aliases with provenance. |
 | GET | /entity-match-candidates | Candidate duplicates. |
-| POST | /entity-match-candidates/{id}/decisions | Record a ResolutionDecision on the candidate's subject entities with wire value `KEEP_SEPARATE` (distinct), `POSSIBLE_MATCH` (possible) or `DEFER` (unresolved or deferred; Methodology §12.2 maps UNRESOLVED → `DEFER`). A same-entity outcome is recorded as `MERGE` through `POST /entities/merge`, not here. *[v0.1.1 · ER]* *[v0.1.1 · C06]* |
+| POST | /entity-match-candidates/{id}/decisions | **Deprecated in v0.1.2, removal in v0.2; use `POST /resolution-decisions`, which records the same decision with identical semantics.** *[v0.1.2 · CR-I2-14]* Record a ResolutionDecision on the candidate's subject entities with wire value `KEEP_SEPARATE` (distinct), `POSSIBLE_MATCH` (possible) or `DEFER` (unresolved or deferred; Methodology §12.2 maps UNRESOLVED → `DEFER`). A same-entity outcome is recorded as `MERGE` through `POST /entities/merge`, not here. *[v0.1.1 · ER]* *[v0.1.1 · C06]* |
 | POST | /entities/merge | Version-aware merge action; creates a `MERGE` ResolutionDecision. *[v0.1.1 · ER]* |
 | POST | /entity-merges/{mergeId}/unmerge | Controlled reversal; `{mergeId}` is the id of the `MERGE` ResolutionDecision; creates an `UNMERGE` ResolutionDecision with `reverses_decision_ref` = `{mergeId}`. *[v0.1.1 · ER]* |
 | GET | /entities/{entityId}/resolution-decisions | Append-only ResolutionDecision history for the entity. *[v0.1.1 · ER]* |
-| POST | /resolution-decisions | Record a `POSSIBLE_MATCH`, `KEEP_SEPARATE` or `DEFER` ResolutionDecision. `MERGE`/`UNMERGE` are rejected here (422) and use the commands above. *[v0.1.1 · ER]* |
+| GET | /entities/{entityId}/provenance | Provenance trace (nodes, edges, every path back to a Source; unreadable nodes omitted without disclosure). *[v0.1.2 · CR-I2-04]* |
+| POST | /resolution-decisions | Record a `POSSIBLE_MATCH`, `KEEP_SEPARATE` or `DEFER` ResolutionDecision. `MERGE`/`UNMERGE` are rejected here (422) and use the commands above. *[v0.1.1 · ER]* This is the single endpoint for non-structural decisions. *[v0.1.2 · CR-I2-14]* |
 
 | **Concern** | **Rule** *[v0.1.1 · ER]* |
 |----|----|
-| ResolutionDecision | Fields per Data Model §8.4: `subject_entity_refs` (2..n), `decision` (`MERGE`, `KEEP_SEPARATE`, `POSSIBLE_MATCH`, `DEFER`, `UNMERGE`), `surviving_entity_ref` (required for `MERGE`), `reverses_decision_ref` (required for `UNMERGE`), `matching_attributes`, `conflicting_attributes`, `evidence_refs` (1..n), `confidence`, `rationale`, `decided_by` / `decided_at` (server-resolved), `reviewer_ref` (required for high-impact `MERGE`/`UNMERGE`; SHALL differ from `decided_by`, otherwise 403). Append-only: no PATCH/DELETE; corrections are new decisions. Missing conditional fields → 422. |
+| ResolutionDecision | Fields per Data Model §8.4: `subject_entity_refs` (2..n), `decision` (`MERGE`, `KEEP_SEPARATE`, `POSSIBLE_MATCH`, `DEFER`, `UNMERGE`), `surviving_entity_ref` (required for `MERGE`), `reverses_decision_ref` (required for `UNMERGE`), `matching_attributes`, `conflicting_attributes`, `evidence_refs` (1..n; EvidenceExtract, EvidenceItem or Source, readable and in the case context, otherwise 422 *[v0.1.2 · CR-I2-07]*), `confidence`, `rationale`, `decided_by` / `decided_at` (server-resolved), `reviewer_ref` (required for every `MERGE`/`UNMERGE`, all of which are high-impact in the MVP — missing → 422; SHALL be a principal holding `REVIEWER` or `LEAD` membership on every subject entity's case, otherwise 422; SHALL differ from `decided_by`, otherwise 409 STATE_CONFLICT *[v0.1.2 · CR-I2-09, CR-I2-10]*). Append-only: no PATCH/DELETE; corrections are new decisions. Missing conditional fields → 422. |
 | Entity state | `resolution_status` (`UNRESOLVED`, `RESOLVED`, `CONFLICTED`, `MERGED`, `SPLIT`) is read-only on `PATCH /entities/{entityId}`; it changes only as the effect of a ResolutionDecision (Data Model §8.4, DM-I15). |
 | Preconditions | Multi-entity commands (`POST /entities/merge`, `POST /entity-merges/{mergeId}/unmerge`, `POST /resolution-decisions`, `POST /entity-match-candidates/{id}/decisions`) SHALL send a body map `expected_versions: {<entityId>: <record_version>}` covering every subject entity (checked as a precondition, not as a schema-required field; §10). *[v0.1.1 · C03]* Missing map (or a subject entity missing from it) → 428 PRECONDITION_REQUIRED; any mismatch → 412 PRECONDITION_FAILED with `details.current_record_versions` (map of entityId → current record_version). An `If-Match` header is not used for these commands: under RFC 9110 an `If-Match` list passes if any single tag matches, so it cannot guard several resources at once. *[v0.1.1 · A04]* Idempotency-Key REQUIRED for `MERGE`/`UNMERGE` (§11), SHOULD for other decisions. |
 | Re-suggestion | A pair with a `KEEP_SEPARATE` decision SHALL NOT reappear in `/entity-match-candidates` unless new evidence is attached to either subject. |
+| Merge model | Merge is logical repointing via `canonical_parent`: relationships, claims and absorbed records are never rewritten. Unmerge therefore re-attributes nothing; it removes what the merge added to the survivor and restores its prior handling. History is never erased. *[v0.1.2 · CR-I2-13]* |
 
 Relationship and asset endpoints: *[v0.1.1 · C07]*
 
 | **Method** | **Endpoint** | **Purpose** |
 |----|----|----|
-| GET/POST | /relationships | First-class relationships. |
+| GET/POST | /relationships | First-class relationships. `GET` accepts the filter `entity_id` (relationships where the entity or asset is either endpoint). *[v0.1.2 · CR-I2-06, CR-I3-08]* |
 | GET/PATCH | /relationships/{relationshipId} | Relationship detail/update. |
-| GET/POST | /assets | Asset registry. |
-| GET/PATCH | /assets/{assetId} | Asset detail/update. |
+| GET | /relationships/{relationshipId}/provenance | Provenance trace (as above). *[v0.1.2 · CR-I2-04]* |
+| GET/POST | /assets | Asset registry. *[v0.1.2 · CR-I3-01]* |
+| GET/PATCH | /assets/{assetId} | Asset detail/update (ETag/If-Match). *[v0.1.2 · CR-I3-01]* |
+| GET/POST | /ownership-interests | OwnershipInterest (Data Model §9.2); creates the `OWNS`/`BENEFICIAL_OWNER_OF` edge unless `relationship_ref` names a matching one. *[v0.1.2 · CR-I3-01]* |
+| GET/PATCH | /ownership-interests/{interestId} | Detail/update (ETag/If-Match). *[v0.1.2 · CR-I3-01]* |
+| GET/POST | /control-assertions | ControlAssertion (Data Model §9.3); `controlled_entity` may name an Asset. *[v0.1.2 · CR-I3-01]* |
+| GET/PATCH | /control-assertions/{assertionId} | Detail/update (ETag/If-Match). *[v0.1.2 · CR-I3-01]* |
+| GET | /assets/{assetId}/provenance · /ownership-interests/{interestId}/provenance · /control-assertions/{assertionId}/provenance | Provenance traces. *[v0.1.2 · CR-I3-08]* |
+
+| **Concern** | **Rule** |
+|----|----|
+| Evidence targets | `Relationship.supporting_evidence`: EvidenceExtract, EvidenceItem or Fact. Asset evidence: Source, EvidenceItem or EvidenceExtract; OwnershipInterest/ControlAssertion evidence: EvidenceExtract, EvidenceItem or Fact. Every reference must be readable and share the case context (422 otherwise, non-disclosing). *[v0.1.2 · CR-I2-07, CR-I3-01]* |
+| Asset targets | `to_entity` may reference an Asset; responses state `to_object_type` (`Entity` or `Asset`). Directly via `POST /relationships` only `USES`, `MANAGES` and `ACQUIRED` may target an asset; `OWNS`, `BENEFICIAL_OWNER_OF` and `CONTROLS` to an asset only together with an OwnershipInterest or ControlAssertion (422 otherwise). *[v0.1.2 · CR-I3-08]* |
+| Established ownership | `BENEFICIAL`, `ECONOMIC_INTEREST` and `NOMINEE_ASSERTED` interests become `ESTABLISHED` only with an `ESTABLISHED` Fact in `supporting_evidence` (422 otherwise). *[v0.1.2 · CR-I3-11]* |
+| Status | Asset envelope `status` = `REGISTERED`; OwnershipInterest/ControlAssertion mirror `interest_status`/`assertion_status` (relationship_status values). *[v0.1.2 · CR-I3-05]* |
 
 # 15. Timeline and Value Flow API
 
 | **Method** | **Endpoint** | **Purpose** |
 |----|----|----|
-| GET/POST | /events | Events with temporal precision. |
-| GET | /timeline | Derived timeline projection scoped by case/entity/date. |
+| GET/POST | /events | Events with temporal precision; filters `entity_id`, `asset_id`, `type`, `from`/`to` (overlap). Event adds `description`, `approximate`, `asset_refs`; `time_precision` from registry `temporal_precision`; `start_time` is null only with `UNKNOWN`. *[v0.1.2 · CR-I3-02, CR-I3-06]* |
+| GET/PATCH | /events/{eventId} | Event detail/update (ETag/If-Match). *[v0.1.2 · CR-I3-02]* |
+| GET | /timeline | Derived timeline projection; `case_id` required; also lists dated value flows with their class; undated items separately in `undated[]`. *[v0.1.2 · CR-I3-02]* |
 | GET/POST | /value-flows | ValueFlow resources. |
 | GET/PATCH | /value-flows/{flowId} | Flow detail/update. |
-| POST | /value-flows/{flowId}/legs | Add version-aware flow leg. |
-| GET | /value-flow-view | Derived graph/list projection for workspace. |
-| GET | /value-flow-legend | Optional semantic metadata/labels for clients. |
+| POST | /value-flows/{flowId}/legs | Add version-aware flow leg. Legs are immutable: there is no leg update or delete. *[v0.1.2 · CR-I3-04]* |
+| GET | /value-flow-view | Derived projection for the workspace (`case_id` required): flows with legs, per-class aggregates, legend, `meta.derived`. *[v0.1.2 · CR-I3-03]* |
+| GET | /value-flow-legend | The four classes with label, text cue, line style, meaning and evidence rule. *[v0.1.2 · CR-I3-03]* |
+| GET | /events/{eventId}/provenance · /value-flows/{flowId}/provenance | Provenance traces. *[v0.1.2 · CR-I3-08]* |
 
 > **Flow semantics**  
 > Every ValueFlow response SHALL carry its epistemic class in `flow_class` with one of the wire values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL` (UPPER_SNAKE_CASE; from the Data Model Annex A registry). *[v0.1.1 · A09]* No endpoint may collapse these into a generic “transaction” representation.
+
+| **Concern** | **Rule** |
+|----|----|
+| Legs | Each leg keeps its own evidence, class, value and confidence: `ValueFlowLeg` adds `reconstruction_basis` (required for `RECONSTRUCTED`/`HYPOTHETICAL` legs) and `confidence`; responses add `origin_type`, `destination_type`, `amount_kind`, `flow_class_label`, and the flow adds `chain{leg_count, leg_classes, mixed_classes, complete}`. Legs are append-only, appended in order (`sequence` = n + 1), each starting where the previous one ended; a complete chain takes no more legs (409); endpoints of a chained flow are fixed (409); leg inputs may not exceed the flow's classification. *[v0.1.2 · CR-I3-04]* |
+| Certainty order | Used only for invariants, never displayed, averaged or summed (the registry stays unordered): `HYPOTHETICAL` < `RECONSTRUCTED` < `DOCUMENTED` < `DIRECT`. A `flow_class` change that raises certainty must add at least one evidence reference not previously attached (422); a flow is never stronger than its weakest leg (422); lowering must meet the target class's requirements. *[v0.1.2 · CR-I3-09]* |
+| Evidence targets | Flow, leg and event evidence: EvidenceExtract, EvidenceItem or Fact, readable and in the case context. `DIRECT` and `DOCUMENTED` need at least one EvidenceItem or EvidenceExtract (a Fact alone → 422). *[v0.1.2 · CR-I3-10]* |
+| Aggregation | `GET /value-flow-view` groups flows by (`flow_class`, `flow_type`, currency); there is no grand total. `CONTRACT`/`SUBCONTRACT` groups are `value_nature: OBLIGATION`; only `DIRECT` groups are `settlement_evidenced`. Each group has `lower_bound_total`, `upper_bound_total` (null if any amount is unknown or open-ended) and `exact_total` (only when every amount is a known exact point); unknown amounts are null, counted and never treated as 0; legs are never added to their flow's totals. *[v0.1.2 · CR-I3-12]* |
+| Status | Event and ValueFlow envelope `status` = `RECORDED`. *[v0.1.2 · CR-I3-05]* |
 
 # 16. Typology, Hypothesis and Assessment API
 
 | **Method** | **Endpoint** | **Purpose** |
 |----|----|----|
-| GET | /typologies | Versioned typology catalogue. |
-| GET | /typologies/{typologyId} | Typology version/detail. |
-| GET/POST | /indicators | Evidence-linked indicators/counter-indicators. |
-| GET/POST | /typology-matches | Case typology worksheets. |
+| GET | /typology-catalogue | Loaded catalogue versions, notice, publication register, origin/verification counts. *[v0.1.2 · CR-I4-01]* |
+| GET | /typologies | Versioned typology catalogue (filters: family, status, text, `version`). *[v0.1.2 · CR-I4-01]* |
+| GET | /typologies/{typologyId} | Typology version/detail (`?version=`), every indicator with its A13 `origin`, `verification_status` and lineage as stated. Read-only reference data; any signed-in principal may read it. *[v0.1.2 · CR-I4-01]* |
+| GET/POST | /indicators | Evidence-linked indicators/counter-indicators. *[v0.1.2 · CR-I4-02]* |
+| GET/PATCH | /indicators/{indicatorId} | Indicator detail/status change (ETag/If-Match). *[v0.1.2 · CR-I4-02]* |
+| GET/POST | /typology-matches | Case typology worksheets. *[v0.1.2 · CR-I4-03]* |
+| GET/PATCH | /typology-matches/{matchId} | Worksheet detail/update. *[v0.1.2 · CR-I4-03]* |
+| POST | /typology-matches/evaluate | Preview the computed ceiling and rule trace without recording. *[v0.1.2 · CR-I4-03]* |
 | GET/POST | /hypotheses | Competing hypotheses. |
-| PATCH | /hypotheses/{id} | Version-aware update. |
-| GET/POST | /intelligence-gaps | Explicit unknowns. |
+| GET/PATCH | /hypotheses/{id} | Detail; version-aware update. |
+| GET/POST | /hypotheses/{hypothesisId}/links | Append-only matrix cell versions (`target_ref`, `effect`, `rationale`; `If-Match` on the hypothesis). *[v0.1.2 · CR-I4-04]* |
+| GET | /hypothesis-matrix | ACH matrix of a case (`case_id` required). *[v0.1.2 · CR-I4-04]* |
+| GET/POST | /intelligence-gaps | Explicit unknowns. *[v0.1.2 · CR-I4-05]* |
+| GET/PATCH | /intelligence-gaps/{gapId} | Gap detail/update; never deleted; closed statuses need `closure_rationale`; `status_history`. *[v0.1.2 · CR-I4-05]* |
 | GET/POST | /assessments | Draft/versioned assessments. |
 | POST | /assessments/{id}/finalize | Controlled finalization action. |
-| POST | /assessments/{assessmentId}/disconfirming-searches | Append an entry to `Assessment.disconfirming_searches[]` (Data Model §13.3; SRS-FR-ASM-004): `searched_for`, `sources_consulted[]` (each `source_ref` and/or `description`), `result`, `rationale`; `recorded_by`/`recorded_at` are server-set. `If-Match` carries the assessment `record_version` (missing → 428, stale → 412); returns 201. *[v0.1.1 · C10]* |
-| GET | /assessments/{id}/provenance | Backward trace to hypotheses/facts/evidence. |
+| GET | /assessments/{assessmentId}/revisions | Append-only snapshot per `record_version` (SRS-FR-ASM-001 version history). *[v0.1.2 · CR-I4-05]* |
+| GET | /indicators/{indicatorId}/provenance · /typology-matches/{matchId}/provenance · /hypotheses/{hypothesisId}/provenance | Provenance traces. *[v0.1.2 · CR-I4-05]* |
+| POST | /assessments/{assessmentId}/disconfirming-searches | Append an entry to `Assessment.disconfirming_searches[]` (Data Model §13.3; SRS-FR-ASM-004): `searched_for`, `sources_consulted[]` (each `source_ref` and/or `description`), `result`, `rationale`; `recorded_by`/`recorded_at` are server-set. `If-Match` carries the assessment `record_version` (missing → 428, stale → 412); returns 201. *[v0.1.1 · C10]* Allowed on `DRAFT` and `FINALIZED` assessments until the assessment (or a product depending on it) passes review approval; afterwards → 409 STATE_CONFLICT. `source_ref` may name a Source, EvidenceItem or EvidenceExtract of the case (response adds `source_type`). *[v0.1.2 · CR-I4-10]* |
+| GET | /assessments/{id}/provenance | Backward trace to hypotheses/facts/evidence: refs per kind (`hypothesis_refs`, `fact_refs`, `indicator_refs`, `evidence_refs`, `typology_match_refs`, `source_refs`, `gap_refs`) plus the full trace (`root`, `nodes`, `edges`, `source_paths`). *[v0.1.2 · CR-I4-14]* |
 
 > **Confidence semantics** *[v0.1.1 · A09]*  
 > `confidence.level` takes one of `HIGH`, `MODERATE`, `LOW`, `INSUFFICIENT_BASIS`; `confidence.basis` (Data Model §14.1) is mandatory for every level. `INSUFFICIENT_BASIS` means a judgement was attempted but the evidential basis is insufficient; it is not a level below `LOW`, and the API SHALL NOT convert it to `LOW`, `null`, zero, or omit it, in any request, response, filter, sort or export. `null` is allowed only on drafts where no confidence judgement has been made yet; `POST /assessments/{id}/finalize` SHALL reject a null level (422). No normalization may raise certainty.
+
+| **Concern** | **Rule** |
+|----|----|
+| Indicators | A catalogue indicator names `catalogue_indicator_id` (+ `catalogue_version`) and takes code and class from the catalogue (a contradicting class → 422); a local indicator uses a `LOCAL-…` code and an explicit class. Evidence: EvidenceExtract, EvidenceItem or Fact (≥1); subjects: Entity, Asset, Event, ValueFlow or Relationship (≥1). `indicator_status` transitions: `OBSERVED` → `CORROBORATED`/`DISPUTED`/`RETIRED`; `DISPUTED` → `OBSERVED`/`CORROBORATED`/`RETIRED`; `RETIRED` is terminal; every change needs a rationale; never deleted; responses carry `is_proof: false`. *[v0.1.2 · CR-I4-02]* |
+| Typology matches | The analyst assigns `consistency_level`; the server computes `computed_ceiling` with a `rule_trace` and rejects a level above it (422); it never raises a level. Matches record `indicator_assessments[]`, `direct_authoritative_evidence` and `direct_evidence_refs`; `STRONG`/`COMPELLING` set `reviewer_required`; a cited indicator becoming `DISPUTED`/`RETIRED` flags the match `review_required`. The ceiling thresholds (Typology Catalogue §4) are adopted **provisionally** and require AML-specialist review. *[v0.1.2 · CR-I4-03]* |
+| Hypothesis matrix | Each cell (`HypothesisLink`) stores `effect` (`SUPPORTS`, `CONTRADICTS`, `NEUTRAL`, `UNKNOWN`; registry `hypothesis_link_effect`) with rationale and history. `supporting_refs`/`contradicting_refs` are derived from the current cells; writing them creates cells (`rationale_supplied: false` unless `link_rationale` is given) and a removed ref becomes `NEUTRAL`. *[v0.1.2 · CR-I4-04, CR-I4-07]* |
+| Hypothesis fields | `role` (`PRINCIPAL`, `ALTERNATIVE_LEGITIMATE`, `ALTERNATIVE_MECHANISM`, `INSUFFICIENT_INFORMATION`; Methodology §18.1) and `assumptions[]`; derived `competing_hypothesis_refs` and `status_history`. A status change needs `status_rationale`; `SUPPORTED` needs a `SUPPORTS` cell, `WEAKENED`/`REJECTED` a `CONTRADICTS` cell (409). *[v0.1.2 · CR-I4-06, CR-I4-08]* |
+| Finalization | `finalize` → 409 STATE_CONFLICT with `details.reason = COMPETING_HYPOTHESES_REQUIRED` (+ `details.hypothesis_refs`) when a hypothesis in `scope_refs` has no competing hypothesis *[v0.1.2 · CR-I4-08]*, and with `details.reason = REVIEW_REQUIRED` when the draft is flagged `review_required` *[v0.1.2 · CR-I4-11]*. |
+| Lifecycle | Finalized and reviewed are distinct. Finalize sets `finalized`, `finalized_at`, `finalized_by`, `finalization_rationale` and envelope `status` `DRAFT` → `FINALIZED`, and freezes the content; `review_status` stays `DRAFT` until a review records `PEER_REVIEWED`/`APPROVED`/`SUPERSEDED`, after which the envelope status follows `review_status`. *[v0.1.2 · CR-I4-09]* |
+| Disconfirming searches | May be appended to a finalized assessment until review approval; afterwards they are frozen (409). SRS-FR-ASM-004 is checked at review approval (`POST /reviews/{reviewId}/approve`, 409 `DISCONFIRMATION_REQUIRED`); responses show `disconfirmation_required_for_review`. *[v0.1.2 · CR-I4-10]* |
+| Dependent flagging | Direct (`supporting_refs`) and indirect dependents (the evidence of a supporting Indicator, the indicators of a supporting TypologyMatch, the `SUPPORTS` cells of a supporting Hypothesis) are flagged `review_required`, drafts and finalized alike; clearing the flag is a review action. `GET /facts/{factId}/dependents` lists only dependents the caller may read. *[v0.1.2 · CR-I4-11]* |
+| Reference targets | `scope_refs`: Hypothesis, TypologyMatch, Indicator, Entity, Asset, Event, ValueFlow, Relationship. `supporting_refs`: Fact, Indicator, TypologyMatch, Hypothesis, EvidenceExtract, EvidenceItem (a Source → 422). *[v0.1.2 · CR-I4-14]* |
+| Case links | Hypotheses, assessments, indicators, matches and gaps require `case_links` (1..20) and reference only objects inside the case context (§6). *[v0.1.2 · CR-I4-12]* |
 
 # 16A. Claim and Fact API
 
@@ -366,6 +437,7 @@ Relationship and asset endpoints: *[v0.1.1 · C07]*
 | GET/POST | /cases/{caseId}/claims | List/record source claims for a case (attributed to a source and/or evidence extract). |
 | GET/PATCH | /claims/{claimId} | Claim detail; version-aware update of descriptive and handling metadata only (e.g. `credibility_grade`). `claim_status` is read-only here and changes only through a VerificationDecision. The asserted proposition is never overwritten by analyst conclusions. *[v0.1.1 · A10]* |
 | POST | /claims/{claimId}/verification-decisions | Record an append-only VerificationDecision on a claim. Accepts claim decision values only (`UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`); fact decisions are created by the fact commands below. `If-Match` on the claim is REQUIRED. *[v0.1.1 · C01]* *[v0.1.1 · C18]* |
+| GET | /facts/{factId}/provenance | Provenance trace of a fact. *[v0.1.2 · CR-I2-04]* |
 | GET/POST | /cases/{caseId}/facts | List facts; create a new fact supported by evidence (mandatory) and, optionally, claims, created as `PROVISIONAL` together with its `CREATE` VerificationDecision in one transaction. Supporting claims are not modified. *[v0.1.1 · A10]* *[v0.1.1 · C01]* *[v0.1.1 · C02]* |
 | GET | /facts/{factId} | Fact detail, including verification history and `superseded_by`. |
 | POST | /facts/{factId}/establish | Move a fact to `ESTABLISHED` (reviewer decision); atomically records the `ESTABLISH` VerificationDecision (rationale and evidence refs in the body). *[v0.1.1 · C01]* |
@@ -375,11 +447,11 @@ Relationship and asset endpoints: *[v0.1.1 · C07]*
 
 | **Concern** | **Rule** |
 |----|----|
-| Claim status | `claim_status`: `RECORDED`, `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`. The `disputed` boolean is kept for compatibility and is derived (status `CONTRADICTED` or an open dispute); it is read-only. |
-| VerificationDecision | Fields: `target_ref` (claim or fact), `decision` (claims: `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`; facts: `CREATE`, `ESTABLISH`, `DISPUTE`, `SUPERSEDE` — Data Model §7.6) *[v0.1.1 · A10]*, `rationale`, `evidence_refs`, `decided_by` (server-resolved principal), `decided_at`, `review_ref` (optional). Append-only: no PATCH/DELETE; corrections are new decisions. |
+| Claim status | `claim_status`: `RECORDED`, `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`. The `disputed` boolean is kept for compatibility and is derived (status `CONTRADICTED` or an open dispute); it is read-only. Transitions: `RECORDED` → `UNDER_REVIEW` → `CORROBORATED`/`CONTRADICTED`/`UNRESOLVED`; a decided claim may return to `UNDER_REVIEW` (history kept); any other transition → 409. `credibility_grade` is `"1"`…`"6"` or null (registry `credibility_grade`). *[v0.1.2 · CR-I2-11, CR-I2-08]* |
+| VerificationDecision | Fields: `target_ref` (claim or fact), `decision` (claims: `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`; facts: `CREATE`, `ESTABLISH`, `DISPUTE`, `SUPERSEDE` — Data Model §7.6) *[v0.1.1 · A10]*, `rationale`, `evidence_refs` (EvidenceExtract or EvidenceItem, readable and in the case context; also for `Fact.supporting_evidence` *[v0.1.2 · CR-I2-07]*), `decided_by` (server-resolved principal), `decided_at`, `review_ref` (optional). Append-only: no PATCH/DELETE; corrections are new decisions. |
 | Fact creation | `POST /cases/{caseId}/facts` SHALL include `supporting_evidence` (1..n, mandatory) and `decision_rationale` (required); `supporting_claim_refs` (0..n) and `review_ref` are optional. Missing `supporting_evidence` or `decision_rationale` → 422. The server creates the fact and its `CREATE` VerificationDecision (target = the new fact, `evidence_refs` = `supporting_evidence`) atomically in one transaction. `verification_decision_refs` is server-populated and read-only: it is not accepted in the request and the response returns it containing the new decision. The new fact starts as `PROVISIONAL`. A claim is never converted into a fact. *[v0.1.1 · A10]* *[v0.1.1 · C01]* *[v0.1.1 · C02]* |
 | Fact status | `fact_status`: `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`; `superseded_by` references the replacement fact. |
-| Permissions | Investigator/Analyst MAY record claims and propose `PROVISIONAL` facts. `establish` requires a Reviewer who is not the proposer (otherwise 403). Any authorized case member MAY `dispute` with evidence refs. `supersede` requires a replacement fact ref (otherwise 422). |
+| Permissions | Investigator/Analyst MAY record claims and propose `PROVISIONAL` facts. `establish` requires a Reviewer who is not the proposer (otherwise 403). Any authorized case member MAY `dispute` with evidence refs. `supersede` requires a replacement fact ref (otherwise 422). Role mapping: `establish` requires `REVIEWER` or `LEAD` membership on the fact's case and is never allowed to the proposer (403); claim decisions are recorded by `LEAD`, `ANALYST` or `REVIEWER` members; `dispute` by any member role; `supersede` needs `case.update`. *[v0.1.2 · CR-I2-11]* |
 | Preconditions | `PATCH /claims/{claimId}`, `POST /claims/{claimId}/verification-decisions` (If-Match on the claim) and every fact command SHALL send `If-Match` (§10): missing → 428, stale → 412. *[v0.1.1 · C18]* An invalid transition (e.g. establishing a `SUPERSEDED` fact) → 409 STATE_CONFLICT. Commands SHOULD send `Idempotency-Key` (§11). |
 | Dependent impact | When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct is flagged `review_required` with a link to the triggering decision. Published products are never mutated; a correction review task is created. History is preserved. |
 | Certainty | A claim SHALL NOT be returned or exported as a fact without a VerificationDecision. |
@@ -401,6 +473,9 @@ GET /api/v1/search?q=company+x&type=entity,evidence&case_id=...&status=...&page[
 | projection marker | Derived/extracted text result identifies derivative source when applicable. |
 
 # 18. Graph API
+
+> **Adopted for v0.1.2** *[v0.1.2 · CR-I3-07]*  
+> The adopted graph operation is the per-case projection `GET /api/v1/cases/{caseId}/graph` (filters `include`, `flow_class`, `relationship_type`): policy-filtered nodes (Entity, Asset, Event) and edges (Relationship incl. ownership/control details, ValueFlow, ValueFlowLeg with its own class, event participation) with confidence, status and readable provenance refs; computed on demand and marked `meta.derived`; budgets apply. `POST /graph/query` below is not specified in the contract and remains open for v0.2.
 
 ``` text
 POST /api/v1/graph/query
@@ -447,7 +522,7 @@ POST /api/v1/graph/query
 |----|----|----|
 | GET/POST | /vocabularies | Controlled vocabulary management. |
 | GET/POST | /retention-policies | Retention policy management. |
-| GET/PATCH | /case-memberships/{id} | Case membership/access administration. |
+| GET/POST · PATCH/DELETE | /cases/{caseId}/memberships · /case-memberships/{membershipId} | Case membership/access administration (§12; `If-Match` on PATCH/DELETE; managed by the case LEAD). *[v0.1.2 · CR-I1-02]* |
 | GET | /audit-events | Permission-aware immutable audit explorer. |
 | GET | /system/info | Build/schema/API version and safe diagnostics. |
 | GET | /system/health | Health check; public/private detail according to deployment. |
@@ -524,7 +599,7 @@ POST /api/v1/graph/query
 
 | **ID** | **Requirement** |
 |----|----|
-| API-SEC-01 | TLS required outside explicitly isolated local development. |
+| API-SEC-01 | TLS required outside explicitly isolated local development. Local-development exception: only an explicitly isolated local-development settings profile MAY rename the session cookie and drop `Secure` for plain-http `localhost`; production settings always enforce `__Host-csaml_session` with `Secure`. *[v0.1.2 · CR-I1-06]* |
 | API-SEC-02 | All object access is authorized server-side using role + case/context + classification + need-to-know as applicable. |
 | API-SEC-03 | Object IDs are not authorization secrets. |
 | API-SEC-04 | Mass assignment is prevented by explicit writable-field schemas. |
@@ -542,6 +617,7 @@ POST /api/v1/graph/query
 | Create/update canonical object | Actor, action, object, version, timestamp, request ID; material before/after reference. |
 | Entity merge/unmerge | Decision/rationale/evidence references + topology-impact record; references the ResolutionDecision. Every ResolutionDecision emits an audit event. *[v0.1.1 · ER]* |
 | Assessment finalize | Version, author, confidence, gate state. |
+| Case membership | Grant, role/grant change and revocation with actor and principal. *[v0.1.2 · CR-I1-02]* |
 | Review decision | Reviewer, product/version, decision, rationale. |
 | Dissemination approval/export | Recipient/purpose/package/version/included object manifest. |
 | Failed high-impact action | Security/audit event where policy requires. |
@@ -563,20 +639,22 @@ POST /api/v1/graph/query
 
 > **Contract status — P0 vertical slice** *[v0.1.1 · A11]*  
 > `contracts/openapi.yaml` (OpenAPI 3.1, contract-first) now covers the P0 vertical slice: common envelopes and errors, auth/session, cases, sources/evidence (incl. upload and integrity), claims/facts/verification decisions, entities/relationships incl. merge/unmerge and resolution decisions, value flows, hypotheses/assessments, reviews, intelligence products and dissemination/export. It passes Redocly lint and `tools/check_consistency.py` (enum values against `schemas/enums.yaml`). Contract choices the prose left open were classified once on 2026-10-08 with `x-csaml-release-class` *[v0.1.1 · G5]*: **MUST_DECIDE_V0_1_1** (decided — see below), **ACCEPT_DEFAULT_V0_1_1** (frozen default that may evolve only compatibly) and **DEFER_V0_2**. Accepted defaults include: the cursor pagination envelope `{items, page:{size, next_cursor, has_more, total_count?, total_count_is_estimate?}}`; 400 INVALID_REQUEST for a missing REQUIRED Idempotency-Key; `field_errors` as a field → messages map; and read endpoints added so clients can obtain ETags (`GET /hypotheses/{id}`, `/assessments/{id}`, `/disseminations/{id}`, `/jobs/{jobId}`).
-> The implementation SHALL conform to this contract; once code exists, the schema generated from the implementation SHALL be diffed against it in CI. No implementation or contract test has been run yet.
+> The implementation SHALL conform to this contract; once code exists, the schema generated from the implementation SHALL be diffed against it in CI. No implementation or contract test has been run yet. *(v0.1.1 statement; since v0.1.2 the reference implementation's increments I1–I4 run contract tests against it — see `CHANGELOG.md`.)* *[v0.1.2 · CR-I1-01…CR-I4-14]*
+>
+> **v0.1.2 scope** *[v0.1.2 · CR-I1-01…CR-I4-14]*  
+> `contracts/openapi.yaml` v0.1.2 merges the I3 and I4 implementation extensions (`contracts/extensions/i3.yaml`, `i4.yaml` of the reference implementation) and the I1/I2 additions into the main contract: 111 paths, 149 operations (v0.1.1: 72 paths, 92 operations). Added: memberships, back-channel logout, provenance traces, assets/ownership interests/control assertions, events/timeline, value-flow view and legend, the case graph, the typology catalogue, indicators, typology matches, the hypothesis matrix, intelligence gaps and assessment revisions. Items decided on 2026-10-09 carry the release class **DECIDED_V0_1_2** (`x-csaml-status: decided`) and `x-csaml-cr` with their change-request IDs; `x-csaml-ref-types` lists the permitted target classes of a reference field. `/entity-match-candidates/{id}/decisions` is marked `deprecated` (removal in v0.2). Closed since v0.1.1: upload-session status, `risk_rating`, amount precision, CSRF-token delivery and the match-candidate overlap.
 >
 > Still outstanding:
-> - Endpoints outside the slice: assets, events, timeline, value-flow view/legend, typologies, indicators, typology matches, intelligence gaps, search, graph, administration/audit, protected sources, `GET /capabilities`.
-> - Open value sets still typed as plain strings: job, upload-session, gate and task status; `risk_rating`; amount precision; export format.
-> - Per-resource sort allowlists; how the browser obtains the CSRF token (cookie vs `/auth/session` field).
-> - Overlap between `/entity-match-candidates/{id}/decisions` and `POST /resolution-decisions` (§14) — keep one.
+> - Endpoints outside the contract: search, `POST /graph/query`, administration/audit, protected sources, `GET /capabilities`. *[v0.1.2 · CR-I3-07]*
+> - Open value sets still typed as plain strings: job, gate and task status; export format; `Asset.valuation_basis` vocabulary (free text, required when a valuation is given); Methodology §14.1 event statuses (not registered). *[v0.1.2 · CR-I2-02, CR-I1-08, CR-I3-05, CR-I3-06]*
+> - Per-resource sort allowlists.
 > - Task contracts (`Task`, `TaskCreate`) — DEFER_V0_2.
 >
 > **Decisions for v0.1.1 (MUST_DECIDE_V0_1_1, product owner 2026-10-08)** *[v0.1.1 · G5]*
 > 1. A request without a REQUIRED `Idempotency-Key` is rejected with 400 INVALID_REQUEST and is not executed.
 > 2. A review approval binds to the frozen product version under review (`target_version`); any later change creates a new version that needs a new review. The reviewer must not be the author; SRS-FR-ASM-004 is enforced at approval.
 > 3. Dissemination approval fixes recipient, purpose, product version and `package_scope_refs`. Export packages may contain only objects inside that scope (otherwise 409 STATE_CONFLICT); any change needs a new approval. Downloads re-check authorization and approval validity.
-> 4. `reviewer_ref` on high-impact merge/unmerge is the reviewing principal (a person); the server rejects reviewer = decider (409 STATE_CONFLICT).
+> 4. `reviewer_ref` on high-impact merge/unmerge is the reviewing principal (a person); the server rejects reviewer = decider (409 STATE_CONFLICT). Since v0.1.2 every MERGE/UNMERGE is high-impact, so `reviewer_ref` is always required. *[v0.1.2 · CR-I2-10]*
 > 5. Evidence upload completion is all-or-nothing: metadata, storage write and integrity record succeed together or no EvidenceItem exists; a hash mismatch returns 422.
 > 6. Relationship source, target and type are immutable on PATCH; changes are made by creating a new relationship.
 > 7. `POST /evidence/{evidenceId}/verify-integrity` takes no If-Match; it never modifies the evidence and its result is recorded as a separate audited event.

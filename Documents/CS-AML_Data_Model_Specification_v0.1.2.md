@@ -4,14 +4,15 @@ Data Model Specification
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1.1 \| Data Specification (Approved Internal Specification Baseline)**
+**Version 0.1.2 \| Data Specification (Approved Internal Specification Baseline)**
 
-> **Document status — v0.1.1**
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
+> **Document status — v0.1.2**
+> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
 > Supersedes: CS-AML Data Model Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 
 > **Status**
 >
@@ -22,8 +23,8 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Data Model Specification |
-| Version | 0.1.1 *[v0.1.1 · A01]* |
-| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
+| Version | 0.1.2 *[v0.1.2]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) *[v0.1.1 · A01]* |
 | Applies to | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) and derivative implementations *[v0.1.1 · A01]* |
 | Primary audience | Framework maintainers, investigators, data architects, software engineers, security/privacy reviewers, assurance reviewers |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
@@ -144,10 +145,10 @@ All canonical objects SHALL expose a minimum common envelope. Implementations MA
 | created_at | datetime | Required | System creation timestamp. |
 | created_by | principal-id | Required | Human or service principal responsible for creation. |
 | updated_at | datetime | Required | Last material update timestamp. |
-| status | enum | Required | Lifecycle status appropriate to object class. |
+| status | enum | Required | Lifecycle status appropriate to object class. Classes with their own lifecycle mirror it; classes without one use registry enum envelope_status (REGISTERED, RECORDED, DRAFT, FINALIZED; Annex A). *[v0.1.2 · CR-I2-03, CR-I3-05, CR-I4-09]* |
 | classification | enum | Required | Information sensitivity classification (Section 16; `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED`). Unknown or missing values fail closed. *[v0.1.1 · A08]* |
 | access_labels | array | Conditional | Attribute-based handling labels. |
-| case_links | array\<case-id\> | Optional | Contextual case associations; not ownership. |
+| case_links | array\<case-id\> | Conditional | Contextual case associations; not ownership. Required (1..20) when creating case-context objects (Section 7.1). *[v0.1.2 · CR-I2-01, CR-I3-13, CR-I4-12]* |
 | provenance_refs | array\<id\> | Conditional | Links to source/evidence/provenance objects. |
 | confidence | object | Conditional | Confidence object where analytical uncertainty exists. |
 | valid_from | datetime/date | Optional | Beginning of real-world validity. |
@@ -182,12 +183,12 @@ Represents the bounded investigative context in which questions, scope, risks, a
 | title | string | Y | 1 | Neutral descriptive title. |
 | case_code | string | Y | 1 | Human-readable identifier. |
 | purpose | text | Y | 1 | Legitimate investigative purpose. |
-| investigation_questions | ref\[\] | Y | 1..n | Questions to be answered. |
+| investigation_questions | ref\[\] | Y | 0..n | Questions to be answered. MAY be empty while the case is DRAFT; at least one question is a precondition of case activation (gate), not of the stored record or API response. *[v0.1.2 · CR-I1-01]* |
 | jurisdictions | code\[\] | N | 0..n | Relevant jurisdictions. |
 | time_scope | interval | N | 0..1 | Primary period under review. |
 | lead_analyst | principal | Y | 1 | Accountable analyst. |
-| risk_rating | enum | Y | 1 | Operational/harm risk rating. |
-| closure_reason | enum | N | 0..1 | Reason case closed. |
+| risk_rating | enum | Y | 1 | Operational/harm risk rating; registry enum risk_rating: LOW, MEDIUM, HIGH, CRITICAL (ordered; minimal set defined in v0.1.2). *[v0.1.2 · CR-I1-08]* |
+| closure_reason | enum | N | 0..1 | Reason case closed; registry enum closure_reason: OBJECTIVES_MET, INSUFFICIENT_BASIS_TO_CONTINUE, REFERRED, OUT_OF_SCOPE, DUPLICATE, LEGAL_OR_SAFETY_CONSTRAINT, OTHER (minimal set defined in v0.1.2). *[v0.1.2 · CR-I1-08]* |
 
 ### Normative rules:
 
@@ -196,6 +197,10 @@ Represents the bounded investigative context in which questions, scope, risks, a
 - Case title SHALL avoid presuming criminality.
 
 - Case closure SHALL NOT delete reusable entity or evidence objects.
+
+- A case SHALL NOT be activated (gate transition to ACTIVE) without at least one InvestigationQuestion (SRS-FR-CASE-001). *[v0.1.2 · CR-I1-01]*
+
+- Only the case LEAD (Section 6.3) MAY change the classification or access labels of a Case, and only as an upgrade (higher classification, added labels). Downgrades and label removal SHALL require a recorded reviewer decision; until that workflow exists (increment I6, with review) they SHALL be rejected (403). Every change SHALL generate an AuditEvent. *[v0.1.2 · CR-I1-09]*
 
 ### Lifecycle states:
 
@@ -218,6 +223,30 @@ Represents a testable analytical question that constrains scope and prevents ope
 ### Normative rules:
 
 - Questions SHOULD be framed to permit both incriminating and exculpatory answers.
+
+## 6.3 CaseMembership *[v0.1.2 · CR-I1-02]*
+
+Explicit, revocable grant of a principal to a case (SRS-FR-SEC-002). Access to case work is defined through case membership.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| id | ref | Y | 1 | Membership identifier. |
+| case | ref | Y | 1 | Case. |
+| principal | principal | Y | 1 | Member. |
+| role | enum | Y | 1 | LEAD, ANALYST, REVIEWER (registry enum case_membership_role). |
+| protected_source_authorized | boolean | Y | 1 | Explicit per-case grant to see SOURCE_PROTECTED material; effective only together with the protected-source eligibility role (Section 16). Defaults to false. |
+| granted_by | principal | Y | 1 | Granting principal. |
+| granted_at | datetime | Y | 1 | Grant time. |
+| revoked_at | datetime | N | 0..1 | Revocation time (soft revocation). |
+| revoked_by | principal | N | 0..1 | Revoking principal. |
+
+### Normative rules:
+
+- A principal SHALL have at most one active (non-revoked) membership per case, and every case SHALL have exactly one active LEAD membership. *[v0.1.2 · CR-I1-02]*
+
+- Memberships SHALL be managed by the case LEAD. Revocation SHALL be soft (revoked_at), so access history stays reconstructable; the LEAD membership cannot be revoked, the lead is changed through the case. Every grant, change and revocation SHALL generate an AuditEvent. *[v0.1.2 · CR-I1-02]*
+
+- LEAD is the case owner / investigation lead; REVIEWER and LEAD memberships qualify a principal as reviewer for fact establishment and merge/unmerge (Sections 7.5, 8.4). *[v0.1.2 · CR-I1-02, CR-I2-11]*
 
 # 7. Source, Evidence, Claim, and Fact Model
 
@@ -242,6 +271,10 @@ Represents the origin or provider of information. A Source describes where infor
 
 - Anonymous sources SHALL NOT be treated as inherently unreliable; uncertainty SHALL be recorded explicitly.
 
+- Source and EvidenceExtract have no lifecycle; their envelope status is REGISTERED (registry enum envelope_status). *[v0.1.2 · CR-I2-03]*
+
+- Every case-context object (Source, EvidenceItem, Entity, Relationship, Asset, OwnershipInterest, ControlAssertion, Event, ValueFlow, Indicator, TypologyMatch, Hypothesis, IntelligenceGap, Assessment, IntelligenceProduct) SHALL be created with 1..20 case links; the creator needs update rights on every named case. An object without case context would be reachable by no one. Extracts and derivatives inherit the links of their parent; claims, facts and decisions belong to the case of their path. *[v0.1.2 · CR-I2-01, CR-I3-13, CR-I4-12]*
+
 ## 7.2 EvidenceItem
 
 Represents a preserved evidentiary object such as a file, page image, registry record, transcript, screenshot, export, or structured record.
@@ -251,12 +284,16 @@ Represents a preserved evidentiary object such as a file, page image, registry r
 | source_id | ref | Y | 1 | Origin source. |
 | evidence_type | enum | Y | 1 | DOCUMENT, IMAGE, RECORD, TRANSCRIPT, DATASET_ROW, WEB_SNAPSHOT, OTHER *[v0.1.1 · A09]* |
 | content_hash | string | Y\* | 0..1 | SHA-256 or equivalent where bytes are available. |
-| storage_ref | uri/ref | Y | 1 | Controlled storage location. |
+| storage_ref | uri/ref | Y | 1 | Controlled storage location. Exposed only as an opaque reference (`evidence:<id>`); bucket and key are never disclosed. *[v0.1.2 · CR-I2-06]* |
 | acquired_at | datetime | Y | 1 | Acquisition time. |
 | acquired_by | principal | Y | 1 | Collector. |
 | original_format | string | N | 0..1 | MIME/type. |
 | verification_status | enum | Y | 1 | UNVERIFIED, SOURCE_VERIFIED, INDEPENDENTLY_CORROBORATED, DISPUTED *[v0.1.1 · A09]* |
 | redaction_state | enum | Y | 1 | NONE, WORKING_REDACTION, PUBLICATION_REDACTION *[v0.1.1 · A09]* |
+| byte_size | integer | N | 0..1 | Size of the original bytes. *[v0.1.2 · CR-I2-06]* |
+| hash_algorithm | string | N | 0..1 | Algorithm of content_hash (e.g. SHA-256). *[v0.1.2 · CR-I2-06]* |
+| derived_from | ref | N | 0..1 | Parent EvidenceItem of a derivative. *[v0.1.2 · CR-I2-06]* |
+| derivation_type | text | N | 0..1 | Kind of derivative (redaction, OCR text, …); free text in v0.1.2. *[v0.1.2 · CR-I2-06]* |
 
 ### Normative rules:
 
@@ -293,7 +330,7 @@ Represents a proposition asserted by a source or person. A Claim is not automati
 | object_value | variant | Y | 1 | Claimed value/entity. |
 | evidence_extract_refs | ref\[\] | Y | 1..n | Supporting extracts. |
 | claimant | ref/string | N | 0..1 | Who makes the assertion. |
-| credibility_grade | enum | N | 0..1 | 1-6 information credibility. |
+| credibility_grade | enum | N | 0..1 | 1-6 information credibility; registry enum credibility_grade (INDEPENDENTLY_CONFIRMED, PROBABLY_TRUE, POSSIBLY_TRUE, DOUBTFUL, IMPROBABLE, CANNOT_BE_JUDGED) whose wire values are the digit codes "1"…"6" (registry exception). *[v0.1.2 · CR-I2-08]* |
 | claim_status | enum | Y | 1 | RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED *[v0.1.1 · A10]* |
 | disputed | boolean | Y | 1 | Whether contested. Retained for compatibility; derived as true when claim_status = CONTRADICTED or an open dispute exists. *[v0.1.1 · A10]* |
 
@@ -313,6 +350,8 @@ RECORDED -> UNDER_REVIEW -> CORROBORATED | CONTRADICTED | UNRESOLVED
 
 Every transition out of RECORDED SHALL be backed by a VerificationDecision. *[v0.1.1 · A10]*
 
+A decided claim (CORROBORATED, CONTRADICTED or UNRESOLVED) MAY return to UNDER_REVIEW through a further VerificationDecision; earlier decisions are kept. Any other transition SHALL be rejected (409). Claim decisions MAY be recorded by members with role LEAD, ANALYST or REVIEWER (Section 6.3). *[v0.1.2 · CR-I2-11]*
+
 ## 7.5 Fact
 
 Represents a proposition accepted by the investigation as established to the stated confidence threshold. A Fact is a separate analytical object supported by one or more evidence items (mandatory), optionally by one or more Claims, and by one or more VerificationDecisions; it is not produced by transforming a Claim. *[v0.1.1 · A10]* *[v0.1.1 · C02]*
@@ -320,7 +359,7 @@ Represents a proposition accepted by the investigation as established to the sta
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | proposition | text/structured | Y | 1 | Established proposition. |
-| supporting_evidence | ref\[\] | Y | 1..n | Evidence supporting acceptance. |
+| supporting_evidence | ref\[\] | Y | 1..n | Evidence supporting acceptance; EvidenceItem or EvidenceExtract only, readable by the creator and in the case context (422 otherwise). *[v0.1.2 · CR-I2-07]* |
 | contradicting_evidence | ref\[\] | N | 0..n | Known contradictory material. |
 | supporting_claim_refs | ref\[\] | N | 0..n | Claims that support the fact, if any. The Claims remain unchanged. *[v0.1.1 · A10]* |
 | fact_status | enum | Y | 1 | PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED *[v0.1.1 · A09, A10]* |
@@ -342,11 +381,13 @@ Represents a proposition accepted by the investigation as established to the sta
 
 - **Fact creation.** A Fact SHALL be created only with (a) one or more evidence references (supporting_evidence, mandatory, 1..n), optionally one or more supporting claim references (supporting_claim_refs, 0..n), and (b) a decision rationale. The system SHALL create the Fact and its CREATE VerificationDecision atomically in the same transaction; the CREATE decision targets the new Fact, and neither record SHALL exist without the other. *[v0.1.1 · C01]* *[v0.1.1 · C02]* A newly created Fact SHALL start as PROVISIONAL. Creating a Fact SHALL NOT modify, convert, or close the supporting Claims. A Claim SHALL NOT be treated as a Fact without such a decision. *[v0.1.1 · A10]*
 
-- **Who may act.** An Investigator/Analyst MAY record Claims and propose PROVISIONAL Facts. Moving a Fact to ESTABLISHED SHALL require a Reviewer who is not the proposer. Any authorized case member MAY move a Fact to DISPUTED with supporting evidence. Moving a Fact to SUPERSEDED SHALL require a reference to the replacement Fact (superseded_by). *[v0.1.1 · A10]*
+- **Who may act.** An Investigator/Analyst MAY record Claims and propose PROVISIONAL Facts. Moving a Fact to ESTABLISHED SHALL require a Reviewer who is not the proposer; a Reviewer is a principal with REVIEWER or LEAD membership on the fact's case (403 otherwise, and always 403 for the proposer). *[v0.1.2 · CR-I2-11]* Any authorized case member MAY move a Fact to DISPUTED with supporting evidence. Moving a Fact to SUPERSEDED SHALL require a reference to the replacement Fact (superseded_by). *[v0.1.1 · A10]*
 
 - **Revision.** Every status change SHALL be recorded as a new VerificationDecision; earlier decisions and prior states SHALL be preserved. *[v0.1.1 · A10]* The ESTABLISH, DISPUTE and SUPERSEDE decisions SHALL be created atomically with the corresponding status change by the fact command itself. *[v0.1.1 · C01]*
 
 - **Dependent flagging.** When a Fact becomes DISPUTED or SUPERSEDED, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering VerificationDecision (`review_trigger_ref`). Published or disseminated products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. *[v0.1.1 · A10]*
+
+- **Indirect dependents.** Flagging SHALL cover direct dependents (the Fact in supporting_refs) and indirect ones: Indicators whose evidence includes the Fact, TypologyMatches citing such Indicators, and Hypotheses with a SUPPORTS matrix cell on such an object, together with the Assessments and products depending on them. Drafts and finalized objects are flagged alike; the recorded judgement is not changed. A flagged draft SHALL NOT be finalized (409 REVIEW_REQUIRED); clearing review_required is a review action (I6). The dependents listing SHALL show only dependents the caller may read. *[v0.1.2 · CR-I4-11]*
 
 Fact lifecycle: *[v0.1.1 · A10]*
 
@@ -365,7 +406,7 @@ Represents a single, append-only verification outcome on a Claim or Fact (for ex
 | target_ref | ref | Y | 1 | Claim or Fact the decision applies to. |
 | decision | enum | Y | 1 | Outcome; for Claims a claim_status value (UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED); for Facts a fact action (CREATE, ESTABLISH, DISPUTE, SUPERSEDE). CREATE (display label "Create fact") records the decision that creates a Fact supported by the referenced evidence (and claims, if any); it does not convert or alter any Claim. *[v0.1.1 · A10]* For Facts, decisions are never created on their own: CREATE is written atomically with the new Fact, and ESTABLISH/DISPUTE/SUPERSEDE atomically with the fact command. *[v0.1.1 · C01]* |
 | rationale | text | Y | 1 | Reasoning for the decision. |
-| evidence_refs | ref\[\] | Y | 1..n | Evidence or extracts relied on. |
+| evidence_refs | ref\[\] | Y | 1..n | Evidence or extracts relied on; EvidenceItem or EvidenceExtract only, readable and in the case context (422 otherwise). *[v0.1.2 · CR-I2-07]* |
 | decided_by | principal | Y | 1 | Decision maker. |
 | decided_at | datetime | Y | 1 | Decision time. |
 | review_ref | ref | N | 0..1 | Related Review, if any. |
@@ -448,20 +489,24 @@ Append-only record of a decision about whether two or more Entity records refer 
 | reverses_decision_ref | ref | C | 0..1 | Required for UNMERGE (the MERGE decision being reversed). |
 | matching_attributes | structured\[\] | N | 0..n | Attributes that agree. |
 | conflicting_attributes | structured\[\] | N | 0..n | Attributes that disagree. |
-| evidence_refs | ref\[\] | Y | 1..n | Evidence considered. |
+| evidence_refs | ref\[\] | Y | 1..n | Evidence considered; EvidenceExtract, EvidenceItem or Source, readable and in the case context (422 otherwise). *[v0.1.2 · CR-I2-07]* |
 | confidence | confidence | Y | 1 | Confidence object (HIGH, MODERATE, LOW, INSUFFICIENT_BASIS + basis; Section 14.1). |
 | rationale | text | Y | 1 | Why the decision was made. |
 | decided_by | principal | Y | 1 | Decision maker. |
 | decided_at | datetime | Y | 1 | Decision time. |
-| reviewer_ref | principal | C | 0..1 | Required for high-impact MERGE/UNMERGE; SHALL differ from decided_by. |
+| reviewer_ref | principal | C | 0..1 | Required for every MERGE and UNMERGE (all are high-impact in the MVP); a principal with REVIEWER or LEAD membership on the case of every subject entity (422 otherwise); SHALL differ from decided_by (409 STATE_CONFLICT). *[v0.1.2 · CR-I2-10, CR-I2-09]* |
 
 ### Normative rules:
 
 - ResolutionDecision records SHALL be append-only; a mistaken decision is corrected by a later decision (for example UNMERGE reversing a MERGE), not by editing or deleting the earlier one.
 
-- Effects on Entity state: MERGE → each absorbed record becomes MERGED with canonical_parent = surviving_entity_ref, and the survivor becomes RESOLVED; UNMERGE → restored records become SPLIT and relationships/claims are re-attributed according to the recorded history; POSSIBLE_MATCH → a candidate link is recorded with no state change; KEEP_SEPARATE → no state change, and the same pair SHALL NOT be re-suggested unless new evidence is attached; DEFER → state stays or becomes UNRESOLVED.
+- Effects on Entity state: MERGE → each absorbed record becomes MERGED with canonical_parent = surviving_entity_ref, and the survivor becomes RESOLVED; UNMERGE → restored records become SPLIT; nothing is re-attributed (see the logical-repointing rule below); POSSIBLE_MATCH → a candidate link is recorded with no state change; KEEP_SEPARATE → no state change, and the same pair SHALL NOT be re-suggested unless new evidence is attached; DEFER → state stays or becomes UNRESOLVED.
 
 - Each ResolutionDecision SHALL generate an AuditEvent (action MERGE for MERGE, SPLIT for UNMERGE, otherwise UPDATE).
+
+- Merge is logical repointing (canonical model): absorbed records point to the survivor through canonical_parent, and relationships, claims and absorbed records are never rewritten. UNMERGE therefore needs no re-attribution: it removes what the merge added to the survivor and restores the survivor's prior handling. *[v0.1.2 · CR-I2-13]*
+
+- Every MERGE and UNMERGE is high-impact in the MVP and requires a reviewer_ref distinct from the decider. *[v0.1.2 · CR-I2-10]*
 
 # 9. Relationship, Ownership, and Control Model
 
@@ -473,12 +518,12 @@ Represents a typed, evidence-linked edge between entities. Relationships are fir
 |----|----|----|----|----|
 | from_entity | ref | Y | 1 | Origin node. |
 | relationship_type | enum | Y | 1 | Typed semantic relationship. |
-| to_entity | ref | Y | 1 | Target node. |
+| to_entity | ref | Y | 1 | Target node: an Entity, or an Asset (the response states to_object_type). *[v0.1.2 · CR-I3-08]* |
 | directionality | enum | Y | 1 | DIRECTED, SYMMETRIC *[v0.1.1 · A09]* |
 | valid_from | date/datetime | N | 0..1 | Relationship start. |
 | valid_to | date/datetime | N | 0..1 | Relationship end. |
-| supporting_evidence | ref\[\] | Y | 1..n | Evidence. |
-| confidence | confidence | Y | 1 | Confidence. |
+| supporting_evidence | ref\[\] | Y | 1..n | Evidence: EvidenceExtract, EvidenceItem or Fact, readable and in the case context (422 otherwise). *[v0.1.2 · CR-I2-07]* |
+| confidence | confidence | Y | 1 | Confidence; confidence.basis carries the basis of the relationship (DM-I06). *[v0.1.2 · CR-I2-15]* |
 | relationship_status | enum | Y | 1 | ASSERTED, ESTABLISHED, DISPUTED, SUPERSEDED *[v0.1.1 · A09]* |
 
 ### Normative rules:
@@ -486,6 +531,8 @@ Represents a typed, evidence-linked edge between entities. Relationships are fir
 - Edges in a graph visualization SHALL retain their evidence links in the underlying model.
 
 - A relationship based only on co-occurrence SHALL NOT be mislabeled as control, ownership, or financial transfer.
+
+- A Relationship created directly MAY target an Asset only with type USES, MANAGES or ACQUIRED. OWNS, BENEFICIAL_OWNER_OF and CONTROLS to an Asset SHALL be created only together with an OwnershipInterest or ControlAssertion (422 otherwise). *[v0.1.2 · CR-I3-08]*
 
 ## 9.2 OwnershipInterest
 
@@ -506,6 +553,10 @@ Specialized relationship for legal or beneficial ownership.
 - Legal ownership and beneficial ownership SHALL be stored as distinct types.
 
 - Nominee or beneficial ownership inferred from public-source patterns SHALL be marked as inferred/asserted, not established, unless evidence supports establishment.
+
+- An OwnershipInterest of type BENEFICIAL, ECONOMIC_INTEREST or NOMINEE_ASSERTED SHALL become ESTABLISHED only when its supporting_evidence includes an ESTABLISHED Fact (422 otherwise). *[v0.1.2 · CR-I3-11]*
+
+- OwnershipInterest (interest_status) and ControlAssertion (assertion_status) use the relationship_status values ASSERTED, ESTABLISHED, DISPUTED, SUPERSEDED; their envelope status mirrors that value. Supporting evidence: EvidenceExtract, EvidenceItem or Fact. A ControlAssertion's controlled_entity MAY be an Asset. *[v0.1.2 · CR-I3-05, CR-I3-01]*
 
 ## 9.3 ControlAssertion
 
@@ -535,12 +586,14 @@ Represents an item or right with economic value.
 | controller_refs | ref\[\] | N | 0..n | Control assertions. |
 | valuation | money/range | N | 0..1 | Value or range. |
 | valuation_date | date | N | 0..1 | Valuation date. |
-| valuation_basis | enum/text | N | 0..1 | Registry, market estimate, appraisal, reported value. |
+| valuation_basis | text | C | 0..1 | Registry, market estimate, appraisal, reported value. Free text in v0.1.2 (vocabulary deferred); required when a valuation is given. *[v0.1.2 · CR-I3-06]* |
 | location_ref | ref | N | 0..1 | Location entity. |
 
 ### Normative rules:
 
 - Observed use or association SHALL NOT be represented as ownership without an ownership basis.
+
+- Asset has no lifecycle; its envelope status is REGISTERED. Asset evidence: Source, EvidenceItem or EvidenceExtract. *[v0.1.2 · CR-I3-05, CR-I3-01]*
 
 ## 10.2 Event
 
@@ -549,12 +602,20 @@ Represents a temporally bounded occurrence involving one or more entities.
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | event_type | enum | Y | 1 | INCORPORATION, APPOINTMENT, RESIGNATION, CONTRACT_AWARD, ACQUISITION, DISPOSAL, TRANSFER, COURT_EVENT, PAYMENT_EVENT, PUBLICATION, OTHER *[v0.1.1 · A09]* |
-| start_time | datetime/date | Y | 1 | Start/occurrence. |
+| description | text | N | 0..1 | Neutral description. *[v0.1.2 · CR-I3-02]* |
+| start_time | datetime/date | Y\* | 0..1 | Start/occurrence; null only when time_precision = UNKNOWN (unknown dates, Methodology §14.2). *[v0.1.2 · CR-I3-06]* |
+| time_precision | enum | Y | 1 | DATETIME, DAY, MONTH, YEAR, RANGE, UNKNOWN (registry enum temporal_precision); the string shape SHALL match the precision. *[v0.1.2 · CR-I3-06]* |
+| approximate | boolean | N | 0..1 | Marks an approximate date. *[v0.1.2 · CR-I3-02]* |
 | end_time | datetime/date | N | 0..1 | End if interval. |
 | participant_refs | ref\[\] | Y | 1..n | Entities participating. |
+| asset_refs | ref\[\] | N | 0..n | Assets involved. *[v0.1.2 · CR-I3-02]* |
 | location_ref | ref | N | 0..1 | Location. |
-| evidence_refs | ref\[\] | Y | 1..n | Supporting evidence. |
+| evidence_refs | ref\[\] | Y | 1..n | Supporting evidence: EvidenceExtract, EvidenceItem or Fact. *[v0.1.2 · CR-I3-10]* |
 | confidence | confidence | Y | 1 | Confidence. |
+
+### Normative rules:
+
+- Event has no stored lifecycle in v0.1.2; its envelope status is RECORDED. The Methodology §14.1 event statuses (confirmed / probable / possible / disputed) are not registered and are deferred to v0.2. *[v0.1.2 · CR-I3-05]*
 
 # 11. Value-Flow Model
 
@@ -590,6 +651,14 @@ Represents movement, conversion, allocation, or inferred transfer of economic va
 
 - HYPOTHETICAL flows SHALL never be included in an external intelligence product as if observed.
 
+- Evidence references of flows, legs and events SHALL be EvidenceExtract, EvidenceItem or Fact, readable and in the case context. DIRECT and DOCUMENTED flows and legs SHALL reference at least one EvidenceItem or EvidenceExtract; a Fact alone is insufficient (422). *[v0.1.2 · CR-I3-10]*
+
+- **Certainty order (invariants only).** flow_class is an epistemic category and the registry stays unordered for display. For invariants only, the order HYPOTHETICAL < RECONSTRUCTED < DOCUMENTED < DIRECT applies; it SHALL NOT be displayed, averaged or summed. A change that raises a flow's class SHALL add at least one evidence reference not previously attached; a flow SHALL never be stronger than its weakest leg; lowering a class SHALL meet the target class's requirements (e.g. reconstruction_basis). *[v0.1.2 · CR-I3-09]*
+
+- ValueFlow has no stored lifecycle; its envelope status is RECORDED. *[v0.1.2 · CR-I3-05]*
+
+- **Aggregation.** Value SHALL be aggregated per (flow_class, flow_type, currency) with no grand total across classes; CONTRACT and SUBCONTRACT groups are obligations, not settlements, and only DIRECT groups count as settlement evidenced; lower/upper/exact totals SHALL count unknown amounts and never treat them as 0; legs SHALL NOT be added to their flow's totals. Details: API Specification v0.1.2 §15. *[v0.1.2 · CR-I3-12]*
+
 ## 11.2 ValueFlowLeg
 
 Optional decomposition of a complex flow into ordered legs.
@@ -603,6 +672,14 @@ Optional decomposition of a complex flow into ordered legs.
 | amount | money/range | N | 0..1 | Leg amount. |
 | flow_class | enum | Y | 1 | Epistemic class for this leg. |
 | evidence_refs | ref\[\] | N | 0..n | Evidence for leg. |
+| reconstruction_basis | text | Y\* | 0..1 | Required for RECONSTRUCTED and HYPOTHETICAL legs. *[v0.1.2 · CR-I3-04]* |
+| confidence | confidence | N | 0..1 | Per-leg confidence (SRS-FR-VAL-002). *[v0.1.2 · CR-I3-04]* |
+
+### Normative rules:
+
+- Each leg SHALL keep its own evidence, class, value and confidence; the per-class requirements of Section 11.1 apply per leg. *[v0.1.2 · CR-I3-04]*
+
+- Legs SHALL be immutable and append-only (no update or delete): appended in order (sequence = n + 1), each starting where the previous leg ended; a chain that reached the flow's destination takes no more legs (409), and the endpoints of a chained flow are fixed (409). Leg inputs SHALL NOT exceed the flow's classification. *[v0.1.2 · CR-I3-04]*
 
 # 12. Indicator and Typology Model
 
@@ -612,13 +689,17 @@ Represents an observed condition relevant to analysis. It SHALL NOT be treated a
 
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
-| indicator_code | string | Y | 1 | Stable catalogue or local code. |
+| indicator_code | string | Y | 1 | Stable catalogue or local code. A catalogue indicator is referenced by its catalogue indicator ID (`<typology_id>-I<nn>`, plus catalogue version) and takes its class from the catalogue (a contradicting class → 422); a local indicator uses a `LOCAL-…` code and an explicit class. *[v0.1.2 · CR-I4-02]* |
 | indicator_class | enum | Y | 1 | MECHANISM, CORROBORATING, CONTEXTUAL, DISCONFIRMING, GAP *[v0.1.1 · A09]* |
 | description | text | Y | 1 | Observed condition. |
-| subject_refs | ref\[\] | Y | 1..n | Affected entities/flows/events. |
-| evidence_refs | ref\[\] | Y | 1..n | Evidence. |
+| subject_refs | ref\[\] | Y | 1..n | Affected objects: Entity, Asset, Event, ValueFlow or Relationship. *[v0.1.2 · CR-I4-02]* |
+| evidence_refs | ref\[\] | Y | 1..n | Evidence: EvidenceExtract, EvidenceItem or Fact. *[v0.1.2 · CR-I4-02]* |
 | status | enum | Y | 1 | OBSERVED, CORROBORATED, DISPUTED, RETIRED *[v0.1.1 · A09]* |
 | confidence | confidence | Y | 1 | Confidence. |
+
+### Normative rules:
+
+- Indicator status transitions: OBSERVED → CORROBORATED / DISPUTED / RETIRED; DISPUTED → OBSERVED / CORROBORATED / RETIRED; RETIRED is terminal. Every change SHALL carry a rationale. Indicators are never deleted and are never proof (responses state is_proof = false). *[v0.1.2 · CR-I4-02]*
 
 ## 12.2 TypologyMatch
 
@@ -640,6 +721,8 @@ Represents analytical consistency between case evidence and a catalogue typology
 
 - Strong or compelling consistency SHOULD require multiple independent indicators or direct authoritative evidence, consistent with the Typology Catalogue.
 
+- The analyst assigns consistency_level; the system computes a ceiling (computed_ceiling, with a rule_trace) from the cited indicators, their sources and direct authoritative evidence, and SHALL reject a level above it (422); the system never raises a level. The thresholds are those of Typology Catalogue v0.1.2 §4.1, adopted PROVISIONALLY and subject to AML-specialist review. A match also records indicator_assessments (catalogue observation status per catalogue indicator) and direct_evidence_refs; STRONG and COMPELLING set reviewer_required; a cited indicator becoming DISPUTED or RETIRED flags the match review_required. Envelope status: RECORDED. *[v0.1.2 · CR-I4-03, CR-I3-05]*
+
 # 13. Hypothesis, Gap, and Assessment Model
 
 ## 13.1 Hypothesis
@@ -656,12 +739,18 @@ Represents a testable analytical explanation.
 | status | enum | Y | 1 | OPEN, SUPPORTED, WEAKENED, REJECTED, INCONCLUSIVE *[v0.1.1 · A09]* |
 | confidence | confidence | Y | 1 | Current confidence. |
 | next_test | text | N | 0..1 | Most useful discriminating test. |
+| role | enum | N | 0..1 | PRINCIPAL, ALTERNATIVE_LEGITIMATE, ALTERNATIVE_MECHANISM, INSUFFICIENT_INFORMATION (registry enum hypothesis_role; Methodology §18.1). *[v0.1.2 · CR-I4-06]* |
+| assumptions | text\[\] | N | 0..n | Stated assumptions. *[v0.1.2 · CR-I4-06]* |
 
 ### Normative rules:
 
 - A hypothesis SHALL remain open to disconfirmation.
 
 - Rejected hypotheses SHOULD remain auditable rather than deleted.
+
+- **HypothesisLink (matrix cell).** The support/contradiction matrix SHALL be stored as append-only HypothesisLink records: hypothesis, target_ref, effect (SUPPORTS, CONTRADICTS, NEUTRAL, UNKNOWN; registry enum hypothesis_link_effect), rationale, recorded_by, recorded_at. The current cell per target is the latest record; history is kept. supporting_refs and contradicting_refs are derived from the current cells; a removed reference becomes NEUTRAL. *[v0.1.2 · CR-I4-04, CR-I4-07]*
+
+- A status change SHALL carry a rationale; SUPPORTED requires a SUPPORTS cell and WEAKENED or REJECTED a CONTRADICTS cell (409 otherwise). Status changes are kept as history. *[v0.1.2 · CR-I4-08, CR-I4-06]*
 
 ## 13.2 IntelligenceGap
 
@@ -674,6 +763,11 @@ Represents a material unknown that limits assessment.
 | related_refs | ref\[\] | Y | 1..n | Hypotheses/questions affected. |
 | collection_feasibility | enum | Y | 1 | AVAILABLE, DIFFICULT, UNAVAILABLE, UNLAWFUL, OUT_OF_SCOPE *[v0.1.1 · A09]* |
 | status | enum | Y | 1 | OPEN, PARTIALLY_RESOLVED, RESOLVED, ACCEPTED *[v0.1.1 · A09]* |
+| closure_rationale | text | C | 0..1 | Required for PARTIALLY_RESOLVED, RESOLVED and ACCEPTED. *[v0.1.2 · CR-I4-05]* |
+
+### Normative rules:
+
+- IntelligenceGaps SHALL never be deleted; status changes are kept as history. *[v0.1.2 · CR-I4-05]*
 
 ## 13.3 Assessment
 
@@ -682,13 +776,14 @@ Represents a reasoned analytical judgment supported by evidence and explicit con
 | **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
 |----|----|----|----|----|
 | judgment | text | Y | 1 | Analytical conclusion. |
-| scope_refs | ref\[\] | Y | 1..n | Question/hypothesis/subjects addressed. |
-| supporting_refs | ref\[\] | Y | 1..n | Facts/indicators/evidence. |
+| scope_refs | ref\[\] | Y | 1..n | Question/hypothesis/subjects addressed: Hypothesis, TypologyMatch, Indicator, Entity, Asset, Event, ValueFlow or Relationship (InvestigationQuestion once available). *[v0.1.2 · CR-I4-14]* |
+| supporting_refs | ref\[\] | Y | 1..n | Facts/indicators/evidence: Fact, Indicator, TypologyMatch, Hypothesis, EvidenceExtract or EvidenceItem (a Source → 422). *[v0.1.2 · CR-I4-14]* |
 | limitations | text | Y | 1 | Known constraints and gaps. |
 | alternative_explanations | text/ref\[\] | Y | 1..n | Material alternatives. |
 | confidence | confidence | Y | 1 | Confidence in judgment. |
 | review_status | enum | Y | 1 | DRAFT, PEER_REVIEWED, APPROVED, SUPERSEDED *[v0.1.1 · A09]* |
-| review_required | boolean | Y | 1 | Set when a supporting Fact becomes DISPUTED or SUPERSEDED (Section 7.5). *[v0.1.1 · A10]* |
+| finalized | boolean | Y | 1 | Set by controlled finalization, with finalized_at, finalized_by and finalization_rationale. Finalized and reviewed are distinct states. *[v0.1.2 · CR-I4-09]* |
+| review_required | boolean | Y | 1 | Set when a supporting Fact becomes DISPUTED or SUPERSEDED (Section 7.5). *[v0.1.1 · A10]* Also set for indirect dependencies (Section 7.5); a flagged draft cannot be finalized. *[v0.1.2 · CR-I4-11]* |
 | review_trigger_ref | ref | N | 0..1 | VerificationDecision that triggered review_required. *[v0.1.1 · A10]* |
 | high_impact_adverse | boolean | N | 0..1 | Defaults to false. True when the assessment is adverse to a named person or organization or is otherwise designated high-impact by the case's review policy. *[v0.1.1 · C10]* |
 | disconfirming_searches | structured\[\] | C | 0..n | Recorded searches for information that would disconfirm the judgment. Each entry: searched_for (text), sources_consulted\[\] (1..n; each a source_ref and/or a description), result (text), rationale (text), recorded_by (principal), recorded_at (datetime). At least one entry is required before review approval when high_impact_adverse is true. Append-only. *[v0.1.1 · C10]* |
@@ -701,6 +796,14 @@ Represents a reasoned analytical judgment supported by evidence and explicit con
 
 - Assessment SHALL NOT imply criminal guilt beyond the available evidence and mandate.
 
+- **Lifecycle (finalized vs reviewed).** Envelope status is DRAFT until finalization and FINALIZED afterwards; once a review records PEER_REVIEWED, APPROVED or SUPERSEDED, the envelope status follows review_status. Finalization freezes the content; review_status stays DRAFT until a review exists. *[v0.1.2 · CR-I4-09]*
+
+- **Competing hypotheses.** Finalization SHALL be rejected (409 STATE_CONFLICT, reason COMPETING_HYPOTHESES_REQUIRED) when a Hypothesis in scope_refs has no competing hypothesis. *[v0.1.2 · CR-I4-08]*
+
+- **Disconfirming searches after finalization.** Entries MAY be appended to a finalized Assessment until the Assessment (or a product depending on it) passes review approval; afterwards they are frozen (409). SRS-FR-ASM-004 is checked at review approval. This changes the I4 implementation, which froze searches at finalization. *[v0.1.2 · CR-I4-10]*
+
+- **Revisions.** Every record_version of an Assessment SHALL be kept as an append-only revision snapshot. *[v0.1.2 · CR-I4-05]*
+
 # 14. Confidence and Source Evaluation Model
 
 CS-AML separates source reliability, information credibility, and analyst confidence. Implementations SHALL NOT compress these dimensions into a single unexplained score.
@@ -708,7 +811,7 @@ CS-AML separates source reliability, information credibility, and analyst confid
 | **Dimension** | **Allowed values** | **Meaning** |
 |----|----|----|
 | Source reliability | A-F | A highly reliable; B generally reliable; C mixed; D generally unreliable; E unreliable; F unknown |
-| Information credibility | 1-6 | 1 independently confirmed; 2 probably true; 3 possibly true; 4 doubtful; 5 improbable; 6 cannot be judged |
+| Information credibility | 1-6 | 1 independently confirmed; 2 probably true; 3 possibly true; 4 doubtful; 5 improbable; 6 cannot be judged. Registry enum credibility_grade names these INDEPENDENTLY_CONFIRMED … CANNOT_BE_JUDGED; the wire values remain the digit codes. *[v0.1.2 · CR-I2-08]* |
 | Analyst confidence | HIGH / MODERATE / LOW, or INSUFFICIENT_BASIS (display: High / Moderate / Low / Insufficient basis) | Overall confidence in analytical judgment, based on evidence quality, independence, consistency, and remaining gaps. INSUFFICIENT_BASIS is not a level below LOW (Section 14.1). *[v0.1.1 · A09]* |
 
 ## 14.1 Confidence
@@ -805,6 +908,24 @@ Access labels MAY add purpose, jurisdiction, source-protection, embargo, legal-r
 
 - An unknown, missing, or unrecognized classification value SHALL fail closed: access is denied and the object is flagged for classification. It SHALL NOT default to a less restrictive level.
 
+- **Inheritance is enforced, not silently raised.** A declared classification below the maximum of the inputs, or access labels missing an input label, SHALL be rejected (422); omitted values default to the inherited ones. PATCH MAY only upgrade or add labels; downgrades SHALL be rejected (403) until a recorded reviewer downgrade decision exists. When an input is later upgraded, dependent derived objects SHALL be flagged "re-review required"; their classification SHALL NOT be raised automatically. *[v0.1.2 · CR-I2-05]*
+
+- Case classification and labels are changed only by the case LEAD, upgrades only (Section 6.1). *[v0.1.2 · CR-I1-09]*
+
+### Principal clearance model *[v0.1.2 · CR-I1-10]*
+
+A principal's clearance is represented by identity-provider (Keycloak realm) roles; see also Technical Stack v0.1.2 §10. *[v0.1.2 · CR-I1-10]*
+
+| **IdP role** | **Effect** |
+|----|----|
+| (none) | Baseline clearance INTERNAL: PUBLIC and INTERNAL objects of the principal's cases. |
+| csaml-clearance-sensitive | Clearance up to SENSITIVE. |
+| csaml-clearance-restricted | Clearance up to RESTRICTED. |
+| csaml-protected-source | Eligibility for SOURCE_PROTECTED material; effective only together with the per-case grant protected_source_authorized on the CaseMembership (Section 6.3). |
+| csaml-label-<label> | Satisfies the access label <label>; every label of an object must be satisfied. |
+
+Clearance never replaces case membership: access requires membership, sufficient clearance and every access label. Unknown labels fail closed. *[v0.1.2 · CR-I1-10]*
+
 ### Legacy mapping from the Framework v0.1 four-level scheme *[v0.1.1 · A08]*
 
 The parent Framework v0.1 Expanded (Section 6.4) used Public / Internal / Restricted / Highly Restricted. Records migrated from that scheme SHALL be mapped as follows. The last two rows SHALL NOT be mapped automatically.
@@ -870,7 +991,7 @@ Append-only record of material actions.
 | DM-I03 | Every TypologyMatch SHALL reference one catalogue typology and one or more indicators. |
 | DM-I04 | Every Assessment SHALL reference supporting analytical objects and include limitations. |
 | DM-I05 | A ValueFlow with flow_class=DIRECT SHALL NOT exist without direct evidence of movement. |
-| DM-I06 | A Relationship of type OWNS/BENEFICIAL_OWNER_OF/CONTROLS SHALL include basis and confidence. |
+| DM-I06 | A Relationship of type OWNS/BENEFICIAL_OWNER_OF/CONTROLS SHALL include confidence with a non-empty confidence.basis (the basis of the relationship); the Relationship has no separate basis field. Detailed ownership/control basis is held on OwnershipInterest.basis / ControlAssertion.control_basis. *[v0.1.2 · CR-I2-15]* |
 | DM-I07 | Entity merge SHALL preserve precursor identifiers and generate AuditEvent. Every merge and unmerge SHALL be recorded as a ResolutionDecision. *[v0.1.1 · ER]* |
 | DM-I08 | External dissemination SHALL reference an approved IntelligenceProduct. |
 | DM-I09 | Source-protected information (classification SOURCE_PROTECTED or a source-protection access label) SHALL NOT be exported into lower-classification products without explicit de-identification review. *[v0.1.1 · A08]* |
@@ -901,9 +1022,12 @@ A graph edge is a projection of a canonical Relationship or ValueFlow object. Th
 
 ``` text
 cases
+case_memberships         (v0.1.2 · CR-I1-02)
 sources
 evidence_items
 evidence_extracts
+evidence_integrity_checks (append-only verification results)
+upload_sessions
 claims
 verification_decisions   (v0.1.1 · A10)
 facts
@@ -923,11 +1047,15 @@ hypotheses
 hypothesis_links
 intelligence_gaps
 assessments
+assessment_disconfirming_searches
+assessment_revisions     (v0.1.2 · CR-I4-05)
 intelligence_products
 reviews
 disseminations
 audit_events
 ```
+
+v0.1.2 adds case_memberships, upload_sessions, evidence_integrity_checks, assessment_disconfirming_searches and assessment_revisions to the list; hypothesis_links holds the append-only matrix cells (Section 13.1). *[v0.1.2 · CR-I1-02, CR-I4-04, CR-I4-05]*
 
 This list is illustrative. Implementations MAY normalize or denormalize differently provided semantic and integrity requirements are preserved.
 
@@ -1019,7 +1147,7 @@ The canonical model is implementation-neutral and MAY map to external ontologies
 
 # 26. Data Model Conformance
 
-An implementation claiming to implement CS-AML Data Model v0.1.1 SHALL demonstrate the following minimum capabilities:
+An implementation claiming to implement CS-AML Data Model v0.1.2 SHALL demonstrate the following minimum capabilities:
 
 - Persistent canonical IDs and schema versioning.
 
@@ -1065,6 +1193,16 @@ Annex A, together with the enumerations stated in the field tables of this speci
 | verification_decision.decision | Claims: UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED; Facts: CREATE (label "Create fact"), ESTABLISH, DISPUTE, SUPERSEDE *[v0.1.1 · A10]* |
 | entity.resolution_status | UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT (state only; changed by ResolutionDecision) *[v0.1.1 · A09, ER]* |
 | resolution_decision.decision | MERGE, KEEP_SEPARATE, POSSIBLE_MATCH, DEFER, UNMERGE *[v0.1.1 · ER]* |
+| case_membership.role | LEAD, ANALYST, REVIEWER *[v0.1.2 · CR-I1-02]* |
+| case.risk_rating | LOW, MEDIUM, HIGH, CRITICAL (ordered; minimal set) *[v0.1.2 · CR-I1-08]* |
+| case.closure_reason | OBJECTIVES_MET, INSUFFICIENT_BASIS_TO_CONTINUE, REFERRED, OUT_OF_SCOPE, DUPLICATE, LEGAL_OR_SAFETY_CONSTRAINT, OTHER (minimal set) *[v0.1.2 · CR-I1-08]* |
+| upload_session.status | INITIATED, CONTENT_RECEIVED, COMPLETED (expiry is expressed by expires_at) *[v0.1.2 · CR-I2-02]* |
+| envelope.status | REGISTERED, RECORDED, DRAFT, FINALIZED (for classes without their own lifecycle: REGISTERED for Source, EvidenceExtract, Asset; RECORDED for Event, ValueFlow, TypologyMatch; DRAFT / FINALIZED for Assessment before a review outcome) *[v0.1.2 · CR-I2-03, CR-I3-05, CR-I4-09]* |
+| claim.credibility_grade | INDEPENDENTLY_CONFIRMED, PROBABLY_TRUE, POSSIBLY_TRUE, DOUBTFUL, IMPROBABLE, CANNOT_BE_JUDGED (wire codes "1"…"6", registry exception) *[v0.1.2 · CR-I2-08]* |
+| money.precision | EXACT, APPROXIMATE, ESTIMATED (a range is never exact) *[v0.1.2 · CR-I3-06]* |
+| temporal_value.precision | DATETIME, DAY, MONTH, YEAR, RANGE, UNKNOWN (string shape must match) *[v0.1.2 · CR-I3-06]* |
+| hypothesis.role | PRINCIPAL, ALTERNATIVE_LEGITIMATE, ALTERNATIVE_MECHANISM, INSUFFICIENT_INFORMATION *[v0.1.2 · CR-I4-06]* |
+| hypothesis_link.effect | SUPPORTS, CONTRADICTS, NEUTRAL, UNKNOWN *[v0.1.2 · CR-I4-07]* |
 
 # Annex B. Canonical Relationship Vocabulary (Baseline)
 

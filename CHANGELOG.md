@@ -1,5 +1,128 @@
 # CS-AML Changelog
 
+## v0.1.2 — 2026-10-09 — Change requests from implementation increments I1–I4
+
+**Status:** **Approved Internal Specification Baseline** — tag `v0.1.2-spec`, 2026-10-09, product owner. Supersedes `v0.1.1-spec`.
+This is not an independent review. The change requests come from implementing increments I1–I4 of the reference
+implementation, where each deviation or gap was recorded as a change-request candidate (`docs/change-requests.md` in the implementation repository).
+
+### Decision
+
+**All 52 change-request recommendations (CR-I1-01…CR-I4-14) were approved by the product owner on 2026-10-09**, with one change:
+**CR-I4-10** — disconfirming searches may be appended to a finalized assessment until review approval (the I4 implementation
+froze them at finalization). Decision authority for every row below: product owner, 2026-10-09.
+
+**External review still required** (adopted for the baseline, but not to be relied on externally before review):
+
+| ID | Review needed | Why |
+|---|---|---|
+| CR-I4-03 | AML specialist | The consistency-ceiling thresholds operationalise catalogue prose ("independent", "multiple", "direct authoritative evidence"); adopted provisionally |
+| CR-I1-10 | Security | The clearance model (IdP roles, protected-source eligibility and per-case grant, access labels) governs authorization |
+
+### Dispositions
+
+`adopted` = policy or semantic rule adopted as recommended; `changed` = adopted with a change; `registry` = value set added to
+`schemas/enums.yaml`; `contract` = added to `contracts/openapi.yaml`; `text` = wording fix in the specifications. Changes are tagged
+in place as `*[v0.1.2 · CR-xx-yy]*` (Markdown) and `x-csaml-cr` (OpenAPI).
+
+| ID | Area | Decision | Disposition | Where |
+|---|---|---|---|---|
+| CR-I1-01 | Case `investigation_questions` | `minItems` removed from the `Case` response; ≥ 1 investigation question is a case-activation (gate) precondition | adopted | Contract `Case`; Data Model §6.1; API §12; SRS-FR-CASE-001 |
+| CR-I1-02 | Case memberships | `GET/POST /cases/{caseId}/memberships`, `PATCH/DELETE /case-memberships/{membershipId}` (If-Match), explicit `protected_source_authorized`; registry `case_membership_role` LEAD/ANALYST/REVIEWER | contract + registry | Contract; `schemas/enums.yaml`; Data Model §6.3; API §12, §20 |
+| CR-I1-03 | CSRF token delivery | `Session.csrf_token`; secret in the server-side session, no JavaScript-readable CSRF cookie | contract | Contract `Session`, `csrfHeader`; API §4; Frontend; Technical Stack |
+| CR-I1-04 | Browser logout | Logout is a top-level form POST carrying `csrfmiddlewaretoken`; API clients may use `X-CSRFToken` | contract | Contract `authLogout`; API §4; Frontend |
+| CR-I1-05 | Back-channel logout | `POST /auth/backchannel-logout` (OIDC Back-Channel Logout 1.0, signed logout token, CSRF-exempt) | contract | Contract; API §4; Technical Stack |
+| CR-I1-06 | Local-dev session cookie | Isolated local-development exception to `__Host-csaml_session` + Secure, stated next to API-SEC-01 | text | API §4; Technical Stack; contract `sessionCookie` |
+| CR-I1-07 | `Session.username` | Optional display field added | contract | Contract `Session`; API §4 |
+| CR-I1-08 | `risk_rating`, `closure_reason` | Registry enums defined (minimal sets; the implementation had free strings) | registry | `schemas/enums.yaml`; contract `Case`; Data Model §6.1, Annex A |
+| CR-I1-09 | Case reclassification | Only the case LEAD may change classification/labels; upgrades only; downgrades and label removal need a reviewer decision (workflow in I6, 403 until then) | adopted | Contract `CasePatch`; Data Model §6.1, §16; API §12; SRS |
+| CR-I1-10 | Clearance model | IdP roles `csaml-clearance-sensitive` / `csaml-clearance-restricted` (baseline INTERNAL), `csaml-protected-source` + per-case `protected_source_authorized`, `csaml-label-<label>` | adopted — **needs external security review** | Data Model §16; Technical Stack |
+| CR-I2-01 | `case_links` on creates | Required, 1..20, on every create that carries it | text | Contract (all `*Create` schemas); API |
+| CR-I2-02 | Upload sessions | Registry `upload_session_status` INITIATED/CONTENT_RECEIVED/COMPLETED; 422/400 confirmed (no 413/416); `DerivativeCreate` reworded | registry | `schemas/enums.yaml`; contract `UploadSession`; API §13; SRS Annex B |
+| CR-I2-03 | Envelope status (Source, EvidenceExtract) | Registry `envelope_status` (REGISTERED, RECORDED, DRAFT, FINALIZED) for classes without a lifecycle | registry | `schemas/enums.yaml`; contract `ResourceEnvelope`; Data Model |
+| CR-I2-04 | Provenance trace | `GET /{entities,relationships,facts}/{id}/provenance` and `ProvenanceTrace` | contract | Contract; API §14 |
+| CR-I2-05 | Classification inheritance | Declared value below the inputs' maximum → 422; later input upgrades flag dependents "re-review required" (no automatic raise) | adopted | Contract `ResourceEnvelope`; Data Model §16; API; SRS |
+| CR-I2-06 | Small I2 extensions | `GET /evidence/{id}/extracts`, `entity_id` filter, EvidenceItem `byte_size`/`hash_algorithm`/`derived_from`/`derivation_type`, `alias_provenance`, opaque `storage_ref` | contract | Contract; API §13–§14; Data Model §7.2 |
+| CR-I2-07 | Evidence reference targets | Permitted target classes per field (`x-csaml-ref-types`) | contract | Contract; Data Model §7–§9; API |
+| CR-I2-08 | `Claim.credibility_grade` | Registry `credibility_grade` with names and digit `code`s; the wire keeps "1".."6" (registry exception `wire: code`) | registry | `schemas/enums.yaml`; contract `CredibilityGrade`; Data Model §7.4, Annex A |
+| CR-I2-09 | Reviewer = decider | API §14 aligned to 409 STATE_CONFLICT | text | API §14; contract merge/unmerge |
+| CR-I2-10 | High-impact merge | Every MERGE/UNMERGE is high-impact in the MVP; `reviewer_ref` required (REVIEWER/LEAD membership) | adopted | Contract `MergeRequest`/`UnmergeRequest`; Data Model §8.4; API §14; Methodology §12; SRS |
+| CR-I2-11 | Reviewer role; claim re-review | ESTABLISH by REVIEWER or LEAD membership, never the proposer; claim decisions by LEAD/ANALYST/REVIEWER; a decided claim may return to UNDER_REVIEW | adopted | Contract; Data Model §7.4–§7.6; API §16A; SRS; Methodology |
+| CR-I2-12 | Integrity check results | No change (implementation conforms) | text (no change) | — |
+| CR-I2-13 | Unmerge re-attribution | Merge is logical repointing via `canonical_parent`; canonical model | adopted | Contract; Data Model §8.4; API §14; Methodology §12 |
+| CR-I2-14 | Match-candidate decisions | `POST /resolution-decisions` kept; `/entity-match-candidates/{id}/decisions` deprecated (removal in v0.2) | text | Contract (`deprecated: true`); API §14; SRS Annex C |
+| CR-I2-15 | DM-I06 basis | DM-I06 points to `confidence.basis` | text | Data Model §18 |
+| CR-I3-01 | Assets, ownership, control | Operations and schemas of `contracts/extensions/i3.yaml` adopted | contract | Contract; API §14 |
+| CR-I3-02 | Events and timeline | `/events`, `/events/{eventId}`, `/timeline`; Event `description`, `approximate`, `asset_refs` | contract | Contract; API §15; Data Model §10.2 |
+| CR-I3-03 | Value-flow view and legend | Shapes adopted | contract | Contract; API §15; UI Design System §11 |
+| CR-I3-04 | `ValueFlowLeg` | Per-leg `reconstruction_basis` and `confidence`; legs immutable, append-only, contiguous | contract | Contract; Data Model §11.2; API §15; SRS |
+| CR-I3-05 | Envelope status (Asset, Event, ValueFlow) | Registry `envelope_status`; Methodology §14.1 event statuses deferred to v0.2 | registry | `schemas/enums.yaml`; Data Model §10; Methodology §14 |
+| CR-I3-06 | Precision value sets | Registry `money_precision`, `temporal_precision`; `Event.start_time` null only with UNKNOWN; `valuation_basis` stays free text | registry | `schemas/enums.yaml`; contract `Money`, `TemporalValue`, `TimePrecision`; Data Model §10; Methodology §14 |
+| CR-I3-07 | Graph API | `GET /cases/{caseId}/graph` adopted; `POST /graph/query` stays unspecified (v0.2) | contract | Contract; API §18 |
+| CR-I3-08 | Asset targets; I3 provenance | `Relationship.to_entity` may name an Asset (`to_object_type`); provenance operations for I3 objects | contract | Contract; Data Model §9.1; API §14–§15 |
+| CR-I3-09 | Raising certainty | Order HYPOTHETICAL < RECONSTRUCTED < DOCUMENTED < DIRECT for invariants only (registry stays unordered); raising needs new evidence; a flow is never stronger than its weakest leg | adopted | Contract `ValueFlowPatch`; Data Model §11; Methodology; SRS |
+| CR-I3-10 | Flow evidence targets | EvidenceExtract/EvidenceItem/Fact; DIRECT and DOCUMENTED need ≥ 1 EvidenceItem/EvidenceExtract | contract | Contract; Data Model §11; API §15 |
+| CR-I3-11 | Inferred ownership | BENEFICIAL / ECONOMIC_INTEREST / NOMINEE_ASSERTED become ESTABLISHED only with an ESTABLISHED Fact | adopted | Contract (OwnershipInterest); Data Model §9.2; Methodology |
+| CR-I3-12 | Value aggregation | Groups by (flow_class, flow_type, currency), no grand total, obligation vs settlement, unknown never 0 | contract | Contract `ValueFlowView`; API §15; UI Design System §11; SRS |
+| CR-I3-13 | `case_links` on `ValueFlowCreate` | As CR-I2-01 | text | Contract; API |
+| CR-I4-01 | Typology catalogue API | `/typology-catalogue`, `/typologies`, `/typologies/{typologyId}` adopted | contract | Contract; API §16; Typology Catalogue |
+| CR-I4-02 | Indicators | `/indicators` operations, `LOCAL-…` code convention, transition table | contract | Contract; Data Model §12.1; API §16; Typology Catalogue; SRS |
+| CR-I4-03 | Consistency ceiling | ADR-0023 thresholds adopted **provisionally** | adopted — **needs AML-specialist review** | Typology Catalogue §4.1; contract `TypologyMatch` (`x-csaml-review-required`); Data Model §12.2; API §16; SRS |
+| CR-I4-04 | Hypothesis matrix | `HypothesisLink` (`/hypotheses/{id}/links`, `/hypothesis-matrix`) | contract | Contract; Data Model §13.1; API §16 |
+| CR-I4-05 | Gaps, revisions, I4 provenance | `/intelligence-gaps`, `/assessments/{id}/revisions`, indicator/match/hypothesis provenance | contract | Contract; Data Model §13; API §16; SRS-FR-ASM-001 |
+| CR-I4-06 | Hypothesis role | Registry `hypothesis_role`; `role`, `assumptions[]` fields | registry | `schemas/enums.yaml`; contract `Hypothesis*`; Methodology §18.1; Data Model §13.1 |
+| CR-I4-07 | Matrix effect vocabulary | Registry `hypothesis_link_effect` SUPPORTS/CONTRADICTS/NEUTRAL/UNKNOWN ("Weakens" → CONTRADICTS) | registry | `schemas/enums.yaml`; contract; Methodology §18.2; SRS-FR-HYP-002 |
+| CR-I4-08 | Competing hypotheses | Enforced at assessment finalize: 409 `COMPETING_HYPOTHESES_REQUIRED` | adopted | Contract `finalizeAssessment`; Methodology §18.4; SRS-FR-HYP-001; API §16 |
+| CR-I4-09 | Assessment lifecycle | Finalized ≠ reviewed; envelope status DRAFT → FINALIZED, then the review status | text | Contract `Assessment`; Data Model §13.3; API §16; SRS Annex B |
+| CR-I4-10 | Disconfirming searches after finalize | **Changed:** searches MAY be appended to a finalized assessment until review approval, then frozen (409); SRS-FR-ASM-004 is checked at review approval. The I4 implementation (409 after finalization) must change | changed | Contract `recordAssessmentDisconfirmingSearch`, `Assessment`; Data Model §13.3; API §16; SRS-FR-ASM-004; Methodology |
+| CR-I4-11 | Dependent flagging | Direct and indirect dependents flagged `review_required`; a flagged draft cannot be finalized (409 `REVIEW_REQUIRED`); clearing is a review action (I6) | adopted | Contract `Assessment`, `finalizeAssessment`; Data Model §7.5, §13.3; SRS |
+| CR-I4-12 | `case_links` on I4 creates | As CR-I2-01 | text | Contract; API |
+| CR-I4-13 | Catalogue entry metadata | Entry `version` 0.1.1, `status` ACTIVE, `last_reviewed` 2026-10-08, indicator IDs `<typology_id>-I<nn>` | text | Typology Catalogue §5, §8 |
+| CR-I4-14 | `AssessmentProvenance` | Trace fields (`typology_match_refs`, `source_refs`, `gap_refs`, `root`, `nodes`, `edges`, `source_paths`) and permitted target types | contract | Contract; API §16 |
+
+### What changed
+
+- **Documents.** Eight documents changed and were renamed with `git mv` to `*_v0.1.2.md` (history preserved): Data Model, API
+  Specification, SRS, Technical Stack and Repository, Investigation Methodology, Typology Catalogue, Frontend Architecture and State
+  Management, UI Design System. The other 15 Markdown documents are unchanged and stay at v0.1.1; they remain current. A reference to
+  "<document> v0.1.1" in an unchanged document means the current version of that document (see `README.md`, "Versi dokumen").
+- **`contracts/openapi.yaml` 0.1.2.** The frozen v0.1.1 contract plus `contracts/extensions/i3.yaml` and `i4.yaml` of the implementation
+  (merged; the extension files are no longer needed) and the I1/I2 additions: 72 → 111 paths, 92 → 149 operations. New items carry
+  `x-csaml-status: decided`, `x-csaml-release-class: DECIDED_V0_1_2` and `x-csaml-cr`; reference fields carry `x-csaml-ref-types`.
+  `decideEntityMatchCandidate` is `deprecated: true`.
+- **`schemas/enums.yaml` 0.1.2.** 50 → 60 enums (301 → 345 values): `case_membership_role`, `risk_rating`, `closure_reason`,
+  `upload_session_status`, `envelope_status`, `credibility_grade` (registry exception `wire: code`), `money_precision`,
+  `temporal_precision`, `hypothesis_role`, `hypothesis_link_effect`. The implementation's registry copy had no extra values.
+- **`tools/check_consistency.py`.** Resolves each document to its current version, maps the new Annex A rows, supports `wire: code`,
+  and checks v0.1.2 status blocks, tags outside code fences and that every cited CR ID is listed here.
+
+### Release gates (2026-10-09)
+
+| Gate | Result |
+|---|---|
+| G1–G3 Domain consistency, safety invariants, traceability | `tools/check_consistency.py`: 0 errors |
+| G4 Machine contract | Redocly lint (recommended): 0 errors, the 4 known warnings of v0.1.1 |
+| G5 Decisions | All 52 change requests decided (this section) |
+| G6 Known limitations | Listed below |
+
+### Implementation follow-up (reference implementation)
+
+Changes the implementation needs to conform to v0.1.2: allow disconfirming searches after finalization until review approval
+(CR-I4-10); `risk_rating` / `closure_reason` as registry enums (CR-I1-08); the case-membership endpoints (CR-I1-02; I1 used a management
+command); case reclassification by reviewer decision and clearing of `review_required` arrive with review in I6 (CR-I1-09, CR-I4-11).
+
+### Still open after v0.1.2
+
+| Item | Target |
+|---|---|
+| Search, administration/audit, protected sources, `GET /capabilities`, `POST /graph/query` | v0.2 (per epic) |
+| Job, gate and task status value sets; export format; sort allowlists; task contracts | v0.2 |
+| Methodology §14.1 event statuses; `Asset.valuation_basis` and `derivation_type` vocabularies | v0.2 |
+| Removal of `/entity-match-candidates/{id}/decisions` | v0.2 |
+| Reviewer-decision workflows (reclassification downgrade, `review_required` clearing, review approval) | I6 |
+| External review of CR-I4-03 (AML specialist) and CR-I1-10 (security) | Before external reliance |
+| Items of the v0.1.1 "Still open" table not listed here (ADR-0005 product selection, A13 research track, release package, independent review) | Unchanged |
+
 ## v0.1.1 — 2026-10-08 — Audit remediation (Markdown)
 
 **Status:** **Approved Internal Specification Baseline** — tag `v0.1.1-spec`, 2026-10-08, product owner. Not yet implemented, tested or independently reviewed.

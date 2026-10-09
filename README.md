@@ -4,25 +4,26 @@
 
 Paket dokumentasi lengkap CS-AML: kerangka metodologi, spesifikasi produk, rekayasa, dan antarmuka untuk aplikasi intelijen keuangan berbasis masyarakat sipil, beserta hasil audit dokumentasinya.
 
-> **Status: v0.1.1 — Approved Internal Specification Baseline (tag `v0.1.1-spec`, 8 Oktober 2026).**
-> Keenam release gate terpenuhi: konsistensi domain, invariant keselamatan, traceability, kontrak mesin, keputusan blocking, dan keterbatasan yang tercatat. Spesifikasi ini dibekukan sebagai acuan implementasi. Belum ada review independen, implementasi, atau pengujian yang membuktikan isinya. Lihat [`CHANGELOG.md`](CHANGELOG.md).
+> **Status: v0.1.2 — Approved Internal Specification Baseline (tag `v0.1.2-spec`, 9 Oktober 2026; menggantikan `v0.1.1-spec`).**
+> v0.1.2 memuat 52 change request (CR-I1-01…CR-I4-14) yang muncul saat implementasi increment I1–I4. Semua rekomendasi disetujui product owner pada 2026-10-09, dengan satu perubahan (CR-I4-10). Dua keputusan masih perlu review eksternal: CR-I4-03 (ambang konsistensi tipologi, oleh spesialis AML) dan CR-I1-10 (model clearance, oleh reviewer keamanan). Ini bukan review independen. Lihat [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Kapan sebuah rilis spesifikasi dianggap selesai
 
 > A specification release is considered complete when all release-blocking semantic, safety, traceability, and contract inconsistencies are resolved; automated consistency checks pass; remaining limitations are explicitly documented; and unresolved non-blocking items are assigned to a future release. Absence of known imperfections is not required.
 
-Artinya: spesifikasi tidak harus bebas kekurangan, tetapi harus bebas dari kekurangan yang membuat implementasi berbahaya, ambigu, atau tidak dapat diuji. Setelah tag `v0.1.1-spec`, dokumen tidak diaudit ulang kecuali ada perubahan substantif. Masalah yang ditemukan saat implementasi masuk sebagai issue → change request → v0.1.2.
+Artinya: spesifikasi tidak harus bebas kekurangan, tetapi harus bebas dari kekurangan yang membuat implementasi berbahaya, ambigu, atau tidak dapat diuji. Setelah sebuah tag spesifikasi, dokumen tidak diaudit ulang kecuali ada perubahan substantif. Masalah yang ditemukan saat implementasi masuk sebagai issue → change request → rilis berikutnya (v0.1.2 adalah rilis pertama lewat jalur ini).
 
 ## Panduan untuk programmer
 
-- **Gunakan file Markdown `Documents/*_v0.1.1*.md`.** File-file ini berisi teks lengkap setiap dokumen beserta koreksi audit, dan menjadi sumber acuan utama.
-- **DOCX dan PDF adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1, jadi jangan dipakai sebagai acuan implementasi.
-- Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*`. Axx adalah ID temuan di [`Audit/`](Audit/).
+- **Gunakan file Markdown versi terbaru setiap dokumen** (lihat tabel *Daftar dokumen*: delapan dokumen kini `*_v0.1.2.md`, sisanya tetap `*_v0.1.1*.md` karena tidak berubah). Setiap dokumen hanya punya satu file Markdown yang berlaku; riwayat v0.1.1 tersimpan di git (`git log --follow`, tag `v0.1.1-spec`).
+- Rujukan "<dokumen> v0.1.1" di dalam dokumen yang tidak berubah berarti versi terbaru dokumen tersebut.
+- **DOCX dan PDF adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1/v0.1.2, jadi jangan dipakai sebagai acuan implementasi.
+- Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*` (Axx = ID temuan di [`Audit/`](Audit/)) atau `*[v0.1.2 · CR-xx-yy]*` (ID change request di `CHANGELOG.md`).
 - Untuk kerangka, gunakan `CS-AML_Framework_v0.1.1_Expanded.md`. File `CS-AML_Framework_v0.1.1.md` berstatus *legacy*.
   > `CS-AML_Framework_v0.1.1_Expanded.md` is the authoritative framework document. The non-expanded Framework is retained for historical reference only.
-- Kontrak API ada di `contracts/openapi.yaml` (OpenAPI 3.1, P0 vertical slice). Nilai enum ada di `schemas/enums.yaml`, dan keputusan arsitektur di `docs/adr/`.
+- Kontrak API ada di `contracts/openapi.yaml` (OpenAPI 3.1, versi 0.1.2: 111 path, 149 operasi; ekstensi I3/I4 sudah digabung). Nilai enum ada di `schemas/enums.yaml` (registry 0.1.2, 60 enum), dan keputusan arsitektur di `docs/adr/`.
 - Sebelum commit perubahan spesifikasi, jalankan `python3 tools/check_consistency.py`. Hasilnya harus 0 error.
-- Hal-hal yang belum selesai (OpenAPI, ADR, beberapa enum) tercantum di bagian **Still open** pada `CHANGELOG.md`.
+- Hal-hal yang belum selesai tercantum di bagian **Still open after v0.1.2** pada `CHANGELOG.md`.
 
 ## Rantai analitis inti
 
@@ -34,63 +35,73 @@ SOURCE → EVIDENCE → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INT
 
 ```
 .
-├── Documents/      23 dokumen: Markdown v0.1.1 (acuan) + DOCX/PDF v0.1 (arsip)
+├── Documents/      23 dokumen: Markdown v0.1.2/v0.1.1 (acuan) + DOCX/PDF v0.1 (arsip)
 ├── Audit/          Laporan audit, register temuan, rencana perbaikan
-├── contracts/      OpenAPI 3.1 (P0 vertical slice)
+├── contracts/      OpenAPI 3.1 (v0.1.2)
 ├── schemas/        Registry enum (enums.yaml)
 ├── sources/        Peta sumber indikator tipologi (verifikasi A13)
 ├── docs/adr/       Architecture Decision Records (0004–0006)
 ├── tools/          Konverter DOCX → Markdown dan pengecek konsistensi
-├── CHANGELOG.md    Register keputusan dan perubahan v0.1.1
+├── CHANGELOG.md    Register keputusan dan perubahan (v0.1.2, v0.1.1)
 └── MANIFEST.txt    Daftar seluruh file
 ```
 
 ## Daftar dokumen
 
-Nama file mengikuti pola `CS-AML_<Judul>_v0.1.1.md` (acuan) dan `CS-AML_<Judul>_v0.1.docx/.pdf` (arsip).
+Nama file mengikuti pola `CS-AML_<Judul>_v<versi>.md` (acuan) dan `CS-AML_<Judul>_v0.1.docx/.pdf` (arsip). Kolom **Versi** menunjukkan versi Markdown yang berlaku.
 
 ### Kerangka & metodologi
 
-| Dokumen | Catatan |
-|---|---|
-| CS-AML Framework (Expanded) | Kerangka induk |
-| CS-AML Framework | *Legacy*, digantikan versi Expanded |
-| Framework Goals and Non-Goals | |
-| Investigation Methodology | |
-| Typology Catalogue | 20 tipologi; katalog CS-AML, bukan daftar resmi FATF |
-| Control Implementation Guide | |
+| Dokumen | Versi | Catatan |
+|---|---|---|
+| CS-AML Framework (Expanded) | 0.1.1 | Kerangka induk |
+| CS-AML Framework | 0.1.1 | *Legacy*, digantikan versi Expanded |
+| Framework Goals and Non-Goals | 0.1.1 | |
+| Investigation Methodology | **0.1.2** | |
+| Typology Catalogue | **0.1.2** | 20 tipologi; katalog CS-AML, bukan daftar resmi FATF |
+| Control Implementation Guide | 0.1.1 | |
 
 ### Produk & kebutuhan
 
-| Dokumen | Catatan |
-|---|---|
-| Product Requirements Document (PRD) | |
-| Product and Feature Specification | 88 fitur (55 P0, 26 P1, 7 P2) |
-| Software Requirements Specification (SRS) | |
+| Dokumen | Versi | Catatan |
+|---|---|---|
+| Product Requirements Document (PRD) | 0.1.1 | |
+| Product and Feature Specification | 0.1.1 | 88 fitur (55 P0, 26 P1, 7 P2) |
+| Software Requirements Specification (SRS) | **0.1.2** | |
 
 ### Arsitektur & rekayasa
 
-| Dokumen | Catatan |
-|---|---|
-| Technology Architecture | Kapabilitas memakai namespace `TA-CAP-xx` |
-| Technical Stack and Repository Specification | |
-| Data Model Specification | Registry enum (Annex A) |
-| API Specification | |
-| Frontend Architecture and State Management Specification | |
-| MVP Engineering Breakdown | |
-| Sprint and Milestone Plan | |
+| Dokumen | Versi | Catatan |
+|---|---|---|
+| Technology Architecture | 0.1.1 | Kapabilitas memakai namespace `TA-CAP-xx` |
+| Technical Stack and Repository Specification | **0.1.2** | |
+| Data Model Specification | **0.1.2** | Registry enum (Annex A) |
+| API Specification | **0.1.2** | |
+| Frontend Architecture and State Management Specification | **0.1.2** | |
+| MVP Engineering Breakdown | 0.1.1 | |
+| Sprint and Milestone Plan | 0.1.1 | |
 
 ### UX & antarmuka
 
-| Dokumen | Catatan |
+| Dokumen | Versi | Catatan |
+|---|---|---|
+| UX Specification | 0.1.1 | |
+| Information Architecture Specification | 0.1.1 | |
+| Screen Inventory | 0.1.1 | 53 ID layar (50 layar kerja + 3 layar status sistem) |
+| Wireframe Specification | 0.1.1 | |
+| High-Fidelity UI Specification | 0.1.1 | |
+| UI Design System Specification | **0.1.2** | |
+| Component Inventory and Storybook Implementation Specification | 0.1.1 | 65 komponen |
+
+## Keputusan utama v0.1.2
+
+| Topik | Keputusan |
 |---|---|
-| UX Specification | |
-| Information Architecture Specification | |
-| Screen Inventory | 53 ID layar (50 layar kerja + 3 layar status sistem) |
-| Wireframe Specification | |
-| High-Fidelity UI Specification | |
-| UI Design System Specification | |
-| Component Inventory and Storybook Implementation Specification | 65 komponen |
+| Change request | 52 CR dari implementasi I1–I4 disetujui product owner (2026-10-09); CR-I4-10 diubah: disconfirming search boleh ditambahkan setelah finalize sampai review approval |
+| Kontrak | Ekstensi I3/I4 digabung ke `contracts/openapi.yaml` 0.1.2; membership kasus, back-channel logout, provenance trace; `/entity-match-candidates/{id}/decisions` deprecated |
+| Registry | 10 enum baru (mis. `case_membership_role`, `risk_rating`, `upload_session_status`, `envelope_status`, `credibility_grade`, `hypothesis_link_effect`) |
+| Kebijakan | Semua merge/unmerge high-impact (wajib reviewer ≠ decider → 409); reklasifikasi kasus hanya oleh LEAD (upgrade saja); aturan competing hypotheses ditegakkan saat finalize |
+| Perlu review eksternal | CR-I4-03 (ambang konsistensi, spesialis AML), CR-I1-10 (model clearance, keamanan) |
 
 ## Keputusan utama v0.1.1
 

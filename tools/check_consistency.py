@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-document consistency checks for the CS-AML v0.1.1 specification set.
+"""Cross-document consistency checks for the CS-AML specification set (v0.1.1 / v0.1.2).
 
 Checks:
   1. schemas/enums.yaml: value pattern and uniqueness.
@@ -9,6 +9,11 @@ Checks:
   4. Specs: retired terms are not used outside explicit legacy/retired notes.
   5. Traceability: referenced feature, SRS and story IDs exist; Technology Architecture uses TA-CAP.
   6. Markdown code fences are balanced.
+  7. Versioning: exactly one current Markdown file per document (v0.1.2 supersedes v0.1.1), every v0.1.2 file
+     carries a v0.1.2 status block, and every change-request ID cited (CR-Ix-yy) is listed in CHANGELOG.md.
+
+Documents are resolved by title: the highest version present (v0.1.2 before v0.1.1) is the current file. A superseded
+v0.1.1 file must not remain next to its v0.1.2 successor (git mv preserves history).
 
 Usage: python3 tools/check_consistency.py   (exit code 1 when any error is found)
 """
@@ -24,8 +29,17 @@ DOCS = os.path.join(ROOT, 'Documents')
 errors, warnings = [], []
 
 
+VERSIONS = ('0.1.2', '0.1.1')  # newest first
+
+
 def doc(name):
-    return os.path.join(DOCS, name)
+    """Resolve a v0.1.1 file name to the current version of that document."""
+    base = name.replace('_v0.1.1', '_v{}')
+    for v in VERSIONS:
+        path = os.path.join(DOCS, base.format(v))
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError(name)
 
 
 def read(path):
@@ -33,21 +47,38 @@ def read(path):
         return f.read()
 
 
-SPECS = sorted(glob.glob(os.path.join(DOCS, '*_v0.1.1*.md')))
+ALL_MD = sorted(glob.glob(os.path.join(DOCS, '*_v0.1.[12]*.md')))
+by_title = {}
+for path in ALL_MD:
+    title = re.sub(r'_v0\.1\.[12]', '_v{}', os.path.basename(path))
+    by_title.setdefault(title, []).append(path)
+SPECS = []
+for title, paths in sorted(by_title.items()):
+    if len(paths) > 1:
+        errors.append(f'{title.format("x")}: both {", ".join(os.path.basename(p) for p in paths)} exist; '
+                      f'keep only the current version')
+    SPECS.append(max(paths, key=lambda p: '_v0.1.2' in p))
+TAG = re.compile(r'\*\[v0\.1\.[12][^\]]*\]\*')
 TOKEN = re.compile(r'\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*\b')
 
 # 1. Registry --------------------------------------------------------------------------------
 registry = yaml.safe_load(read(os.path.join(ROOT, 'schemas', 'enums.yaml')))
 pattern = re.compile(registry['conventions']['value_pattern'])
-enums = {}
+enums, wire = {}, {}
 for key, spec in registry['enums'].items():
     values = [v['value'] for v in spec['values']]
     enums[key] = values
+    wire[key] = values
     for v in values:
         if not pattern.match(v):
             errors.append(f'enums.yaml {key}: value {v!r} does not match {pattern.pattern}')
     if len(values) != len(set(values)):
         errors.append(f'enums.yaml {key}: duplicate values')
+    if spec.get('wire') == 'code':  # registry exception (credibility_grade): the wire value is `code`
+        codes = [v.get('code') for v in spec['values']]
+        if None in codes or len(codes) != len(set(codes)):
+            errors.append(f'enums.yaml {key}: wire: code needs a unique code on every value')
+        wire[key] = codes
 
 # 2. Data Model Annex A ----------------------------------------------------------------------
 ANNEX_TO_REGISTRY = {
@@ -63,6 +94,16 @@ ANNEX_TO_REGISTRY = {
     'verification_decision.decision': 'verification_decision',
     'entity.resolution_status': 'entity_resolution_status',
     'resolution_decision.decision': 'resolution_decision',
+    'case_membership.role': 'case_membership_role',
+    'case.risk_rating': 'risk_rating',
+    'case.closure_reason': 'closure_reason',
+    'upload_session.status': 'upload_session_status',
+    'envelope.status': 'envelope_status',
+    'claim.credibility_grade': 'credibility_grade',
+    'money.precision': 'money_precision',
+    'temporal_value.precision': 'temporal_precision',
+    'hypothesis.role': 'hypothesis_role',
+    'hypothesis_link.effect': 'hypothesis_link_effect',
 }
 dm = read(doc('CS-AML_Data_Model_Specification_v0.1.1.md'))
 annex = dm.split('# Annex A.', 1)[1].split('# Annex B.', 1)[0]
@@ -74,7 +115,7 @@ for line in annex.splitlines():
     if name not in ANNEX_TO_REGISTRY:
         warnings.append(f'Data Model Annex A: {name} has no registry mapping in this checker')
         continue
-    cell = re.sub(r'\*\[v0\.1\.1[^\]]*\]\*', '', cell)
+    cell = TAG.sub('', cell)
     cell = re.sub(r'\([^)]*\)', '', cell)
     cell = re.sub(r'"[^"]*"', '', cell)
     found = {t for t in TOKEN.findall(cell) if '_' in t or t.isupper()} - {'Claims', 'Facts'}
@@ -115,8 +156,11 @@ if os.path.exists(oa_path):
                 else:
                     values = [v for v in values if v is not None]
                     subset = node.get('x-csaml-enum-subset', False)
-                    extra = set(values) - set(enums[key])
-                    missing = set(enums[key]) - set(values)
+                    reg = wire[key] if node.get('x-csaml-enum-wire') == 'code' else enums[key]
+                    if (node.get('x-csaml-enum-wire') == 'code') != (wire[key] is not enums[key]):
+                        errors.append(f'openapi: {path} x-csaml-enum-wire does not match enums.yaml {key} wire setting')
+                    extra = set(values) - set(reg)
+                    missing = set(reg) - set(values)
                     if extra or (missing and not subset):
                         errors.append(f'openapi: {path} enum vs enums.yaml {key}: '
                                       f'extra {sorted(extra)}, missing {sorted(missing)}')
@@ -176,25 +220,25 @@ for path in SPECS:
 
 # 5. Traceability ----------------------------------------------------------------------------
 all_text = {os.path.basename(p): read(p) for p in SPECS}
-features = set(re.findall(r'^\|\s*(F-[A-Z]+-\d{3})\s*\|',
-                          all_text['CS-AML_Product_and_Feature_Specification_v0.1.1.md'], re.M))
-srs_ids = set(re.findall(r'^#+\s*(SRS-[A-Z0-9-]+?-\d{3})\b',
-                         all_text['CS-AML_Software_Requirements_Specification_SRS_v0.1.1.md'], re.M))
-srs_ids |= set(re.findall(r'^\|\s*\**(SRS-[A-Z0-9-]+?-\d{3})\**\s*\|',
-                          all_text['CS-AML_Software_Requirements_Specification_SRS_v0.1.1.md'], re.M))
-stories = set(re.findall(r'^#+\s*(ST-E\d+-\d{2})\b', all_text['CS-AML_MVP_Engineering_Breakdown_v0.1.1.md'], re.M))
+PF = os.path.basename(doc('CS-AML_Product_and_Feature_Specification_v0.1.1.md'))
+SRS = os.path.basename(doc('CS-AML_Software_Requirements_Specification_SRS_v0.1.1.md'))
+MVP = os.path.basename(doc('CS-AML_MVP_Engineering_Breakdown_v0.1.1.md'))
+features = set(re.findall(r'^\|\s*(F-[A-Z]+-\d{3})\s*\|', all_text[PF], re.M))
+srs_ids = set(re.findall(r'^#+\s*(SRS-[A-Z0-9-]+?-\d{3})\b', all_text[SRS], re.M))
+srs_ids |= set(re.findall(r'^\|\s*\**(SRS-[A-Z0-9-]+?-\d{3})\**\s*\|', all_text[SRS], re.M))
+stories = set(re.findall(r'^#+\s*(ST-E\d+-\d{2})\b', all_text[MVP], re.M))
 
 for name, text in all_text.items():
     for fid in sorted(set(re.findall(r'\bF-[A-Z]+-\d{3}\b', text)) - features):
         errors.append(f'{name}: references unknown feature {fid}')
-    if srs_ids and name != 'CS-AML_Software_Requirements_Specification_SRS_v0.1.1.md':
+    if srs_ids and name != SRS:
         for sid in sorted(set(re.findall(r'\bSRS-FR-[A-Z]+-\d{3}\b', text)) - srs_ids):
             errors.append(f'{name}: references unknown SRS requirement {sid}')
-    if stories and name != 'CS-AML_MVP_Engineering_Breakdown_v0.1.1.md':
+    if stories and name != MVP:
         for st in sorted(set(re.findall(r'\bST-E\d+-\d{2}\b', text)) - stories):
             errors.append(f'{name}: references unknown story {st}')
 
-ta = all_text['CS-AML_Technology_Architecture_v0.1.1.md']
+ta = all_text[os.path.basename(doc('CS-AML_Technology_Architecture_v0.1.1.md'))]
 for n, line in enumerate(ta.splitlines(), 1):
     if re.search(r'(?<!TA-)\bCAP-\d{2}\b', line) and 'TA-CAP' not in line and 'product' not in line.lower():
         errors.append(f'Technology Architecture:{n}: bare CAP-xx (use TA-CAP-xx or state it is the product registry)')
@@ -203,6 +247,28 @@ for n, line in enumerate(ta.splitlines(), 1):
 for path in SPECS:
     if sum(1 for l in read(path).splitlines() if l.startswith('```')) % 2:
         errors.append(f'{os.path.basename(path)}: unbalanced code fence')
+
+# 7. Versioning and change-request IDs --------------------------------------------------------
+changelog = read(os.path.join(ROOT, 'CHANGELOG.md'))
+CR = re.compile(r'\bCR-I\d-\d{2}\b')
+known_cr = set(CR.findall(changelog.split('## v0.1.1', 1)[0]))
+for path in SPECS:
+    name, text = os.path.basename(path), read(path)
+    if '_v0.1.2' in name:
+        head = text[:4000]
+        if 'Document status — v0.1.2' not in head or 'v0.1.2-spec' not in head:
+            errors.append(f'{name}: missing v0.1.2 status block')
+    in_fence = False
+    for n, line in enumerate(text.splitlines(), 1):
+        if line.startswith('```'):
+            in_fence = not in_fence
+        elif in_fence and TAG.search(line):
+            errors.append(f'{name}:{n}: change tag inside a code fence')
+    for cr in sorted(set(CR.findall(text)) - known_cr):
+        errors.append(f'{name}: change request {cr} is not listed in CHANGELOG.md v0.1.2')
+for extra in ('contracts/openapi.yaml', 'schemas/enums.yaml'):
+    for cr in sorted(set(CR.findall(read(os.path.join(ROOT, extra)))) - known_cr):
+        errors.append(f'{extra}: change request {cr} is not listed in CHANGELOG.md v0.1.2')
 
 for w in warnings:
     print('WARN ', w)

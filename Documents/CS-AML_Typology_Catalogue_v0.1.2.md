@@ -2,20 +2,21 @@
 
 Civil Society Financial Intelligence / AML Investigation
 
-**Version 0.1.1 \| Typology Standard (Approved Internal Specification Baseline)**
+**Version 0.1.2 \| Typology Standard (Approved Internal Specification Baseline)**
 
-> **Document status — v0.1.1**
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
+> **Document status — v0.1.2**
+> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
 > Supersedes: CS-AML Typology Catalogue v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 
 > **Purpose**
 >
 > This catalogue provides a controlled vocabulary and analytical standard for identifying, documenting, testing, and communicating money-laundering typologies using lawful civil-society information. A typology match is an analytical lead, not a finding of criminal liability.
 
-**Status: Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) v0.1.1** *[v0.1.1 · A01]*
+**Status: Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) v0.1.2** *[v0.1.1 · A01]*
 
 Intended users: CSOs, investigative journalists, anti-corruption researchers, public-interest investigators, and partner analysts.
 
@@ -24,14 +25,14 @@ Intended users: CSOs, investigative journalists, anti-corruption researchers, pu
 |  |  |
 |----|----|
 | Document | CS-AML Typology Catalogue |
-| Version | 0.1.1 *[v0.1.1 · A01]* |
-| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — derivative catalogue *[v0.1.1 · A01]* |
+| Version | 0.1.2 *[v0.1.2]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) — derivative catalogue *[v0.1.1 · A01]* |
 | Parent framework | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) *[v0.1.1 · A01]* |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Review cycle | At least annually, and upon material typology or legal change |
 | Primary orientation | Civil-society financial intelligence using lawful and proportionate sources |
 | Exclusions | No covert financial surveillance, unauthorized access, or criminal-liability determination |
-| Enumeration registry | Wire values of the controlled enumerations in this catalogue (indicator observation status, indicator class, assessment/consistency level, typology status, family) are defined in `schemas/enums.yaml`, which derives from the Data Model Specification v0.1.1 Annex A. Display labels in this document are presentation text. *[v0.1.1 · A09]* |
+| Enumeration registry | Wire values of the controlled enumerations in this catalogue (indicator observation status, indicator class, assessment/consistency level, typology status, family) are defined in `schemas/enums.yaml`, which derives from the Data Model Specification v0.1.2 Annex A. Display labels in this document are presentation text. *[v0.1.1 · A09]* |
 | Source-mapping register | Indicator-to-source mapping is held in `sources/typology-source-map.yaml` (see Annex A). *[v0.1.1 · A13]* |
 
 # 0. Normative Position
@@ -100,6 +101,28 @@ The assessment level is recorded as `consistency_level` (registry enum `typology
 
 **MINIMUM RULE —** Except where direct authoritative evidence establishes the mechanism, an analyst SHALL NOT assess a typology above “Plausible consistency” (`PLAUSIBLE`) on the basis of a single indicator or a single source. *[v0.1.1 · A09]*
 
+## 4.1 Consistency ceiling (operational thresholds)
+
+**Adopted provisionally (product owner, 2026-10-09); requires review by an AML specialist before it is relied on externally.** *[v0.1.2 · CR-I4-03]*
+
+The analyst assigns `consistency_level`; the system computes a ceiling from the recorded indicators and evidence and rejects a level above it. The system never raises a level. *[v0.1.2 · CR-I4-03]*
+
+- Counted indicators are the case indicators referenced by the match whose status is `OBSERVED` or `CORROBORATED`; disputed or retired indicators count for nothing. *[v0.1.2 · CR-I4-03]*
+- Independent sources are the distinct Sources behind the indicators' evidence (extract → evidence item → source; a Fact counts through its supporting evidence). *[v0.1.2 · CR-I4-03]*
+- Contextual (`CONTEXTUAL`) indicators never corroborate. Disconfirming (`DISCONFIRMING`) indicators never raise the ceiling; they are recorded as disconfirming references. *[v0.1.2 · CR-I4-03]*
+
+| **Ceiling** | **Condition** |
+|----|----|
+| `NO_BASIS` | No counted indicator. |
+| `WEAK` | No mechanism-specific (M) indicator, or an M indicator without independent corroboration (a single indicator or a single source — MINIMUM RULE). |
+| `PLAUSIBLE` | At least one M indicator plus another M or C indicator, from at least two sources. |
+| `STRONG` | At least two M indicators, at least two sources and at least one alternative explanation; or direct authoritative evidence without corroboration (MINIMUM RULE exception). |
+| `COMPELLING` | Only with direct authoritative evidence (recorded with its evidence references) and corroboration (at least two counted indicators or at least two sources). |
+
+*[v0.1.2 · CR-I4-03]*
+
+`STRONG` and `COMPELLING` assessments require a reviewer (Section 9). When a cited indicator becomes `DISPUTED` or `RETIRED`, the match is flagged `review_required` with the recomputed ceiling; the recorded level is not changed automatically, and the next edit must respect the new ceiling. Analyst rationale and at least one alternative explanation are required. A match is an indicator, not proof. *[v0.1.2 · CR-I4-03]*
+
 # 5. Indicator Classes
 
 | **Class (code)** | **Wire value** | **Name** | **Use** |
@@ -111,6 +134,8 @@ The assessment level is recorded as `consistency_level` (registry enum `typology
 | G | `GAP` | Gap | Material information that is missing and limits confidence. |
 
 The single-letter class codes are display short codes used in the indicator tables below; the wire value of `indicator_class` (Data Model Section 12.1) is the UPPER_SNAKE_CASE value. *[v0.1.1 · A09]*
+
+Catalogue indicator IDs are `<typology_id>-I<nn>` (e.g. `CSAML-TYP-A01-I01`), numbered in document order within each "Indicator set" table; they are the keys of `sources/typology-source-map.yaml`. A case-level indicator either references a catalogue indicator (taking its code and class from the catalogue) or is a local indicator with a `LOCAL-…` code and an explicit class. *[v0.1.2 · CR-I4-02, CR-I4-13]*
 
 # 6. Typology Index
 
@@ -1598,6 +1623,9 @@ Money-laundering schemes frequently combine several typologies. Analysts SHALL p
 | source_lineage | Reference lineage for the entry as a whole; per-indicator mapping is held in `sources/typology-source-map.yaml` (Annex A) *[v0.1.1 · A13]* | MUST |
 | last_reviewed | Review date | MUST |
 | status | `ACTIVE` / `DEPRECATED` / `EXPERIMENTAL` (display: Active / Deprecated / Experimental; registry enum `typology_status`; v0.1 wrote lower-case) *[v0.1.1 · A09]* | MUST |
+| indicator_id | `<typology_id>-I<nn>` per indicator (Section 5) *[v0.1.2 · CR-I4-13]* | MUST |
+
+Entry metadata for this catalogue: every entry has `version` 0.1.1, `status` `ACTIVE` and `last_reviewed` 2026-10-08. The entries did not change in v0.1.2, so their version stays 0.1.1; the catalogue is loaded as read-only reference data and served through `GET /typology-catalogue`, `GET /typologies` and `GET /typologies/{typologyId}` (API Specification §16). *[v0.1.2 · CR-I4-13, CR-I4-01]*
 
 # 9. Case-Level Typology Assessment Record
 

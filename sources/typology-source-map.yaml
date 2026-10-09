@@ -23,7 +23,7 @@
 #   as external support for an indicator.
 register: CS-AML typology indicator source-mapping register
 register_version: 0.1.1
-catalogue: Documents/CS-AML_Typology_Catalogue_v0.1.1.md
+catalogue: Documents/CS-AML_Typology_Catalogue_v0.1.2.md
 enum_registry: schemas/enums.yaml (source_mapping_origin, source_verification_status, indicator_class)
 generated_from_catalogue_on: '2026-10-08'
 publications:

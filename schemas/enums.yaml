@@ -1,16 +1,19 @@
-# CS-AML controlled wire-enumeration registry (machine source of truth)  [v0.1.1 · A09]
-# Derived from Data Model Specification v0.1.1 Annex A and the enum rows of its field tables,
-# the Typology Catalogue v0.1.1 (§3, §4, §5, §8) and the round-2 decisions approved by the product
-# owner on 2026-10-08 (A10 Claim/Fact, ER ResolutionDecision). API error codes are not enums here.
+# CS-AML controlled wire-enumeration registry (machine source of truth)  [v0.1.1 · A09] [v0.1.2 · CR-I1-02, CR-I1-08, CR-I2-02, CR-I2-03, CR-I2-08, CR-I3-05, CR-I3-06, CR-I4-06, CR-I4-07]
+# Derived from Data Model Specification v0.1.2 Annex A and the enum rows of its field tables,
+# the Typology Catalogue v0.1.2 (§3, §4, §5, §8) and the round-2 decisions approved by the product
+# owner on 2026-10-08 (A10 Claim/Fact, ER ResolutionDecision). v0.1.2 (2026-10-09) adds the value sets of the
+# approved change requests (CHANGELOG.md v0.1.2, section B). API error codes are not enums here.
 # Documents and contracts/openapi.yaml SHALL use exactly these values. See schemas/README.md.
-registry_version: 0.1.1
-source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md Annex A
+registry_version: 0.1.2
+source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md Annex A
 conventions:
   value_pattern: ^[A-Z][A-Z0-9_]*$
   labels: Display labels are presentation strings (translatable) and SHALL NOT be stored or exchanged in place of
     wire values.
   ordered: 'ordered: true means values are listed least -> most (rank 1 = lowest); ordered: false means no ranking
     may be inferred from list order.'
+  wire: 'wire: code (credibility_grade only) is a registry exception: the wire value is each entry''s `code`, and
+    `value` is the registry name. Every other enum exchanges `value`.'
   legacy_values: Pre-v0.1.1 spellings accepted only by migration tooling, never emitted on the wire.
 enums:
   classification:
@@ -19,7 +22,7 @@ enums:
     - <envelope>.classification
     - IntelligenceProduct.classification
     ordered: true
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §4, §16, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §4, §16, Annex A
     note: rank 1 = least restrictive, 5 = most restrictive. Unknown, missing or unrecognized values fail closed
       (deny access, flag for classification). Access labels are additive. Derived objects inherit the highest input
       classification unless a recorded reviewer downgrade exists. Framework v0.1 legacy labels map per Data Model
@@ -52,7 +55,7 @@ enums:
     used_by:
     - Confidence.level
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §14, §14.1, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §14, §14.1, Annex A
     note: 'HIGH > MODERATE > LOW is a scale, but INSUFFICIENT_BASIS is NOT ordered below LOW and SHALL NOT be converted
       to LOW, null, zero or omitted; therefore the enum as a whole is ordered: false. null is allowed only on drafts
       where no confidence judgement has been made; finalized objects carry a non-null level. Rationale (Confidence.basis)
@@ -73,7 +76,7 @@ enums:
     used_by:
     - Confidence.source_diversity
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §14.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §14.1
     values:
     - value: SINGLE
       label: Single
@@ -86,7 +89,7 @@ enums:
     used_by:
     - Case.status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §6.1 Lifecycle states
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §6.1 Lifecycle states
     note: Lifecycle sequence DRAFT -> AUTHORIZED -> ACTIVE -> REVIEW -> CLOSED -> MONITORING -> REOPENED; a state
       machine, not a ranked scale.
     values:
@@ -109,7 +112,7 @@ enums:
     used_by:
     - InvestigationQuestion.status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §6.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §6.2
     values:
     - value: OPEN
       label: Open
@@ -122,7 +125,7 @@ enums:
     used_by:
     - Source.source_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.1
     values:
     - value: REGISTRY
       label: Registry
@@ -147,7 +150,7 @@ enums:
     used_by:
     - Source.reliability_grade
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.1, §14
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.1, §14
     note: 'Labels are the letters; F means unknown and is not a rank below E, hence ordered: false.'
     values:
     - value: A
@@ -173,7 +176,7 @@ enums:
     used_by:
     - EvidenceItem.evidence_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.2
     values:
     - value: DOCUMENT
       label: Document
@@ -194,7 +197,7 @@ enums:
     used_by:
     - EvidenceItem.verification_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.2
     values:
     - value: UNVERIFIED
       label: Unverified
@@ -209,7 +212,7 @@ enums:
     used_by:
     - EvidenceItem.redaction_state
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.2
     values:
     - value: NONE
       label: None
@@ -222,7 +225,7 @@ enums:
     used_by:
     - EvidenceItem.status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.2 Lifecycle states
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.2 Lifecycle states
     note: Lifecycle sequence COLLECTED -> REGISTERED -> VERIFIED -> SUPERSEDED -> RESTRICTED.
     values:
     - value: COLLECTED
@@ -241,7 +244,7 @@ enums:
     used_by:
     - Claim.claim_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.4, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.4, Annex A
     note: Every transition out of RECORDED is backed by a VerificationDecision. A Claim never becomes a Fact.
     values:
     - value: RECORDED
@@ -261,7 +264,7 @@ enums:
     used_by:
     - Fact.fact_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.5, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.5, Annex A
     values:
     - value: PROVISIONAL
       label: Provisional
@@ -279,7 +282,7 @@ enums:
     used_by:
     - VerificationDecision.decision
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §7.6, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.6, Annex A
     note: Claim decisions are claim_status values; Fact decisions are fact actions. A decision value SHALL match
       the target type (applies_to).
     values:
@@ -314,7 +317,7 @@ enums:
     used_by:
     - Entity.entity_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.1, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §8.1, Annex A
     values:
     - value: PERSON
       label: Person
@@ -351,7 +354,7 @@ enums:
     used_by:
     - Entity.resolution_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.1, §8.4, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §8.1, §8.4, Annex A
     values:
     - value: UNRESOLVED
       label: Unresolved
@@ -369,7 +372,7 @@ enums:
     used_by:
     - ResolutionDecision.decision
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.4, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §8.4, Annex A
     note: legacy_values are the Investigation Methodology v0.1 §12.2 outcome names.
     values:
     - value: MERGE
@@ -402,7 +405,7 @@ enums:
     used_by:
     - PersonProfile.public_official_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §8.2
     values:
     - value: NONE
       label: None
@@ -417,7 +420,7 @@ enums:
     used_by:
     - OrganizationProfile.organization_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §8.3
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §8.3
     values:
     - value: COMPANY
       label: Company
@@ -438,7 +441,7 @@ enums:
     used_by:
     - Relationship.relationship_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.1, Annex B
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §9.1, Annex B
     note: Directed relationships run from_entity -> to_entity (e.g. Person --DIRECTOR_OF--> Organization). Extensible
       only through registry change control. [v0.1.1 · C09] Ten values were registered from the Investigation Methodology §13,
       IA §10 and Framework Expanded §11.2 lists; other names in those lists are display synonyms mapped to registered
@@ -558,7 +561,7 @@ enums:
     used_by:
     - Relationship.directionality
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §9.1
     values:
     - value: DIRECTED
       label: Directed
@@ -569,7 +572,7 @@ enums:
     used_by:
     - Relationship.relationship_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §9.1
     values:
     - value: ASSERTED
       label: Asserted
@@ -584,7 +587,7 @@ enums:
     used_by:
     - OwnershipInterest.ownership_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §9.2
     values:
     - value: LEGAL
       label: Legal
@@ -599,7 +602,7 @@ enums:
     used_by:
     - ControlAssertion.control_basis[]
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.3
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §9.3
     values:
     - value: VOTING
       label: Voting
@@ -620,7 +623,7 @@ enums:
     used_by:
     - ControlAssertion.control_level
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §9.3
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §9.3
     note: 'MINOR < SIGNIFICANT < DOMINANT is a scale, but UNKNOWN is not ranked; ordered: false.'
     values:
     - value: MINOR
@@ -636,7 +639,7 @@ enums:
     used_by:
     - Asset.asset_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §10.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §10.1
     values:
     - value: PROPERTY
       label: Property
@@ -665,7 +668,7 @@ enums:
     used_by:
     - Event.event_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §10.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §10.2
     values:
     - value: INCORPORATION
       label: Incorporation
@@ -695,7 +698,7 @@ enums:
     - ValueFlow.flow_class
     - ValueFlowLeg.flow_class
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §11, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §11, Annex A
     note: 'Epistemic categories, not a confidence scale; ordered: false.'
     values:
     - value: DIRECT
@@ -715,7 +718,7 @@ enums:
     used_by:
     - ValueFlow.flow_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §11.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §11.1
     values:
     - value: PAYMENT
       label: Payment
@@ -749,7 +752,7 @@ enums:
     - Indicator.indicator_class
     - Typology Catalogue indicator sets (Class column, letter code)
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §12.1; Documents/CS-AML_Typology_Catalogue_v0.1.1.md
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §12.1; Documents/CS-AML_Typology_Catalogue_v0.1.2.md
       §5
     note: code is the catalogue display short code; the wire value is the UPPER_SNAKE_CASE value.
     values:
@@ -779,7 +782,7 @@ enums:
     used_by:
     - Indicator.status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §12.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §12.1
     note: Distinct from typology_indicator_observation_status, which records the per-typology assessment of whether
       a catalogue indicator is present.
     values:
@@ -799,7 +802,7 @@ enums:
     - Typology Catalogue §4 assessment level
     - Typology Catalogue §9 Assessment level
     ordered: true
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §12.2, Annex A; Documents/CS-AML_Typology_Catalogue_v0.1.1.md
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §12.2, Annex A; Documents/CS-AML_Typology_Catalogue_v0.1.2.md
       §4
     note: rank 1 = weakest. Above PLAUSIBLE requires more than a single indicator or single source unless direct
       authoritative evidence establishes the mechanism; STRONG/COMPELLING require a reviewer.
@@ -832,7 +835,7 @@ enums:
     used_by:
     - Typology Catalogue §4 / §9 indicator status (TypologyMatch indicator assessment)
     ordered: false
-    source: Documents/CS-AML_Typology_Catalogue_v0.1.1.md §4
+    source: Documents/CS-AML_Typology_Catalogue_v0.1.2.md §4
     note: v0.1 wrote "PARTIALLY OBSERVED", "NOT OBSERVED", "NOT APPLICABLE" with spaces; normalised in v0.1.1 (A09).
     legacy_values:
       PARTIALLY OBSERVED: PARTIALLY_OBSERVED
@@ -854,7 +857,7 @@ enums:
     used_by:
     - 'Typology record schema: status (Typology Catalogue §8)'
     ordered: false
-    source: Documents/CS-AML_Typology_Catalogue_v0.1.1.md §8, §10
+    source: Documents/CS-AML_Typology_Catalogue_v0.1.2.md §8, §10
     legacy_values:
       active: ACTIVE
       deprecated: DEPRECATED
@@ -875,7 +878,7 @@ enums:
     used_by:
     - 'Typology record schema: family (Typology Catalogue §8)'
     ordered: false
-    source: Documents/CS-AML_Typology_Catalogue_v0.1.1.md §3
+    source: Documents/CS-AML_Typology_Catalogue_v0.1.2.md §3
     values:
     - value: A
       label: Ownership & Control Concealment
@@ -894,7 +897,7 @@ enums:
     used_by:
     - Hypothesis.hypothesis_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §13.1
     values:
     - value: OWNERSHIP
       label: Ownership
@@ -913,7 +916,7 @@ enums:
     used_by:
     - Hypothesis.status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.1, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §13.1, Annex A
     values:
     - value: OPEN
       label: Open
@@ -930,7 +933,7 @@ enums:
     used_by:
     - IntelligenceGap.importance
     ordered: true
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §13.2
     note: rank 1 = least important.
     values:
     - value: LOW
@@ -950,7 +953,7 @@ enums:
     used_by:
     - IntelligenceGap.collection_feasibility
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §13.2
     values:
     - value: AVAILABLE
       label: Available
@@ -967,7 +970,7 @@ enums:
     used_by:
     - IntelligenceGap.status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §13.2
     values:
     - value: OPEN
       label: Open
@@ -982,7 +985,7 @@ enums:
     used_by:
     - Assessment.review_status
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §13.3
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §13.3
     values:
     - value: DRAFT
       label: Draft
@@ -997,7 +1000,7 @@ enums:
     used_by:
     - IntelligenceProduct.product_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §15.1
     note: 'mvp_p0: true for the six MVP P0 templates (SRS-FR-PRD-001); INVESTIGATION_BRIEF and PUBLICATION_SUPPORT
       are not in MVP scope.'
     values:
@@ -1030,7 +1033,7 @@ enums:
     used_by:
     - IntelligenceProduct.approval_state
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §15.1
     values:
     - value: DRAFT
       label: Draft
@@ -1047,7 +1050,7 @@ enums:
     used_by:
     - Review.review_type
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.2
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §15.2
     values:
     - value: PEER
       label: Peer
@@ -1066,7 +1069,7 @@ enums:
     used_by:
     - Review.decision
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §15.2, Annex A
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §15.2, Annex A
     values:
     - value: APPROVE
       label: Approve
@@ -1081,7 +1084,7 @@ enums:
     used_by:
     - RetentionRule.trigger
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §16.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §16.1
     values:
     - value: CREATION
       label: Creation
@@ -1098,7 +1101,7 @@ enums:
     used_by:
     - RetentionRule.disposition
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §16.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §16.1
     values:
     - value: DELETE
       label: Delete
@@ -1113,7 +1116,7 @@ enums:
     used_by:
     - AuditEvent.action
     ordered: false
-    source: Documents/CS-AML_Data_Model_Specification_v0.1.1.md §17.1
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §17.1
     note: ResolutionDecision MERGE -> MERGE, UNMERGE -> SPLIT, other decisions -> UPDATE (Data Model §8.4). Field
       type is enum/string; values outside this list are not conformant wire values.
     values:
@@ -1172,26 +1175,217 @@ enums:
       label: Publication-level verified
       description: Publication existence/version verified by the 2026-10-07 audit (§8, S01–S18); NOT section/page-level
         support for any indicator.
+  case_membership_role:
+    description: Role of a principal in a case membership.
+    used_by:
+    - CaseMembership.role
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §6.3, §16; CHANGELOG v0.1.2 CR-I1-02
+    values:
+    - value: LEAD
+      label: Lead
+      description: Case owner / investigation lead; exactly one active LEAD per case; manages memberships and case classification.
+    - value: ANALYST
+      label: Analyst
+    - value: REVIEWER
+      label: Reviewer
+      description: May establish facts and act as reviewer of merges/unmerges; never for their own proposals.
+  risk_rating:
+    description: Operational/harm risk rating of a case.
+    used_by:
+    - Case.risk_rating
+    ordered: true
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §6.1; CHANGELOG v0.1.2 CR-I1-08
+    note: Minimal set defined by v0.1.2 (the I1 implementation accepted free strings of at most 64 characters and must migrate
+      existing values). rank 1 = lowest.
+    values:
+    - value: LOW
+      label: Low
+      rank: 1
+    - value: MEDIUM
+      label: Medium
+      rank: 2
+    - value: HIGH
+      label: High
+      rank: 3
+    - value: CRITICAL
+      label: Critical
+      rank: 4
+  closure_reason:
+    description: Reason a case was closed.
+    used_by:
+    - Case.closure_reason
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §6.1; CHANGELOG v0.1.2 CR-I1-08
+    note: Minimal set defined by v0.1.2 (no implementation values existed; the I1 implementation accepted free strings).
+    values:
+    - value: OBJECTIVES_MET
+      label: Objectives met
+    - value: INSUFFICIENT_BASIS_TO_CONTINUE
+      label: Insufficient basis to continue
+    - value: REFERRED
+      label: Referred
+    - value: OUT_OF_SCOPE
+      label: Out of scope
+    - value: DUPLICATE
+      label: Duplicate
+    - value: LEGAL_OR_SAFETY_CONSTRAINT
+      label: Legal or safety constraint
+    - value: OTHER
+      label: Other
+      description: Requires a closure note.
+  upload_session_status:
+    description: State of an evidence upload session (not a canonical object).
+    used_by:
+    - UploadSession.status
+    ordered: false
+    source: Documents/CS-AML_API_Specification_v0.1.2.md §13; CHANGELOG v0.1.2 CR-I2-02
+    note: Expiry (24 h) is expressed by expires_at; there is no EXPIRED value.
+    values:
+    - value: INITIATED
+      label: Initiated
+    - value: CONTENT_RECEIVED
+      label: Content received
+      description: Bytes uploaded with PUT …/content; not yet an EvidenceItem.
+    - value: COMPLETED
+      label: Completed
+      description: Completed into an EvidenceItem, or consumed by a derivative registration.
+  envelope_status:
+    description: Envelope status of object classes without their own Data Model lifecycle.
+    used_by:
+    - <envelope>.status (Source, EvidenceExtract, Asset, Event, ValueFlow, TypologyMatch, Assessment)
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §4, §13.3; CHANGELOG v0.1.2 CR-I2-03, CR-I3-05, CR-I4-09
+    note: Classes with their own lifecycle mirror it in the envelope (claim_status, fact_status, entity_resolution_status, relationship_status,
+      hypothesis_status, indicator_status, gap_status, case_status, evidence_item_status). OwnershipInterest / ControlAssertion
+      use relationship_status values. Methodology §14.1 event statuses are not registered (v0.2).
+    values:
+    - value: REGISTERED
+      label: Registered
+      description: Source, EvidenceExtract, Asset.
+    - value: RECORDED
+      label: Recorded
+      description: Event, ValueFlow, TypologyMatch.
+    - value: DRAFT
+      label: Draft
+      description: Assessment before finalization.
+    - value: FINALIZED
+      label: Finalized
+      description: Assessment after finalization and before a review outcome; afterwards the envelope status follows review_status.
+  credibility_grade:
+    description: Information credibility of a claim (separate from source reliability A-F).
+    used_by:
+    - Claim.credibility_grade
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §7.4, §14; CHANGELOG v0.1.2 CR-I2-08
+    note: 'Registry exception: the WIRE value is the digit `code` ("1".."6"), as in contracts/openapi.yaml (x-csaml-enum-wire:
+      code); `value` is the registry name used in documents and tooling. Grades are not averaged or converted to confidence.'
+    wire: code
+    values:
+    - value: INDEPENDENTLY_CONFIRMED
+      label: Independently confirmed
+      code: '1'
+    - value: PROBABLY_TRUE
+      label: Probably true
+      code: '2'
+    - value: POSSIBLY_TRUE
+      label: Possibly true
+      code: '3'
+    - value: DOUBTFUL
+      label: Doubtful
+      code: '4'
+    - value: IMPROBABLE
+      label: Improbable
+      code: '5'
+    - value: CANNOT_BE_JUDGED
+      label: Cannot be judged
+      code: '6'
+  money_precision:
+    description: Precision qualifier of a Money value.
+    used_by:
+    - Money.precision
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §21; CHANGELOG v0.1.2 CR-I3-06
+    values:
+    - value: EXACT
+      label: Exact
+      description: A known point amount; a range is never EXACT.
+    - value: APPROXIMATE
+      label: Approximate
+    - value: ESTIMATED
+      label: Estimated
+  temporal_precision:
+    description: Precision of a TemporalValue or Event time.
+    used_by:
+    - TemporalValue.precision
+    - Event.time_precision
+    ordered: false
+    source: Documents/CS-AML_Data_Model_Specification_v0.1.2.md §10.2, §21; CHANGELOG v0.1.2 CR-I3-06
+    note: The string shape SHALL match the precision.
+    values:
+    - value: DATETIME
+      label: Date and time
+    - value: DAY
+      label: Day
+      description: YYYY-MM-DD
+    - value: MONTH
+      label: Month
+      description: YYYY-MM
+    - value: YEAR
+      label: Year
+      description: YYYY
+    - value: RANGE
+      label: Range
+      description: from/to interval
+    - value: UNKNOWN
+      label: Unknown
+      description: No date; Event.start_time may be null only with this value.
+  hypothesis_role:
+    description: Role of a hypothesis in the minimum competing set.
+    used_by:
+    - Hypothesis.role
+    ordered: false
+    source: Documents/CS-AML_Investigation_Methodology_v0.1.2.md §18.1; CHANGELOG v0.1.2 CR-I4-06
+    values:
+    - value: PRINCIPAL
+      label: Principal explanation
+    - value: ALTERNATIVE_LEGITIMATE
+      label: Legitimate alternative
+    - value: ALTERNATIVE_MECHANISM
+      label: Alternative actor or mechanism
+    - value: INSUFFICIENT_INFORMATION
+      label: Insufficient information
+  hypothesis_link_effect:
+    description: Effect of an item on a hypothesis (ACH matrix cell).
+    used_by:
+    - HypothesisLink.effect
+    ordered: false
+    source: Documents/CS-AML_Software_Requirements_Specification_SRS_v0.1.2.md SRS-FR-HYP-002; CHANGELOG v0.1.2 CR-I4-07
+    values:
+    - value: SUPPORTS
+      label: Supports
+    - value: CONTRADICTS
+      label: Contradicts
+      description: Methodology §18.2 "Weakens".
+    - value: NEUTRAL
+      label: Neutral
+    - value: UNKNOWN
+      label: Unknown
 unregistered_fields:
 - field: <envelope>.object_type
   reason: Canonical class names (Data Model §3.1, Annex C); not an enumerated value list in the Data Model.
 - field: <envelope>.status
-  reason: Per-class lifecycle; registered here only where the Data Model lists values (case_status, evidence_item_status,
-    claim_status, fact_status, etc.).
-- field: Case.risk_rating
-  reason: Declared enum with no values in Data Model v0.1.1 — open item.
-- field: Case.closure_reason
-  reason: Declared enum with no values in Data Model v0.1.1 — open item.
+  reason: Per-class lifecycle; classes without one use envelope_status (v0.1.2); the rest mirror their class status enum.
 - field: InvestigationQuestion.priority
   reason: Declared enum with no values in Data Model v0.1.1 — open item.
-- field: Claim.credibility_grade
-  reason: 'Numeric grades 1-6 (Data Model §14: 1 independently confirmed; 2 probably true; 3 possibly true; 4 doubtful;
-    5 improbable; 6 cannot be judged). Codes are digits, outside the UPPER_SNAKE_CASE pattern; decision needed whether
-    to keep digit codes or define wire names.'
 - field: Source.lawful_access_basis
   reason: text/enum with no values listed.
 - field: Asset.valuation_basis
-  reason: enum/text; prose examples only (registry, market estimate, appraisal, reported value).
+  reason: Free text in v0.1.2, required when a valuation is given (CR-I3-06); vocabulary deferred to v0.2.
+- field: EvidenceItem.derivation_type
+  reason: Free text in v0.1.2 (redaction, OCR text, ...); vocabulary deferred to v0.2.
+- field: Event status (Methodology §14.1 confirmed/probable/possible/disputed)
+  reason: Not used by the implementation; deferred to v0.2 (CR-I3-05).
 - field: IntelligenceProduct.audience
   reason: enum/string[] with no values listed.
 - field: RetentionRule.applies_to

@@ -1,12 +1,16 @@
 CS-AML All Documents Package
 Created: 2026-10-07
-Updated: 2026-10-08 (v0.1.1 Approved Internal Specification Baseline, tag v0.1.1-spec)
+Updated: 2026-10-09 (v0.1.2 Approved Internal Specification Baseline, tag v0.1.2-spec; supersedes v0.1.1-spec)
 
-Canonical source: Documents/*_v0.1.1*.md, contracts/, schemas/, sources/, docs/adr/.
-Legacy baseline: Documents/*_v0.1*.docx and *.pdf (unchanged v0.1; not updated by v0.1.1).
+Canonical source: the current Markdown file of each document (below), contracts/, schemas/, sources/, docs/adr/.
+  v0.1.2 (changed in this release, renamed with git mv): API Specification, Data Model Specification,
+    Frontend Architecture and State Management Specification, Investigation Methodology, Software Requirements
+    Specification (SRS), Technical Stack and Repository Specification, Typology Catalogue, UI Design System Specification.
+  v0.1.1 (unchanged, still current): all other Markdown documents.
+Legacy baseline: Documents/*_v0.1*.docx and *.pdf (unchanged v0.1; not updated by v0.1.1 or v0.1.2).
 
 [Documents]
-CS-AML_API_Specification_v0.1.1.md
+CS-AML_API_Specification_v0.1.2.md
 CS-AML_API_Specification_v0.1.docx
 CS-AML_API_Specification_v0.1.pdf
 CS-AML_Component_Inventory_and_Storybook_Implementation_Specification_v0.1.1.md
@@ -15,7 +19,7 @@ CS-AML_Component_Inventory_and_Storybook_Implementation_Specification_v0.1.pdf
 CS-AML_Control_Implementation_Guide_v0.1.1.md
 CS-AML_Control_Implementation_Guide_v0.1.docx
 CS-AML_Control_Implementation_Guide_v0.1.pdf
-CS-AML_Data_Model_Specification_v0.1.1.md
+CS-AML_Data_Model_Specification_v0.1.2.md
 CS-AML_Data_Model_Specification_v0.1.docx
 CS-AML_Data_Model_Specification_v0.1.pdf
 CS-AML_Framework_Goals_and_Non-Goals_v0.1.1.md
@@ -27,7 +31,7 @@ CS-AML_Framework_v0.1.docx
 CS-AML_Framework_v0.1.pdf
 CS-AML_Framework_v0.1_Expanded.docx
 CS-AML_Framework_v0.1_Expanded.pdf
-CS-AML_Frontend_Architecture_and_State_Management_Specification_v0.1.1.md
+CS-AML_Frontend_Architecture_and_State_Management_Specification_v0.1.2.md
 CS-AML_Frontend_Architecture_and_State_Management_Specification_v0.1.docx
 CS-AML_Frontend_Architecture_and_State_Management_Specification_v0.1.pdf
 CS-AML_High-Fidelity_UI_Specification_v0.1.1.md
@@ -36,7 +40,7 @@ CS-AML_High-Fidelity_UI_Specification_v0.1.pdf
 CS-AML_Information_Architecture_Specification_v0.1.1.md
 CS-AML_Information_Architecture_Specification_v0.1.docx
 CS-AML_Information_Architecture_Specification_v0.1.pdf
-CS-AML_Investigation_Methodology_v0.1.1.md
+CS-AML_Investigation_Methodology_v0.1.2.md
 CS-AML_Investigation_Methodology_v0.1.docx
 CS-AML_Investigation_Methodology_v0.1.pdf
 CS-AML_MVP_Engineering_Breakdown_v0.1.1.md
@@ -51,22 +55,22 @@ CS-AML_Product_and_Feature_Specification_v0.1.pdf
 CS-AML_Screen_Inventory_v0.1.1.md
 CS-AML_Screen_Inventory_v0.1.docx
 CS-AML_Screen_Inventory_v0.1.pdf
-CS-AML_Software_Requirements_Specification_SRS_v0.1.1.md
+CS-AML_Software_Requirements_Specification_SRS_v0.1.2.md
 CS-AML_Software_Requirements_Specification_SRS_v0.1.docx
 CS-AML_Software_Requirements_Specification_SRS_v0.1.pdf
 CS-AML_Sprint_and_Milestone_Plan_v0.1.1.md
 CS-AML_Sprint_and_Milestone_Plan_v0.1.docx
 CS-AML_Sprint_and_Milestone_Plan_v0.1.pdf
-CS-AML_Technical_Stack_and_Repository_Specification_v0.1.1.md
+CS-AML_Technical_Stack_and_Repository_Specification_v0.1.2.md
 CS-AML_Technical_Stack_and_Repository_Specification_v0.1.docx
 CS-AML_Technical_Stack_and_Repository_Specification_v0.1.pdf
 CS-AML_Technology_Architecture_v0.1.1.md
 CS-AML_Technology_Architecture_v0.1.docx
 CS-AML_Technology_Architecture_v0.1.pdf
-CS-AML_Typology_Catalogue_v0.1.1.md
+CS-AML_Typology_Catalogue_v0.1.2.md
 CS-AML_Typology_Catalogue_v0.1.docx
 CS-AML_Typology_Catalogue_v0.1.pdf
-CS-AML_UI_Design_System_Specification_v0.1.1.md
+CS-AML_UI_Design_System_Specification_v0.1.2.md
 CS-AML_UI_Design_System_Specification_v0.1.docx
 CS-AML_UI_Design_System_Specification_v0.1.pdf
 CS-AML_UX_Specification_v0.1.1.md

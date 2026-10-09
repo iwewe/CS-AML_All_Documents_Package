@@ -1,7 +1,7 @@
 **CS-AML  
 INVESTIGATION METHODOLOGY**
 
-Derived Methodology · Version 0.1.1
+Derived Methodology · Version 0.1.2
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
@@ -9,23 +9,24 @@ Approved Internal Specification Baseline · October 2026
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework — Derived Methodology
 
-Status: Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) \| Version: 0.1.1 \| Date: October 2026 *[v0.1.1 · A01]*
+Status: Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) \| Version: 0.1.2 \| Date: 2026-10-09 *[v0.1.1 · A01]*
 
-> **Document status — v0.1.1**
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
+> **Document status — v0.1.2**
+> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
 > Supersedes: CS-AML Investigation Methodology v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 
 # 0. Document Control
 
 | **Field** | **Value** |
 |----|----|
-| Document title | CS-AML Investigation Methodology v0.1.1 *[v0.1.1 · A01]* |
+| Document title | CS-AML Investigation Methodology v0.1.2 *[v0.1.2]* |
 | Parent standard | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) *[v0.1.1 · A01]* |
-| Companion standard | CS-AML Typology Catalogue v0.1.1 (`CS-AML_Typology_Catalogue_v0.1.1.md`) *[v0.1.1 · A01]* |
-| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) / Derived Methodology *[v0.1.1 · A01]* |
+| Companion standard | CS-AML Typology Catalogue v0.1.2 (`CS-AML_Typology_Catalogue_v0.1.2.md`) *[v0.1.1 · A01]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) / Derived Methodology *[v0.1.1 · A01]* |
 | Primary audience | Civil society organisations, investigative journalists, public-interest researchers, anti-corruption organisations, environmental and human-rights organisations, digital-rights organisations, research institutions, and trusted technical partners. |
 | Primary use | Lawful, evidence-based financial investigation and intelligence analysis performed without coercive state powers or privileged access to regulated financial systems. |
 | Normative language | MUST/SHALL = mandatory; SHOULD = recommended unless documented justification exists; MAY = optional capability. |
@@ -337,7 +338,9 @@ Analytical discipline requires separating what a source says from what the inves
 
 Facts SHALL be time-bounded where status may change. “Person A is director” without a date can be materially misleading.
 
-The stored states for these objects follow the Data Model Specification v0.1.1, Sections 7.4–7.6 (approved by product owner, 2026-10-08): a Claim carries `claim_status` (RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED) — “Corroborated claim” above corresponds to CORROBORATED — and a Fact carries `fact_status` (PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED). A Claim never becomes a Fact: it remains a permanent record of what the source asserts. A Fact is a separate object, created with references to the evidence that supports it (`supporting_evidence`, mandatory), optionally the claims that support it (`supporting_claim_refs`), and one or more recorded VerificationDecisions; the creation decision is recorded together with the Fact. *[v0.1.1 · C02]* *[v0.1.1 · A09, A10]*
+The stored states for these objects follow the Data Model Specification v0.1.2, Sections 7.4–7.6 (approved by product owner, 2026-10-08): a Claim carries `claim_status` (RECORDED, UNDER_REVIEW, CORROBORATED, CONTRADICTED, UNRESOLVED) — “Corroborated claim” above corresponds to CORROBORATED — and a Fact carries `fact_status` (PROVISIONAL, ESTABLISHED, DISPUTED, SUPERSEDED). A Claim never becomes a Fact: it remains a permanent record of what the source asserts. A Fact is a separate object, created with references to the evidence that supports it (`supporting_evidence`, mandatory), optionally the claims that support it (`supporting_claim_refs`), and one or more recorded VerificationDecisions; the creation decision is recorded together with the Fact. *[v0.1.1 · C02]* *[v0.1.1 · A09, A10]*
+
+Decision rights: claim VerificationDecisions are recorded by case members with the LEAD, ANALYST or REVIEWER role. A claim moves RECORDED → UNDER_REVIEW → CORROBORATED / CONTRADICTED / UNRESOLVED, and a decided claim MAY return to UNDER_REVIEW for re-review; the decision history is kept. A Fact is ESTABLISHED only by a principal with REVIEWER or LEAD membership on the case who is not the proposer of the Fact. *[v0.1.2 · CR-I2-11]*
 
 # 12. Entity Resolution Methodology
 
@@ -365,7 +368,7 @@ Entity resolution SHALL precede high-impact graph conclusions. Name similarity a
 
 ## 12.2 Resolution outcomes
 
-Resolution outcomes are recorded as values of `ResolutionDecision.decision` (Data Model Specification v0.1.1, Section 8.4). They are decisions about a pair or set of records, separate from each entity's `resolution_status` state (UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT), which changes only as an effect of these decisions. *[v0.1.1 · ER]*
+Resolution outcomes are recorded as values of `ResolutionDecision.decision` (Data Model Specification v0.1.2, Section 8.4). They are decisions about a pair or set of records, separate from each entity's `resolution_status` state (UNRESOLVED, RESOLVED, CONFLICTED, MERGED, SPLIT), which changes only as an effect of these decisions. *[v0.1.1 · ER]*
 
 | **Decision** | **Meaning** |
 |----|----|
@@ -373,13 +376,13 @@ Resolution outcomes are recorded as values of `ResolutionDecision.decision` (Dat
 | POSSIBLE_MATCH | Likely or possible same entity; keep separate records with candidate link. No state change. *[v0.1.1 · A09, ER]* |
 | KEEP_SEPARATE | Evidence indicates distinct entities. No state change; the pair is not re-suggested unless new evidence is attached. *[v0.1.1 · ER]* |
 | DEFER | Insufficient evidence. Records stay or become UNRESOLVED. *[v0.1.1 · ER]* |
-| UNMERGE | Reverses an earlier MERGE (reference required); restored records become SPLIT and relationships/claims are re-attributed per recorded history. *[v0.1.1 · ER]* |
+| UNMERGE | Reverses an earlier MERGE (reference required); restored records become SPLIT. Because a merge is logical repointing (absorbed records point to the survivor through `canonical_parent`; relationships, claims and absorbed records are never rewritten), unmerge re-attributes nothing: it removes what the merge added to the survivor and restores its prior handling. *[v0.1.1 · ER]* *[v0.1.2 · CR-I2-13]* |
 
 Legacy outcome names (v0.1): MERGED → MERGE; LINKED_POSSIBLE → POSSIBLE_MATCH; SEPARATE → KEEP_SEPARATE; UNRESOLVED → DEFER. *[v0.1.1 · ER]*
 
 ## 12.3 Merge decision record
 
-Every resolution decision, including merge and unmerge, is stored as an append-only ResolutionDecision (Data Model Specification v0.1.1, Section 8.4). A mistaken decision is corrected by a later decision, never by editing the earlier one. The record holds: *[v0.1.1 · ER]*
+Every resolution decision, including merge and unmerge, is stored as an append-only ResolutionDecision (Data Model Specification v0.1.2, Section 8.4). A mistaken decision is corrected by a later decision, never by editing the earlier one. The record holds: *[v0.1.1 · ER]*
 
 - Candidate records.
 
@@ -391,11 +394,11 @@ Every resolution decision, including merge and unmerge, is stored as an append-o
 
 - Confidence.
 
-- Reviewer for high-impact merges.
+- Reviewer (required for every MERGE and UNMERGE). *[v0.1.2 · CR-I2-10]*
 
 - Reversal history if later split (an UNMERGE decision referencing the reversed MERGE). *[v0.1.1 · ER]*
 
-A mistaken entity merge can contaminate every downstream relationship. High-impact merges SHOULD be peer reviewed.
+A mistaken entity merge can contaminate every downstream relationship. In the MVP every MERGE and UNMERGE is treated as high-impact: it SHALL name a reviewer who holds REVIEWER or LEAD membership on the case of every subject entity and who is not the decider (reviewer = decider is rejected). *[v0.1.2 · CR-I2-10]*
 
 # 13. Relationship and Control Mapping
 
@@ -417,6 +420,8 @@ All values above are registered `relationship_type` wire values (`schemas/enums.
 
 Analysts SHALL distinguish legal ownership, beneficial ownership, operational control, economic benefit, and mere use. The framework MUST NOT convert association or use into ownership without evidence.
 
+An inferred ownership interest (`ownership_type` BENEFICIAL, ECONOMIC_INTEREST or NOMINEE_ASSERTED) SHALL remain asserted and becomes ESTABLISHED only when its supporting evidence includes an ESTABLISHED Fact. *[v0.1.2 · CR-I3-11]*
+
 # 14. Event and Timeline Analysis
 
 Timeline analysis is mandatory when sequence materially affects interpretation. Temporal coincidence can generate a lead but does not establish causation.
@@ -425,7 +430,7 @@ Timeline analysis is mandatory when sequence materially affects interpretation. 
 
 - Event ID and type.
 
-- Date or date range with precision flag.
+- Date or date range with precision flag (`temporal_precision`: DATETIME, DAY, MONTH, YEAR, RANGE, UNKNOWN; the date string SHALL match the precision). An event with an unknown date has no start time and precision UNKNOWN; a missing start time is permitted only with UNKNOWN. *[v0.1.2 · CR-I3-06]*
 
 - Entities involved.
 
@@ -433,7 +438,7 @@ Timeline analysis is mandatory when sequence materially affects interpretation. 
 
 - Evidence links.
 
-- Status: confirmed / probable / possible / disputed.
+- Status: confirmed / probable / possible / disputed. These are analytical labels, not yet registered wire values: the stored envelope status of an Event is RECORDED, and an event status enum is deferred to v0.2. *[v0.1.2 · CR-I3-05]*
 
 - Analytical relevance.
 
@@ -441,7 +446,7 @@ Timeline analysis is mandatory when sequence materially affects interpretation. 
 
 - Compare appointments, incorporation, procurement awards, payments, loans, property acquisitions, disposals, litigation, and ownership changes.
 
-- Mark known versus estimated dates.
+- Mark known versus estimated dates (approximate dates are flagged, never presented as exact). *[v0.1.2 · CR-I3-06]*
 
 - Identify events that precede or follow value creation.
 
@@ -483,7 +488,7 @@ Observed associated assets SHALL NOT be described as “hidden wealth” unless 
 
 # 16. Value-Flow Reconstruction
 
-Follow-the-value is the central analytical adaptation for civil society. A value flow SHALL be classified as DIRECT, DOCUMENTED, RECONSTRUCTED, or HYPOTHETICAL (wire values of `flow_class`, defined in the Data Model Specification v0.1.1, Annex A). The method SHALL preserve that distinction. *[v0.1.1 · A09]*
+Follow-the-value is the central analytical adaptation for civil society. A value flow SHALL be classified as DIRECT, DOCUMENTED, RECONSTRUCTED, or HYPOTHETICAL (wire values of `flow_class`, defined in the Data Model Specification v0.1.2, Annex A). The method SHALL preserve that distinction. *[v0.1.1 · A09]*
 
 | **Flow class** | **Evidence threshold** | **Example** |
 |----|----|----|
@@ -517,6 +522,10 @@ Follow-the-value is the central analytical adaptation for civil society. A value
 ## 16.2 Reconstruction rule
 
 A reconstructed flow SHALL NOT be visualised or described in a way that is indistinguishable from a directly evidenced transaction. Diagrams SHOULD use different line styles and display labels (e.g. “Documented”, “Reconstructed”, “Hypothetical”) mapped from the stored `flow_class` value; display labels SHALL NOT replace the stored value. *[v0.1.1 · A09]*
+
+Certainty rules: for invariants only, the classes are ordered HYPOTHETICAL < RECONSTRUCTED < DOCUMENTED < DIRECT (the order is never displayed, averaged or summed). Raising a flow's class requires at least one evidence reference not previously attached; a chain of legs is never stronger than its weakest leg, each leg keeps its own class, evidence, value and confidence, and legs are immutable once recorded. *[v0.1.2 · CR-I3-09, CR-I3-04]*
+
+Aggregation: values are totalled only within the same flow class, flow type and currency, never as a grand total. Contract and subcontract value is an obligation, not evidence of settlement; only DIRECT flows evidence settlement. Unknown amounts are counted and never treated as zero, and legs are never added to the total of their own flow. *[v0.1.2 · CR-I3-12]*
 
 # 17. Typology Analysis
 
@@ -558,6 +567,8 @@ Hypotheses are explicit, testable explanations. They prevent analysts from treat
 
 For material cases, analysts SHOULD maintain: (1) the principal suspected explanation, (2) at least one legitimate/benign explanation where plausible, and (3) an “insufficient information / alternative actor or mechanism” hypothesis where relevant.
 
+Each hypothesis records its role in this set as `hypothesis_role`: PRINCIPAL (1), ALTERNATIVE_LEGITIMATE (2), ALTERNATIVE_MECHANISM or INSUFFICIENT_INFORMATION (3), together with its stated assumptions. *[v0.1.2 · CR-I4-06]*
+
 ## 18.2 Hypothesis matrix
 
 | **Evidence / observation** | **H1 suspected mechanism** | **H2 legitimate explanation** | **H3 alternative mechanism** | **Notes** |
@@ -567,9 +578,13 @@ For material cases, analysts SHOULD maintain: (1) the principal suspected explan
 | Direct legitimate commercial contract | Neutral | Supports | Neutral | Need pricing/related-party context. |
 | Sequential asset transfer after contract | Supports | Neutral | Supports | Temporal association, not causation. |
 
+Matrix cells are stored with the wire values of `hypothesis_link_effect`: SUPPORTS, CONTRADICTS, NEUTRAL, UNKNOWN. The display word “Weakens” maps to CONTRADICTS. Each cell carries a rationale and an append-only history. *[v0.1.2 · CR-I4-07]*
+
 ## 18.3 Disconfirming search
 
 Analysts SHALL deliberately search for evidence that would weaken the leading hypothesis. This search and its result SHALL be documented for High/Critical cases.
+
+Disconfirming searches MAY be recorded on a draft or a finalized assessment until the assessment (or a product depending on it) passes review approval; after approval the record is frozen. The requirement of at least one search for a high-impact or adverse assessment is checked at review approval. *[v0.1.2 · CR-I4-10]*
 
 ## 18.4 Hypothesis status
 
@@ -582,6 +597,10 @@ Analysts SHALL deliberately search for evidence that would weaken the leading hy
 - REJECTED — evidence is inconsistent with the hypothesis.
 
 - INCONCLUSIVE — evidence is insufficient or balanced.
+
+Every status change SHALL carry a rationale. SUPPORTED requires at least one SUPPORTS cell; WEAKENED and REJECTED require at least one CONTRADICTS cell. The competing-hypotheses rule is enforced when an assessment is finalized: finalization is refused (COMPETING_HYPOTHESES_REQUIRED) while a hypothesis in the assessment's scope has no competing hypothesis. *[v0.1.2 · CR-I4-08]*
+
+Finalized and reviewed are distinct: finalizing an assessment freezes its content, while review (peer review, approval, supersession) is a separate later outcome. *[v0.1.2 · CR-I4-09]* When a supporting Fact changes, dependent assessments are flagged for re-review, both directly and indirectly (through indicators, typology matches or hypotheses that rely on it); a flagged draft cannot be finalized, and clearing the flag is a review action. *[v0.1.2 · CR-I4-11]*
 
 # 19. Structured Analytical Techniques
 
@@ -634,7 +653,7 @@ Confidence describes the analyst’s confidence in an assessment given evidence 
 | HIGH | Multiple independent, strong evidence lines converge; key alternatives have been tested and materially weakened; critical gaps are limited. |
 | INSUFFICIENT_BASIS | A judgement was attempted but the available evidential basis is insufficient to support any confidence level. This is not a level below LOW. *[v0.1.1 · A09]* |
 
-Confidence wire values are `HIGH`, `MODERATE`, `LOW`, and `INSUFFICIENT_BASIS` (Data Model Specification v0.1.1, Section 14.1 and Annex A). A rationale is mandatory for every value. INSUFFICIENT_BASIS SHALL NOT be converted to LOW, null, zero, or omitted; a missing (null) confidence is permitted only on drafts where no judgement has yet been made, and a finalized assessment SHALL carry a non-null value. *[v0.1.1 · A09]*
+Confidence wire values are `HIGH`, `MODERATE`, `LOW`, and `INSUFFICIENT_BASIS` (Data Model Specification v0.1.2, Section 14.1 and Annex A). A rationale is mandatory for every value. INSUFFICIENT_BASIS SHALL NOT be converted to LOW, null, zero, or omitted; a missing (null) confidence is permitted only on drafts where no judgement has yet been made, and a finalized assessment SHALL carry a non-null value. *[v0.1.1 · A09]*
 
 ## 20.1 Confidence statement format
 
@@ -762,7 +781,7 @@ The same analysis may require different products for internal decision-makers, t
 
 ## 25.1 Dissemination classification
 
-Every product SHALL carry an information classification from the five-level CS-AML model (Data Model Specification v0.1.1, Section 16): PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE_PROTECTED. Unknown or missing classification fails closed. A product inherits the highest classification of its inputs unless a recorded reviewer downgrade decision exists. *[v0.1.1 · A08]*
+Every product SHALL carry an information classification from the five-level CS-AML model (Data Model Specification v0.1.2, Section 16): PUBLIC, INTERNAL, SENSITIVE, RESTRICTED, SOURCE_PROTECTED. Unknown or missing classification fails closed. A product inherits the highest classification of its inputs unless a recorded reviewer downgrade decision exists. *[v0.1.1 · A08]*
 
 The intended dissemination scope is recorded separately from the classification, with access labels where needed: *[v0.1.1 · A08]*
 
@@ -930,7 +949,7 @@ Small organisations MAY combine roles, but high-impact dissemination SHOULD pres
 
 # 30. Conformance Requirements for Methodology
 
-An implementation claiming alignment with CS-AML Investigation Methodology v0.1.1 SHALL demonstrate the following minimum artefacts for a material investigation:
+An implementation claiming alignment with CS-AML Investigation Methodology v0.1.2 SHALL demonstrate the following minimum artefacts for a material investigation:
 
 - Intake/Triage Record.
 
@@ -1281,8 +1300,8 @@ An implementation claiming alignment with CS-AML Investigation Methodology v0.1.
 
 - CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`). *[v0.1.1 · A01]*
 
-- CS-AML Typology Catalogue v0.1.1 (`CS-AML_Typology_Catalogue_v0.1.1.md`). *[v0.1.1 · A01]*
+- CS-AML Typology Catalogue v0.1.2 (`CS-AML_Typology_Catalogue_v0.1.2.md`). *[v0.1.1 · A01]*
 
-- CS-AML Data Model Specification v0.1.1 (`CS-AML_Data_Model_Specification_v0.1.1.md`) — authoritative registry for classification, flow-class, and confidence enumerations. *[v0.1.1 · A08, A09]*
+- CS-AML Data Model Specification v0.1.2 (`CS-AML_Data_Model_Specification_v0.1.2.md`) — authoritative registry for classification, flow-class, and confidence enumerations. *[v0.1.1 · A08, A09]*
 
 Reference lineage informs the methodology; it does not mean that each CS-AML step, gate (G0–G6), grade, or threshold is derived from a cited source — these are CS-AML design conventions unless a specific source is cited. *[v0.1.1 · A13, N01]* Reference lineage does not transform CS-AML into an official FATF, UNODC, PPATK, FIU, law-enforcement, or regulated-entity standard. Jurisdiction-specific legal advice remains necessary for sensitive collection, data processing, referral, and publication decisions.

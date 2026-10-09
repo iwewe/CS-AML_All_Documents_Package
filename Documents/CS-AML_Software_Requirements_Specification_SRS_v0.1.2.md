@@ -2,14 +2,15 @@
 
 **Software Requirements Specification (SRS)**
 
-Version 0.1.1
+Version 0.1.2
 
-> **Document status — v0.1.1**  
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*  
+> **Document status — v0.1.2**  
+> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*  
 > Supersedes: CS-AML Software Requirements Specification (SRS) v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 
 > **Document status**  
 > Proposed normative software baseline for MVP 0.1 implementation (draft for review). This SRS translates the PRD (draft for review), Product & Feature Specification, Data Model Specification, Control Implementation Guide, Investigation Methodology, and Technology Architecture into testable software requirements. *[v0.1.1 · A01]*
@@ -20,11 +21,11 @@ Version 0.1.1
 
 | **Document** | CS-AML Software Requirements Specification |
 |----|----|
-| **Version** | 0.1.1 |
-| **Status** | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
+| **Version** | 0.1.2 *[v0.1.2]* |
+| **Status** | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) *[v0.1.1 · A01]* |
 | **Primary product scope** | MVP 0.1 |
 | **Audience** | Product, engineering, QA, security, data, reviewers, governance |
-| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.1; Technology Architecture v0.1.1; Control Implementation Guide v0.1.1; Investigation Methodology v0.1.1 (Markdown, `Documents/*_v0.1.1.md`) |
+| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.2; Technology Architecture v0.1.1; Control Implementation Guide v0.1.1; Investigation Methodology v0.1.2 (Markdown, `Documents/*_v0.1.1.md`) |
 | **Normative terms** | SHALL / MUST = mandatory; SHOULD = recommended; MAY = optional |
 
 # Contents
@@ -151,7 +152,7 @@ SOURCE → EVIDENCE → CLAIM/FACT → INDICATOR → HYPOTHESIS → ASSESSMENT �
 DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 ```
 
-These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.1 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
+These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.2 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
 
 # 3. Definitions and Conventions
 
@@ -163,7 +164,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | Protected source | Human/source identity requiring compartmentalisation | Identity access separate from routine evidence access |
 | High-impact product | Product containing potentially harmful adverse findings or public attribution | Requires independent review and dissemination approval |
 | MVP | Minimum release satisfying end-to-end case completion | All P0 requirements required unless explicitly waived; a defect against a non-waivable invariant (§21) can never be waived *[v0.1.1 · A16]* |
-| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.1 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]* |
+| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.2 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]*. A declared classification below the inputs' maximum (or labels missing an input label) is rejected (422), never silently raised; when an input is later upgraded, derived objects are flagged for re-review and their classification is not raised automatically *[v0.1.2 · CR-I2-05]* |
 
 # 4. System Boundary and Actors
 
@@ -223,10 +224,10 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-CASE-001 — Case creation
 
-| **Requirement** | The system SHALL create a stable Case ID and require title, accountable owner, purpose, investigation question, sensitivity/classification, and status before a case becomes Active. |
+| **Requirement** | The system SHALL create a stable Case ID and require title, accountable owner, purpose, investigation question, sensitivity/classification, and status before a case becomes Active. At least one investigation question is a precondition of case activation (gate), not of case creation: a DRAFT case MAY have none, and the Case representation returns an empty list until the charter defines one. *[v0.1.2 · CR-I1-01]* `risk_rating` uses the registry enum `risk_rating` (LOW, MEDIUM, HIGH, CRITICAL) and `closure_reason` the registry enum `closure_reason`. *[v0.1.2 · CR-I1-08]* Only the case LEAD MAY change a case's classification or access labels, and only upwards (higher level, added labels); downgrades and label removal require a recorded reviewer decision (workflow delivered with review, I6) and SHALL be rejected (403) until then. *[v0.1.2 · CR-I1-09]* |
 |----|----|
 | **Rationale** | Prevents orphaned or undefined investigations. |
-| **Verification** | Create incomplete case and verify activation is blocked; complete required fields and verify activation succeeds. |
+| **Verification** | Create incomplete case and verify activation is blocked; complete required fields and verify activation succeeds. Create a case without questions and verify it is accepted as DRAFT with `investigation_questions: []`; attempt a classification downgrade as LEAD and an upgrade as non-LEAD and verify 403. *[v0.1.2 · CR-I1-01, CR-I1-09]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-CASE-001; GOV-01; CAS-01 |
 
@@ -315,7 +316,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-EVD-006 — Reliability and credibility
 
-| **Requirement** | The system SHALL store source reliability independently from information credibility and SHALL not reuse one value for both dimensions. |
+| **Requirement** | The system SHALL store source reliability independently from information credibility and SHALL not reuse one value for both dimensions. Information credibility uses the registry enum `credibility_grade` (named values with digit wire codes "1"–"6"); source reliability uses grades A–F. *[v0.1.2 · CR-I2-08]* |
 |----|----|
 | **Rationale** | Prevents false certainty. |
 | **Verification** | Save different ratings and verify independent display/storage. |
@@ -325,7 +326,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 ## 6.2a Claim and Fact Lifecycle *[v0.1.1 · A10]*
 
 > **Status of this family**  
-> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.1 §7.4 Claim and §7.5 Fact.
+> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.2 §7.4 Claim and §7.5 Fact.
 
 ### SRS-FR-CLM-001 — Claim record and attribution
 
@@ -338,7 +339,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-CLM-002 — Verification decision
 
-| **Requirement** | Every verification outcome on a claim or fact SHALL be stored as a separate, append-only VerificationDecision record (claim decisions through `POST /claims/{claimId}/verification-decisions`; fact decisions only atomically with fact creation and the fact commands *[v0.1.1 · C01]*) containing target_ref (claim or fact), decision (claims: `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`; facts: `CREATE`, `ESTABLISH`, `DISPUTE`, `SUPERSEDE`) *[v0.1.1 · A10]*, rationale, evidence_refs, decided_by, decided_at, and optional review_ref. Existing decisions SHALL NOT be edited or deleted. |
+| **Requirement** | Every verification outcome on a claim or fact SHALL be stored as a separate, append-only VerificationDecision record (claim decisions through `POST /claims/{claimId}/verification-decisions`; fact decisions only atomically with fact creation and the fact commands *[v0.1.1 · C01]*) containing target_ref (claim or fact), decision (claims: `UNDER_REVIEW`, `CORROBORATED`, `CONTRADICTED`, `UNRESOLVED`; facts: `CREATE`, `ESTABLISH`, `DISPUTE`, `SUPERSEDE`) *[v0.1.1 · A10]*, rationale, evidence_refs, decided_by, decided_at, and optional review_ref. Existing decisions SHALL NOT be edited or deleted. Claim decisions MAY be recorded by members with the LEAD, ANALYST or REVIEWER role; claim transitions are RECORDED → UNDER_REVIEW → CORROBORATED / CONTRADICTED / UNRESOLVED, and a decided claim MAY return to UNDER_REVIEW (re-review; history kept); any other transition SHALL be rejected (409). *[v0.1.2 · CR-I2-11]* |
 |----|----|
 | **Rationale** | Makes every verification judgement reviewable and attributable. |
 | **Verification** | Record two decisions on one claim; attempt to modify the first and verify rejection; verify both remain retrievable in order with attribution. |
@@ -347,7 +348,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-CLM-003 — Fact creation from supporting claims and evidence *[v0.1.1 · A10]*
 
-| **Requirement** | The system SHALL create a Fact only when it references supporting evidence (`supporting_evidence`, 1..n, mandatory) and carries a decision rationale; supporting claims (`supporting_claim_refs`, 0..n) are optional. The system SHALL create the Fact and its `CREATE` VerificationDecision atomically in one transaction (API Specification §16A); the fact commands establish/dispute/supersede SHALL likewise create their decision atomically. *[v0.1.1 · C01]* *[v0.1.1 · C02]* A new Fact SHALL start as `PROVISIONAL`. Creating a Fact SHALL NOT modify or convert the supporting claims. `fact_status` ∈ `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`. Investigators/Analysts MAY record claims and propose `PROVISIONAL` facts; moving a fact to `ESTABLISHED` SHALL require a Reviewer who is not the proposer. Evidence extracts and AI/automation output SHALL NOT become facts except through this path. |
+| **Requirement** | The system SHALL create a Fact only when it references supporting evidence (`supporting_evidence`, 1..n, mandatory) and carries a decision rationale; supporting claims (`supporting_claim_refs`, 0..n) are optional. The system SHALL create the Fact and its `CREATE` VerificationDecision atomically in one transaction (API Specification §16A); the fact commands establish/dispute/supersede SHALL likewise create their decision atomically. *[v0.1.1 · C01]* *[v0.1.1 · C02]* A new Fact SHALL start as `PROVISIONAL`. Creating a Fact SHALL NOT modify or convert the supporting claims. `fact_status` ∈ `PROVISIONAL`, `ESTABLISHED`, `DISPUTED`, `SUPERSEDED`. Investigators/Analysts MAY record claims and propose `PROVISIONAL` facts; moving a fact to `ESTABLISHED` SHALL require a Reviewer who is not the proposer, i.e. a principal holding the REVIEWER or LEAD membership role on the fact's case who did not propose the fact (403 otherwise). *[v0.1.2 · CR-I2-11]* Evidence extracts and AI/automation output SHALL NOT become facts except through this path. |
 |----|----|
 | **Rationale** | Prevents a claim or extract from being treated as fact without a reviewable decision. |
 | **Verification** | Attempt to create a fact without evidence refs or decision rationale and verify rejection (422); create a fact and verify its `CREATE` decision exists in the same transaction *[v0.1.1 · C01]*; proposer attempts to establish own fact and is denied; an independent reviewer establishes it and the decision is recorded. |
@@ -356,7 +357,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-CLM-004 — Fact revision and dependent flagging
 
-| **Requirement** | Any authorized case member SHALL be able to move a fact to `DISPUTED` with supporting evidence; `SUPERSEDED` SHALL require a replacement fact reference (`superseded_by`). When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering decision. Published products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. |
+| **Requirement** | Any authorized case member SHALL be able to move a fact to `DISPUTED` with supporting evidence; `SUPERSEDED` SHALL require a replacement fact reference (`superseded_by`). When a fact becomes `DISPUTED` or `SUPERSEDED`, every dependent Assessment and IntelligenceProduct SHALL be flagged `review_required` with a link to the triggering decision. Dependents are direct (`supporting_refs`) and indirect (via a supporting Indicator's evidence, a supporting TypologyMatch's indicators, or a supporting Hypothesis's SUPPORTS cells), drafts and finalized alike; the judgement is not changed, a flagged draft SHALL NOT be finalized (409 `REVIEW_REQUIRED`), clearing the flag is a review action, and the dependents list shows only dependents the caller may read. *[v0.1.2 · CR-I4-11]* Published products SHALL NOT be mutated; a correction review task SHALL be created instead. History SHALL be preserved. |
 |----|----|
 | **Rationale** | Ensures corrections propagate to dependent analysis without rewriting history. |
 | **Verification** | Pilot: record a source claim; create a `PROVISIONAL` fact supported by it; establish it; dispute it with contradicting evidence; supersede it. Verify dependent assessment/product are flagged, the published product is unchanged, a correction review task exists, and full history is retrievable. |
@@ -403,7 +404,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ENT-004 — Merge and unmerge
 
-| **Requirement** | The system SHALL support evidence-based merge with rationale and SHALL support unmerge that restores prior records and relationships without erasing history. Each merge and unmerge SHALL be recorded as a ResolutionDecision (`MERGE` / `UNMERGE`, the latter referencing the reversed `MERGE`) per SRS-FR-ENT-006. *[v0.1.1 · ER]* |
+| **Requirement** | The system SHALL support evidence-based merge with rationale and SHALL support unmerge that restores prior records and relationships without erasing history. Each merge and unmerge SHALL be recorded as a ResolutionDecision (`MERGE` / `UNMERGE`, the latter referencing the reversed `MERGE`) per SRS-FR-ENT-006. *[v0.1.1 · ER]* Every MERGE and UNMERGE is high-impact in the MVP: it SHALL name a reviewer holding REVIEWER or LEAD membership on every subject entity's case (422 otherwise), and a reviewer who is also the decider SHALL be rejected with 409 STATE_CONFLICT. *[v0.1.2 · CR-I2-10, CR-I2-09]* Merge is logical repointing through `canonical_parent`: relationships, claims and absorbed records are never rewritten, so unmerge removes only what the merge added to the survivor and restores its prior handling. *[v0.1.2 · CR-I2-13]* |
 |----|----|
 | **Rationale** | Protects analytical reversibility. |
 | **Verification** | Merge then unmerge test entities; compare pre/post state and audit log. |
@@ -424,7 +425,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Requirement** | The system SHALL record every merge, unmerge, keep-separate, possible-match and defer decision as an append-only ResolutionDecision with evidence, confidence, rationale and reviewer where required, and SHALL derive entity resolution state only from these decisions. |
 |----|----|
 | **Rationale** | Separates decisions about pairs/sets of records from entity state, so identity judgements are reviewable, reversible and auditable. Approved by product owner, 2026-10-08. |
-| **Verification** | Record `POSSIBLE_MATCH`, `KEEP_SEPARATE`, `DEFER`, `MERGE` and `UNMERGE` decisions on test entities; verify each is retrievable in order, cannot be edited or deleted, and that `resolution_status` changes only as their effect; attempt a direct status update and a `MERGE` without `surviving_entity_ref` and verify rejection; verify a high-impact `MERGE` requires a reviewer other than the decider; verify a `KEEP_SEPARATE` pair is not re-suggested until new evidence is attached. |
+| **Verification** | Record `POSSIBLE_MATCH`, `KEEP_SEPARATE`, `DEFER`, `MERGE` and `UNMERGE` decisions on test entities; verify each is retrievable in order, cannot be edited or deleted, and that `resolution_status` changes only as their effect; attempt a direct status update and a `MERGE` without `surviving_entity_ref` and verify rejection; verify every `MERGE`/`UNMERGE` requires a reviewer other than the decider (missing → 422, reviewer = decider → 409) *[v0.1.2 · CR-I2-10, CR-I2-09]*; verify a `KEEP_SEPARATE` pair is not re-suggested until new evidence is attached. |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-ENT-003; F-ENT-004; F-ENT-005; ENT-01; AUD-01 |
 
@@ -439,7 +440,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-REL-002 — Ownership interest
 
-| **Requirement** | The system SHALL represent direct/indirect ownership with percentage or unknown, dates, and evidence. |
+| **Requirement** | The system SHALL represent direct/indirect ownership with percentage or unknown, dates, and evidence. A BENEFICIAL, ECONOMIC_INTEREST or NOMINEE_ASSERTED interest SHALL become ESTABLISHED only when an ESTABLISHED Fact is among its supporting evidence (422 otherwise). *[v0.1.2 · CR-I3-11]* |
 |----|----|
 | **Rationale** | Supports beneficial-ownership analysis without fabricated zeroes. |
 | **Verification** | Create unknown and numeric ownership records; verify semantics. |
@@ -468,7 +469,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-TIM-001 — Event records
 
-| **Requirement** | The system SHALL store events with type, date/date-range, date precision, linked entities/assets, location where relevant, and evidence. |
+| **Requirement** | The system SHALL store events with type, date/date-range, date precision, linked entities/assets, location where relevant, and evidence. Date precision uses the registry enum `temporal_precision` (DATETIME, DAY, MONTH, YEAR, RANGE, UNKNOWN) and the date string shape SHALL match it; an unknown date is recorded as `start_time: null` with precision UNKNOWN and is permitted only with that precision. *[v0.1.2 · CR-I3-06]* |
 |----|----|
 | **Rationale** | Supports temporal analysis. |
 | **Verification** | Create exact/approximate events and verify precision retained. |
@@ -486,7 +487,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-VAL-001 — Value-flow record
 
-| **Requirement** | The system SHALL require origin, destination, mechanism, value/range/unknown, currency where applicable, date/date-range, evidence, confidence, and mandatory flow_class. |
+| **Requirement** | The system SHALL require origin, destination, mechanism, value/range/unknown, currency where applicable, date/date-range, evidence, confidence, and mandatory flow_class. Flow, leg and event evidence MAY reference EvidenceExtract, EvidenceItem or Fact; DIRECT and DOCUMENTED flows and legs SHALL reference at least one EvidenceItem or EvidenceExtract (a Fact alone → 422). *[v0.1.2 · CR-I3-10]* A class change that raises certainty — order used only for this invariant: HYPOTHETICAL < RECONSTRUCTED < DOCUMENTED < DIRECT — SHALL add at least one evidence reference not previously attached; a flow SHALL never be stronger than its weakest leg; lowering a class SHALL meet the target class's requirements. *[v0.1.2 · CR-I3-09]* |
 |----|----|
 | **Rationale** | Makes value movement explicit and qualified. |
 | **Verification** | Create all four flow classes and verify mandatory fields. |
@@ -495,7 +496,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-VAL-002 — Multi-leg flows
 
-| **Requirement** | The system SHALL support multi-leg value-flow chains in which every leg retains separate evidence, class, value, and confidence. |
+| **Requirement** | The system SHALL support multi-leg value-flow chains in which every leg retains separate evidence, class, value, and confidence. Each leg carries its own `confidence` and, for RECONSTRUCTED/HYPOTHETICAL legs, a `reconstruction_basis`. Legs are immutable and append-only: appended in order (`sequence = n + 1`), each starting where the previous one ended; a complete chain takes no more legs (409) and the endpoints of a chained flow are fixed (409). *[v0.1.2 · CR-I3-04]* |
 |----|----|
 | **Rationale** | Avoids certainty inheritance across a chain. |
 | **Verification** | Create 3-leg mixed-class flow and inspect each leg. |
@@ -513,7 +514,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-VAL-004 — Unknown and ranges
 
-| **Requirement** | The system SHALL represent unknown, minimum, maximum, and approximate values without coercing unknown to numeric zero. |
+| **Requirement** | The system SHALL represent unknown, minimum, maximum, and approximate values without coercing unknown to numeric zero. Amount precision uses the registry enum `money_precision` (EXACT, APPROXIMATE, ESTIMATED); a range is never EXACT. *[v0.1.2 · CR-I3-06]* Aggregates SHALL be computed per (flow_class, flow_type, currency) with no grand total; CONTRACT/SUBCONTRACT groups are obligations, only DIRECT groups are settlement-evidenced; lower/upper/exact totals count unknown amounts and never treat them as 0; legs are never added to their flow's totals. *[v0.1.2 · CR-I3-12]* |
 |----|----|
 | **Rationale** | Preserves uncertainty. |
 | **Verification** | Store unknown/range values and inspect API/UI. |
@@ -524,7 +525,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-TYP-001 — Typology catalogue
 
-| **Requirement** | The system SHALL expose versioned CS-AML typology entries with definition, mechanism, observables, indicators, counter-indicators, false positives, and references. |
+| **Requirement** | The system SHALL expose versioned CS-AML typology entries with definition, mechanism, observables, indicators, counter-indicators, false positives, and references. Each catalogue indicator carries its A13 source-mapping `origin` and `verification_status`; the catalogue is read-only reference data readable by every signed-in principal (`GET /typology-catalogue`, `/typologies`, `/typologies/{typologyId}`). *[v0.1.2 · CR-I4-01]* |
 |----|----|
 | **Rationale** | Supports consistent analysis. |
 | **Verification** | Open typology and verify version and fields. |
@@ -533,7 +534,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-TYP-002 — Indicator capture
 
-| **Requirement** | The system SHALL allow indicators and counter-indicators to link to evidence and analytical objects. |
+| **Requirement** | The system SHALL allow indicators and counter-indicators to link to evidence and analytical objects. A case indicator either references a catalogue indicator (class taken from the catalogue; a contradicting class → 422) or uses a local `LOCAL-…` code with an explicit class; it needs ≥1 evidence reference (EvidenceExtract, EvidenceItem or Fact) and ≥1 subject (Entity, Asset, Event, ValueFlow or Relationship). `indicator_status` transitions: OBSERVED → CORROBORATED / DISPUTED / RETIRED; DISPUTED → OBSERVED / CORROBORATED / RETIRED; RETIRED is terminal; every change needs a rationale; indicators are never deleted and never presented as proof. *[v0.1.2 · CR-I4-02]* |
 |----|----|
 | **Rationale** | Prevents free-floating allegations. |
 | **Verification** | Create indicator with evidence and verify assessment traceability. |
@@ -542,7 +543,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-TYP-003 — Typology match worksheet
 
-| **Requirement** | The system SHALL support controlled consistency levels and SHALL prevent a single weak indicator from automatically creating a strong typology match. |
+| **Requirement** | The system SHALL support controlled consistency levels and SHALL prevent a single weak indicator from automatically creating a strong typology match. The analyst assigns `consistency_level`; the server computes a ceiling (Typology Catalogue §4 MINIMUM RULE) and SHALL reject a level above it (422), never raising a level itself. The ceiling thresholds are adopted provisionally and require AML-specialist review. *[v0.1.2 · CR-I4-03]* |
 |----|----|
 | **Rationale** | Controls overstatement. |
 | **Verification** | Create single weak indicator and verify no automatic strong match. |
@@ -551,7 +552,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-HYP-001 — Competing hypotheses
 
-| **Requirement** | The system SHALL support at least two competing hypotheses per material investigation where alternatives are plausible. |
+| **Requirement** | The system SHALL support at least two competing hypotheses per material investigation where alternatives are plausible. The rule is enforced at assessment finalization: finalizing an assessment whose `scope_refs` contain a hypothesis without a competing hypothesis SHALL be rejected with 409 STATE_CONFLICT, `details.reason = "COMPETING_HYPOTHESES_REQUIRED"`. A hypothesis status change needs a rationale; SUPPORTED needs a SUPPORTS cell and WEAKENED/REJECTED a CONTRADICTS cell (409 otherwise). *[v0.1.2 · CR-I4-08]* Each hypothesis MAY carry a `role` (registry enum `hypothesis_role`: PRINCIPAL, ALTERNATIVE_LEGITIMATE, ALTERNATIVE_MECHANISM, INSUFFICIENT_INFORMATION) and stated `assumptions`. *[v0.1.2 · CR-I4-06]* |
 |----|----|
 | **Rationale** | Reduces confirmation bias. |
 | **Verification** | Create H1/H2 and link supporting/contradicting evidence. |
@@ -560,7 +561,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-HYP-002 — Support and contradiction matrix
 
-| **Requirement** | The system SHALL store evidence/indicator effect on each hypothesis as support, contradiction, neutral, or unknown with analyst rationale. |
+| **Requirement** | The system SHALL store evidence/indicator effect on each hypothesis as support, contradiction, neutral, or unknown with analyst rationale. Effects use the registry enum `hypothesis_link_effect` (SUPPORTS, CONTRADICTS, NEUTRAL, UNKNOWN); each cell is an append-only HypothesisLink version, and `supporting_refs`/`contradicting_refs` are derived from the current cells. *[v0.1.2 · CR-I4-07, CR-I4-04]* |
 |----|----|
 | **Rationale** | Makes reasoning inspectable. |
 | **Verification** | Populate matrix and verify every cell retains rationale/history. |
@@ -569,7 +570,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-HYP-003 — Intelligence gaps
 
-| **Requirement** | The system SHALL maintain explicit intelligence gaps capable of affecting an assessment. |
+| **Requirement** | The system SHALL maintain explicit intelligence gaps capable of affecting an assessment. Gaps are never deleted; closing statuses (PARTIALLY_RESOLVED, RESOLVED, ACCEPTED) need a closure rationale and every status change is kept in the gap's history. *[v0.1.2 · CR-I4-05]* |
 |----|----|
 | **Rationale** | Keeps unknowns visible. |
 | **Verification** | Create gap and include it in final assessment. |
@@ -578,7 +579,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ASM-001 — Assessment
 
-| **Requirement** | The system SHALL store judgement, confidence, basis, alternatives, gaps, author, reviewer, and version. |
+| **Requirement** | The system SHALL store judgement, confidence, basis, alternatives, gaps, author, reviewer, and version. Version history is an append-only revision snapshot per `record_version` (`GET /assessments/{assessmentId}/revisions`). *[v0.1.2 · CR-I4-05]* Finalized and reviewed are distinct: finalization freezes the content and moves the envelope status DRAFT → FINALIZED while `review_status` stays DRAFT until a review records PEER_REVIEWED / APPROVED / SUPERSEDED, after which the envelope status follows `review_status`. *[v0.1.2 · CR-I4-09]* |
 |----|----|
 | **Rationale** | Creates reproducible analytical product. |
 | **Verification** | Create and revise assessment; verify version history. |
@@ -596,7 +597,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ASM-003 — Backward traceability
 
-| **Requirement** | The system SHALL allow a reviewer to traverse an assessment backward through hypotheses/indicators/facts/evidence/sources. |
+| **Requirement** | The system SHALL allow a reviewer to traverse an assessment backward through hypotheses/indicators/facts/evidence/sources. The provenance response lists references per kind (including typology matches, sources and gaps) plus the full trace (root, nodes, edges, source paths); `scope_refs` MAY target Hypothesis, TypologyMatch, Indicator, Entity, Asset, Event, ValueFlow or Relationship, and `supporting_refs` Fact, Indicator, TypologyMatch, Hypothesis, EvidenceExtract or EvidenceItem (a Source → 422). *[v0.1.2 · CR-I4-14]* |
 |----|----|
 | **Rationale** | Core reproducibility requirement. |
 | **Verification** | Select key assessment and trace to origin without external notes. |
@@ -605,10 +606,10 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-ASM-004 — Disconfirming search record *[v0.1.1 · A05]*
 
-| **Requirement** | The system SHALL require at least one recorded disconfirming-search entry (what was searched, sources consulted, result, rationale; Data Model §13.3 `Assessment.disconfirming_searches[]`) before a high-impact or adverse assessment (`high_impact_adverse`), or a product that depends on it, can pass review. The rule SHALL be enforced at review approval, not at finalization: an approval without such an entry SHALL be rejected with 409 STATE_CONFLICT and `details.reason = "DISCONFIRMATION_REQUIRED"`. Entries are recorded through `POST /assessments/{assessmentId}/disconfirming-searches`. *[v0.1.1 · C10]* |
+| **Requirement** | The system SHALL require at least one recorded disconfirming-search entry (what was searched, sources consulted, result, rationale; Data Model §13.3 `Assessment.disconfirming_searches[]`) before a high-impact or adverse assessment (`high_impact_adverse`), or a product that depends on it, can pass review. The rule SHALL be enforced at review approval, not at finalization: an approval without such an entry SHALL be rejected with 409 STATE_CONFLICT and `details.reason = "DISCONFIRMATION_REQUIRED"`. Entries are recorded through `POST /assessments/{assessmentId}/disconfirming-searches`. *[v0.1.1 · C10]* Entries MAY be appended to a DRAFT or FINALIZED assessment until the assessment (or a product depending on it) passes review approval; afterwards the record is frozen (409 STATE_CONFLICT). Finalization does not freeze the disconfirming-search record. *[v0.1.2 · CR-I4-10]* |
 |----|----|
 | **Rationale** | Ensures evidence that could weaken adverse findings has been sought and recorded; tested separately from backward traceability (SRS-FR-ASM-003). |
-| **Verification** | Attempt to approve the review of a high-impact adverse assessment without a disconfirming-search entry; verify 409 STATE_CONFLICT with `details.reason = "DISCONFIRMATION_REQUIRED"`. Record an entry; verify the review approval succeeds. *[v0.1.1 · C10]* |
+| **Verification** | Attempt to approve the review of a high-impact adverse assessment without a disconfirming-search entry; verify 409 STATE_CONFLICT with `details.reason = "DISCONFIRMATION_REQUIRED"`. Record an entry; verify the review approval succeeds. *[v0.1.1 · C10]* Finalize an assessment, append a disconfirming search and verify it is accepted; approve the review and verify a further append returns 409. *[v0.1.2 · CR-I4-10]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-ASM-003; HYP-02; QUA-01 *[v0.1.1 · A05]* |
 
@@ -634,7 +635,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-GRF-001 — Graph exploration
 
-| **Requirement** | The system SHALL display authorised entities and canonical relationships with evidence/status/confidence access from each edge. |
+| **Requirement** | The system SHALL display authorised entities and canonical relationships with evidence/status/confidence access from each edge. The MVP graph is the per-case, policy-filtered projection `GET /cases/{caseId}/graph` (entities, assets and events as nodes; relationships with ownership/control details, value flows and legs with their own class, and event participation as edges), computed on demand and marked derived. *[v0.1.2 · CR-I3-07]* |
 |----|----|
 | **Rationale** | Supports network analysis without hiding provenance. |
 | **Verification** | Expand graph and open edge evidence. |
@@ -746,7 +747,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-SEC-002 — Role/object access
 
-| **Requirement** | The system SHALL enforce role, case membership, classification, and need-to-know at the API/service layer. |
+| **Requirement** | The system SHALL enforce role, case membership, classification, and need-to-know at the API/service layer. Case memberships (roles LEAD, ANALYST, REVIEWER — registry enum `case_membership_role`) SHALL be manageable through the API (`GET/POST /cases/{caseId}/memberships`, `PATCH/DELETE /case-memberships/{membershipId}` with If-Match) by the case LEAD; revocation is soft and audited. Objects created outside a case path SHALL name 1..20 `case_links` on creation, each requiring `case.update` (422/403/404 otherwise). *[v0.1.2 · CR-I1-02, CR-I2-01, CR-I3-13, CR-I4-12]* |
 |----|----|
 | **Rationale** | Core confidentiality requirement. |
 | **Verification** | Direct API access to unauthorised object must return denial regardless of UI. |
@@ -755,7 +756,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-SEC-003 — Protected-source compartment
 
-| **Requirement** | The system SHALL store protected-source identity under separate authorization so analysts may use source-derived evidence without automatically seeing identity. |
+| **Requirement** | The system SHALL store protected-source identity under separate authorization so analysts may use source-derived evidence without automatically seeing identity. Access to SOURCE_PROTECTED material requires both the IdP eligibility role `csaml-protected-source` and the per-case membership grant `protected_source_authorized` (Technical Stack §10). *[v0.1.2 · CR-I1-10]* |
 |----|----|
 | **Rationale** | Protects vulnerable sources. |
 | **Verification** | Analyst can access derived evidence but not source identity. |
@@ -789,7 +790,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Aligns SRS with canonical data model. |
 | **Verification** | Schema review and CRUD contract tests for all required object types. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.1 |
+| **Traceability** | Data Model v0.1.2 |
 
 ### SRS-DR-002 — Stable identifiers
 
@@ -798,7 +799,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Supports audit and linking. |
 | **Verification** | Rename object and verify identifier unchanged. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.1 |
+| **Traceability** | Data Model v0.1.2 |
 
 ### SRS-DR-003 — Version semantics
 
@@ -816,7 +817,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Supports imperfect open-source data. |
 | **Verification** | Store year-only and approximate event date. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.1 |
+| **Traceability** | Data Model v0.1.2 |
 
 ### SRS-DR-005 — Provenance references
 
@@ -849,7 +850,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-IF-002 — REST/HTTP API
 
-| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.1 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
+| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.2 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
 |----|----|
 | **Rationale** | Enables integration and testability. |
 | **Verification** | API contract tests plus authorization parity tests. |
@@ -1366,7 +1367,7 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 
 # Annex B — State Models
 
-State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.1 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
+State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.2 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
 
 ``` text
 Case (case_status): DRAFT → AUTHORIZED → ACTIVE → REVIEW → CLOSED → MONITORING → REOPENED
@@ -1394,18 +1395,35 @@ Hypothesis (hypothesis_status): OPEN → SUPPORTED | WEAKENED | REJECTED | INCON
 
 ``` text
 Claim (claim_status): RECORDED → UNDER_REVIEW → CORROBORATED | CONTRADICTED | UNRESOLVED
+                      CORROBORATED | CONTRADICTED | UNRESOLVED → UNDER_REVIEW (re-review)
 Fact (fact_status):   PROVISIONAL → ESTABLISHED
                       PROVISIONAL | ESTABLISHED → DISPUTED
                       PROVISIONAL | ESTABLISHED | DISPUTED → SUPERSEDED (superseded_by required)
 ```
 
+*[v0.1.2 · CR-I2-11]* A decided claim (CORROBORATED, CONTRADICTED, UNRESOLVED) MAY return to UNDER_REVIEW; the earlier decisions are kept.
+
+``` text
+Upload session (upload_session_status): INITIATED → CONTENT_RECEIVED → COMPLETED
+Assessment (envelope status): DRAFT → FINALIZED → then follows review_status (PEER_REVIEWED | APPROVED | SUPERSEDED)
+Indicator (indicator_status): OBSERVED → CORROBORATED | DISPUTED | RETIRED
+                              DISPUTED → OBSERVED | CORROBORATED | RETIRED   (RETIRED is terminal)
+Lifecycle-less classes (envelope_status): Source, EvidenceExtract, Asset → REGISTERED; Event, ValueFlow, TypologyMatch → RECORDED
+```
+
+*[v0.1.2 · CR-I2-02, CR-I2-03, CR-I3-05, CR-I4-02, CR-I4-09]* An upload session that completed its content upload is either completed into an EvidenceItem or consumed by a derivative registration; expiry (24 h) is expressed by `expires_at`, not a state. Assessment `review_status` stays DRAFT until a review outcome exists. Case memberships have no state model: a membership is active until its soft revocation (`revoked_at`). *[v0.1.2 · CR-I1-02]*
+
 *[v0.1.1 · A10]* Claim/Fact states per SRS-FR-CLM-001…004. A Claim never transitions into a Fact. *[v0.1.1 · C08]* Fact transitions per Data Model §7.5, including PROVISIONAL → DISPUTED and DISPUTED → SUPERSEDED; every transition is recorded with its VerificationDecision.
 
 # Annex C — API Resource Baseline
 
-Paths are relative to `/api/v1` and follow API Specification v0.1.1 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
+Paths are relative to `/api/v1` and follow API Specification v0.1.2 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
 
 - /cases, /cases/{caseId}/charter, /cases/{caseId}/gates, /cases/{caseId}/tasks
+
+- /cases/{caseId}/memberships, /case-memberships/{membershipId} *[v0.1.2 · CR-I1-02]*
+
+- /auth/backchannel-logout (outside `/api/v1`, with the other `/auth/*` endpoints) *[v0.1.2 · CR-I1-05]*
 
 - /sources
 
@@ -1413,27 +1431,29 @@ Paths are relative to `/api/v1` and follow API Specification v0.1.1 §12–§20 
 
 - /cases/{caseId}/claims, /claims/{claimId}, /claims/{claimId}/verification-decisions *[v0.1.1 · A10]* *[v0.1.1 · C13]*
 
-- /cases/{caseId}/facts, /facts/{factId} (commands: establish, dispute, supersede; dependents) *[v0.1.1 · A10]* *[v0.1.1 · C13]*
+- /cases/{caseId}/facts, /facts/{factId} (commands: establish, dispute, supersede; dependents) *[v0.1.1 · A10]* *[v0.1.1 · C13]*; /facts/{factId}/provenance *[v0.1.2 · CR-I2-04]*
 
-- /entities, /entity-match-candidates, /entities/merge, /entity-merges/{mergeId}/unmerge, /entities/{entityId}/resolution-decisions, /resolution-decisions *[v0.1.1 · ER]*
+- /entities, /entity-match-candidates, /entities/merge, /entity-merges/{mergeId}/unmerge, /entities/{entityId}/resolution-decisions, /resolution-decisions *[v0.1.1 · ER]*; /entities/{entityId}/provenance *[v0.1.2 · CR-I2-04]*; `/entity-match-candidates/{candidateId}/decisions` is deprecated (removal in v0.2) — use /resolution-decisions *[v0.1.2 · CR-I2-14]*
 
-- /relationships
+- /relationships, /relationships/{relationshipId}/provenance *[v0.1.2 · CR-I2-04]*
 
-- /assets
+- /assets, /ownership-interests, /control-assertions (each with /{id} and /{id}/provenance) *[v0.1.2 · CR-I3-01, CR-I3-08]*
 
-- /events, /timeline
+- /events, /events/{eventId}/provenance, /timeline *[v0.1.2 · CR-I3-02]*
 
-- /value-flows
+- /value-flows, /value-flows/{flowId}/legs, /value-flows/{flowId}/provenance, /value-flow-view, /value-flow-legend *[v0.1.2 · CR-I3-03, CR-I3-08]*
 
-- /indicators
+- /cases/{caseId}/graph *[v0.1.2 · CR-I3-07]*
 
-- /typologies, /typology-matches
+- /indicators, /indicators/{indicatorId}/provenance *[v0.1.2 · CR-I4-02, CR-I4-05]*
 
-- /hypotheses
+- /typology-catalogue, /typologies, /typologies/{typologyId}, /typology-matches, /typology-matches/evaluate, /typology-matches/{matchId}/provenance *[v0.1.2 · CR-I4-01, CR-I4-03, CR-I4-05]*
 
-- /intelligence-gaps *[v0.1.1 · C13]*
+- /hypotheses, /hypotheses/{hypothesisId}/links, /hypotheses/{hypothesisId}/provenance, /hypothesis-matrix *[v0.1.2 · CR-I4-04, CR-I4-05]*
 
-- /assessments (commands: finalize, disconfirming-searches; provenance) *[v0.1.1 · C13]*
+- /intelligence-gaps, /intelligence-gaps/{gapId} *[v0.1.1 · C13]* *[v0.1.2 · CR-I4-05]*
+
+- /assessments (commands: finalize, disconfirming-searches; provenance; revisions) *[v0.1.1 · C13]* *[v0.1.2 · CR-I4-05]*
 
 - /products
 

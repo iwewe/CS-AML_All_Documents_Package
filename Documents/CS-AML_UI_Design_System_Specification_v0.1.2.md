@@ -1,16 +1,17 @@
 **CS-AML**
 
 UI Design System  
-Specification v0.1.1
+Specification v0.1.2
 
 Proposed visual and component baseline (draft for review) for the CS-AML MVP analyst interface *[v0.1.1 · A01]*
 
-> **Document status — v0.1.1**
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
+> **Document status — v0.1.2**
+> Version: 0.1.2 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec). *[v0.1.2]*
 > Supersedes: CS-AML UI Design System Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2; decision register and release gates in `CHANGELOG.md`). The v0.1.2 changes come from change requests raised while implementing increments I1–I4; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 
 > **Design-system axiom**
 >
@@ -19,8 +20,8 @@ Proposed visual and component baseline (draft for review) for the CS-AML MVP ana
 | **Document control** | **Value** |
 |----|----|
 | Document ID | CSAML-UI-DS-0.1 |
-| Version | 0.1.1 |
-| Status | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) — normative UI design-system baseline for MVP 0.1 *[v0.1.1 · A01]* |
+| Version | 0.1.2 *[v0.1.2]* |
+| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.2-spec) — normative UI design-system baseline for MVP 0.1 *[v0.1.1 · A01]* |
 | Depends on | UX Specification; Information Architecture Specification; Screen Inventory; Wireframe Specification |
 | Primary consumers | Product design, frontend engineering, QA, accessibility, product owner |
 | Baseline theme | Light, calm, data-dense, evidence-first |
@@ -287,7 +288,16 @@ Analytical state is domain meaning, not generic UI status. These states require 
 
 - Ranges and approximate values SHALL retain approximation markers.
 
-- A chain containing mixed epistemic classes SHALL preserve the class of each leg; the whole chain SHALL NOT inherit the strongest class.
+- A chain containing mixed epistemic classes SHALL preserve the class of each leg; the whole chain SHALL NOT inherit the strongest class. A chain is never shown stronger than its weakest leg; each leg shows its own class, evidence, value and confidence. *[v0.1.2 · CR-I3-04, CR-I3-09]*
+
+- Legends SHALL use the class label, text cue, line style, meaning and evidence rule served by `GET /value-flow-legend`. *[v0.1.2 · CR-I3-03]*
+
+- Aggregation rules (value-flow view): *[v0.1.2 · CR-I3-12]*
+  - Totals are shown only per group of (flow class, flow type, currency); there is no grand total across classes, types or currencies.
+  - CONTRACT and SUBCONTRACT groups are labelled as an obligation, not as settled value; only DIRECT groups may be presented as settlement-evidenced.
+  - Each group shows a lower-bound total, an upper-bound total (shown as unknown when any amount is unknown or open-ended) and an exact total only when every amount is a known, non-approximate point value.
+  - Unknown amounts are displayed as "Unknown" and counted in the group; they are never treated as 0. Range and approximate counts are shown.
+  - Legs decompose their flow's value and are never added to the flow's total.
 
 # 12. Investigation Graph Design Rules
 
