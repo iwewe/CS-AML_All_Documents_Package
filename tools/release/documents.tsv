@@ -1,0 +1,24 @@
+# key (file name without "CS-AML_" and version)	display title	mode (include | legacy-exclude)
+API_Specification	API Specification	include
+Component_Inventory_and_Storybook_Implementation_Specification	Component Inventory & Storybook Implementation Specification	include
+Control_Implementation_Guide	Control Implementation Guide	include
+Data_Model_Specification	Data Model Specification	include
+Framework_Goals_and_Non-Goals	Framework Goals and Non-Goals	include
+Framework	Framework (legacy, non-expanded)	legacy-exclude
+Framework_Expanded	Framework — Expanded Normative Specification	include
+Frontend_Architecture_and_State_Management_Specification	Frontend Architecture & State Management Specification	include
+High-Fidelity_UI_Specification	High-Fidelity UI Specification	include
+Information_Architecture_Specification	Information Architecture Specification	include
+Investigation_Methodology	Investigation Methodology	include
+MVP_Engineering_Breakdown	MVP Engineering Breakdown	include
+Product_Requirements_Document_PRD	Product Requirements Document (PRD)	include
+Product_and_Feature_Specification	Product and Feature Specification	include
+Screen_Inventory	Screen Inventory	include
+Software_Requirements_Specification_SRS	Software Requirements Specification (SRS)	include
+Sprint_and_Milestone_Plan	Sprint and Milestone Plan	include
+Technical_Stack_and_Repository_Specification	Technical Stack and Repository Specification	include
+Technology_Architecture	Technology Architecture	include
+Typology_Catalogue	Typology Catalogue	include
+UI_Design_System_Specification	UI Design System Specification	include
+UX_Specification	UX Specification	include
+Wireframe_Specification	Wireframe Specification	include

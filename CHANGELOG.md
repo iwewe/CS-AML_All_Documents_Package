@@ -1,5 +1,15 @@
 # CS-AML Changelog
 
+## Release package v0.1.4 — 2026-10-10 — DOCX + PDF rendering (no specification change)
+
+DOCX and PDF editions of the v0.1.4 baseline were generated from the canonical Markdown at tag `v0.1.4-spec` (commit `56a0547`) into
+`release/v0.1.4/`: the 22 current documents (each at its current version — 0.1.4, 0.1.2 or 0.1.1; the legacy non-expanded Framework
+is excluded), copies of `contracts/openapi.yaml` and `schemas/enums.yaml`, a `README.md` and a `MANIFEST.txt` with SHA-256 values.
+No specification text, contract or registry changed; the Markdown remains canonical and the v0.1 DOCX/PDF in `Documents/` remain
+historical. Tooling: `tools/release/` (`build_release.sh`, `release.py`, `filter.lua`, `header.tex`, `documents.tsv`, `Dockerfile`;
+pandoc 3.10 and XeTeX / TeX Live 2026 in the pinned `pandoc/latex:3.10.0.0-debian` image, DejaVu fonts). Rebuilds are byte-identical.
+No new tag.
+
 ## v0.1.4 — 2026-10-10 — Change requests from the post-MVP follow-ups
 
 **Status:** **Approved Internal Specification Baseline** — tag `v0.1.4-spec`, 2026-10-10, product owner. Supersedes `v0.1.3-spec`.

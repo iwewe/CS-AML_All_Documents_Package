@@ -1,0 +1,50 @@
+% CS-AML specification release: LaTeX preamble additions (included by filter.lua).
+% Requires \csamldoc, \csamlversion, \csamlstatus, \csamldate, \csamltag (defined by filter.lua).
+\usepackage{etoolbox}
+\usepackage{fvextra}
+\usepackage{pdflscape}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{array}
+\setlength{\headheight}{14pt}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\arraystretch}{1.18}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textbf{CS-AML} \csamldoc}
+\fancyhead[R]{\footnotesize Version \csamlversion}
+\fancyfoot[L]{\footnotesize Approved Internal Specification Baseline}
+\fancyfoot[R]{\footnotesize Page \thepage\ of \pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\footnotesize\textbf{CS-AML} \csamldoc}%
+  \fancyhead[R]{\footnotesize Version \csamlversion}%
+  \fancyfoot[L]{\footnotesize Approved Internal Specification Baseline}%
+  \fancyfoot[R]{\footnotesize Page \thepage\ of \pageref*{LastPage}}}
+% Title page built from the document status block
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begin{titlepage}
+    \thispagestyle{empty}\raggedright
+    \vspace*{0.18\textheight}
+    {\Large\bfseries CS-AML\par}
+    \vspace{0.6em}
+    {\huge\bfseries \csamldoc\par}
+    \vspace{1.5em}
+    {\large Version \csamlversion\par}
+    \vspace{0.4em}
+    {\large \csamlstatus\par}
+    \vspace{0.4em}
+    {\normalsize \csamldate\ifdefempty{\csamltag}{}{\ \textperiodcentered\ tag \texttt{\csamltag}}\par}
+    \vfill
+    {\small Civil Society Anti-Money Laundering \& Financial Intelligence Framework\par}
+    \vspace{0.6em}
+    {\footnotesize Generated from the canonical Markdown source. The Markdown file in the
+     repository remains authoritative; change tags such as \emph{[v0.1.x \textperiodcentered\ \ldots]}
+     are part of the traceability record.\par}
+  \end{titlepage}%
+  \setcounter{page}{2}}
+\makeatother

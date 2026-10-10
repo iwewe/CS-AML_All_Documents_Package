@@ -19,7 +19,8 @@ Artinya: spesifikasi tidak harus bebas kekurangan, tetapi harus bebas dari kekur
 
 - **Gunakan file Markdown versi terbaru setiap dokumen** (lihat tabel *Daftar dokumen*: delapan dokumen kini `*_v0.1.4*.md`, tiga tetap `*_v0.1.2.md`, sisanya tetap `*_v0.1.1*.md` karena tidak berubah). Setiap dokumen hanya punya satu file Markdown yang berlaku; versi lama tersimpan di git (`git log --follow`, tag `v0.1.1-spec`, `v0.1.2-spec`, `v0.1.3-spec`).
 - Rujukan "<dokumen> v0.1.1", "v0.1.2" atau "v0.1.3" di dalam dokumen yang tidak berubah berarti versi terbaru dokumen tersebut.
-- **DOCX dan PDF adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1/v0.1.2, jadi jangan dipakai sebagai acuan implementasi.
+- **DOCX dan PDF di `Documents/` adalah arsip v0.1 lama.** Isinya belum memuat koreksi v0.1.1 dan seterusnya, jadi jangan dipakai sebagai acuan implementasi.
+- **Paket rilis v0.1.4 (DOCX + PDF terbaru)** ada di [`release/v0.1.4/`](release/v0.1.4/): 22 dokumen yang berlaku (Framework non-expanded yang *legacy* tidak disertakan), dirender dari Markdown pada tag `v0.1.4-spec`, ditambah salinan `contracts/openapi.yaml` dan `schemas/enums.yaml` serta `MANIFEST.txt` berisi SHA-256. Markdown tetap menjadi acuan; DOCX/PDF hanya salinan baca. Paket dibuat ulang dengan `tools/release/build_release.sh 0.1.4 v0.1.4-spec` (butuh Docker; pandoc 3.10 + XeTeX, hasil identik byte demi byte).
 - Setiap bagian yang berubah ditandai `*[v0.1.1 · Axx]*` (Axx = ID temuan di [`Audit/`](Audit/)), `*[v0.1.2 · CR-xx-yy]*`, `*[v0.1.3 · CR-xx-yy]*` atau `*[v0.1.4 · CR-N-xx]*` (ID change request di `CHANGELOG.md`).
 - Untuk kerangka, gunakan `CS-AML_Framework_v0.1.4_Expanded.md`. File `CS-AML_Framework_v0.1.1.md` berstatus *legacy*.
   > `CS-AML_Framework_v0.1.4_Expanded.md` is the authoritative framework document. The non-expanded Framework is retained for historical reference only.
@@ -43,7 +44,8 @@ SOURCE → EVIDENCE → FACT → INDICATOR → HYPOTHESIS → ASSESSMENT → INT
 ├── schemas/        Registry enum (enums.yaml)
 ├── sources/        Peta sumber indikator tipologi (verifikasi A13)
 ├── docs/adr/       Architecture Decision Records (0004–0006)
-├── tools/          Konverter DOCX → Markdown dan pengecek konsistensi
+├── release/        Paket rilis DOCX + PDF hasil render Markdown (release/v0.1.4/)
+├── tools/          Konverter DOCX → Markdown, pengecek konsistensi, pembuat paket rilis (tools/release/)
 ├── CHANGELOG.md    Register keputusan dan perubahan (v0.1.4, v0.1.3, v0.1.2, v0.1.1)
 └── MANIFEST.txt    Daftar seluruh file
 ```
