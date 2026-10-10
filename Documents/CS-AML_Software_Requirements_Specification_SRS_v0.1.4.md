@@ -2,16 +2,17 @@
 
 **Software Requirements Specification (SRS)**
 
-Version 0.1.3
+Version 0.1.4
 
-> **Document status — v0.1.3**  
-> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*  
+> **Document status — v0.1.4**  
+> Version: 0.1.4 — Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec). Supersedes v0.1.3 (2026-10-09, tag v0.1.3-spec). *[v0.1.4]*  
 > Supersedes: CS-AML Software Requirements Specification (SRS) v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3) and 2026-10-10 (v0.1.4; decision register and release gates in `CHANGELOG.md`). The v0.1.2, v0.1.3 and v0.1.4 changes come from change requests raised while implementing increments I1–I4, I5–I7 and the post-MVP follow-ups; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 > Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
+> Changes in 0.1.4: change requests CR-N-01…CR-N-14 approved by the product owner on 2026-10-10 (`CHANGELOG.md`, section v0.1.4). Each change is tagged `*[v0.1.4 · CR-N-xx]*`.
 
 > **Document status**  
 > Proposed normative software baseline for MVP 0.1 implementation (draft for review). This SRS translates the PRD (draft for review), Product & Feature Specification, Data Model Specification, Control Implementation Guide, Investigation Methodology, and Technology Architecture into testable software requirements. *[v0.1.1 · A01]*
@@ -22,11 +23,11 @@ Version 0.1.3
 
 | **Document** | CS-AML Software Requirements Specification |
 |----|----|
-| **Version** | 0.1.3 *[v0.1.3]* |
-| **Status** | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) *[v0.1.1 · A01]* |
+| **Version** | 0.1.4 *[v0.1.4]* |
+| **Status** | Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) *[v0.1.1 · A01]* |
 | **Primary product scope** | MVP 0.1 |
 | **Audience** | Product, engineering, QA, security, data, reviewers, governance |
-| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.3; Technology Architecture v0.1.1; Control Implementation Guide v0.1.3; Investigation Methodology v0.1.2 (Markdown, `Documents/*_v0.1.1.md`) |
+| **Upstream documents** | CS-AML PRD v0.1.1; Product & Feature Specification v0.1.1; Data Model Specification v0.1.4; Technology Architecture v0.1.1; Control Implementation Guide v0.1.4; Investigation Methodology v0.1.4 (Markdown, `Documents/*_v0.1.1.md`) |
 | **Normative terms** | SHALL / MUST = mandatory; SHOULD = recommended; MAY = optional |
 
 # Contents
@@ -153,7 +154,7 @@ SOURCE → EVIDENCE → CLAIM/FACT → INDICATOR → HYPOTHESIS → ASSESSMENT �
 DIRECT | DOCUMENTED | RECONSTRUCTED | HYPOTHETICAL
 ```
 
-These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.3 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
+These are the `flow_class` wire values. All controlled enumerations on the wire (database values, API payloads, exports) use UPPER_SNAKE_CASE and derive from the Data Model Specification v0.1.4 Annex A registry; display labels are separate and translatable. *[v0.1.1 · A09]*
 
 # 3. Definitions and Conventions
 
@@ -165,7 +166,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | Protected source | Human/source identity requiring compartmentalisation | Identity access separate from routine evidence access |
 | High-impact product | Product containing potentially harmful adverse findings or public attribution | Requires independent review and dissemination approval |
 | MVP | Minimum release satisfying end-to-end case completion | All P0 requirements required unless explicitly waived; a defect against a non-waivable invariant (§21) can never be waived *[v0.1.1 · A16]* |
-| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.3 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]*. A declared classification below the inputs' maximum (or labels missing an input label) is rejected (422), never silently raised; when an input is later upgraded, derived objects are flagged for re-review and their classification is not raised automatically *[v0.1.2 · CR-I2-05]* |
+| Information classification | Five ordered levels (least → most restrictive), wire values `PUBLIC`, `INTERNAL`, `SENSITIVE`, `RESTRICTED`, `SOURCE_PROTECTED` (display: Public, Internal, Sensitive, Restricted, Source-protected), authoritative per Data Model Specification v0.1.4 §16 | Access labels (purpose, jurisdiction, embargo, legal-review, compartment, etc.) are additive; the most restrictive applicable level plus all labels apply; derived objects/exports inherit the highest input classification unless a recorded reviewer downgrade decision exists; unknown or missing classification fails closed (deny and flag for classification). Framework v0.1 "Highly Restricted" is never auto-mapped to `SOURCE_PROTECTED` *[v0.1.1 · A08]*. A declared classification below the inputs' maximum (or labels missing an input label) is rejected (422), never silently raised; when an input is later upgraded, derived objects are flagged for re-review and their classification is not raised automatically *[v0.1.2 · CR-I2-05]* |
 
 # 4. System Boundary and Actors
 
@@ -237,13 +238,13 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Requirement** | The system SHALL version the Investigation Charter, including question, scope, exclusions, jurisdictions, period, authorised/prohibited collection methods, risks, and intended outputs. |
 |----|----|
 | **Rationale** | Controls scope and mission creep. |
-| **Verification** | Edit charter twice and verify prior version remains retrievable with actor/time. |
+| **Verification** | Edit charter twice and verify prior version remains retrievable with actor/time. Verify a second version without `change_rationale` is refused (422) and `GET /cases/{caseId}/charter/versions/{version}` returns each version. *[v0.1.4 · CR-N-01]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-CASE-002; CAS-01; PRI-01 |
 
 ### SRS-FR-CASE-003 — Lifecycle gates
 
-| **Requirement** | The system SHALL support configurable G0–G6 lifecycle gates and SHALL prevent controlled actions when required approval is absent. |
+| **Requirement** | The system SHALL support configurable G0–G6 lifecycle gates and SHALL prevent controlled actions when required approval is absent. In v0.1.4 the controlled actions are the case-lifecycle transitions: the case status changes only through an approved gate (G0 DRAFT → AUTHORIZED, G1 AUTHORIZED → ACTIVE, G4 ACTIVE → REVIEW, G6 ACTIVE / REVIEW → CLOSED); collection, assessment finalisation and dissemination keep their own controls. The decider SHALL NOT be the submitter; for high-impact cases (risk HIGH / CRITICAL or classification RESTRICTED / SOURCE_PROTECTED) the G0 / G1 decider SHALL NOT have authored the charter version under approval. Readiness criteria are checked where they are data (API §12) and otherwise left to reviewer judgement. Gate configuration per organisation or risk tier, MONITORING and reopening are deferred to v0.2. *[v0.1.4 · CR-N-03, CR-N-05, CR-N-06, CR-N-07]* |
 |----|----|
 | **Rationale** | Enforces stage-gated investigation methodology. |
 | **Verification** | Attempt high-impact transition without approval and verify denial; approve independently and retry. |
@@ -255,13 +256,13 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Requirement** | The system SHALL support case-scoped tasks with owner, due date, type, status, dependencies, and immutable completion history. |
 |----|----|
 | **Rationale** | Coordinates investigative work. |
-| **Verification** | Create, reassign, complete task and verify audit trail. |
+| **Verification** | Create, reassign, complete task and verify audit trail. Verify DONE is refused while a dependency is open (409), a closed task cannot change (409) and a non-member assignee is refused (422). *[v0.1.4 · CR-N-04]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-CASE-004 |
 
 ### SRS-FR-CASE-005 — Case activity timeline
 
-| **Requirement** | The system SHALL display material case actions in chronological order with actor, timestamp, object, and action type. |
+| **Requirement** | The system SHALL display material case actions in chronological order with actor, timestamp, object, and action type. Only events the viewer may see are shown (no authorization / authentication / security events). Filtering by actor, action and object is client-side in v0.1.4; server-side filter parameters and an auditor view are deferred to v0.2. *[v0.1.4 · CR-N-08]* |
 |----|----|
 | **Rationale** | Supports reconstructability. |
 | **Verification** | Perform material actions and verify ordered visibility. |
@@ -308,7 +309,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-EVD-005 — Derivative lineage
 
-| **Requirement** | The system SHALL record parent evidence, transformation type, tool/version where material, creator, and timestamp for OCR, translation, crop, parse, or derived dataset. |
+| **Requirement** | The system SHALL record parent evidence, transformation type, tool/version where material, creator, and timestamp for OCR, translation, crop, parse, or derived dataset. OCR, text extraction and machine translation produce a DerivedText (Data Model §7.7) plus a derivative EvidenceItem with `derivation_type` OCR_TEXT, TEXT_EXTRACTION or MACHINE_TRANSLATION. *[v0.1.4 · CR-N-09, CR-N-10]* |
 |----|----|
 | **Rationale** | Preserves transformation lineage. |
 | **Verification** | Create derivative and verify reverse trace to original. |
@@ -327,7 +328,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 ## 6.2a Claim and Fact Lifecycle *[v0.1.1 · A10]*
 
 > **Status of this family**  
-> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.3 §7.4 Claim and §7.5 Fact.
+> SRS-FR-CLM-001…004 were added in v0.1.1 to close audit finding A10. Approved by product owner, 2026-10-08. A Claim is a permanent record of what a source asserts and is never converted into a Fact; a Fact is a separate object supported by evidence (mandatory), optionally by claims, and by VerificationDecisions. *[v0.1.1 · C02]* Object definitions follow Data Model Specification v0.1.4 §7.4 Claim and §7.5 Fact.
 
 ### SRS-FR-CLM-001 — Claim record and attribution
 
@@ -373,6 +374,24 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Verification** | Upload representative formats and verify originals plus metadata. |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-DOC-001 |
+
+### SRS-FR-DOC-002 — OCR and text extraction *[v0.1.4 · CR-N-09]*
+
+| **Requirement** | The system SHALL extract searchable text from evidence items (OCR of page images, PDF text layers, plain text) as a page-mapped, review-required DerivedText with engine, version, models and per-page confidence, without modifying the original. Machine output SHALL remain REVIEW_REQUIRED until a person records a review. The feature SHALL be disableable per deployment; automatic extraction after ingest SHALL be off by default. |
+|----|----|
+| **Rationale** | Makes scanned evidence searchable and citable without mistaking machine text for the original. |
+| **Verification** | Extract a scanned PDF; verify the original row, bytes and version are unchanged, pages map to the input, the record is REVIEW_REQUIRED and a review records reviewer and time. |
+| **Priority** | P1 |
+| **Traceability** | F-DOC-002; EVD-02; TEC-01 |
+
+### SRS-FR-DOC-003 — Machine translation *[v0.1.4 · CR-N-10]*
+
+| **Requirement** | The system SHALL translate evidence text (Indonesian ↔ English in v0.1.4) only with an offline engine, keep the source-language text of every page, label the output "Machine translation — review required" until a person reviews it, never translate a translation, and carry the machine-translation label into any intelligence product that uses it. |
+|----|----|
+| **Rationale** | Daily translation need without sending evidence content to a third party. |
+| **Verification** | Translate with network access disabled; verify source text, label, lineage (translation → OCR derivative → original) and 409 on translating a translation. |
+| **Priority** | P1 |
+| **Traceability** | EVD-02; TEC-01; PRI-01 |
 
 ## 6.3 Entity, Relationship and Asset
 
@@ -618,7 +637,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-FR-SCH-001 — Full-text and object search
 
-| **Requirement** | The system SHALL search authorised cases, entities, sources, evidence metadata, extracts, assets, events, and products using full-text and structured filters. MVP 0.1 implements it as `GET /search` (API §17). Indexed: cases, entities (names, aliases, identifiers), sources, evidence metadata, extracts (cited text), claims, facts, relationships (type and dates only, never endpoint names), assets, events, value flows and products. Evidence file content (OCR / full text) is not indexed in MVP 0.1 (Phase 2); hypotheses, assessments and indicators are not indexed yet. Every hit links to its canonical object. *[v0.1.3 · CR-I5-01, CR-I5-07]* |
+| **Requirement** | The system SHALL search authorised cases, entities, sources, evidence metadata, extracts, assets, events, and products using full-text and structured filters. MVP 0.1 implements it as `GET /search` (API §17). Indexed: cases, entities (names, aliases, identifiers), sources, evidence metadata, extracts (cited text), claims, facts, relationships (type and dates only, never endpoint names), assets, events, value flows and products. Evidence file content (OCR / full text) is not indexed in MVP 0.1 (Phase 2); hypotheses, assessments and indicators are not indexed yet. Every hit links to its canonical object. *[v0.1.3 · CR-I5-01, CR-I5-07]* Since v0.1.4 completed DerivedText is indexed as `DERIVED_TEXT` with the epistemic marker `DERIVED` (never presented as the original) and can be switched off per deployment. *[v0.1.4 · CR-N-11]* |
 |----|----|
 | **Rationale** | Supports investigation retrieval. |
 | **Verification** | Search known fixture and verify expected scoped results. |
@@ -742,7 +761,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Requirement** | The system SHALL authenticate via OIDC-compatible identity provider and enforce MFA according to deployment policy. |
 |----|----|
 | **Rationale** | Strong identity control. |
-| **Verification** | Disable IdP user and verify access revoked; validate MFA path. |
+| **Verification** | Disable IdP user and verify access revoked; validate MFA path. Verify a high-risk action without a step-up answers 403 STEP_UP_REQUIRED and succeeds after `GET /auth/login?acr=2` (SRS-SEC-005). *[v0.1.4 · CR-N-13]* |
 | **Priority** | MVP / P0 |
 | **Traceability** | F-SEC-001 |
 
@@ -791,7 +810,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Aligns SRS with canonical data model. |
 | **Verification** | Schema review and CRUD contract tests for all required object types. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.3 |
+| **Traceability** | Data Model v0.1.4 |
 
 ### SRS-DR-002 — Stable identifiers
 
@@ -800,7 +819,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Supports audit and linking. |
 | **Verification** | Rename object and verify identifier unchanged. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.3 |
+| **Traceability** | Data Model v0.1.4 |
 
 ### SRS-DR-003 — Version semantics
 
@@ -818,7 +837,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Rationale** | Supports imperfect open-source data. |
 | **Verification** | Store year-only and approximate event date. |
 | **Priority** | MVP |
-| **Traceability** | Data Model v0.1.3 |
+| **Traceability** | Data Model v0.1.4 |
 
 ### SRS-DR-005 — Provenance references
 
@@ -851,7 +870,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-IF-002 — REST/HTTP API
 
-| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.3 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
+| **Requirement** | The system SHALL expose versioned authenticated APIs for canonical objects and SHALL enforce identical authorization rules to the UI. Mutations of versioned resources SHALL use `If-Match` preconditions (missing → 428 `PRECONDITION_REQUIRED`; stale → 412 `PRECONDITION_FAILED`; no silent overwrite), except multi-entity commands (merge, unmerge, `POST /resolution-decisions`, match-candidate decisions), which SHALL carry a body map `expected_versions` (missing or incomplete → 428; mismatch → 412 with `details.current_record_versions`) *[v0.1.1 · C03]*; 409 `STATE_CONFLICT` is reserved for workflow/business-state conflicts. Material commands (evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation) SHALL require an `Idempotency-Key`. The OpenAPI 3.1 contract `contracts/openapi.yaml` (P0 vertical slice, contract-first) SHALL be conformed to by the implementation and exercised by contract tests; detailed semantics are in API Specification v0.1.4 §28. *[v0.1.1 · A04, A11]* *[v0.1.1 · C12]* |
 |----|----|
 | **Rationale** | Enables integration and testability. |
 | **Verification** | API contract tests plus authorization parity tests. |
@@ -925,7 +944,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-SEC-005 — Session control
 
-| **Requirement** | Sessions SHALL support idle timeout, absolute lifetime, revocation, and reauthentication for configured high-risk actions. |
+| **Requirement** | Sessions SHALL support idle timeout, absolute lifetime, revocation, and reauthentication for configured high-risk actions. Baseline high-risk actions (reauthentication = ACR 2, password + TOTP, within 900 s by default): `dissemination.approve`, `export.generate`, `export.download`, `disposition.approve`, `disposition.execute`, `legal_hold.release`, `entity.merge`, `entity.unmerge`, `gate.approve`, `protected_source.grant`, `protected_source.access` (API §4). Without a recent step-up the action answers 403 STEP_UP_REQUIRED and is audited. A failed sign-in callback SHALL return the browser to the application with a reason code (303), never a raw error. Per-deployment action lists and phishing-resistant factors for approvers are deferred to v0.2. *[v0.1.4 · CR-N-13, CR-N-14]* |
 |----|----|
 | **Rationale** | Reduces account takeover impact. |
 | **Verification** | Session expiry/revocation test. |
@@ -1106,7 +1125,7 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 
 ### SRS-AI-001 — Derived status
 
-| **Requirement** | AI/OCR/NLP-generated outputs SHALL be marked as derived/candidate material with model/tool version and source context when material. |
+| **Requirement** | AI/OCR/NLP-generated outputs SHALL be marked as derived/candidate material with model/tool version and source context when material. OCR, extraction and translation outputs carry `automated: true`, engine, version and model hashes (Data Model §7.7). *[v0.1.4 · CR-N-09, CR-N-10]* |
 |----|----|
 | **Rationale** | Prevents automation from becoming evidence. |
 | **Verification** | Generate candidate and inspect metadata. |
@@ -1139,6 +1158,15 @@ These are the `flow_class` wire values. All controlled enumerations on the wire 
 | **Verification** | Disable AI and execute MVP pilot case. |
 | **Priority** | P1 unless AI disabled |
 | **Traceability** | F-ADM-004 |
+
+### SRS-AI-005 — Offline-only automation *[v0.1.4 · CR-N-10]*
+
+| **Requirement** | Every automation engine (OCR, machine translation and any future AI) SHALL run offline on the CS-AML host with pinned, integrity-checked models; evidence content SHALL NOT be sent to a third-party service and there SHALL be no online fallback. Reviewed translations need no second reviewer, but the machine-translation label SHALL be carried into any intelligence product that uses the translation. |
+|----|----|
+| **Rationale** | Privacy and source protection: evidence content never leaves the host. |
+| **Verification** | Run OCR and translation with outbound network disabled; verify no network library is used and a modified model file is refused. |
+| **Priority** | MVP where automation is enabled |
+| **Traceability** | TEC-01; PRI-01; SEC-01 |
 
 # 15. UX and Accessibility Requirements
 
@@ -1368,11 +1396,16 @@ Each mandatory requirement SHALL be verifiable by one or more of: automated unit
 
 # Annex B — State Models
 
-State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.3 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
+State values are the registered wire values of `schemas/enums.yaml`; the transitions follow the Data Model Specification v0.1.4 lifecycles. Labels such as "triage" or "changes requested" describe activities or review decisions, not stored states. *[v0.1.1 · C08]*
 
 ``` text
 Case (case_status): DRAFT → AUTHORIZED → ACTIVE → REVIEW → CLOSED → MONITORING → REOPENED
+Gate (gate_status):  NOT_SUBMITTED → SUBMITTED → APPROVED | REJECTED;  REJECTED → SUBMITTED
+Task (task_status):  OPEN | IN_PROGRESS | BLOCKED → DONE | CANCELLED   (DONE, CANCELLED final)
+DerivedText (derived_text_status): QUEUED → PROCESSING → REVIEW_REQUIRED → REVIEWED;  QUEUED | PROCESSING → FAILED
 ```
+
+Case status changes only through an approved gate: G0 DRAFT → AUTHORIZED, G1 AUTHORIZED → ACTIVE, G4 ACTIVE → REVIEW, G6 ACTIVE / REVIEW → CLOSED. MONITORING and REOPENED are not reachable through the API in v0.1.x (v0.2). *[v0.1.4 · CR-N-03, CR-N-04, CR-N-09]*
 
 *[v0.1.1 · C08]* Per Data Model §6.1. Triage of an incoming matter happens while the case is DRAFT; authorization of purpose and scope moves it to AUTHORIZED. There is no APPROVED case state: approval applies to gates and products.
 
@@ -1418,9 +1451,11 @@ Lifecycle-less classes (envelope_status): Source, EvidenceExtract, Asset → REG
 
 # Annex C — API Resource Baseline
 
-Paths are relative to `/api/v1` and follow API Specification v0.1.3 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
+Paths are relative to `/api/v1` and follow API Specification v0.1.4 §12–§20 and `contracts/openapi.yaml`. *[v0.1.1 · C13]*
 
 - /cases, /cases/{caseId}/charter, /cases/{caseId}/gates, /cases/{caseId}/tasks
+
+- /cases/{caseId}/charter/versions, /cases/{caseId}/charter/versions/{version}, /tasks/{taskId} *[v0.1.4 · CR-N-01, CR-N-04]*
 
 - /cases/{caseId}/memberships, /case-memberships/{membershipId} *[v0.1.2 · CR-I1-02]*
 
@@ -1429,6 +1464,8 @@ Paths are relative to `/api/v1` and follow API Specification v0.1.3 §12–§20 
 - /sources
 
 - /evidence, /evidence/uploads, /evidence/{evidenceId}/extracts, /evidence/{evidenceId}/lineage *[v0.1.1 · C13]*
+
+- /evidence/{evidenceId}/text-extractions, /evidence/{evidenceId}/translations, /evidence/{evidenceId}/derived-texts, /derived-texts/{derivedTextId} (translations, review) *[v0.1.4 · CR-N-09, CR-N-10]*
 
 - /cases/{caseId}/claims, /claims/{claimId}, /claims/{claimId}/verification-decisions *[v0.1.1 · A10]* *[v0.1.1 · C13]*
 

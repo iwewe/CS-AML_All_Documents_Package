@@ -2,16 +2,17 @@
 
 **API Specification**
 
-Version 0.1.3
+Version 0.1.4
 
-> **Document status — v0.1.3**
-> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*
+> **Document status — v0.1.4**
+> Version: 0.1.4 — Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec). Supersedes v0.1.3 (2026-10-09, tag v0.1.3-spec). *[v0.1.4]*
 > Supersedes: CS-AML API Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3) and 2026-10-10 (v0.1.4; decision register and release gates in `CHANGELOG.md`). The v0.1.2, v0.1.3 and v0.1.4 changes come from change requests raised while implementing increments I1–I4, I5–I7 and the post-MVP follow-ups; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 > Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
+> Changes in 0.1.4: change requests CR-N-01…CR-N-14 approved by the product owner on 2026-10-10 (`CHANGELOG.md`, section v0.1.4). Each change is tagged `*[v0.1.4 · CR-N-xx]*`.
 
 > **Purpose**  
 > Normative HTTP API baseline for CS-AML MVP 0.1 (approved internal specification baseline v0.1.1). *[v0.1.1 · A01]* It defines resource conventions, request/response envelopes, versioning, authorization behavior, filtering, pagination, concurrency, idempotency, uploads, search, graph projections, review/dissemination operations, errors, audit correlation and verification expectations.
@@ -28,8 +29,8 @@ Dependencies: Framework v0.1.1 · Data Model v0.1.3 · SRS v0.1.3 · Technology 
 | **Attribute** | **Value** |
 |----|----|
 | Document ID | CSAML-API-0.1 |
-| Version | 0.1.3 *[v0.1.3]* |
-| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) *[v0.1.1 · A01]* |
+| Version | 0.1.4 *[v0.1.4]* |
+| Status | Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) *[v0.1.1 · A01]* |
 | Primary audience | Backend Engineer, Frontend Engineer, QA, Security Reviewer, Integration Engineer |
 | Protocol | HTTPS + JSON; multipart/streaming where file transfer requires it |
 | Reference style | Resource-oriented REST API with explicit action endpoints for workflow decisions |
@@ -91,6 +92,8 @@ X-CSRFToken: <django-csrf-token>        # unsafe methods only (see §4)
 | Session timeouts | Idle and absolute session timeouts are security-policy configuration. *[v0.1.1 · A11]* |
 | Principal | Server resolves user/service identity; client-submitted actor identity is not trusted. |
 | MFA | Required claims/policy enforced server-side for sensitive actions where configured. |
+| Step-up (MFA) | Keycloak levels of authentication: ACR 1 = password, ACR 2 = password + TOTP. `GET /auth/login?acr=2&next=<path>` requests a step-up (OIDC `acr_values=2`; `next` is a same-origin relative path, anything else becomes `/`); the callback records the verified `acr` and `auth_time` in the server-side session and audits `auth.step_up`. `GET /auth/session` adds `auth_level`, `auth_time` and `step_up` (enabled, required level, maximum age, stepped-up-at, valid-until, active, action list, login URL); these are UI hints, the server decides on every request. High-risk actions need ACR ≥ 2 within the step-up window (default 900 s): `dissemination.approve` (approveDissemination), `export.generate` (generateExportPackage), `export.download` (downloadExportPackage), `disposition.approve`, `disposition.execute`, `legal_hold.release`, `entity.merge`, `entity.unmerge`, `gate.approve` (approveCaseGate), `protected_source.grant` (createCaseMembership / updateCaseMembership granting or changing `protected_source_authorized`) and `protected_source.access` (searchObjects with `include_source_protected=true` and a grant; getEvidenceContent of SOURCE_PROTECTED evidence). Otherwise 403 `STEP_UP_REQUIRED` (§9) after the ordinary authorization checks (never disclosing an object), audited as `auth.step_up_required`. The contract marks these operations with `x-csaml-step-up`. Not step-up actions in v0.1.4: reading SOURCE_PROTECTED records other than evidence content, review approvals, membership revocation. Per-deployment action lists and phishing-resistant factors for approvers are deferred to v0.2. *[v0.1.4 · CR-N-13]* |
+| Login-callback errors | Every failed `GET /auth/callback` answers **303** to `/?login_error=<reason>`: `expired` (unknown or expired login state, e.g. a stale identity-provider tab), `cancelled` (the identity provider returned an error), `failed` (code rejected, token invalid, inactive principal) or `unavailable` (identity provider down). The cause is logged with the request id and never shown; the SPA explains the reason and offers a sign-in button and never restarts the login by itself. This replaces the 400 / 401 JSON errors of v0.1.3. *[v0.1.4 · CR-N-14]* |
 | Service account | Machine/service API clients are out of MVP scope. When introduced, each SHALL be a distinct non-human principal with least privilege and no shared analyst identity; its authentication mechanism requires a separate decision. *[v0.1.1 · A11]* |
 | Logout/revocation | After logout, session expiry or revocation, subsequent requests return 401. Keycloak back-channel logout SHOULD revoke the corresponding server-side sessions. *[v0.1.1 · A11]* It is delivered to `POST /auth/backchannel-logout` (above). *[v0.1.2 · CR-I1-05]* |
 | Impersonation | Not supported in MVP unless separately controlled/audited. |
@@ -188,6 +191,7 @@ Filter values are registry wire values: `type` is an `entity_type`, `resolution_
 | 400 | INVALID_REQUEST | Malformed/semantically invalid request not tied to one field. |
 | 401 | AUTHENTICATION_REQUIRED | No valid authenticated principal. |
 | 403/404 | ACCESS_DENIED / NOT_FOUND | Deployment/policy chooses non-disclosing behavior consistently. |
+| 403 | STEP_UP_REQUIRED | High-risk action without a recent second-factor verification (§4); `details`: `reason` (`STEP_UP_MISSING` / `STEP_UP_EXPIRED`), `action`, `required_acr`, `max_age_seconds`, `step_up_url`. *[v0.1.4 · CR-N-13]* |
 | 409 | STATE_CONFLICT | Workflow/business-state conflict only (e.g. gate not satisfied, object already finalized, approving a rejected item). Not used for stale versions. *[v0.1.1 · A04]* |
 | 409 | IDEMPOTENCY_IN_PROGRESS | A request with the same Idempotency-Key is still in flight; `Retry-After` included (§11). *[v0.1.1 · A11]* |
 | 412 | PRECONDITION_FAILED | `If-Match` does not match the current `record_version`; `details.current_record_version` included. No silent overwrite. *[v0.1.1 · A04]* Multi-entity commands (§10, §14): an `expected_versions` entry does not match; `details.current_record_versions` (map of entityId → current record_version) included. *[v0.1.1 · C03]* |
@@ -274,12 +278,15 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | PATCH | /cases/{caseId} | Version-aware case update. |
 | GET | /cases/{caseId}/charter | Current charter + version history links. |
 | POST | /cases/{caseId}/charter/versions | Create new charter version. |
+| GET | /cases/{caseId}/charter/versions | Charter version history, oldest first (`listCharterVersions`). *[v0.1.4 · CR-N-01]* |
+| GET | /cases/{caseId}/charter/versions/{version} | One charter version (`getCharterVersion`; target of `version_links`). *[v0.1.4 · CR-N-01]* |
 | GET | /cases/{caseId}/gates | Lifecycle gates. |
 | POST | /cases/{caseId}/gates/{gateId}/submit | Submit gate for decision. |
 | POST | /cases/{caseId}/gates/{gateId}/approve | Independent approval action. |
 | POST | /cases/{caseId}/gates/{gateId}/reject | Reject/return with rationale. |
 | GET | /cases/{caseId}/tasks | Tasks. |
 | POST | /cases/{caseId}/tasks | Create task. |
+| GET/PATCH | /tasks/{taskId} | Task with history (`getTask`); assign, reschedule or move the status (`updateTask`, `If-Match`). *[v0.1.4 · CR-N-01, CR-N-04]* |
 | GET | /cases/{caseId}/activity | Material case activity projection. |
 | GET/POST | /cases/{caseId}/memberships | List active memberships; grant a membership (`principal_id`, `role` = `LEAD`/`ANALYST`/`REVIEWER`, `protected_source_authorized`). An active membership for the same principal → 409. *[v0.1.2 · CR-I1-02]* |
 | PATCH/DELETE | /case-memberships/{membershipId} | Change role or protected-source grant; revoke (soft: `revoked_at`, 204). `If-Match` REQUIRED. The LEAD membership cannot be revoked (409). *[v0.1.2 · CR-I1-02]* |
@@ -291,6 +298,12 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | Value sets | `risk_rating`: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; `closure_reason`: `OBJECTIVES_MET`, `INSUFFICIENT_BASIS_TO_CONTINUE`, `REFERRED`, `OUT_OF_SCOPE`, `DUPLICATE`, `LEGAL_OR_SAFETY_CONSTRAINT`, `OTHER` (registry `schemas/enums.yaml`). *[v0.1.2 · CR-I1-08]* |
 | Classification change | Only the case `LEAD` may change a case's `classification` or `access_labels` via `PATCH /cases/{caseId}`, and only upwards (higher level, added labels). Downgrades and label removal require a recorded reviewer decision (workflow delivered with review, I6) and are rejected with 403 until then. *[v0.1.2 · CR-I1-09]* |
 | Memberships | Managed by the case `LEAD` (403 otherwise). A case keeps exactly one `LEAD`; the lead changes through `PATCH /cases/{caseId}` (`lead_analyst_id`). `protected_source_authorized` is effective only for principals holding the IdP eligibility role `csaml-protected-source`. Every grant, change and revocation is audited. *[v0.1.2 · CR-I1-02, CR-I1-10]* |
+| Charter | Append-only CharterVersion (Data Model §6.4): purpose, investigation questions (`priority` PRIMARY / SECONDARY, registry `investigation_question_priority`) and the Framework Annex A fields (trigger, public-interest rationale, scope included / excluded, initial subjects and hypotheses, expected sensitive data, legal basis, legal / privacy constraints, security / source risks, harm assessment, authorised / prohibited collection methods, expected outputs, stop conditions, jurisdictions, time period, review date). A question sent with `id` keeps that question; a question left out of a later version is RETIRED, never deleted. `change_rationale` is REQUIRED for every version after the first (422). `Charter` adds `versions`, `approved_version` (the version bound by the approved G1) and `amended_since_approval`. *[v0.1.4 · CR-N-01, CR-N-02]* |
+| Gates | Seven gates G0–G6 per case; status (registry `gate_status`) NOT_SUBMITTED → SUBMITTED → APPROVED / REJECTED, REJECTED → SUBMITTED, APPROVED final. Case status changes **only** through an approved gate: G0 DRAFT → AUTHORIZED, G1 AUTHORIZED → ACTIVE, G4 ACTIVE → REVIEW, G6 ACTIVE / REVIEW → CLOSED (with `closure_reason`, REQUIRED to submit G6); G2, G3 and G5 change no status. MONITORING and REOPENED are not reachable through the API in v0.1.x (v0.2). `Gate` adds `gate_status`, `title`, `decision_question`, `transition`, `preconditions`, submitter / decider fields, `conditions` and the decision history; `GateDecisionRequest` adds `conditions` (CIG CAS-02) and `closure_reason`. *[v0.1.4 · CR-N-01, CR-N-03]* |
+| Gate readiness criteria | Checked by the system at submission and again at approval (unmet → 409 with the codes): case status; previous gate approved (G2–G5); G0 charter recorded, trigger and public-interest rationale; G1 ≥ 1 investigation question, scope, time period, jurisdictions, expected data, harm assessment; G2 legal basis and authorised collection methods; G3 evidence linked and gaps recorded; G4 an assessment and ≥ 2 hypotheses; G5 an independently approved product version; G6 a closure reason. Everything else in Framework §5 / Methodology §3 is **reviewer judgement** recorded in the decision rationale or enforced by other controls (Framework §5.9). Gates control the case lifecycle only (activation, review, closure); collection, assessment finalisation and dissemination keep their own controls and are not blocked by gate state. Configuration per organisation or risk tier is deferred to v0.2. *[v0.1.4 · CR-N-05, CR-N-06]* |
+| Gate independence | The decider is never the submitter (403; database CHECK). Deciders are LEAD or REVIEWER members (`gate.decide`). For a high-impact case — risk HIGH / CRITICAL, or classification RESTRICTED / SOURCE_PROTECTED — the G0 / G1 decider must not have authored the charter version under approval (403). Gate approval is a step-up action (§4). *[v0.1.4 · CR-N-07, CR-N-13]* |
+| Tasks | `task_type` (registry): COLLECTION, VERIFICATION, ANALYSIS, REVIEW, OTHER; `task_status` (registry): OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED (DONE and CANCELLED final, database-guarded; 409 TASK_CLOSED). The assignee is an active, eligible case member (422); dependencies are tasks of the same case and DONE needs every dependency closed (409 DEPENDENCIES_OPEN). Members with `case.update` change any field; the assignee may change only the status of their own task. History is append-only. Links from tasks to sources, entities and hypotheses are deferred to v0.2. *[v0.1.4 · CR-N-04]* |
+| Activity | Server side: permission filter (case-level targets and readable objects; no `authz.*` / `auth.*` / `security.*` events; references only), `sort=occurred_at` / `-occurred_at`, classification filter; items add `target_type`, `audit_action` and `links`. Actor / action / object filters run client-side on the loaded page; server parameters (`actor`, `action`, `target_type`) and an auditor view are deferred to v0.2. *[v0.1.4 · CR-N-01, CR-N-08]* |
 
 # 13. Source, Evidence and File API
 
@@ -308,6 +321,12 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | GET/POST | /evidence/{evidenceId}/extracts | List the readable extracts of an evidence item; create citation/extract. *[v0.1.2 · CR-I2-06]* |
 | GET | /evidence-extracts/{extractId} | Canonical single-extract resource (`getEvidenceExtract`): the extract's `links.self` and the back-link used by search hits, product citations and provenance traces; readable exactly when the parent evidence item is readable (non-disclosing 404 otherwise); `links.evidence` points to the parent. *[v0.1.3 · CR-I5-07]* |
 | GET | /evidence/{evidenceId}/lineage | Original/derivative lineage. |
+| POST | /evidence/{evidenceId}/text-extractions | Queue OCR / text extraction (`requestTextExtraction`; 202 + job, Idempotency-Key REQUIRED). *[v0.1.4 · CR-N-09]* |
+| POST | /evidence/{evidenceId}/translations | Queue an offline machine translation of the item's text (`requestEvidenceTranslation`; 202 + job). *[v0.1.4 · CR-N-10]* |
+| GET | /evidence/{evidenceId}/derived-texts | Derived texts of the item's lineage (`listEvidenceDerivedTexts`; page text omitted). *[v0.1.4 · CR-N-09]* |
+| GET | /derived-texts/{derivedTextId} | One derived text with its pages (`getDerivedText`). *[v0.1.4 · CR-N-09, CR-N-10]* |
+| POST | /derived-texts/{derivedTextId}/translations | Queue a translation of a completed OCR / extraction output (`requestDerivedTextTranslation`; 202 + job). *[v0.1.4 · CR-N-10]* |
+| POST | /derived-texts/{derivedTextId}/review | Record a human review (`reviewDerivedText`; If-Match). *[v0.1.4 · CR-N-09, CR-N-10]* |
 | POST | /evidence/{evidenceId}/derivatives | Register approved derivative metadata/output. The bytes come from an upload session whose content upload has completed (`CONTENT_RECEIVED`, not yet completed); registering the derivative finalizes that session. *[v0.1.2 · CR-I2-02]* |
 
 > **Evidence invariant**  
@@ -316,8 +335,10 @@ The response code for a request that omits a REQUIRED Idempotency-Key is not yet
 | **Concern** | **Rule** |
 |----|----|
 | Upload session | `status`: `INITIATED` → `CONTENT_RECEIVED` (after `PUT …/content`) → `COMPLETED` (completed into an EvidenceItem, or consumed by a derivative registration). Responses add `received_size_bytes` and `detected_media_type`. Sessions are private to their initiator (404 for others) and expire after 24 h (`expires_at`; there is no expired status). A size-limit violation or an empty body → 422 (no 413). *[v0.1.2 · CR-I2-02]* |
-| EvidenceItem fields | Responses add `byte_size`, `hash_algorithm`, `derived_from` and `derivation_type` (free text in v0.1.2). `storage_ref` is the opaque `evidence:<id>`; bucket and key are never disclosed. *[v0.1.2 · CR-I2-06]* |
+| EvidenceItem fields | Responses add `byte_size`, `hash_algorithm`, `derived_from` and `derivation_type` (free text in v0.1.2; since v0.1.4 the registered open vocabulary `derivation_type`: OCR_TEXT, TEXT_EXTRACTION, MACHINE_TRANSLATION are produced only by the derived-text worker, other UPPER_SNAKE_CASE values such as REDACTION are accepted *[v0.1.4 · CR-N-09]*). `storage_ref` is the opaque `evidence:<id>`; bucket and key are never disclosed. *[v0.1.2 · CR-I2-06]* |
 | Status | Source and EvidenceExtract carry envelope `status` = `REGISTERED` (§6). *[v0.1.2 · CR-I2-03]* |
+| Derived text (OCR, extraction) | A DerivedText (Data Model §7.7) records one automated transformation: `transformation` OCR / TEXT_EXTRACTION (registry `derived_text_transformation`), engine and version, languages, models with SHA-256 and licence, per-page text with page mapping, `method` (registry `text_page_method`) and mean OCR word confidence (not an analytical confidence), content and input SHA-256; `status` (registry `derived_text_status`) QUEUED → PROCESSING → REVIEW_REQUIRED → REVIEWED, or FAILED with a safe error code. The worker reads the pinned original, re-hashes it first (mismatch → FAILED) and stores the output also as a new derivative EvidenceItem (`derivation_type` OCR_TEXT / TEXT_EXTRACTION); the original is only read. Classification, labels and case links are inherited from the input. Requesting needs update rights on the item; review needs a LEAD, ANALYST or REVIEWER membership; review never turns derived text into the original or into a fact. 409: FEATURE_DISABLED, UNSUPPORTED_FORMAT, ALREADY_DERIVED_TEXT. Automatic extraction after ingest is optional and off by default. *[v0.1.4 · CR-N-09, CR-N-12]* |
+| Machine translation | Translations are DerivedTexts with `transformation` MACHINE_TRANSLATION, source and target language (id → en, en → id; 422 otherwise), produced **offline only** — no evidence content leaves the host, there is no online fallback (§26, Technical Stack §9). Every page keeps its source-language text; the label reads "Machine translation — review required" until a person reviews it and "reviewed by a person (still a translation)" afterwards; an intelligence product that uses a translation carries the machine-translation label. A translation is never translated again (409 TRANSLATION_OF_TRANSLATION); lineage: translation → OCR / extraction derivative → original. No second reviewer is required. *[v0.1.4 · CR-N-10, CR-N-12]* |
 
 # 14. Entity, Relationship and Asset API
 
@@ -480,13 +501,14 @@ GET /api/v1/search?q=company+x&type=entity,evidence&case_id=...&status=...&page[
 | **Element** | **Rule (v0.1.3)** |
 |----|----|
 | Parameters | `q` (≤ 200 characters, ≤ 12 word tokens, each matched as a prefix with accents and case folded; names, aliases and identifiers also match by trigram similarity), `type` (registry `search_object_type`), `case_id`, `classification`, `status`, `entity_type`, `flow_class` (a value flow's own class or any leg's class), `date_from` / `date_to` (the object's domain date), `include_source_protected`, `facets`, `sort` (`relevance`, `updated_at`, `created_at`, `title`; `-` prefix for descending; default `relevance` with `q`, `updated_at` without), cursor page (default 25, maximum 100). *[v0.1.3 · CR-I5-01]* |
-| Hit | `object_type` (registry `search_object_type`: CASE, ENTITY, SOURCE, EVIDENCE_ITEM, EVIDENCE_EXTRACT, CLAIM, FACT, RELATIONSHIP, ASSET, EVENT, VALUE_FLOW, PRODUCT), `canonical_type`, `title`, snippet as plain-text segments `{text, match}` (never HTML), `classification`, `status`, `epistemic_status` (registry `search_epistemic_status`: CLAIM, FACT, EXCERPT, RECORD — a claim is never shown as a fact), `derived_from` (projection marker), `case_context` (readable cases only), `relevance` (text match only; SHALL NOT be labelled risk or suspicion), `links.self` (canonical API resource) and `links.ui` (SPA route). *[v0.1.3 · CR-I5-01, CR-I5-03]* |
+| Hit | `object_type` (registry `search_object_type`: CASE, ENTITY, SOURCE, EVIDENCE_ITEM, EVIDENCE_EXTRACT, CLAIM, FACT, RELATIONSHIP, ASSET, EVENT, VALUE_FLOW, PRODUCT), `canonical_type`, `title`, snippet as plain-text segments `{text, match}` (never HTML), `classification`, `status`, `epistemic_status` (registry `search_epistemic_status`: CLAIM, FACT, EXCERPT, RECORD, and since v0.1.4 DERIVED — a claim is never shown as a fact), `derived_from` (projection marker), `case_context` (readable cases only), `relevance` (text match only; SHALL NOT be labelled risk or suspicion), `links.self` (canonical API resource) and `links.ui` (SPA route). *[v0.1.3 · CR-I5-01, CR-I5-03]* |
 | Facets | `object_type`, `classification`, `status`, `entity_type`, `flow_class`, `case`; computed on the authorized, filtered set only. *[v0.1.3 · CR-I5-01]* |
 | Authorization | Applied in the query before results, `total_count`, facets, snippets and ordering; page rows are re-checked against the canonical objects (fail closed). Relevance is a per-document score without corpus statistics, so hidden objects never influence ordering. *[v0.1.3 · CR-I5-01]* |
 | SOURCE_PROTECTED | Excluded by default, including ordinary objects whose only readable context is a SOURCE_PROTECTED case. Returned only with `include_source_protected=true` **and** the per-case protected-source grant (IdP eligibility role plus `protected_source_authorized` membership); without the grant the flag changes nothing — no hit, count, facet or snippet. Protected-source *identity* stays outside generic search (§21). *[v0.1.3 · CR-I5-04]* |
 | Index scope | Cases; entities (names, aliases, identifiers); sources; evidence **metadata**; extracts (cited text); claims; facts; relationships (type and dates only — never endpoint names, which may be unreadable); assets; events; value flows; products. Evidence file content (OCR / full text) is not indexed (Phase 2); hypotheses, assessments and indicators are not indexed in MVP 0.1. An extract hit links to `GET /evidence-extracts/{extractId}`. *[v0.1.3 · CR-I5-07]* |
 | Limits | 120 requests per minute per user (429 RATE_LIMITED); statement timeout 5 s (503). See §25 for the timing channel. *[v0.1.3 · CR-I5-08]* |
 | Performance | SRS-NFR-PERF-002 (global search, first page ≤ 3 s) and the case-scoped target (p95 < 2 s) both apply, measured on the synthetic reference corpus (SRS-NFR-PERF-004). *[v0.1.3 · CR-I5-09]* |
+| Derived text (amends CR-I5-07) | Completed DerivedText (OCR, extraction, translation) is indexed as object type `DERIVED_TEXT` with the epistemic marker `DERIVED` ("machine-derived text, not the original evidence"); `status` is its review state; the hit links back to the derived text and the original page. Policy-filtered like every row, never indexed before completion; a deployment switch (`CSAML_DERIVED_TEXT_SEARCH=false`) removes it. The original evidence file content itself is still not indexed. *[v0.1.4 · CR-N-11]* |
 
 # 18. Graph API
 
@@ -624,7 +646,7 @@ POST /api/v1/graph/query
 | **Operation** | **Async?** | **Pattern** |
 |----|----|----|
 | Large evidence processing | YES | Return 202 + job resource. |
-| OCR/derivative generation | YES in Phase 2 | Job status + derived artifact on completion. |
+| OCR/derivative generation | YES (since v0.1.4) | 202 + job (`job_type` TEXT_EXTRACTION / MACHINE_TRANSLATION) + DerivedText on completion (§13). *[v0.1.4 · CR-N-09, CR-N-12]* |
 | Large export package | YES | 202 + job; final download only after approval remains valid. |
 | Graph projection rebuild | YES | Admin/operator job. |
 | Normal CRUD | NO | Synchronous transaction. |
@@ -636,6 +658,8 @@ POST /api/v1/graph/query
 ```
 
 Job status (registry `job_status`): QUEUED → RUNNING → SUCCEEDED / FAILED. Jobs add `job_type`, `target_type`, `target_ref` and `result_url`; a job is readable by whoever may read its target. Export package generation is always asynchronous (202, §19). *[v0.1.3 · CR-I6-09, CR-I6-11]*
+
+Job type (registry `job_type`): EXPORT_PACKAGE (target ExportPackage), TEXT_EXTRACTION and MACHINE_TRANSLATION (target DerivedText; `result_url` = the derived text; `error` is a safe code only). *[v0.1.4 · CR-N-12]*
 
 # 23. File Transfer and Content Safety
 
@@ -690,6 +714,8 @@ Job status (registry `job_status`): QUEUED → RUNNING → SUCCEEDED / FAILED. J
 | API-SEC-08 | Sensitive payloads are excluded/redacted from routine access logs. |
 | API-SEC-09 | Export/download endpoints re-check authorization at retrieval time where appropriate. |
 | API-SEC-10 | Schema/docs do not expose privileged endpoints to unauthorized clients as an access control mechanism; actual authorization still applies. |
+| API-SEC-11 | Automation engines (OCR, machine translation and any future AI) run offline on the CS-AML host; evidence content SHALL NOT be sent to a third-party service and there is no online fallback. *[v0.1.4 · CR-N-10]* |
+| API-SEC-12 | High-risk actions require a recent second-factor step-up (§4). *[v0.1.4 · CR-N-13]* |
 
 # 27. Audit Semantics
 
@@ -702,6 +728,8 @@ Job status (registry `job_status`): QUEUED → RUNNING → SUCCEEDED / FAILED. J
 | Review decision | Reviewer, product/version, decision, rationale. |
 | Dissemination approval/export | Recipient/purpose/package/version/included object manifest. |
 | Failed high-impact action | Security/audit event where policy requires. |
+| Step-up | `auth.step_up` at a successful step-up callback; `auth.step_up_required` when a high-risk action is refused for lack of a recent step-up. *[v0.1.4 · CR-N-13]* |
+| Gate / task / derived text | Gate submit / approve / reject (with charter version and case-status transition), task changes, derived-text request, completion and review. *[v0.1.4 · CR-N-03, CR-N-04, CR-N-09]* |
 | Read access | Routine reads MAY be logged selectively; protected-source/access-sensitive reads SHOULD have stronger audit policy. |
 
 # 28. API Schema and OpenAPI Requirements
@@ -728,11 +756,15 @@ Job status (registry `job_status`): QUEUED → RUNNING → SUCCEEDED / FAILED. J
 > **v0.1.3 scope** *[v0.1.3 · CR-I5-01…CR-I7-08]*
 > `contracts/openapi.yaml` v0.1.3 merges the I5, I6 and I7 implementation extensions (`contracts/extensions/i5.yaml`, `i6.yaml`, `i7.yaml` of the reference implementation) and adds `GET /evidence-extracts/{extractId}` and `GET /health`: 138 paths, 180 operations (v0.1.2: 111 paths, 149 operations). Added: search; graph query and paths; product templates, rendering, frozen versions, corrections and withdrawal; assessment review submission and review requests; dissemination list and revocation; export package list, detail and download; retention rules, evaluations, legal holds and disposition records. Changed: `generateExportPackage` answers 202 only; `getEvidenceContent` documents 409 for disposed originals; `CaseMembershipList` and `EvidenceExtractList` carry the page under `items` only (v0.1.2 defect). New items carry the release class **DECIDED_V0_1_3**. Closed since v0.1.2: search, `POST /graph/query`, job status, export format, retention API, health.
 >
+> **v0.1.4 scope** *[v0.1.4 · CR-N-01…CR-N-14]*
+> `contracts/openapi.yaml` v0.1.4 merges the post-MVP implementation extensions (`contracts/extensions/case-workflow.yaml` and `n1.yaml` of the reference implementation): 146 paths, 190 operations (v0.1.3: 138 paths, 180 operations). Added: charter version history and one version, task detail and update, OCR / text-extraction requests, translation requests, derived-text list, detail and review. Changed: charter, gate, task and activity shapes; `ErrorCode` adds STEP_UP_REQUIRED and 13 high-risk operations document it (`x-csaml-step-up`); `Session` adds `auth_level`, `auth_time`, `step_up`; `authLogin` takes `acr` and `next`; `authCallback` answers 303 `LoginErrorRedirect` instead of 400 / 401 / 503; `SearchObjectType` / `SearchEpistemicStatus` add DERIVED_TEXT / DERIVED; `Job.job_type` is the registry `job_type`. New items carry the release class **DECIDED_V0_1_4**. Closed since v0.1.3: gate and task status, task contracts, `derivation_type` vocabulary, OCR / derivative generation.
+>
 > Still outstanding:
 > - Endpoints outside the contract: administration/audit (other than retention and health), protected sources, `GET /capabilities`. *[v0.1.3 · CR-I5-01, CR-I5-02, CR-I7-01, CR-I7-08]*
-> - Open value sets still typed as plain strings: gate and task status; `Asset.valuation_basis` vocabulary (free text, required when a valuation is given); Methodology §14.1 event statuses (not registered). *[v0.1.2 · CR-I2-02, CR-I1-08, CR-I3-05, CR-I3-06]* *[v0.1.3 · CR-I6-08, CR-I6-09]*
+> - Open value sets still typed as plain strings: `Asset.valuation_basis` vocabulary (free text, required when a valuation is given); Methodology §14.1 event statuses (not registered). *[v0.1.2 · CR-I2-02, CR-I1-08, CR-I3-05, CR-I3-06]* *[v0.1.3 · CR-I6-08, CR-I6-09]* Gate and task status are registered since v0.1.4. *[v0.1.4 · CR-N-03, CR-N-04]*
 > - Per-resource sort allowlists.
-> - Task contracts (`Task`, `TaskCreate`) — DEFER_V0_2.
+> - Task contracts (`Task`, `TaskCreate`): decided in v0.1.4 (`TaskPatch`, `getTask`, `updateTask`). *[v0.1.4 · CR-N-04]*
+> - Deferred to v0.2: MONITORING and reopening of cases; gate configuration per organisation or risk tier; per-deployment step-up configuration and phishing-resistant factors (WebAuthn / passkeys) for approvers; server-side activity filters (`actor`, `action`, `target_type`) and an auditor view; links from tasks to sources, entities and hypotheses. *[v0.1.4 · CR-N-03, CR-N-04, CR-N-06, CR-N-08, CR-N-13]*
 >
 > **Decisions for v0.1.1 (MUST_DECIDE_V0_1_1, product owner 2026-10-08)** *[v0.1.1 · G5]*
 > 1. A request without a REQUIRED `Idempotency-Key` is rejected with 400 INVALID_REQUEST and is not executed.
@@ -787,8 +819,8 @@ Job status (registry `job_status`): QUEUED → RUNNING → SUCCEEDED / FAILED. J
 
 | **Domain** | **Resources** |
 |----|----|
-| Case | Case, InvestigationQuestion/CharterVersion, Gate, Task, CaseActivity projection |
-| Evidence | Source, EvidenceItem, EvidenceExtract, Derivative/Lineage, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
+| Case | Case, InvestigationQuestion/CharterVersion, Gate (with GateDecision history), Task (with history), CaseActivity projection *[v0.1.4 · CR-N-01]* |
+| Evidence | Source, EvidenceItem, EvidenceExtract, Derivative/Lineage, DerivedText *[v0.1.4 · CR-N-09]*, Claim, Fact, VerificationDecision *[v0.1.1 · A10]* |
 | Identity | Entity, Identifier/Alias, MatchCandidate, ResolutionDecision (v0.1 name: MergeDecision) *[v0.1.1 · ER]* |
 | Relations/assets | Relationship, OwnershipInterest, ControlAssertion, Asset |
 | Time/value | Event, Timeline projection, ValueFlow, ValueFlowLeg |

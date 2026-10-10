@@ -1,17 +1,19 @@
-# CS-AML API — OpenAPI 3.1 contract. Version 0.1.3 — Approved Internal Specification Baseline (v0.1.3-spec; supersedes v0.1.2).
-# Source of truth for prose semantics: Documents/CS-AML_API_Specification_v0.1.3.md and
-# Documents/CS-AML_Data_Model_Specification_v0.1.3.md. Wire enums: schemas/enums.yaml.
-# Contract choices not fixed by those specifications carry x-csaml-release-class (MUST_DECIDE_V0_1_1 / ACCEPT_DEFAULT_V0_1_1 / DEFER_V0_2 / DECIDED_V0_1_2 / DECIDED_V0_1_3).
+# CS-AML API — OpenAPI 3.1 contract. Version 0.1.4 — Approved Internal Specification Baseline (v0.1.4-spec; supersedes v0.1.3).
+# Source of truth for prose semantics: Documents/CS-AML_API_Specification_v0.1.4.md and
+# Documents/CS-AML_Data_Model_Specification_v0.1.4.md. Wire enums: schemas/enums.yaml.
+# Contract choices not fixed by those specifications carry x-csaml-release-class (MUST_DECIDE_V0_1_1 / ACCEPT_DEFAULT_V0_1_1 / DEFER_V0_2 / DECIDED_V0_1_2 / DECIDED_V0_1_3 / DECIDED_V0_1_4).
 openapi: 3.1.0
 info:
   title: CS-AML API
-  version: 0.1.3
-  summary: Approved Internal Specification Baseline v0.1.3 (2026-10-09). Validated against the I1–I7 implementation only through its contract
+  version: 0.1.4
+  summary: Approved Internal Specification Baseline v0.1.4 (2026-10-10). Validated against the reference implementation only through its contract
     tests.
   description: |-
-    Status: **Approved Internal Specification Baseline v0.1.3** (2026-10-09, tag `v0.1.3-spec`; supersedes v0.1.2). The P0 vertical slice of v0.1.1 plus the change requests approved by the product owner on 2026-10-09 (CR-I1-01…CR-I4-14, `CHANGELOG.md`): case memberships, back-channel logout, provenance traces, assets/ownership/control, events/timeline, value-flow view and legend, case graph, typology catalogue, indicators, typology matches, the hypothesis matrix, intelligence gaps and assessment revisions. v0.1.3 adds the change requests CR-I5-01…CR-I7-08 (`CHANGELOG.md`, v0.1.3): search, graph query and paths, product templates, rendering, frozen versions, corrections and withdrawal, review kinds and review requests, dissemination list and revocation, export package format, download and statuses, job status, retention rules, legal holds and disposition records, the canonical single-extract resource and the health probe. Derived from `Documents/CS-AML_API_Specification_v0.1.3.md` (endpoints, conventions) and `Documents/CS-AML_Data_Model_Specification_v0.1.3.md` (fields, enums). Maintained contract-first; once an implementation exists, the schema generated from it is diffed against this file in CI (API §28).
+    Status: **Approved Internal Specification Baseline v0.1.4** (2026-10-10, tag `v0.1.4-spec`; supersedes v0.1.3). The P0 vertical slice of v0.1.1 plus the change requests approved by the product owner on 2026-10-09 (CR-I1-01…CR-I4-14, `CHANGELOG.md`): case memberships, back-channel logout, provenance traces, assets/ownership/control, events/timeline, value-flow view and legend, case graph, typology catalogue, indicators, typology matches, the hypothesis matrix, intelligence gaps and assessment revisions. v0.1.3 adds the change requests CR-I5-01…CR-I7-08 (`CHANGELOG.md`, v0.1.3): search, graph query and paths, product templates, rendering, frozen versions, corrections and withdrawal, review kinds and review requests, dissemination list and revocation, export package format, download and statuses, job status, retention rules, legal holds and disposition records, the canonical single-extract resource and the health probe. v0.1.4 adds the change requests CR-N-01…CR-N-14 (`CHANGELOG.md`, v0.1.4): charter version history and Annex A charter fields, gate status / transitions / preconditions / independence, task fields, rules and update, activity fields, OCR / text-extraction and offline machine-translation derivatives (DerivedText), derived text in search, job types, MFA step-up for high-risk actions (403 STEP_UP_REQUIRED, session assurance fields, `acr` login parameter) and 303 login-callback errors. Derived from `Documents/CS-AML_API_Specification_v0.1.4.md` (endpoints, conventions) and `Documents/CS-AML_Data_Model_Specification_v0.1.4.md` (fields, enums). Maintained contract-first; once an implementation exists, the schema generated from it is diffed against this file in CI (API §28).
 
-    Conventions: wire enums are UPPER_SNAKE_CASE from the Data Model Annex A registry (`schemas/enums.yaml`); contract choices not fixed by the prose specifications carry `x-csaml-release-class`: MUST_DECIDE_V0_1_1 (decided, `x-csaml-status: decided`), ACCEPT_DEFAULT_V0_1_1 (frozen default, `accepted-default`; may evolve compatibly) or DEFER_V0_2 (`deferred`); items decided on 2026-10-09 carry DECIDED_V0_1_2 or DECIDED_V0_1_3 (`decided`) and `x-csaml-cr` with the change-request IDs. `x-csaml-ref-types` lists the permitted target classes of a reference field. Evaluation order: 401 → 403/404 → 400/428 → 412 → 422 → 409. Versioned resources return `ETag: "<record_version>"`; mutations send `If-Match`, except multi-entity commands (merge, unmerge, resolution decisions, match-candidate decisions), which send the body map `expected_versions` (412 carries details.current_record_versions). Idempotency-Key is REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation, legal-hold release and disposition decisions; SHOULD for creates.
+    Conventions: wire enums are UPPER_SNAKE_CASE from the Data Model Annex A registry (`schemas/enums.yaml`); contract choices not fixed by the prose specifications carry `x-csaml-release-class`: MUST_DECIDE_V0_1_1 (decided, `x-csaml-status: decided`), ACCEPT_DEFAULT_V0_1_1 (frozen default, `accepted-default`; may evolve compatibly) or DEFER_V0_2 (`deferred`); items decided on 2026-10-09 carry DECIDED_V0_1_2 or DECIDED_V0_1_3, on 2026-10-10 DECIDED_V0_1_4 (`decided`) and `x-csaml-cr` with the change-request IDs. `x-csaml-ref-types` lists the permitted target classes of a reference field. Evaluation order: 401 → 403/404 → 400/428 → 412 → 422 → 409. Versioned resources return `ETag: "<record_version>"`; mutations send `If-Match`, except multi-entity commands (merge, unmerge, resolution decisions, match-candidate decisions), which send the body map `expected_versions` (412 carries details.current_record_versions). Idempotency-Key is REQUIRED for evidence ingest finalization, merge/unmerge, review/dissemination approval, export package generation, legal-hold release, disposition decisions and derived-text requests (text extraction, translation); SHOULD for creates.
+
+    High-risk actions (`x-csaml-step-up`) need a recent second-factor verification (ACR 2 within the step-up window, default 900 s) and otherwise answer 403 STEP_UP_REQUIRED after the ordinary authorization checks. [v0.1.4 · CR-N-13]
   x-csaml-document-status: APPROVED_INTERNAL_SPECIFICATION_BASELINE
   license:
     name: Internal — not for external distribution
@@ -73,8 +75,23 @@ paths:
       summary: Start login (redirect to Keycloak)
       tags:
       - Auth
-      description: Starts OIDC Authorization Code + PKCE with Keycloak (Django is the confidential client). No tokens reach the browser.
+      description: 'Starts OIDC Authorization Code + PKCE with Keycloak (Django is the confidential client). No tokens reach the browser. `acr=2`
+        requests a step-up (OIDC `acr_values=2`: password + one-time code); the callback records the verified `acr` and `auth_time` and audits
+        `auth.step_up`. [v0.1.4 · CR-N-13]'
       parameters:
+      - $ref: '#/components/parameters/AcrValue'
+      - name: next
+        in: query
+        required: false
+        description: Same-origin relative path to return to after sign-in (e.g. the page that asked for a step-up); any other value is replaced
+          by `/`. [v0.1.4 · CR-N-13]
+        schema:
+          type: string
+          maxLength: 512
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_4
+        x-csaml-cr:
+        - CR-N-13
       - $ref: '#/components/parameters/XRequestID'
       responses:
         '302':
@@ -85,6 +102,10 @@ paths:
         '429':
           $ref: '#/components/responses/RateLimited'
       security: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-13
     servers:
     - url: /
       description: Same origin, outside /api/v1 (API Specification §4).
@@ -122,17 +143,19 @@ paths:
               description: '`__Host-csaml_session=…; HttpOnly; Secure; SameSite=Lax; Path=/`'
               schema:
                 type: string
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+        '303':
+          $ref: '#/components/responses/LoginErrorRedirect'
         '429':
           $ref: '#/components/responses/RateLimited'
         '500':
           $ref: '#/components/responses/InternalError'
-        '503':
-          $ref: '#/components/responses/DependencyUnavailable'
       security: []
+      description: 'Success: 302 into the application (the `next` path of the login). Every failed callback answers 303 to `/?login_error=<expired|cancelled|failed|unavailable>`
+        instead of a JSON error (replaces the 400 / 401 / 503 responses of v0.1.3). [v0.1.4 · CR-N-14]'
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-14
     servers:
     - url: /
       description: Same origin, outside /api/v1 (API Specification §4).
@@ -482,7 +505,8 @@ paths:
       summary: Create new charter version
       tags:
       - Cases
-      description: 'State-changing command on the versioned Case: If-Match carries the Case record_version.'
+      description: 'State-changing command on the versioned Case: If-Match carries the Case record_version. change_rationale REQUIRED for every
+        version after the first (422). [v0.1.4 · CR-N-01, CR-N-02]'
       parameters:
       - $ref: '#/components/parameters/caseId'
       - $ref: '#/components/parameters/XRequestID'
@@ -531,6 +555,53 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-02
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+    get:
+      operationId: listCharterVersions
+      summary: Charter version history (oldest first)
+      tags:
+      - Cases
+      description: Every CharterVersion of the case with actor and time (SRS-FR-CASE-002 "prior version remains retrievable"). [v0.1.4 · CR-N-01]
+      parameters:
+      - $ref: '#/components/parameters/caseId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharterVersionList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
   /cases/{caseId}/gates:
     get:
       operationId: listCaseGates
@@ -570,13 +641,20 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      description: Seven gates G0–G6 with status, transition, preconditions and decision history. [v0.1.4 · CR-N-03, CR-N-05]
+      x-csaml-cr:
+      - CR-N-03
+      - CR-N-05
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /cases/{caseId}/gates/{gateId}/submit:
     post:
       operationId: submitCaseGate
       summary: Submit gate for decision
       tags:
       - Cases
-      description: If-Match carries the Gate record_version. Approval SHALL be independent where policy requires (403 otherwise).
+      description: If-Match carries the Gate record_version. Approval SHALL be independent where policy requires (403 otherwise). Unmet preconditions
+        → 409 (details list the codes); G6 requires closure_reason. [v0.1.4 · CR-N-03, CR-N-05]
       parameters:
       - $ref: '#/components/parameters/caseId'
       - $ref: '#/components/parameters/gateId'
@@ -628,13 +706,21 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-N-03
+      - CR-N-05
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /cases/{caseId}/gates/{gateId}/approve:
     post:
       operationId: approveCaseGate
       summary: Independent approval of a gate
       tags:
       - Cases
-      description: If-Match carries the Gate record_version. Approval SHALL be independent where policy requires (403 otherwise).
+      description: 'If-Match carries the Gate record_version. Approval SHALL be independent where policy requires (403 otherwise). High-risk action
+        `gate.approve`: needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13] Decider
+        ≠ submitter (403); deciders are LEAD or REVIEWER members; for a high-impact case the G0 / G1 decider must not have authored the bound
+        charter version (403). Preconditions are evaluated again; an approved transition changes the case status. [v0.1.4 · CR-N-03, CR-N-07]'
       parameters:
       - $ref: '#/components/parameters/caseId'
       - $ref: '#/components/parameters/gateId'
@@ -666,7 +752,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -686,13 +772,21 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-step-up: gate.approve
+      x-csaml-cr:
+      - CR-N-13
+      - CR-N-03
+      - CR-N-07
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /cases/{caseId}/gates/{gateId}/reject:
     post:
       operationId: rejectCaseGate
       summary: Reject/return a gate with rationale
       tags:
       - Cases
-      description: If-Match carries the Gate record_version. Approval SHALL be independent where policy requires (403 otherwise).
+      description: If-Match carries the Gate record_version. Approval SHALL be independent where policy requires (403 otherwise). Rationale REQUIRED;
+        the gate may be resubmitted. [v0.1.4 · CR-N-03, CR-N-07]
       parameters:
       - $ref: '#/components/parameters/caseId'
       - $ref: '#/components/parameters/gateId'
@@ -744,6 +838,11 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-N-03
+      - CR-N-07
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /cases/{caseId}/tasks:
     get:
       operationId: listCaseTasks
@@ -784,6 +883,8 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      x-csaml-cr:
+      - CR-N-04
     post:
       operationId: createCaseTask
       summary: Create task
@@ -834,6 +935,10 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-cr:
+      - CR-N-04
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /cases/{caseId}/activity:
     get:
       operationId: listCaseActivity
@@ -873,6 +978,12 @@ paths:
           $ref: '#/components/responses/DependencyUnavailable'
       security:
       - sessionCookie: []
+      description: 'Sort: `occurred_at` (default) or `-occurred_at`; filter: classification. Actor / action / object filters are not server parameters
+        in v0.1.4 (v0.2). [v0.1.4 · CR-N-08]'
+      x-csaml-cr:
+      - CR-N-08
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /cases/{caseId}/memberships:
     get:
       operationId: listCaseMemberships
@@ -918,9 +1029,10 @@ paths:
       summary: Grant a case membership
       tags:
       - Cases
-      description: Managed by the case LEAD (403 otherwise). The case keeps exactly one LEAD; changing the lead goes through PATCH /cases/{caseId}
+      description: 'Managed by the case LEAD (403 otherwise). The case keeps exactly one LEAD; changing the lead goes through PATCH /cases/{caseId}
         lead_analyst_id. Every grant, change and revocation is audited. An active membership for the same principal → 409 STATE_CONFLICT. [v0.1.2
-        · CR-I1-02]
+        · CR-I1-02] High-risk action `protected_source.grant` when `protected_source_authorized` is true: needs ACR 2 within the step-up window
+        (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/caseId'
       - $ref: '#/components/parameters/XRequestID'
@@ -950,7 +1062,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -968,14 +1080,18 @@ paths:
       x-csaml-release-class: DECIDED_V0_1_2
       x-csaml-cr:
       - CR-I1-02
+      - CR-N-13
+      x-csaml-step-up: protected_source.grant
   /case-memberships/{membershipId}:
     patch:
       operationId: updateCaseMembership
       summary: Change role or protected-source grant
       tags:
       - Cases
-      description: Managed by the case LEAD (403 otherwise). The case keeps exactly one LEAD; changing the lead goes through PATCH /cases/{caseId}
-        lead_analyst_id. Every grant, change and revocation is audited. If-Match REQUIRED. [v0.1.2 · CR-I1-02]
+      description: 'Managed by the case LEAD (403 otherwise). The case keeps exactly one LEAD; changing the lead goes through PATCH /cases/{caseId}
+        lead_analyst_id. Every grant, change and revocation is audited. If-Match REQUIRED. [v0.1.2 · CR-I1-02] High-risk action `protected_source.grant`
+        when `protected_source_authorized` changes: needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API
+        §4). [v0.1.4 · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/membershipId'
       - $ref: '#/components/parameters/XRequestID'
@@ -1003,7 +1119,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -1025,6 +1141,8 @@ paths:
       x-csaml-release-class: DECIDED_V0_1_2
       x-csaml-cr:
       - CR-I1-02
+      - CR-N-13
+      x-csaml-step-up: protected_source.grant
     delete:
       operationId: revokeCaseMembership
       summary: Revoke a case membership
@@ -1554,9 +1672,11 @@ paths:
       summary: Authorized content stream/download
       tags:
       - Evidence
-      description: Authorization is re-checked on every request. Safe Content-Type/Content-Disposition; active documents are not executed in the
-        CS-AML origin. An original whose stored bytes were purged by an executed DELETE disposition answers 409 STATE_CONFLICT with details.reason
-        = EVIDENCE_DISPOSED; the metadata record (hash, size, storage reference) remains as the tombstone. [v0.1.3 · CR-I7-07]
+      description: 'Authorization is re-checked on every request. Safe Content-Type/Content-Disposition; active documents are not executed in
+        the CS-AML origin. An original whose stored bytes were purged by an executed DELETE disposition answers 409 STATE_CONFLICT with details.reason
+        = EVIDENCE_DISPOSED; the metadata record (hash, size, storage reference) remains as the tombstone. [v0.1.3 · CR-I7-07] High-risk action
+        `protected_source.access` when the effective classification is SOURCE_PROTECTED: needs ACR 2 within the step-up window (default 900 s),
+        otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/evidenceId'
       - name: Range
@@ -1593,7 +1713,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -1608,6 +1728,10 @@ paths:
       - sessionCookie: []
       x-csaml-cr:
       - CR-I7-07
+      - CR-N-13
+      x-csaml-step-up: protected_source.access
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /evidence/{evidenceId}/verify-integrity:
     post:
       operationId: verifyEvidenceIntegrity
@@ -2910,7 +3034,8 @@ paths:
         preserved; audit event emitted. Bulk merge is not supported. Every merge is high-impact in the MVP: reviewer_ref is required and reviewer
         = decider → 409 STATE_CONFLICT. Merge is logical repointing via canonical_parent: relationships, claims and absorbed records are never
         rewritten. [v0.1.2 · CR-I2-09, CR-I2-10, CR-I2-13] Idempotency-Key REQUIRED. Preconditions: body expected_versions (no If-Match); missing
-        or incomplete map → 428 PRECONDITION_REQUIRED; any stale entry → 412 PRECONDITION_FAILED with details.current_record_versions.'
+        or incomplete map → 428 PRECONDITION_REQUIRED; any stale entry → 412 PRECONDITION_FAILED with details.current_record_versions. High-risk
+        action `entity.merge`: needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/XRequestID'
       - $ref: '#/components/parameters/IdempotencyKeyRequired'
@@ -2937,7 +3062,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -2957,6 +3082,11 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-step-up: entity.merge
+      x-csaml-cr:
+      - CR-N-13
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /entity-merges/{mergeId}/unmerge:
     post:
       operationId: unmergeEntities
@@ -2966,7 +3096,9 @@ paths:
       description: 'Restored records become SPLIT; because merge is logical repointing (canonical_parent), nothing is re-attributed: unmerge removes
         what the merge added to the survivor and restores its prior handling; reviewer_ref required, reviewer = decider → 409 [v0.1.2 · CR-I2-10,
         CR-I2-13]; history never erased. 409 if the merge was already reversed. Idempotency-Key REQUIRED. Preconditions: body expected_versions
-        (no If-Match); missing or incomplete map → 428 PRECONDITION_REQUIRED; any stale entry → 412 PRECONDITION_FAILED with details.current_record_versions.'
+        (no If-Match); missing or incomplete map → 428 PRECONDITION_REQUIRED; any stale entry → 412 PRECONDITION_FAILED with details.current_record_versions.
+        High-risk action `entity.unmerge`: needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4
+        · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/mergeId'
       - $ref: '#/components/parameters/XRequestID'
@@ -2994,7 +3126,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -3014,6 +3146,11 @@ paths:
       security:
       - sessionCookie: []
         csrfHeader: []
+      x-csaml-step-up: entity.unmerge
+      x-csaml-cr:
+      - CR-N-13
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /relationships:
     get:
       operationId: listRelationships
@@ -7097,7 +7234,8 @@ paths:
         the product''s case (DISSEMINATION_APPROVE), never the requester (403). Approval marks the product DISSEMINATED and writes a RELEASE_APPROVED
         sharing-log entry. Objects classified SOURCE_PROTECTED enter the approved scope only with source_protected_release = true set by an approver
         holding the per-case protected-source grant, with a rationale (403 / 422 otherwise); without it every source-protected item, index entry
-        and citation is withheld from packages (count recorded, content never). [v0.1.3 · CR-I6-06, CR-I6-07]'
+        and citation is withheld from packages (count recorded, content never). [v0.1.3 · CR-I6-06, CR-I6-07] High-risk action `dissemination.approve`:
+        needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/disseminationId'
       - $ref: '#/components/parameters/XRequestID'
@@ -7128,7 +7266,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -7151,6 +7289,10 @@ paths:
       x-csaml-cr:
       - CR-I6-06
       - CR-I6-07
+      - CR-N-13
+      x-csaml-step-up: dissemination.approve
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /disseminations/{disseminationId}/export-candidates:
     get:
       operationId: listExportCandidates
@@ -7201,9 +7343,10 @@ paths:
       summary: Generate export package
       tags:
       - Disseminations
-      description: Only for an approved dissemination (409 otherwise; export without approval is a non-waivable invariant). Idempotency-Key REQUIRED;
+      description: 'Only for an approved dissemination (409 otherwise; export without approval is a non-waivable invariant). Idempotency-Key REQUIRED;
         a retry is tied to the same approved package request. Always 202 Accepted with the job and the QUEUED export package (no synchronous 201);
-        a retry with the same Idempotency-Key replays the same job. [v0.1.3 · CR-I6-11]
+        a retry with the same Idempotency-Key replays the same job. [v0.1.3 · CR-I6-11] High-risk action `export.generate`: needs ACR 2 within
+        the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       parameters:
       - $ref: '#/components/parameters/disseminationId'
       - $ref: '#/components/parameters/XRequestID'
@@ -7237,7 +7380,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -7259,6 +7402,10 @@ paths:
         csrfHeader: []
       x-csaml-cr:
       - CR-I6-11
+      - CR-N-13
+      x-csaml-step-up: export.generate
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
   /sharing-log:
     get:
       operationId: listSharingLog
@@ -7352,7 +7499,9 @@ paths:
         cases only. q: up to 200 characters, at most 12 word tokens, each matched as a prefix (accents and case folded); names, aliases and identifiers
         also match by trigram similarity. Rate limit: 120 requests per minute per user (429 RATE_LIMITED); statement timeout 5 s (503). Residual
         timing channel: query latency still depends on the total corpus size; accepted for MVP with synthetic data and SHALL be re-reviewed before
-        real (non-synthetic) data is processed. [v0.1.3 · CR-I5-01, CR-I5-03, CR-I5-04, CR-I5-07, CR-I5-08]'
+        real (non-synthetic) data is processed. [v0.1.3 · CR-I5-01, CR-I5-03, CR-I5-04, CR-I5-07, CR-I5-08] High-risk action `protected_source.access`
+        when `include_source_protected=true` and the caller holds the protected-source grant: needs ACR 2 within the step-up window (default 900
+        s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       parameters:
       - name: q
         in: query
@@ -7464,7 +7613,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '429':
           $ref: '#/components/responses/RateLimited'
         '500':
@@ -7481,6 +7630,8 @@ paths:
       - CR-I5-04
       - CR-I5-07
       - CR-I5-08
+      - CR-N-13
+      x-csaml-step-up: protected_source.access
   /graph/query:
     post:
       operationId: queryGraph
@@ -8106,7 +8257,8 @@ paths:
       - $ref: '#/components/parameters/exportId'
       - $ref: '#/components/parameters/XRequestID'
       description: 'Re-checks authorization (the package and every object in it) and approval validity at retrieval time (API §22, API-SEC-09):
-        a revoked or superseded approval, a superseded / retracted version or a withdrawn product -> 409. [v0.1.3 · CR-I6-08]'
+        a revoked or superseded approval, a superseded / retracted version or a withdrawn product -> 409. [v0.1.3 · CR-I6-08] High-risk action
+        `export.download`: needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       responses:
         '200':
           description: OK
@@ -8123,7 +8275,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -8140,6 +8292,8 @@ paths:
       x-csaml-release-class: DECIDED_V0_1_3
       x-csaml-cr:
       - CR-I6-08
+      - CR-N-13
+      x-csaml-step-up: export.download
   /retention-rules:
     get:
       operationId: listRetentionRules
@@ -8518,7 +8672,8 @@ paths:
       - $ref: '#/components/parameters/XRequestID'
       - $ref: '#/components/parameters/IfMatch'
       - $ref: '#/components/parameters/IdempotencyKey'
-      description: Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-03]
+      description: 'Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-03] High-risk action `legal_hold.release`: needs ACR 2 within the step-up window
+        (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       requestBody:
         required: true
         content:
@@ -8540,7 +8695,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -8564,6 +8719,8 @@ paths:
       x-csaml-release-class: DECIDED_V0_1_3
       x-csaml-cr:
       - CR-I7-03
+      - CR-N-13
+      x-csaml-step-up: legal_hold.release
   /disposition-records:
     get:
       operationId: listDispositionRecords
@@ -8661,8 +8818,9 @@ paths:
       - $ref: '#/components/parameters/XRequestID'
       - $ref: '#/components/parameters/IfMatch'
       - $ref: '#/components/parameters/IdempotencyKey'
-      description: The LEAD of every case the target is linked to; never the proposer (403, and a database CHECK). Refused under an active legal
-        hold (409). Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-04]
+      description: 'The LEAD of every case the target is linked to; never the proposer (403, and a database CHECK). Refused under an active legal
+        hold (409). Idempotency-Key REQUIRED. [v0.1.3 · CR-I7-04] High-risk action `disposition.approve`: needs ACR 2 within the step-up window
+        (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       requestBody:
         required: true
         content:
@@ -8684,7 +8842,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -8708,6 +8866,8 @@ paths:
       x-csaml-release-class: DECIDED_V0_1_3
       x-csaml-cr:
       - CR-I7-04
+      - CR-N-13
+      x-csaml-step-up: disposition.approve
   /disposition-records/{recordId}/reject:
     post:
       operationId: rejectDisposition
@@ -8775,8 +8935,9 @@ paths:
       - $ref: '#/components/parameters/recordId'
       - $ref: '#/components/parameters/XRequestID'
       - $ref: '#/components/parameters/IfMatch'
-      description: An administrator or the approver. Re-checks rule and legal holds (409; the database refuses it too). Two committed steps (EXECUTING,
-        EXECUTED); a failed purge stays EXECUTING (503) and may be retried. [v0.1.3 · CR-I7-04, CR-I7-05]
+      description: 'An administrator or the approver. Re-checks rule and legal holds (409; the database refuses it too). Two committed steps (EXECUTING,
+        EXECUTED); a failed purge stays EXECUTING (503) and may be retried. [v0.1.3 · CR-I7-04, CR-I7-05] High-risk action `disposition.execute`:
+        needs ACR 2 within the step-up window (default 900 s), otherwise 403 STEP_UP_REQUIRED (API §4). [v0.1.4 · CR-N-13]'
       requestBody:
         required: true
         content:
@@ -8798,7 +8959,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/StepUpRequired'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -8821,6 +8982,8 @@ paths:
       x-csaml-cr:
       - CR-I7-04
       - CR-I7-05
+      - CR-N-13
+      x-csaml-step-up: disposition.execute
   /evidence-extracts/{extractId}:
     get:
       operationId: getEvidenceExtract
@@ -8894,6 +9057,464 @@ paths:
       x-csaml-release-class: DECIDED_V0_1_3
       x-csaml-cr:
       - CR-I7-08
+  /cases/{caseId}/charter/versions/{version}:
+    get:
+      operationId: getCharterVersion
+      summary: One charter version (target of Charter.version_links)
+      tags:
+      - Cases
+      parameters:
+      - $ref: '#/components/parameters/caseId'
+      - $ref: '#/components/parameters/CharterVersionNumber'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharterVersion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+  /tasks/{taskId}:
+    get:
+      operationId: getTask
+      summary: Task with its history
+      tags:
+      - Cases
+      parameters:
+      - $ref: '#/components/parameters/TaskId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-04
+    patch:
+      operationId: updateTask
+      summary: Assign, reschedule or move the status of a task
+      tags:
+      - Cases
+      description: If-Match carries the Task record_version. The assignee must be a member of the case (422). A DONE / CANCELLED task never changes
+        again (409 TASK_CLOSED); DONE needs every dependency closed (409 DEPENDENCIES_OPEN). Case members with update rights change any field;
+        the assignee may change the status of their own task only. [v0.1.4 · CR-N-01, CR-N-04]
+      parameters:
+      - $ref: '#/components/parameters/TaskId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskPatch'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+            Idempotent-Replayed:
+              $ref: '#/components/headers/IdempotentReplayed'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-04
+  /evidence/{evidenceId}/text-extractions:
+    post:
+      operationId: requestTextExtraction
+      summary: Queue OCR / text extraction of an evidence item (202 + job)
+      tags:
+      - Evidence
+      description: 'Offline OCR (Tesseract) or text-layer / plain-text extraction of an original or a non-text derivative. The result is a DerivedText
+        (REVIEW_REQUIRED, machine-generated) plus a new derivative EvidenceItem; the original is only read. Needs update rights on the item (case
+        contribution); 409 FEATURE_DISABLED / UNSUPPORTED_FORMAT / ALREADY_DERIVED_TEXT. Idempotency-Key REQUIRED. Engines: Tesseract (ind + eng)
+        and pdfium, offline. Disabled deployments answer 409 FEATURE_DISABLED. [v0.1.4 · CR-N-09, CR-N-12]'
+      parameters:
+      - $ref: '#/components/parameters/evidenceId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextExtractionRequest'
+      responses:
+        '202':
+          description: Accepted; poll the job (Location).
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DerivedTextAccepted'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-12
+  /evidence/{evidenceId}/translations:
+    post:
+      operationId: requestEvidenceTranslation
+      summary: Queue an offline machine translation of an evidence item's text (202 + job)
+      tags:
+      - Evidence
+      description: The worker extracts the item's text (text layer / plain text / OCR) and translates it with the offline engine; each page keeps
+        its source-language text. Supported pairs id→en, en→id. Never sent to a third party. Idempotency-Key REQUIRED. Offline engine only (CTranslate2
+        with pinned OPUS-MT models); there is no online fallback. The output carries the label "Machine translation — review required". [v0.1.4
+        · CR-N-10, CR-N-12]
+      parameters:
+      - $ref: '#/components/parameters/evidenceId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslationRequest'
+      responses:
+        '202':
+          description: Accepted; poll the job (Location).
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DerivedTextAccepted'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-10
+      - CR-N-12
+  /evidence/{evidenceId}/derived-texts:
+    get:
+      operationId: listEvidenceDerivedTexts
+      summary: Derived texts (OCR, extraction, translations) of an evidence item's lineage
+      tags:
+      - Evidence
+      parameters:
+      - $ref: '#/components/parameters/evidenceId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageAfter'
+      - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK (readable derived texts only, page text omitted)
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DerivedTextList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+      description: Derived texts of the item and of its derivatives (the lineage of the original). [v0.1.4 · CR-N-09]
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+  /derived-texts/{derivedTextId}:
+    get:
+      operationId: getDerivedText
+      summary: One derived text with its pages (page mapping, confidence, source text)
+      tags:
+      - Evidence
+      parameters:
+      - $ref: '#/components/parameters/derivedTextId'
+      - $ref: '#/components/parameters/XRequestID'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DerivedText'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - sessionCookie: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
+  /derived-texts/{derivedTextId}/translations:
+    post:
+      operationId: requestDerivedTextTranslation
+      summary: Queue an offline machine translation of a completed derived text (202 + job)
+      tags:
+      - Evidence
+      description: 'Translates an OCR / extraction output page by page. A machine translation is never translated again (409 TRANSLATION_OF_TRANSLATION);
+        the input must be complete (409 INPUT_NOT_COMPLETE). Idempotency-Key REQUIRED. Offline engine only; no online fallback. Lineage: translation
+        → OCR / extraction derivative → original. [v0.1.4 · CR-N-10, CR-N-12]'
+      parameters:
+      - $ref: '#/components/parameters/derivedTextId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IdempotencyKeyRequired'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslationRequest'
+      responses:
+        '202':
+          description: Accepted; poll the job (Location).
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DerivedTextAccepted'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/DependencyUnavailable'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-10
+      - CR-N-12
+  /derived-texts/{derivedTextId}/review:
+    post:
+      operationId: reviewDerivedText
+      summary: Record that a person reviewed machine-generated text
+      tags:
+      - Evidence
+      description: REVIEW_REQUIRED → REVIEWED with reviewer and time (LEAD, ANALYST or REVIEWER membership). Review never turns derived text into
+        the original or into a fact. If-Match REQUIRED; 409 when not complete or already reviewed. [v0.1.4 · CR-N-09, CR-N-10]
+      parameters:
+      - $ref: '#/components/parameters/derivedTextId'
+      - $ref: '#/components/parameters/XRequestID'
+      - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DerivedTextReviewRequest'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/XRequestID'
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DerivedText'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - sessionCookie: []
+        csrfHeader: []
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
 components:
   securitySchemes:
     sessionCookie:
@@ -9311,6 +9932,47 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/Ref'
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      description: Task ID.
+      schema:
+        $ref: '#/components/schemas/Ref'
+    CharterVersionNumber:
+      name: version
+      in: path
+      required: true
+      description: Charter version number (1, 2, ...).
+      schema:
+        type: integer
+        minimum: 1
+    derivedTextId:
+      name: derivedTextId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Ref'
+      description: DerivedText ID.
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+    AcrValue:
+      name: acr
+      in: query
+      required: false
+      description: 'Requested authentication level (ACR): "2" = password + one-time code (step-up, API §4). Other values are ignored. [v0.1.4
+        · CR-N-13]'
+      schema:
+        type: string
+        enum:
+        - '1'
+        - '2'
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-13
   headers:
     ETag:
       description: '`"<record_version>"` of the returned versioned resource.'
@@ -9637,6 +10299,51 @@ components:
                   request_id: req_01HZYX5Q
                   details: {}
                   field_errors: {}
+    StepUpRequired:
+      description: 403 ACCESS_DENIED, or 403 STEP_UP_REQUIRED when the action needs a recent second-factor verification (ACR ≥ details.required_acr
+        within details.max_age_seconds; details.reason STEP_UP_MISSING / STEP_UP_EXPIRED, details.step_up_url). STEP_UP_REQUIRED is answered only
+        after the ordinary authorization checks, so it never discloses an object the caller may not see. [v0.1.4 · CR-N-13]
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/XRequestID'
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/StepUpRequiredError'
+            - $ref: '#/components/schemas/ErrorEnvelope'
+          examples:
+            step_up:
+              value:
+                error:
+                  code: STEP_UP_REQUIRED
+                  message: This action needs a recent verification with your second factor (authenticator code).
+                  request_id: req_01HZYX5Q
+                  details:
+                    reason: STEP_UP_MISSING
+                    action: gate.approve
+                    required_acr: '2'
+                    max_age_seconds: 900
+                    step_up_url: /auth/login?acr=2
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-13
+    LoginErrorRedirect:
+      description: 'Failed sign-in callback (unknown or expired login state, cancelled or failed authentication, identity provider unavailable):
+        303 to the SPA with a fixed reason code; the cause is logged with the request id and never shown. The SPA explains it and offers a sign-in
+        button; it never restarts the login by itself. [v0.1.4 · CR-N-14]'
+      headers:
+        Location:
+          description: '`/?login_error=<reason>`: expired (unknown or expired login state), cancelled (the identity provider returned an error),
+            failed (code rejected, token invalid, inactive principal), unavailable (identity provider down).'
+          schema:
+            type: string
+            pattern: ^/\?login_error=(expired|cancelled|failed|unavailable)$
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-14
   schemas:
     Classification:
       type: string
@@ -9989,7 +10696,13 @@ components:
       - RATE_LIMITED
       - INTERNAL_ERROR
       - DEPENDENCY_UNAVAILABLE
-      description: Machine-readable error codes (API Specification §9). VERSION_CONFLICT is retired (use 412 PRECONDITION_FAILED).
+      - STEP_UP_REQUIRED
+      description: 'Machine-readable error codes (API Specification §9). VERSION_CONFLICT is retired (use 412 PRECONDITION_FAILED). STEP_UP_REQUIRED
+        (403): the action needs a recent second-factor verification (API §4). [v0.1.4 · CR-N-13]'
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-13
     Ref:
       type: string
       description: Opaque stable identifier of a canonical object (UUID-like). Clients SHALL NOT parse meaning from it; IDs are not authorization
@@ -10047,7 +10760,8 @@ components:
             status). Classes without one use the registry enum envelope_status: REGISTERED (Source, EvidenceExtract, Asset), RECORDED (Event,
             ValueFlow, TypologyMatch), DRAFT / FINALIZED (Assessment until review; then its review_status). [v0.1.2 · CR-I2-03, CR-I3-05, CR-I4-09]
             Review: review_status; Dissemination: dissemination_status; ExportPackage: package_status; RetentionRule: rule_status; LegalHold:
-            hold_status; DispositionRecord: disposition_status. [v0.1.3 · CR-I6-03, CR-I6-06, CR-I6-08, CR-I7-03, CR-I7-04]'
+            hold_status; DispositionRecord: disposition_status. [v0.1.3 · CR-I6-03, CR-I6-06, CR-I6-08, CR-I7-03, CR-I7-04] Gate: gate_status;
+            Task: task_status; DerivedText: derived_text_status. [v0.1.4 · CR-N-03, CR-N-04, CR-N-09]'
         classification:
           allOf:
           - $ref: '#/components/schemas/Classification'
@@ -10331,19 +11045,21 @@ components:
           type: string
           format: uri-reference
         job_type:
-          type: string
-          description: Kind of work, e.g. EXPORT_PACKAGE. [v0.1.3 · CR-I6-09]
+          $ref: '#/components/schemas/JobType'
+          description: Kind of work (registry job_type). [v0.1.4 · CR-I6-09, CR-N-12]
           x-csaml-status: decided
-          x-csaml-release-class: DECIDED_V0_1_3
+          x-csaml-release-class: DECIDED_V0_1_4
           x-csaml-cr:
           - CR-I6-09
+          - CR-N-12
         target_type:
           type: string
-          description: Object type of the target. [v0.1.3 · CR-I6-09]
+          description: Object type of the target (ExportPackage, DerivedText). [v0.1.4 · CR-I6-09, CR-N-12]
           x-csaml-status: decided
           x-csaml-release-class: DECIDED_V0_1_3
           x-csaml-cr:
           - CR-I6-09
+          - CR-N-12
         target_ref:
           $ref: '#/components/schemas/Ref'
           description: The object the job produces or processes. A job is readable by whoever may read its target. [v0.1.3 · CR-I6-09]
@@ -10356,11 +11072,12 @@ components:
           - string
           - 'null'
           format: uri-reference
-          description: Where the result is read once SUCCEEDED. [v0.1.3 · CR-I6-09]
+          description: Where the result is read once SUCCEEDED (the export package, or the derived text). [v0.1.4 · CR-I6-09, CR-N-12]
           x-csaml-status: decided
           x-csaml-release-class: DECIDED_V0_1_3
           x-csaml-cr:
           - CR-I6-09
+          - CR-N-12
         created_at:
           type: string
           format: date-time
@@ -10390,17 +11107,19 @@ components:
           type:
           - string
           - 'null'
-          description: Safe failure summary (no internals). [v0.1.3 · CR-I6-09]
+          description: Safe failure summary (no internals). [v0.1.3 · CR-I6-09] Safe code only. [v0.1.4 · CR-N-12]
           x-csaml-status: decided
           x-csaml-release-class: DECIDED_V0_1_3
           x-csaml-cr:
           - CR-I6-09
+          - CR-N-12
       required:
       - id
       - status
       - poll_url
       x-csaml-cr:
       - CR-I6-09
+      - CR-N-12
     JobAccepted:
       type: object
       description: 202 Accepted body (API Specification §22).
@@ -10439,10 +11158,39 @@ components:
           x-csaml-cr:
           - CR-I1-03
           - CR-I1-07
+        auth_level:
+          type: integer
+          minimum: 0
+          description: ACR level of the current sign-in (1 = password, 2 = password + one-time code). [v0.1.4 · CR-N-13]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-13
+        auth_time:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Time of the last active authentication. [v0.1.4 · CR-N-13]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-13
+        step_up:
+          $ref: '#/components/schemas/SessionStepUp'
+          description: Coarse hint for the UI; the server decides on every request. [v0.1.4 · CR-N-13]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-13
       required:
       - principal
       - expires_at
       - capabilities
+      - auth_level
+      - step_up
+      x-csaml-cr:
+      - CR-N-13
     Case:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -10574,8 +11322,12 @@ components:
         question:
           type: string
         priority:
-          type: string
-          description: Analytical priority. Value set not yet in the registry.
+          $ref: '#/components/schemas/InvestigationQuestionPriority'
+          description: Analytical priority. [v0.1.4 · CR-N-02]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-02
         status:
           $ref: '#/components/schemas/InvestigationQuestionStatus'
         answer_summary:
@@ -10589,8 +11341,9 @@ components:
       - status
     CharterVersion:
       type: object
-      x-csaml-status: accepted-default
-      description: CharterVersion fields are not defined by the Data Model; minimal shape from Case.purpose + InvestigationQuestion.
+      x-csaml-status: decided
+      description: Versioned investigation charter (Data Model §6.4; Framework Annex A). Append-only; every version after the first carries a
+        change rationale. [v0.1.4 · CR-N-01]
       properties:
         case_id:
           $ref: '#/components/schemas/Ref'
@@ -10607,16 +11360,200 @@ components:
           format: date-time
         created_by:
           $ref: '#/components/schemas/PrincipalRef'
+        change_rationale:
+          type:
+          - string
+          - 'null'
+          description: Why the charter changed (REQUIRED for every version after the first; Methodology §5.3). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        trigger:
+          type:
+          - string
+          - 'null'
+          description: Trigger / lead (Framework §5.2; G0). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        public_interest_rationale:
+          type:
+          - string
+          - 'null'
+          description: Public-interest rationale (Framework §5.2; G0). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        scope_included:
+          type:
+          - string
+          - 'null'
+          description: 'Subject boundary: what is in scope (Framework §5.3; G1). [v0.1.4 · CR-N-01]'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        scope_excluded:
+          type:
+          - string
+          - 'null'
+          description: What is out of scope (Framework §5.3). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        initial_subjects:
+          type:
+          - string
+          - 'null'
+          description: Initial subjects (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        initial_hypotheses:
+          type:
+          - string
+          - 'null'
+          description: Initial hypotheses (Annex A; reviewer judgement, not checked). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        expected_sensitive_data:
+          type:
+          - string
+          - 'null'
+          description: Expected (sensitive) data (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        legal_basis:
+          type:
+          - string
+          - 'null'
+          description: Legal / lawful basis (Framework §5.4; G2). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        legal_privacy_constraints:
+          type:
+          - string
+          - 'null'
+          description: Legal and privacy constraints (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        security_source_risks:
+          type:
+          - string
+          - 'null'
+          description: Security and source risks (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        harm_assessment:
+          type:
+          - string
+          - 'null'
+          description: Initial harm assessment (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        collection_methods_authorised:
+          type:
+          - string
+          - 'null'
+          description: Authorised collection methods (Framework §5.4; G2). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        collection_methods_prohibited:
+          type:
+          - string
+          - 'null'
+          description: Prohibited collection methods (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        expected_outputs:
+          type:
+          - string
+          - 'null'
+          description: Expected outputs (Annex A; reviewer judgement, not checked). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        stop_conditions:
+          type:
+          - string
+          - 'null'
+          description: Stop conditions (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        jurisdictions:
+          type: array
+          items:
+            type: string
+            maxLength: 64
+          maxItems: 50
+          description: Jurisdictions in scope (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        time_period:
+          oneOf:
+          - $ref: '#/components/schemas/TemporalValue'
+          - type: 'null'
+          description: Time period of the investigation (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        review_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Next charter review date. [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        links:
+          $ref: '#/components/schemas/Links'
+          description: '`self` = GET /cases/{caseId}/charter/versions/{version}. [v0.1.4 · CR-N-01]'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
       required:
       - case_id
       - version
       - purpose
       - investigation_questions
-      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
     Charter:
       type: object
-      description: Current charter + version history links (API Specification §12). Response shape.
-      x-csaml-status: accepted-default
+      description: Current charter + version history links (API Specification §12). Response shape. `approved_version` = the charter version the
+        approved G1 bound to; `amended_since_approval` flags a later version (scope change, reviewer judgement). [v0.1.4 · CR-N-01, CR-N-05]
+      x-csaml-status: decided
       properties:
         current:
           $ref: '#/components/schemas/CharterVersion'
@@ -10625,13 +11562,66 @@ components:
           items:
             type: string
             format: uri-reference
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              version:
+                type: integer
+                minimum: 1
+              created_at:
+                type: string
+                format: date-time
+              created_by:
+                $ref: '#/components/schemas/PrincipalRef'
+              change_rationale:
+                type:
+                - string
+                - 'null'
+            required:
+            - version
+            - created_at
+          description: Version history (oldest first). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        approved_version:
+          type:
+          - integer
+          - 'null'
+          description: Charter version bound by the approved G1, or null. [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        amended_since_approval:
+          type: boolean
+          description: A version newer than the approved one exists. [v0.1.4 · CR-N-01, CR-N-05]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+          - CR-N-05
+        case_record_version:
+          type: integer
+          description: Case record_version (If-Match of createCharterVersion). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
       required:
       - current
-      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
     CharterVersionCreate:
       type: object
-      x-csaml-status: accepted-default
-      description: Request shape for a new charter version.
+      x-csaml-status: decided
+      description: 'Request shape for a new charter version: the contract fields plus the Framework Annex A charter fields. A question with `id`
+        keeps an existing question; a question left out of a later version is RETIRED, never deleted. `change_rationale` is REQUIRED for every
+        version after the first (422). [v0.1.4 · CR-N-01, CR-N-02]'
       properties:
         purpose:
           type: string
@@ -10640,26 +11630,200 @@ components:
           items:
             type: object
             properties:
+              id:
+                $ref: '#/components/schemas/Ref'
+                description: Keep this existing question. [v0.1.4 · CR-N-01]
+                x-csaml-status: decided
+                x-csaml-release-class: DECIDED_V0_1_4
+                x-csaml-cr:
+                - CR-N-01
               question:
                 type: string
+                maxLength: 2000
               priority:
-                type: string
+                $ref: '#/components/schemas/InvestigationQuestionPriority'
+                x-csaml-status: decided
+                x-csaml-release-class: DECIDED_V0_1_4
+                x-csaml-cr:
+                - CR-N-02
             required:
             - question
             - priority
+            additionalProperties: false
           minItems: 1
+          maxItems: 50
         change_rationale:
           type: string
+          maxLength: 20000
+        trigger:
+          type: string
+          maxLength: 20000
+          description: Trigger / lead (Framework §5.2; G0). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        public_interest_rationale:
+          type: string
+          maxLength: 20000
+          description: Public-interest rationale (Framework §5.2; G0). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        scope_included:
+          type: string
+          maxLength: 20000
+          description: 'Subject boundary: what is in scope (Framework §5.3; G1). [v0.1.4 · CR-N-01]'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        scope_excluded:
+          type: string
+          maxLength: 20000
+          description: What is out of scope (Framework §5.3). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        initial_subjects:
+          type: string
+          maxLength: 20000
+          description: Initial subjects (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        initial_hypotheses:
+          type: string
+          maxLength: 20000
+          description: Initial hypotheses (Annex A; reviewer judgement, not checked). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        expected_sensitive_data:
+          type: string
+          maxLength: 20000
+          description: Expected (sensitive) data (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        legal_basis:
+          type: string
+          maxLength: 20000
+          description: Legal / lawful basis (Framework §5.4; G2). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        legal_privacy_constraints:
+          type: string
+          maxLength: 20000
+          description: Legal and privacy constraints (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        security_source_risks:
+          type: string
+          maxLength: 20000
+          description: Security and source risks (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        harm_assessment:
+          type: string
+          maxLength: 20000
+          description: Initial harm assessment (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        collection_methods_authorised:
+          type: string
+          maxLength: 20000
+          description: Authorised collection methods (Framework §5.4; G2). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        collection_methods_prohibited:
+          type: string
+          maxLength: 20000
+          description: Prohibited collection methods (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        expected_outputs:
+          type: string
+          maxLength: 20000
+          description: Expected outputs (Annex A; reviewer judgement, not checked). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        stop_conditions:
+          type: string
+          maxLength: 20000
+          description: Stop conditions (Annex A). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        jurisdictions:
+          type: array
+          items:
+            type: string
+            maxLength: 64
+          maxItems: 50
+          description: Jurisdictions in scope (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        time_period:
+          oneOf:
+          - $ref: '#/components/schemas/TemporalValue'
+          - type: 'null'
+          description: Time period of the investigation (Framework §5.3; G1). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        review_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Next charter review date. [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
       required:
       - purpose
       - investigation_questions
-      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-release-class: DECIDED_V0_1_4
+      additionalProperties: false
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-02
     Gate:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
       - type: object
-        x-csaml-status: accepted-default
-        description: Gate fields are not defined by the Data Model; status values are not yet in the registry.
+        x-csaml-status: decided
+        description: 'Lifecycle gate G0–G6 of a case (Data Model §6.5; Framework §5). Status (registry gate_status, also in the envelope `status`):
+          NOT_SUBMITTED → SUBMITTED → APPROVED / REJECTED; REJECTED → SUBMITTED; APPROVED is final. Case status changes only through an approved
+          gate: G0 DRAFT → AUTHORIZED, G1 AUTHORIZED → ACTIVE, G4 ACTIVE → REVIEW, G6 ACTIVE / REVIEW → CLOSED; G2, G3 and G5 change no status.
+          Gates control the case lifecycle only; collection, assessment finalisation and dissemination keep their own controls. The decider is
+          never the submitter; for a high-impact case (risk HIGH / CRITICAL or classification RESTRICTED / SOURCE_PROTECTED) the G0 / G1 decider
+          must not have authored the charter version under approval. [v0.1.4 · CR-N-03, CR-N-05, CR-N-06, CR-N-07]'
         properties:
           case_id:
             $ref: '#/components/schemas/Ref'
@@ -10668,50 +11832,434 @@ components:
             description: Lifecycle gate code (CS-AML design convention G0–G6).
             examples:
             - G1
+            enum:
+            - G0
+            - G1
+            - G2
+            - G3
+            - G4
+            - G5
+            - G6
+          gate_status:
+            $ref: '#/components/schemas/GateStatus'
+            description: Gate status. [v0.1.4 · CR-N-03]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-03
+          title:
+            type: string
+            description: Gate title (Framework §5). [v0.1.4 · CR-N-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          decision_question:
+            type: string
+            description: Decision question of the gate (Framework §5). [v0.1.4 · CR-N-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          transition:
+            type: object
+            properties:
+              from:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CaseStatus'
+              to:
+                oneOf:
+                - $ref: '#/components/schemas/CaseStatus'
+                - type: 'null'
+            required:
+            - from
+            - to
+            description: 'Case statuses the gate may be decided from, and the status after approval (null: no transition). [v0.1.4 · CR-N-03]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-03
+          independent_approval_required:
+            type: boolean
+            description: 'Always true: the decider is never the submitter. [v0.1.4 · CR-N-07]'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-07
+          preconditions:
+            type: array
+            items:
+              type: object
+              properties:
+                code:
+                  type: string
+                  examples:
+                  - G1_APPROVED
+                  - TRIGGER_RECORDED
+                met:
+                  type: boolean
+                description:
+                  type: string
+              required:
+              - code
+              - met
+              - description
+            description: Readiness criteria the system checks (evaluated at submission and again at approval; empty once APPROVED). Criteria not
+              listed are reviewer judgement (API §12). [v0.1.4 · CR-N-05]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-05
+          submitted_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          submitted_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          submit_rationale:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          submitted_charter_version:
+            type:
+            - integer
+            - 'null'
+            description: Charter version the submission binds to (G0 / G1). [v0.1.4 · CR-N-01, CR-N-07]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-07
+          closure_reason:
+            oneOf:
+            - $ref: '#/components/schemas/ClosureReason'
+            - type: 'null'
+            description: G6 only. [v0.1.4 · CR-N-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          decided_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          decided_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          decision_rationale:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          conditions:
+            type:
+            - string
+            - 'null'
+            description: Conditions recorded with the approval (CIG CAS-02). [v0.1.4 · CR-N-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+          decisions:
+            type: array
+            items:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum:
+                  - SUBMIT
+                  - APPROVE
+                  - REJECT
+                actor:
+                  $ref: '#/components/schemas/PrincipalRef'
+                occurred_at:
+                  type: string
+                  format: date-time
+                rationale:
+                  type:
+                  - string
+                  - 'null'
+                conditions:
+                  type:
+                  - string
+                  - 'null'
+                charter_version:
+                  type:
+                  - integer
+                  - 'null'
+                from_status:
+                  type:
+                  - string
+                  - 'null'
+                  description: Case status before (APPROVE with a transition).
+                to_status:
+                  type:
+                  - string
+                  - 'null'
+                  description: Case status after.
+              required:
+              - action
+              - actor
+              - occurred_at
+            description: Append-only decision history. [v0.1.4 · CR-N-01]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
         required:
         - case_id
         - gate_code
-        x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+        x-csaml-release-class: DECIDED_V0_1_4
+        x-csaml-cr:
+        - CR-N-01
+        - CR-N-03
+        - CR-N-05
+        - CR-N-06
+        - CR-N-07
     GateDecisionRequest:
       type: object
-      x-csaml-status: accepted-default
-      description: Rationale for submit/approve/reject; REQUIRED for reject (API §12 'reject/return with rationale').
+      x-csaml-status: decided
+      description: Rationale for submit/approve/reject; REQUIRED for reject (API §12 'reject/return with rationale'). `conditions` records approval
+        conditions (CIG CAS-02); `closure_reason` is REQUIRED to submit G6 and refused for every other gate (422). [v0.1.4 · CR-N-01]
       properties:
         rationale:
           type: string
-      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+        conditions:
+          type: string
+          maxLength: 20000
+          description: Conditions attached to the decision (CIG CAS-02). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        closure_reason:
+          $ref: '#/components/schemas/ClosureReason'
+          description: G6 submission only. [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+      x-csaml-release-class: DECIDED_V0_1_4
+      additionalProperties: false
+      x-csaml-cr:
+      - CR-N-01
     Task:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
       - type: object
-        x-csaml-status: deferred
-        description: Task fields are not defined by the Data Model (task contracts are an open item, API §28). Deferred to v0.2 (task contracts
-          are outside the core vertical slice).
+        description: Case task (SRS-FR-CASE-004; Data Model §6.6). Assignee = an active, eligible member of the case (422). Dependencies are tasks
+          of the same case; DONE only when every dependency is DONE or CANCELLED (409 DEPENDENCIES_OPEN); a DONE / CANCELLED task never changes
+          again (409 TASK_CLOSED). Members with case update rights change any field; the assignee may change only the status of their own task.
+          History is append-only. [v0.1.4 · CR-N-01, CR-N-04]
         properties:
           case_id:
             $ref: '#/components/schemas/Ref'
           title:
             type: string
+          description:
+            type:
+            - string
+            - 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
+          task_type:
+            $ref: '#/components/schemas/TaskType'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-04
+          task_status:
+            $ref: '#/components/schemas/TaskStatus'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-04
+          assignee:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
+          due_date:
+            type:
+            - string
+            - 'null'
+            format: date
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
+          depends_on:
+            type: array
+            items:
+              $ref: '#/components/schemas/Ref'
+            description: Tasks of the same case this task depends on. [v0.1.4 · CR-N-01, CR-N-04]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
+          completed_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
+          completed_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
+          history:
+            type: array
+            items:
+              type: object
+              properties:
+                occurred_at:
+                  type: string
+                  format: date-time
+                actor:
+                  $ref: '#/components/schemas/PrincipalRef'
+                changes:
+                  type: object
+                  additionalProperties: true
+                rationale:
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - occurred_at
+              - actor
+            description: Append-only change history. [v0.1.4 · CR-N-01, CR-N-04]
+            x-csaml-status: decided
+            x-csaml-release-class: DECIDED_V0_1_4
+            x-csaml-cr:
+            - CR-N-01
+            - CR-N-04
         required:
         - case_id
         - title
-        x-csaml-release-class: DEFER_V0_2
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_4
+        x-csaml-cr:
+        - CR-N-01
+        - CR-N-04
     TaskCreate:
       type: object
-      x-csaml-status: deferred
-      description: Minimal task create. Deferred to v0.2 (task contracts are outside the core vertical slice).
+      description: Task create (SRS-FR-CASE-004). Assignee = an active, eligible member of the case (422). Dependencies are tasks of the same
+        case; DONE only when every dependency is DONE or CANCELLED (409 DEPENDENCIES_OPEN); a DONE / CANCELLED task never changes again (409 TASK_CLOSED).
+        Members with case update rights change any field; the assignee may change only the status of their own task. History is append-only. [v0.1.4
+        · CR-N-01, CR-N-04]
       properties:
         title:
           type: string
+          maxLength: 300
         classification:
           $ref: '#/components/schemas/Classification'
+        description:
+          type: string
+          maxLength: 20000
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+          - CR-N-04
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+          description: Default OTHER. [v0.1.4 · CR-N-04]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-04
+        assignee_id:
+          oneOf:
+          - $ref: '#/components/schemas/Ref'
+          - type: 'null'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+          - CR-N-04
+        due_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+          - CR-N-04
+        depends_on:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+          maxItems: 50
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+          - CR-N-04
       required:
       - title
-      x-csaml-release-class: DEFER_V0_2
+      additionalProperties: false
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-04
     CaseActivityItem:
       type: object
-      x-csaml-status: accepted-default
-      description: Material case activity projection item, derived from AuditEvent fields (Data Model §17.1). Derived/rebuildable.
+      x-csaml-status: decided
+      description: 'Material case activity projection item, derived from AuditEvent fields (Data Model §17.1). Derived/rebuildable. Only events
+        the caller may see (case-level targets and readable objects; no authz.* / auth.* / security.* events); references only. Server-side filters:
+        classification and sort by occurred_at. Actor / action / object filtering is client-side in v0.1.4 (server parameters and an auditor view:
+        v0.2). [v0.1.4 · CR-N-01, CR-N-08]'
       properties:
         occurred_at:
           type: string
@@ -10722,12 +12270,39 @@ components:
           type: string
         target_ref:
           $ref: '#/components/schemas/Ref'
+        target_type:
+          type:
+          - string
+          - 'null'
+          description: Canonical class of the target. [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        audit_action:
+          type:
+          - string
+          - 'null'
+          description: Audit action of the underlying AuditEvent (registry audit_action). [v0.1.4 · CR-N-01]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
+        links:
+          $ref: '#/components/schemas/Links'
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-01
       required:
       - occurred_at
       - actor
       - action
       - target_ref
-      x-csaml-release-class: ACCEPT_DEFAULT_V0_1_1
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-08
     Source:
       allOf:
       - $ref: '#/components/schemas/ResourceEnvelope'
@@ -10934,11 +12509,14 @@ components:
             type:
             - string
             - 'null'
-            description: Kind of derivative (free text in v0.1.2).
+            description: 'Kind of derivative (UPPER_SNAKE_CASE). Registered vocabulary `derivation_type` (open): OCR_TEXT, TEXT_EXTRACTION, MACHINE_TRANSLATION
+              are produced only by the derived-text worker; other values (e.g. REDACTION) are accepted for registered derivatives. [v0.1.4 · CR-I2-06,
+              CR-N-09]'
             x-csaml-status: decided
             x-csaml-release-class: DECIDED_V0_1_2
             x-csaml-cr:
             - CR-I2-06
+            - CR-N-09
         required:
         - source_id
         - evidence_type
@@ -11142,7 +12720,13 @@ components:
       properties:
         derivation_type:
           type: string
-          description: Kind of derivative (e.g. redaction, OCR text). Value set not yet in the registry.
+          pattern: ^[A-Z][A-Z0-9_]*$
+          maxLength: 64
+          description: Kind of derivative, UPPER_SNAKE_CASE (registered open vocabulary `derivation_type`, e.g. REDACTION). [v0.1.4 · CR-N-09]
+          x-csaml-status: decided
+          x-csaml-release-class: DECIDED_V0_1_4
+          x-csaml-cr:
+          - CR-N-09
         upload_id:
           $ref: '#/components/schemas/Ref'
         redaction_state:
@@ -17016,12 +18600,15 @@ components:
       - EVENT
       - VALUE_FLOW
       - PRODUCT
-      description: Searchable canonical object types (API §17). Registry `search_object_type`. [v0.1.3 · CR-I5-03]
+      - DERIVED_TEXT
+      description: Searchable canonical object types (API §17). Registry `search_object_type`. [v0.1.3 · CR-I5-03] DERIVED_TEXT = completed machine-derived
+        text (OCR, extraction, translation). [v0.1.4 · CR-N-11]
       x-csaml-enum: search_object_type
       x-csaml-status: decided
       x-csaml-release-class: DECIDED_V0_1_3
       x-csaml-cr:
       - CR-I5-03
+      - CR-N-11
     SearchEpistemicStatus:
       type: string
       enum:
@@ -17029,14 +18616,16 @@ components:
       - FACT
       - EXCERPT
       - RECORD
+      - DERIVED
       description: 'How a hit must be read: CLAIM = an assertion attributed to a source, never a fact; FACT = a fact record with its own status;
         EXCERPT = text cited from an evidence item (derived); RECORD = any other canonical record. Registry `search_epistemic_status`. [v0.1.3
-        · CR-I5-03]'
+        · CR-I5-03] DERIVED = machine-derived text, never the original evidence; its status is the review state. [v0.1.4 · CR-N-11]'
       x-csaml-enum: search_epistemic_status
       x-csaml-status: decided
       x-csaml-release-class: DECIDED_V0_1_3
       x-csaml-cr:
       - CR-I5-03
+      - CR-N-11
     SnippetSegment:
       type: object
       description: Plain-text snippet segment from the hit's own readable fields (never HTML). [v0.1.3 · CR-I5-01]
@@ -17071,6 +18660,7 @@ components:
     SearchHit:
       type: object
       description: A pointer to a canonical object (not a copy). Open links.self for the current record. [v0.1.3 · CR-I5-01, CR-I5-03, CR-I5-07]
+        [v0.1.4 · CR-N-11]
       properties:
         id:
           $ref: '#/components/schemas/Ref'
@@ -17121,7 +18711,8 @@ components:
             - object_type
             - id
           - type: 'null'
-          description: Projection marker (API §17) for derived text, e.g. the evidence item an extract cites.
+          description: 'Projection marker (API §17) for derived text, e.g. the evidence item an extract cites. For DERIVED_TEXT hits: the original
+            evidence item (page reference in links). [v0.1.4 · CR-N-11]'
         case_context:
           type: array
           items:
@@ -17154,6 +18745,7 @@ components:
       - CR-I5-01
       - CR-I5-03
       - CR-I5-07
+      - CR-N-11
     SearchFacetValue:
       type: object
       properties:
@@ -18606,3 +20198,509 @@ components:
       x-csaml-cr:
       - CR-I6-01
       - CR-I6-03
+    InvestigationQuestionPriority:
+      type: string
+      enum:
+      - PRIMARY
+      - SECONDARY
+      description: InvestigationQuestion.priority (Methodology §5.2 primary and secondary investigation questions). Registry `investigation_question_priority`.
+        [v0.1.4 · CR-N-02]
+      x-csaml-enum: investigation_question_priority
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-02
+    GateStatus:
+      type: string
+      enum:
+      - NOT_SUBMITTED
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+      description: 'Gate status: NOT_SUBMITTED → SUBMITTED → APPROVED / REJECTED; REJECTED → SUBMITTED (resubmission); APPROVED is final. Registry
+        `gate_status`. [v0.1.4 · CR-N-03]'
+      x-csaml-enum: gate_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-03
+    TaskType:
+      type: string
+      enum:
+      - COLLECTION
+      - VERIFICATION
+      - ANALYSIS
+      - REVIEW
+      - OTHER
+      description: Task type (Screen Inventory SCR-CASE-006 collection, verification, analysis and review tasks). Registry `task_type`. [v0.1.4
+        · CR-N-04]
+      x-csaml-enum: task_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-04
+    TaskStatus:
+      type: string
+      enum:
+      - OPEN
+      - IN_PROGRESS
+      - BLOCKED
+      - DONE
+      - CANCELLED
+      description: Task status; DONE and CANCELLED are final (database-guarded). Registry `task_status`. [v0.1.4 · CR-N-04]
+      x-csaml-enum: task_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-04
+    DerivedTextTransformation:
+      type: string
+      enum:
+      - OCR
+      - TEXT_EXTRACTION
+      - MACHINE_TRANSLATION
+      description: Kind of automated transformation that produced a DerivedText. Registry `derived_text_transformation`. [v0.1.4 · CR-N-09, CR-N-10]
+      x-csaml-enum: derived_text_transformation
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
+    DerivedTextStatus:
+      type: string
+      enum:
+      - QUEUED
+      - PROCESSING
+      - REVIEW_REQUIRED
+      - REVIEWED
+      - FAILED
+      description: 'DerivedText processing and review state: QUEUED → PROCESSING → REVIEW_REQUIRED → REVIEWED, or FAILED (safe error code). Machine
+        output is REVIEW_REQUIRED until a person reviews it; status moves forward only. Registry `derived_text_status`. [v0.1.4 · CR-N-09]'
+      x-csaml-enum: derived_text_status
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+    TextPageMethod:
+      type: string
+      enum:
+      - OCR
+      - TEXT_LAYER
+      - PLAIN_TEXT
+      - MACHINE_TRANSLATION
+      description: How the text of a DerivedText page was obtained. Registry `text_page_method`. [v0.1.4 · CR-N-09, CR-N-10]
+      x-csaml-enum: text_page_method
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
+    JobType:
+      type: string
+      enum:
+      - EXPORT_PACKAGE
+      - TEXT_EXTRACTION
+      - MACHINE_TRANSLATION
+      description: Kind of asynchronous job. Registry `job_type`. [v0.1.4 · CR-N-12]
+      x-csaml-enum: job_type
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-12
+    CharterVersionList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CharterVersion'
+        required:
+        - items
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+    TaskPatch:
+      type: object
+      minProperties: 1
+      description: Writable task fields (API-SEC-04). record_version, if present, SHALL equal If-Match. Assignee = an active, eligible member
+        of the case (422). Dependencies are tasks of the same case; DONE only when every dependency is DONE or CANCELLED (409 DEPENDENCIES_OPEN);
+        a DONE / CANCELLED task never changes again (409 TASK_CLOSED). Members with case update rights change any field; the assignee may change
+        only the status of their own task. History is append-only. [v0.1.4 · CR-N-01, CR-N-04]
+      properties:
+        record_version:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        description:
+          type: string
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+        task_status:
+          $ref: '#/components/schemas/TaskStatus'
+        assignee_id:
+          oneOf:
+          - $ref: '#/components/schemas/Ref'
+          - type: 'null'
+        due_date:
+          oneOf:
+          - type: string
+            format: date
+          - type: 'null'
+        depends_on:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ref'
+        status_rationale:
+          type: string
+      additionalProperties: false
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-01
+      - CR-N-04
+    TextExtractionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        languages:
+          type: array
+          description: Tesseract languages (default ind + eng).
+          minItems: 1
+          maxItems: 2
+          items:
+            type: string
+            enum:
+            - ind
+            - eng
+        force_ocr:
+          type: boolean
+          description: OCR PDF pages even when they have a text layer.
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+    TranslationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        source_language:
+          type: string
+          enum:
+          - id
+          - en
+          description: Default id.
+        target_language:
+          type: string
+          enum:
+          - id
+          - en
+          description: Default en; must differ from source_language.
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-10
+    DerivedTextReviewRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        note:
+          type: string
+          maxLength: 5000
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
+    DerivedTextPage:
+      type: object
+      properties:
+        page_number:
+          type: integer
+          minimum: 1
+        source_page_number:
+          type:
+          - integer
+          - 'null'
+          description: Page of the input (original or derived text) this page maps to.
+        method:
+          $ref: '#/components/schemas/TextPageMethod'
+        confidence:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 100
+          description: Mean OCR word confidence; null when not applicable. Not an analytical confidence.
+        text:
+          type: string
+        source_text:
+          type:
+          - string
+          - 'null'
+          description: Translations keep the source-language text of the page.
+      required:
+      - page_number
+      - method
+      - text
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
+    DerivedText:
+      allOf:
+      - $ref: '#/components/schemas/ResourceEnvelope'
+      - type: object
+        description: 'Machine-generated text derived from an evidence item (Data Model §7.7): OCR, text extraction or offline machine translation.
+          Never the original and never a fact; `automated` is always true and the record is REVIEW_REQUIRED until a person reviews it. Classification,
+          access labels and case links are inherited from the input. The output is also stored as a derivative EvidenceItem (`evidence_ref`, derivation_type
+          OCR_TEXT / TEXT_EXTRACTION / MACHINE_TRANSLATION). A completed record is immutable; pages are append-only. [v0.1.4 · CR-N-09, CR-N-10]'
+        properties:
+          status:
+            $ref: '#/components/schemas/DerivedTextStatus'
+            description: Registry derived_text_status (mirrors the envelope status).
+          transformation:
+            $ref: '#/components/schemas/DerivedTextTransformation'
+          label:
+            type: string
+            description: Display label, e.g. "OCR text — machine-generated, review required", "Machine translation — review required"; after review
+              "… reviewed by a person (still a translation)". A product that uses a translation carries the machine-translation label (Methodology
+              §28.1).
+          automated:
+            type: boolean
+            const: true
+          review_required:
+            type: boolean
+          is_original:
+            type: boolean
+            const: false
+          source_evidence_ref:
+            $ref: '#/components/schemas/Ref'
+          root_evidence_ref:
+            $ref: '#/components/schemas/Ref'
+          input_text_ref:
+            oneOf:
+            - $ref: '#/components/schemas/Ref'
+            - type: 'null'
+          evidence_ref:
+            oneOf:
+            - $ref: '#/components/schemas/Ref'
+            - type: 'null'
+            description: The derivative EvidenceItem holding the output document (when complete).
+          engine:
+            type:
+            - string
+            - 'null'
+            description: Offline engine (e.g. tesseract, pdfium, ctranslate2-opus-mt); never an online service.
+          engine_version:
+            type:
+            - string
+            - 'null'
+          models:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                version:
+                  type: string
+                sha256:
+                  type: string
+                licence:
+                  type: string
+              additionalProperties: true
+          languages:
+            type: array
+            items:
+              type: string
+          source_language:
+            type:
+            - string
+            - 'null'
+          target_language:
+            type:
+            - string
+            - 'null'
+          force_ocr:
+            type: boolean
+          page_count:
+            type:
+            - integer
+            - 'null'
+          mean_confidence:
+            type:
+            - number
+            - 'null'
+          content_sha256:
+            type:
+            - string
+            - 'null'
+          input_sha256:
+            type:
+            - string
+            - 'null'
+          job_ref:
+            oneOf:
+            - $ref: '#/components/schemas/Ref'
+            - type: 'null'
+          error_code:
+            type:
+            - string
+            - 'null'
+            description: Safe error code only (e.g. UNSUPPORTED_FORMAT, INTEGRITY_MISMATCH, OCR_TIMEOUT).
+          completed_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+          reviewed_by:
+            oneOf:
+            - $ref: '#/components/schemas/PrincipalRef'
+            - type: 'null'
+          reviewed_at:
+            type:
+            - string
+            - 'null'
+            format: date-time
+          review_note:
+            type:
+            - string
+            - 'null'
+          pages:
+            type: array
+            items:
+              $ref: '#/components/schemas/DerivedTextPage'
+        required:
+        - transformation
+        - label
+        - automated
+        - review_required
+        - source_evidence_ref
+        - root_evidence_ref
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_4
+        x-csaml-cr:
+        - CR-N-09
+        - CR-N-10
+    DerivedTextList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/DerivedText'
+        x-csaml-status: decided
+        x-csaml-release-class: DECIDED_V0_1_4
+        x-csaml-cr:
+        - CR-N-09
+    DerivedTextAccepted:
+      type: object
+      description: 202 body (API §22) plus the queued derived text. [v0.1.4 · CR-N-09, CR-N-10, CR-N-12]
+      properties:
+        job:
+          $ref: '#/components/schemas/Job'
+        derived_text:
+          $ref: '#/components/schemas/DerivedText'
+      required:
+      - job
+      - derived_text
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-09
+      - CR-N-10
+      - CR-N-12
+    StepUpRequiredError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              const: STEP_UP_REQUIRED
+            message:
+              type: string
+            request_id:
+              type: string
+            details:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  enum:
+                  - STEP_UP_MISSING
+                  - STEP_UP_EXPIRED
+                action:
+                  type: string
+                required_acr:
+                  type: string
+                max_age_seconds:
+                  type: integer
+                step_up_url:
+                  type: string
+              required:
+              - reason
+              - action
+              - required_acr
+              - max_age_seconds
+              - step_up_url
+            field_errors:
+              type: object
+          required:
+          - code
+          - message
+          - request_id
+          - details
+      required:
+      - error
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-13
+    SessionStepUp:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        required_level:
+          type: integer
+        max_age_seconds:
+          type: integer
+        stepped_up_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        valid_until:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        active:
+          type: boolean
+        actions:
+          type: array
+          items:
+            type: string
+        login_url:
+          type: string
+      required:
+      - enabled
+      - required_level
+      - max_age_seconds
+      - active
+      - actions
+      - login_url
+      description: 'Step-up state: whether it is enabled, the required level and window, whether a step-up is active, the high-risk action list
+        and the login URL for a step-up.'
+      x-csaml-status: decided
+      x-csaml-release-class: DECIDED_V0_1_4
+      x-csaml-cr:
+      - CR-N-13

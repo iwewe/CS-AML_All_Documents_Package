@@ -4,16 +4,17 @@ Data Model Specification
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1.3 \| Data Specification (Approved Internal Specification Baseline)**
+**Version 0.1.4 \| Data Specification (Approved Internal Specification Baseline)**
 
-> **Document status — v0.1.3**
-> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.2 (2026-10-09, tag v0.1.2-spec). *[v0.1.3]*
+> **Document status — v0.1.4**
+> Version: 0.1.4 — Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec). Supersedes v0.1.3 (2026-10-09, tag v0.1.3-spec). *[v0.1.4]*
 > Supersedes: CS-AML Data Model Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.2 and v0.1.3 changes come from change requests raised while implementing increments I1–I4 and I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.2 and v0.1.3) and 2026-10-10 (v0.1.4; decision register and release gates in `CHANGELOG.md`). The v0.1.2, v0.1.3 and v0.1.4 changes come from change requests raised while implementing increments I1–I4, I5–I7 and the post-MVP follow-ups; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.2: change requests CR-I1-01…CR-I4-14 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.2). Each change is tagged `*[v0.1.2 · CR-xx-yy]*`.
 > Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
+> Changes in 0.1.4: change requests CR-N-01…CR-N-14 approved by the product owner on 2026-10-10 (`CHANGELOG.md`, section v0.1.4). Each change is tagged `*[v0.1.4 · CR-N-xx]*`.
 
 > **Status**
 >
@@ -24,9 +25,9 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 | **Field** | **Value** |
 |----|----|
 | Document | CS-AML Data Model Specification |
-| Version | 0.1.3 *[v0.1.3]* |
-| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) *[v0.1.1 · A01]* |
-| Applies to | CS-AML Framework v0.1.1 Expanded (`CS-AML_Framework_v0.1.1_Expanded.md`) and derivative implementations *[v0.1.1 · A01]* |
+| Version | 0.1.4 *[v0.1.4]* |
+| Status | Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) *[v0.1.1 · A01]* |
+| Applies to | CS-AML Framework v0.1.4 Expanded (`CS-AML_Framework_v0.1.4_Expanded.md`) and derivative implementations *[v0.1.1 · A01]* |
 | Primary audience | Framework maintainers, investigators, data architects, software engineers, security/privacy reviewers, assurance reviewers |
 | Normative terms | SHALL/MUST = mandatory; SHOULD = recommended; MAY = optional |
 | Design objective | Preserve evidentiary provenance, analytical uncertainty, temporal context, and privacy constraints while enabling reusable entity-centric financial intelligence. |
@@ -210,6 +211,8 @@ Represents the bounded investigative context in which questions, scope, risks, a
 DRAFT -> AUTHORIZED -> ACTIVE -> REVIEW -> CLOSED -> MONITORING -> REOPENED
 ```
 
+**Gate → case-status mapping.** The case status changes only through an approved lifecycle gate (Section 6.5) for exactly that transition (database guard): G0 DRAFT → AUTHORIZED; G1 AUTHORIZED → ACTIVE; G4 ACTIVE → REVIEW; G6 ACTIVE or REVIEW → CLOSED (`closure_reason` from the G6 submission, `closed_at` set). G2, G3 and G5 change no status. MONITORING and REOPENED remain defined states but are not reachable through the API in v0.1.x; their triggers are deferred to v0.2. *[v0.1.4 · CR-N-03]*
+
 ## 6.2 InvestigationQuestion
 
 Represents a testable analytical question that constrains scope and prevents open-ended surveillance.
@@ -218,13 +221,15 @@ Represents a testable analytical question that constrains scope and prevents ope
 |----|----|----|----|----|
 | case_id | ref | Y | 1 | Parent case context. |
 | question | text | Y | 1 | Neutral question. |
-| priority | enum | Y | 1 | Analytical priority. |
+| priority | enum | Y | 1 | Analytical priority; registry enum investigation_question_priority: PRIMARY, SECONDARY (Methodology §5.2). *[v0.1.4 · CR-N-02]* |
 | status | enum | Y | 1 | OPEN, ANSWERED, RETIRED *[v0.1.1 · A09]* |
 | answer_summary | text | N | 0..1 | Short evidence-linked answer. |
 
 ### Normative rules:
 
 - Questions SHOULD be framed to permit both incriminating and exculpatory answers.
+
+- Questions are created and retired through the charter (Section 6.4): a question left out of a later charter version becomes RETIRED, never deleted. *[v0.1.4 · CR-N-01]*
 
 ## 6.3 CaseMembership *[v0.1.2 · CR-I1-02]*
 
@@ -249,6 +254,83 @@ Explicit, revocable grant of a principal to a case (SRS-FR-SEC-002). Access to c
 - Memberships SHALL be managed by the case LEAD. Revocation SHALL be soft (revoked_at), so access history stays reconstructable; the LEAD membership cannot be revoked, the lead is changed through the case. Every grant, change and revocation SHALL generate an AuditEvent. *[v0.1.2 · CR-I1-02]*
 
 - LEAD is the case owner / investigation lead; REVIEWER and LEAD memberships qualify a principal as reviewer for fact establishment and merge/unmerge (Sections 7.5, 8.4). *[v0.1.2 · CR-I1-02, CR-I2-11]*
+
+## 6.4 CharterVersion *[v0.1.4 · CR-N-01]*
+
+Append-only version of the Investigation Charter of a case (Framework §5, Annex A; Methodology §5.2; SRS-FR-CASE-002). The current version is the one with the highest number; the Case purpose follows it.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| case | ref | Y | 1 | Case. |
+| version | integer | Y | 1 | 1, 2, … per case. |
+| purpose | text | Y | 1 | Legitimate investigative purpose. |
+| questions | snapshot\[\] | Y | 1..50 | InvestigationQuestions of this version (id, question, priority, status). |
+| change_rationale | text | N\* | 0..1 | REQUIRED for every version after the first (scope change control, Methodology §5.3). |
+| trigger, public_interest_rationale | text | N | 0..1 | G0 intake fields (Framework §5.2). |
+| scope_included, scope_excluded, initial_subjects, initial_hypotheses, expected_sensitive_data, harm_assessment | text | N | 0..1 | Scope fields (Framework §5.3). |
+| legal_basis, legal_privacy_constraints, security_source_risks, collection_methods_authorised, collection_methods_prohibited | text | N | 0..1 | Collection fields (Framework §5.4). |
+| expected_outputs, stop_conditions | text | N | 0..1 | Annex A. |
+| jurisdictions | code\[\] | N | 0..50 | Jurisdictions in scope. |
+| time_period | TemporalValue | N | 0..1 | Period under investigation. |
+| review_date | date | N | 0..1 | Next charter review. |
+| created_by, created_at | principal, datetime | Y | 1 | Author and time. |
+
+### Normative rules:
+
+- Charter versions SHALL be append-only; an earlier version stays retrievable with actor and time.
+
+- The approved G1 binds to the charter version submitted; a later version flags the charter `amended_since_approval` (scope change for reviewer judgement, not a new approval requirement in v0.1.4).
+
+## 6.5 Gate *[v0.1.4 · CR-N-03, CR-N-05, CR-N-06, CR-N-07]*
+
+One record per lifecycle gate G0–G6 of a case (Framework §5; Methodology §3), with an append-only GateDecision history.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| case | ref | Y | 1 | Case. |
+| gate_code | code | Y | 1 | G0 … G6. |
+| gate_status | enum | Y | 1 | Registry enum gate_status: NOT_SUBMITTED, SUBMITTED, APPROVED, REJECTED. |
+| submitted_by, submitted_at, submit_rationale | principal, datetime, text | N | 0..1 | Latest submission. |
+| submitted_charter_version | integer | N | 0..1 | Charter version the submission binds to (G0, G1). |
+| closure_reason | enum | N | 0..1 | closure_reason; REQUIRED to submit G6, refused for other gates. |
+| decided_by, decided_at, decision_rationale, conditions | principal, datetime, text, text | N | 0..1 | Latest decision; conditions per CIG CAS-02. |
+| decisions | GateDecision\[\] | Y | 0..n | Append-only: action (SUBMIT, APPROVE, REJECT), actor, time, rationale, conditions, charter version, case status before / after. |
+
+### Normative rules:
+
+- Status: NOT_SUBMITTED → SUBMITTED → APPROVED | REJECTED; REJECTED → SUBMITTED; APPROVED is final.
+
+- Case-status transitions: G0 DRAFT → AUTHORIZED, G1 AUTHORIZED → ACTIVE, G4 ACTIVE → REVIEW, G6 ACTIVE | REVIEW → CLOSED; G2, G3, G5 none (Section 6.1).
+
+- Readiness criteria the system checks (at submission and again at approval) are listed in API Specification §12; all other criteria of Framework §5 are reviewer judgement recorded in the rationale (Framework §5.9).
+
+- Gates control the case lifecycle only (activation, review, closure); collection, assessment finalisation and dissemination keep their own controls. Per-organisation or per-risk-tier gate configuration is deferred to v0.2.
+
+- The decider SHALL NOT be the submitter (database CHECK) and SHALL hold a LEAD or REVIEWER membership. For a high-impact case (risk_rating HIGH or CRITICAL, or classification RESTRICTED or SOURCE_PROTECTED) the G0 / G1 decider SHALL NOT have authored the charter version under approval.
+
+## 6.6 Task *[v0.1.4 · CR-N-04]*
+
+Case-scoped work item (SRS-FR-CASE-004; Screen Inventory SCR-CASE-006).
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| title | string | Y | 1 | Short title. |
+| description | text | N | 0..1 | Details. |
+| task_type | enum | Y | 1 | Registry enum task_type: COLLECTION, VERIFICATION, ANALYSIS, REVIEW, OTHER. |
+| task_status | enum | Y | 1 | Registry enum task_status: OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED. |
+| assignee | principal | N | 0..1 | Active, eligible member of the case. |
+| due_date | date | N | 0..1 | Due date. |
+| depends_on | ref\[\] | N | 0..50 | Tasks of the same case. |
+| completed_by, completed_at | principal, datetime | N | 0..1 | Set when DONE. |
+| history | TaskEvent\[\] | Y | 0..n | Append-only: actor, time, changes, rationale. |
+
+### Normative rules:
+
+- DONE and CANCELLED are final (database-guarded); DONE requires every dependency to be DONE or CANCELLED.
+
+- Case members with update rights change any field; the assignee may change only the status of their own task.
+
+- Links from tasks to sources, entities and hypotheses are deferred to v0.2.
 
 # 7. Source, Evidence, Claim, and Fact Model
 
@@ -295,7 +377,7 @@ Represents a preserved evidentiary object such as a file, page image, registry r
 | byte_size | integer | N | 0..1 | Size of the original bytes. *[v0.1.2 · CR-I2-06]* |
 | hash_algorithm | string | N | 0..1 | Algorithm of content_hash (e.g. SHA-256). *[v0.1.2 · CR-I2-06]* |
 | derived_from | ref | N | 0..1 | Parent EvidenceItem of a derivative. *[v0.1.2 · CR-I2-06]* |
-| derivation_type | text | N | 0..1 | Kind of derivative (redaction, OCR text, …); free text in v0.1.2. *[v0.1.2 · CR-I2-06]* |
+| derivation_type | text | N | 0..1 | Kind of derivative (redaction, OCR text, …); free text in v0.1.2. *[v0.1.2 · CR-I2-06]* Registered open vocabulary derivation_type: OCR_TEXT, TEXT_EXTRACTION, MACHINE_TRANSLATION (produced only by the derived-text worker, Section 7.7); other UPPER_SNAKE_CASE values (e.g. REDACTION) are accepted for registered derivatives. *[v0.1.4 · CR-N-09]* |
 
 ### Normative rules:
 
@@ -420,6 +502,41 @@ Represents a single, append-only verification outcome on a Claim or Fact (for ex
 - A decision moving a Fact to ESTABLISHED SHALL have decided_by different from the Fact's proposed_by.
 
 - Each VerificationDecision SHALL generate an AuditEvent.
+
+## 7.7 DerivedText *[v0.1.4 · CR-N-09, CR-N-10]*
+
+Record of one automated transformation of an evidence item's content into text: OCR, text extraction or offline machine translation (Product and Feature Specification F-DOC-002 "DerivedArtifact"; SRS-FR-EVD-005, SRS-FR-DOC-002, SRS-FR-DOC-003, SRS-AI-001). A case-context object; classification, access labels and case links are inherited from its input (DM-I14). It is never the original evidence and never a fact.
+
+| **Field** | **Type** | **Req.** | **Cardinality** | **Semantics** |
+|----|----|----|----|----|
+| transformation | enum | Y | 1 | Registry enum derived_text_transformation: OCR, TEXT_EXTRACTION, MACHINE_TRANSLATION. |
+| status | enum | Y | 1 | Registry enum derived_text_status: QUEUED, PROCESSING, REVIEW_REQUIRED, REVIEWED, FAILED. |
+| source_evidence | ref | Y | 1 | EvidenceItem whose bytes were read (an original or a derivative). |
+| root_evidence | ref | Y | 1 | Original at the root of the lineage. |
+| input_text | ref | N | 0..1 | DerivedText translated (translations of an OCR / extraction output). |
+| evidence | ref | N | 0..1 | Derivative EvidenceItem holding the output document (derivation_type OCR_TEXT, TEXT_EXTRACTION or MACHINE_TRANSLATION). |
+| automated | boolean | Y | 1 | Always true. |
+| label | string | Y | 1 | E.g. "OCR text — machine-generated, review required", "Machine translation — review required". |
+| engine, engine_version | string | N | 0..1 | Offline engine and version. |
+| models | object\[\] | N | 0..n | Name, version, SHA-256 and licence of each model / language file. |
+| languages; source_language, target_language | code\[\]; code | N | 0..n | OCR languages; translation pair. |
+| page_count, mean_confidence | integer, number | N | 0..1 | Mean OCR word confidence (not an analytical confidence). |
+| input_sha256, content_sha256 | string | N | 0..1 | Hash of the input read and of the output. |
+| pages | DerivedTextPage\[\] | N | 0..n | page_number, source_page_number (page mapping), method (registry enum text_page_method: OCR, TEXT_LAYER, PLAIN_TEXT, MACHINE_TRANSLATION), confidence, text, source_text (translations). |
+| error_code | string | N | 0..1 | Safe code when FAILED. |
+| requested_by, reviewed_by, reviewed_at, review_note | principal, principal, datetime, text | N | 0..1 | Requester and the recorded human review. |
+
+### Normative rules:
+
+- The original SHALL only be read; it is re-hashed before processing and a mismatch fails the record.
+
+- Status moves forward only; a completed or failed record's output, engine, lineage and hashes are immutable; pages are append-only; a recorded review is immutable (database guards).
+
+- Machine output is REVIEW_REQUIRED until a person reviews it. Review does not create facts; a Fact still needs its VerificationDecision against evidence (CIG TEC-01).
+
+- Translations keep the source-language text of every page, are never translated again, and keep the machine-translation label in any intelligence product that uses them (Methodology §28.1).
+
+- Every automation engine runs offline; evidence content never leaves the host (CIG EVD-02, TEC-01).
 
 # 8. Entity and Identity Model
 
@@ -659,7 +776,7 @@ Represents movement, conversion, allocation, or inferred transfer of economic va
 
 - ValueFlow has no stored lifecycle; its envelope status is RECORDED. *[v0.1.2 · CR-I3-05]*
 
-- **Aggregation.** Value SHALL be aggregated per (flow_class, flow_type, currency) with no grand total across classes; CONTRACT and SUBCONTRACT groups are obligations, not settlements, and only DIRECT groups count as settlement evidenced; lower/upper/exact totals SHALL count unknown amounts and never treat them as 0; legs SHALL NOT be added to their flow's totals. Details: API Specification v0.1.3 §15. *[v0.1.2 · CR-I3-12]*
+- **Aggregation.** Value SHALL be aggregated per (flow_class, flow_type, currency) with no grand total across classes; CONTRACT and SUBCONTRACT groups are obligations, not settlements, and only DIRECT groups count as settlement evidenced; lower/upper/exact totals SHALL count unknown amounts and never treat them as 0; legs SHALL NOT be added to their flow's totals. Details: API Specification v0.1.4 §15. *[v0.1.2 · CR-I3-12]*
 
 ## 11.2 ValueFlowLeg
 
@@ -957,7 +1074,7 @@ Access labels MAY add purpose, jurisdiction, source-protection, embargo, legal-r
 
 ### Principal clearance model *[v0.1.2 · CR-I1-10]*
 
-A principal's clearance is represented by identity-provider (Keycloak realm) roles; see also Technical Stack v0.1.3 §10. *[v0.1.2 · CR-I1-10]*
+A principal's clearance is represented by identity-provider (Keycloak realm) roles; see also Technical Stack v0.1.4 §10. *[v0.1.2 · CR-I1-10]*
 
 | **IdP role** | **Effect** |
 |----|----|
@@ -1139,9 +1256,17 @@ A graph edge is a projection of a canonical Relationship or ValueFlow object. Th
 ``` text
 cases
 case_memberships         (v0.1.2 · CR-I1-02)
+investigation_questions
+charter_versions
+case_gates
+case_gate_decisions
+case_tasks
+case_task_events
 sources
 evidence_items
 evidence_extracts
+derived_texts
+derived_text_pages
 evidence_integrity_checks (append-only verification results)
 upload_sessions
 claims
@@ -1183,6 +1308,8 @@ audit_events
 v0.1.2 adds case_memberships, upload_sessions, evidence_integrity_checks, assessment_disconfirming_searches and assessment_revisions to the list; hypothesis_links holds the append-only matrix cells (Section 13.1). *[v0.1.2 · CR-I1-02, CR-I4-04, CR-I4-05]*
 
 v0.1.3 adds product_versions, export_packages, sharing_log_entries, jobs, handling_changes, retention_rules, legal_holds and disposition_records; search_documents is a derived, rebuildable search projection, never canonical. *[v0.1.3 · CR-I6-01, CR-I6-08, CR-I6-09, CR-I6-12, CR-I7-01, CR-I7-03, CR-I7-04, CR-I5-01]*
+
+v0.1.4 adds investigation_questions, charter_versions, case_gates, case_gate_decisions (append-only), case_tasks, case_task_events (append-only), derived_texts and derived_text_pages (append-only). *[v0.1.4 · CR-N-01, CR-N-03, CR-N-04, CR-N-09]*
 
 This list is illustrative. Implementations MAY normalize or denormalize differently provided semantic and integrity requirements are preserved.
 
@@ -1274,7 +1401,7 @@ The canonical model is implementation-neutral and MAY map to external ontologies
 
 # 26. Data Model Conformance
 
-An implementation claiming to implement CS-AML Data Model v0.1.3 SHALL demonstrate the following minimum capabilities:
+An implementation claiming to implement CS-AML Data Model v0.1.4 SHALL demonstrate the following minimum capabilities:
 
 - Persistent canonical IDs and schema versioning.
 
@@ -1330,8 +1457,8 @@ Annex A, together with the enumerations stated in the field tables of this speci
 | temporal_value.precision | DATETIME, DAY, MONTH, YEAR, RANGE, UNKNOWN (string shape must match) *[v0.1.2 · CR-I3-06]* |
 | hypothesis.role | PRINCIPAL, ALTERNATIVE_LEGITIMATE, ALTERNATIVE_MECHANISM, INSUFFICIENT_INFORMATION *[v0.1.2 · CR-I4-06]* |
 | hypothesis_link.effect | SUPPORTS, CONTRADICTS, NEUTRAL, UNKNOWN *[v0.1.2 · CR-I4-07]* |
-| search_hit.object_type | CASE, ENTITY, SOURCE, EVIDENCE_ITEM, EVIDENCE_EXTRACT, CLAIM, FACT, RELATIONSHIP, ASSET, EVENT, VALUE_FLOW, PRODUCT *[v0.1.3 · CR-I5-03]* |
-| search_hit.epistemic_status | CLAIM, FACT, EXCERPT, RECORD (a claim is never shown as a fact) *[v0.1.3 · CR-I5-03]* |
+| search_hit.object_type | CASE, ENTITY, SOURCE, EVIDENCE_ITEM, EVIDENCE_EXTRACT, CLAIM, FACT, RELATIONSHIP, ASSET, EVENT, VALUE_FLOW, PRODUCT *[v0.1.3 · CR-I5-03]*, DERIVED_TEXT *[v0.1.4 · CR-N-11]* |
+| search_hit.epistemic_status | CLAIM, FACT, EXCERPT, RECORD (a claim is never shown as a fact) *[v0.1.3 · CR-I5-03]*, DERIVED (never the original) *[v0.1.4 · CR-N-11]* |
 | graph_lead.lead_type | SHARED_IDENTIFIER, SHARED_PHONE, SHARED_EMAIL, SHARED_ADDRESS (candidates, never facts or edges) *[v0.1.3 · CR-I5-05]* |
 | graph_query.truncation_reason | NODE_BUDGET, EDGE_BUDGET, TIME_BUDGET, LEAD_BUDGET *[v0.1.3 · CR-I5-06]* |
 | review.review_kind | PRODUCT_VERSION, ASSESSMENT, REVIEW_FLAG_CLEARANCE, HANDLING_CHANGE, CORRECTION *[v0.1.3 · CR-I6-02]* |
@@ -1348,6 +1475,15 @@ Annex A, together with the enumerations stated in the field tables of this speci
 | retention_rule.rule_status | ACTIVE, RETIRED *[v0.1.3 · CR-I7-03]* |
 | legal_hold.hold_status | ACTIVE, RELEASED *[v0.1.3 · CR-I7-03]* |
 | disposition_record.disposition_status | PROPOSED, APPROVED, REJECTED, EXECUTING, EXECUTED *[v0.1.3 · CR-I7-04]* |
+| investigation_question.priority | PRIMARY, SECONDARY *[v0.1.4 · CR-N-02]* |
+| gate.gate_status | NOT_SUBMITTED, SUBMITTED, APPROVED, REJECTED *[v0.1.4 · CR-N-03]* |
+| task.task_type | COLLECTION, VERIFICATION, ANALYSIS, REVIEW, OTHER *[v0.1.4 · CR-N-04]* |
+| task.task_status | OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED (DONE and CANCELLED final) *[v0.1.4 · CR-N-04]* |
+| derived_text.transformation | OCR, TEXT_EXTRACTION, MACHINE_TRANSLATION *[v0.1.4 · CR-N-09, CR-N-10]* |
+| derived_text.status | QUEUED, PROCESSING, REVIEW_REQUIRED, REVIEWED, FAILED *[v0.1.4 · CR-N-09]* |
+| derived_text_page.method | OCR, TEXT_LAYER, PLAIN_TEXT, MACHINE_TRANSLATION *[v0.1.4 · CR-N-09, CR-N-10]* |
+| evidence_item.derivation_type | OCR_TEXT, TEXT_EXTRACTION, MACHINE_TRANSLATION (open vocabulary; other values for registered derivatives) *[v0.1.4 · CR-N-09]* |
+| job.job_type | EXPORT_PACKAGE, TEXT_EXTRACTION, MACHINE_TRANSLATION *[v0.1.4 · CR-N-12]* |
 
 # Annex B. Canonical Relationship Vocabulary (Baseline)
 

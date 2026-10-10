@@ -4,16 +4,17 @@
 
 A governance, investigation, evidence, intelligence, technology, and assurance standard for civil society financial intelligence.
 
-> **Document status — v0.1.1**
-> Version: 0.1.1 — Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec). *[v0.1.1 · A01]*
+> **Document status — v0.1.4**
+> Version: 0.1.4 — Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec); unchanged in v0.1.2 and v0.1.3. *[v0.1.4]*
 > Supersedes: CS-AML Framework v0.1 Expanded. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (decision register and release gates in `CHANGELOG.md`). No implementation test result or independent audit exists yet. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-10 (v0.1.4; decision register and release gates in `CHANGELOG.md`). The v0.1.4 changes come from change requests raised while implementing the post-MVP follow-ups (§5.9 only); this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
+> Changes in 0.1.4: change requests CR-N-01…CR-N-14 approved by the product owner on 2026-10-10 (`CHANGELOG.md`, section v0.1.4). Each change is tagged `*[v0.1.4 · CR-N-xx]*`.
 
-| **Status** | Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]* |
+| **Status** | Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) *[v0.1.4]* |
 |----|----|
-| **Version** | 0.1.1 Expanded *[v0.1.1 · A01]* |
+| **Version** | 0.1.4 Expanded *[v0.1.4]* |
 | **Date** | October 2026 |
 | **Primary audience** | Civil society, investigative journalism, public-interest research |
 | **Normative terms** | MUST / SHALL / SHOULD / MAY |
@@ -115,9 +116,9 @@ Evidence is not an allegation. Case is context; Entity and Evidence are reusable
 
 **Document title:** CS-AML Framework v0.1.1 — Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Status:** Approved Internal Specification Baseline (2026-10-08, tag v0.1.1-spec) *[v0.1.1 · A01]*
+**Status:** Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) *[v0.1.4]*
 
-**Version:** 0.1.1 Expanded *[v0.1.1 · A01]*
+**Version:** 0.1.4 Expanded *[v0.1.4]*
 
 **Publication date:** October 2026
 
@@ -387,6 +388,22 @@ External referral, publication, or partner sharing SHALL be approved according t
 
 Closure SHALL record outcome, unresolved gaps, retention status, lessons learned, reusable typology insights, and whether ongoing monitoring is justified. Cases SHALL NOT remain open indefinitely without a documented reason.
 
+## 5.9 System support for the gates (reference implementation) *[v0.1.4 · CR-N-03, CR-N-05, CR-N-06, CR-N-07]*
+
+Gates G0–G6 are case records with status NOT_SUBMITTED → SUBMITTED → APPROVED / REJECTED (a rejected gate may be resubmitted; APPROVED is final). The case status changes only through an approved gate:
+
+| **Gate** | **Case status after approval** | **Criteria the system checks** | **Reviewer judgement (recorded in the decision rationale or enforced by other controls)** |
+|----|----|----|----|
+| G0 | DRAFT → AUTHORIZED | Charter recorded; trigger; public-interest rationale | Known sensitivities; immediate legal / security constraints; no prohibited purpose |
+| G1 | AUTHORIZED → ACTIVE | ≥ 1 investigation question; scope; time period; jurisdictions; expected data; harm assessment | Initial hypotheses; expected outputs; scope creep (a later charter version only flags `amended_since_approval`) |
+| G2 | — | G1 approved; legal basis; authorised collection methods | Necessity; expected retention; access restrictions; consent / legal advice |
+| G3 | — | G2 approved; evidence linked; data gaps recorded | Core entities resolved sufficiently; major source conflicts identified |
+| G4 | ACTIVE → REVIEW | G3 approved; an assessment; ≥ 2 hypotheses | Contradictory evidence, confidence, assumptions (enforced by assessment finalisation) |
+| G5 | — | G4 approved; an independently approved product version | Legal / privacy review, redactions (review and dissemination controls) |
+| G6 | ACTIVE / REVIEW → CLOSED | Closure reason | Lessons learned; typology insights; monitoring justification (a closure snapshot records open gaps, legal holds and open tasks) |
+
+Gates control the case lifecycle only (activation, review, closure); collection, assessment finalisation and dissemination keep their own controls and are not blocked by gate state. The decider is never the submitter and is a case LEAD or REVIEWER; for a high-impact case (risk HIGH / CRITICAL, or classification RESTRICTED / SOURCE_PROTECTED) the G0 / G1 decider must not have authored the charter version under approval. MONITORING and reopening (§5.1 "CLOSURE / MONITORING") are not system states that can be reached in v0.1.x; gate configuration per organisation or risk tier is deferred to v0.2.
+
 # 6. Case Model and Case Taxonomy
 
 ## 6.1 Case definition
@@ -417,7 +434,7 @@ Minimum fields SHALL include case identifier, title, purpose, investigation ques
 
 ## 6.4 Case sensitivity
 
-Cases and their content SHALL be classified using the five-level model defined authoritatively in the CS-AML Data Model Specification v0.1.1, Section 16 (`CS-AML_Data_Model_Specification_v0.1.1.md`). Levels, ordered least to most restrictive (wire value — display label): *[v0.1.1 · A08]*
+Cases and their content SHALL be classified using the five-level model defined authoritatively in the CS-AML Data Model Specification v0.1.4, Section 16 (`CS-AML_Data_Model_Specification_v0.1.4.md`). Levels, ordered least to most restrictive (wire value — display label): *[v0.1.1 · A08]*
 
 - **PUBLIC — Public:** suitable for public release after normal review;
 
@@ -565,7 +582,7 @@ Entity resolution SHALL be evidence-based. Name similarity alone SHALL NOT justi
 
 ## 10.4 Resolution outcomes
 
-A record comparison SHALL resolve to one of: **same entity**, **probable same**, **possible same**, **different entity**, or **unresolved**. Systems SHOULD preserve the underlying records so merges can be reversed. In implementations these outcomes are recorded as append-only resolution decisions (Data Model v0.1.1 §8.4): same entity → MERGE; probable or possible same → POSSIBLE_MATCH; different entity → KEEP_SEPARATE; unresolved → DEFER; a reversed merge → UNMERGE. *[v0.1.1 · ER]*
+A record comparison SHALL resolve to one of: **same entity**, **probable same**, **possible same**, **different entity**, or **unresolved**. Systems SHOULD preserve the underlying records so merges can be reversed. In implementations these outcomes are recorded as append-only resolution decisions (Data Model v0.1.4 §8.4): same entity → MERGE; probable or possible same → POSSIBLE_MATCH; different entity → KEEP_SEPARATE; unresolved → DEFER; a reversed merge → UNMERGE. *[v0.1.1 · ER]*
 
 ## 10.5 Confidence and merge authority
 
@@ -669,7 +686,7 @@ Types MAY include payment, transfer, contract award, subcontract, loan, repaymen
 
 Reconstructed flows SHALL be clearly marked as inferred and SHALL include the reasoning path.
 
-In stored records the flow class is one of the four wire values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL` defined in the Data Model Specification v0.1.1 (Section 11 and Annex A). *[v0.1.1 · A09]*
+In stored records the flow class is one of the four wire values `DIRECT`, `DOCUMENTED`, `RECONSTRUCTED`, `HYPOTHETICAL` defined in the Data Model Specification v0.1.4 (Section 11 and Annex A). *[v0.1.1 · A09]*
 
 ## 14.4 Flow attributes
 

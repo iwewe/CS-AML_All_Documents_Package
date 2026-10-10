@@ -4,15 +4,16 @@ Control Implementation Guide
 
 Civil Society Anti-Money Laundering & Financial Intelligence Framework
 
-**Version 0.1.3 \| Implementation Guide (Approved Internal Specification Baseline)**
+**Version 0.1.4 \| Implementation Guide (Approved Internal Specification Baseline)**
 
-> **Document status — v0.1.3**  
-> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec); unchanged in v0.1.2. *[v0.1.3]*  
+> **Document status — v0.1.4**  
+> Version: 0.1.4 — Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec). Supersedes v0.1.3 (2026-10-09, tag v0.1.3-spec). *[v0.1.4]*  
 > Supersedes: CS-AML Control Implementation Guide v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.  
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.3 changes come from change requests raised while implementing increments I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.3) and 2026-10-10 (v0.1.4; decision register and release gates in `CHANGELOG.md`). The v0.1.3 and v0.1.4 changes come from change requests raised while implementing increments I5–I7 and the post-MVP follow-ups; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.  
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.  
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
+> Changes in 0.1.4: change requests CR-N-01…CR-N-14 approved by the product owner on 2026-10-10 (`CHANGELOG.md`, section v0.1.4). Each change is tagged `*[v0.1.4 · CR-N-xx]*`.
 
 
 > **Status**
@@ -24,10 +25,10 @@ Civil Society Anti-Money Laundering & Financial Intelligence Framework
 | **Field** | **Specification** |
 |----|----|
 | Document | CS-AML Control Implementation Guide |
-| Version | 0.1.3 *[v0.1.3]* |
-| Status | Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) — derivative implementation guide *[v0.1.1 · A01]* |
-| Parent | CS-AML Framework v0.1.1 (Markdown, `Documents/CS-AML_Framework_v0.1.1_Expanded.md`) |
-| Related specifications | Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.1; Data Model Specification v0.1.3 |
+| Version | 0.1.4 *[v0.1.4]* |
+| Status | Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) — derivative implementation guide *[v0.1.1 · A01]* |
+| Parent | CS-AML Framework v0.1.4 Expanded (Markdown, `Documents/CS-AML_Framework_v0.1.4_Expanded.md`) |
+| Related specifications | Goals & Non-Goals v0.1.1; Typology Catalogue v0.1.1; Investigation Methodology v0.1.4; Data Model Specification v0.1.4 |
 | Primary audience | CSO leadership, investigators, compliance/ethics leads, privacy/security staff, system owners, reviewers, assurance teams |
 | Normative language | SHALL/MUST = mandatory; SHOULD = strongly recommended unless justified; MAY = optional |
 | Control population | 26 minimum controls inherited from the CS-AML v0.1 control catalogue |
@@ -406,6 +407,9 @@ The following profiles are normative implementation guidance for the minimum CS-
 
 - Record gate decision, approver, conditions, and unresolved gaps.
 
+> **Reference implementation (v0.1.4)** *[v0.1.4 · CR-N-03, CR-N-05, CR-N-06, CR-N-07]*
+> High-risk (high-impact) case = risk rating HIGH or CRITICAL, or classification RESTRICTED or SOURCE_PROTECTED (a P3 proxy). For every gate the decider is never the submitter (system-enforced) and is a LEAD or REVIEWER member of the case; for a high-impact case the G0 / G1 decider must not have authored the charter version under approval. Gate approval requires a recent second-factor step-up. The decision record holds approver, rationale, conditions, the bound charter version and the case-status transition; readiness criteria that are data are checked at submission and approval, the rest is reviewer judgement (Framework §5.9). Gates control the case lifecycle (activation, review, closure); collection, assessment finalisation and dissemination keep their own controls. Separate legal / privacy reviewer roles per gate and configuration per organisation or risk tier (P1–P3) are deferred to v0.2.
+
 #### Minimum evidence of operation
 
 - Gate checklist
@@ -597,6 +601,9 @@ The following profiles are normative implementation guidance for the minimum CS-
 - Record parent evidence reference, transformation type, tool/version when material, creator, and creation time.
 
 - Do not replace original wording with corrected or translated text without retaining both.
+
+> **Reference implementation (v0.1.4)** *[v0.1.4 · CR-N-09, CR-N-10]*
+> OCR, text extraction and machine translation produce a DerivedText (Data Model §7.7) and a derivative EvidenceItem linked to its parent (`derived_from`, `derivation_type`), with engine, version, model hashes and licence, requester and time. Translations keep the source-language text of every page and the method ("Machine translation", engine, model); a translation is never translated again. All automation engines run offline; evidence content never leaves the host. Reviewed translations need no second reviewer, but the machine-translation label is carried into any intelligence product that uses the translation.
 
 #### Minimum evidence of operation
 
@@ -1429,6 +1436,8 @@ The following profiles are normative implementation guidance for the minimum CS-
 
 - Apply stricter controls to identity resolution, allegation drafting, translation, and extraction from sensitive records.
 
+- Run every automation engine offline (no evidence content to third-party services, no online fallback); keep machine output labelled machine-generated and review-required until a person reviews it; a review never creates a Fact. *[v0.1.4 · CR-N-09, CR-N-10]*
+
 #### Minimum evidence of operation
 
 - AI-use record
@@ -1788,7 +1797,7 @@ These external sources provide alignment context rather than direct regulatory o
 | FATF | FATF Recommendations and 2022 Methodology, as amended June 2026 — risk-based approach and effectiveness principles. |
 | Wolfsberg Group | Guidance on the Risk-Based Approach, June 2026 — proportionality, prioritisation, and effectiveness. |
 | PPATK | Klinik Dumas Special Edition, November 2025 — role and quality of NGO/CSO and public information in supporting financial-intelligence analysis. |
-| CS-AML | Framework v0.1.1 Expanded; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification. |
+| CS-AML | Framework v0.1.4 Expanded; Goals & Non-Goals; Typology Catalogue; Investigation Methodology; Data Model Specification. |
 
 ## E.1 Interpretation notes
 

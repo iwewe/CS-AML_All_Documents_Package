@@ -1,5 +1,108 @@
 # CS-AML Changelog
 
+## v0.1.4 — 2026-10-10 — Change requests from the post-MVP follow-ups
+
+**Status:** **Approved Internal Specification Baseline** — tag `v0.1.4-spec`, 2026-10-10, product owner. Supersedes `v0.1.3-spec`.
+This is not an independent review. The change requests come from the post-MVP follow-ups of the reference implementation: the case
+workflow (charter, lifecycle gates G0–G6, tasks, case activity), OCR / text-extraction and offline machine-translation derivatives,
+and MFA step-up for high-risk actions (`docs/change-requests.md` in the implementation repository, section "Post-MVP follow-ups"; the
+implementation extensions `contracts/extensions/case-workflow.yaml` and `n1.yaml` and ADR-0036…ADR-0039 there).
+
+### Decision
+
+**All 14 change-request recommendations (CR-N-01…CR-N-14) were approved by the product owner on 2026-10-10**, without changes and
+without any change of implementation behaviour (the specification now states what the reference implementation does). Decision
+authority for every row below: product owner, 2026-10-10.
+
+The conditions of earlier releases still apply: CR-I5-08 (re-review of the search timing channel before real data) and the external
+reviews of CR-I4-03 (AML specialist) and CR-I1-10 (security).
+
+### Dispositions
+
+Columns as in v0.1.2 / v0.1.3 (`adopted`, `registry`, `contract`, `text`). Changes are tagged in place as `*[v0.1.4 · CR-N-xx]*`
+(Markdown) and `x-csaml-cr` with `x-csaml-release-class: DECIDED_V0_1_4` (OpenAPI).
+
+| ID | Area | Decision | Disposition | Where |
+|---|---|---|---|---|
+| CR-N-01 | Case-workflow operations and fields | `listCharterVersions`, `getCharterVersion`, `getTask`, `updateTask` (If-Match); CharterVersionCreate with the Framework Annex A fields and a question `id` to keep a question; GateDecisionRequest `conditions` and `closure_reason`; TaskCreate `description`, `task_type`, `assignee_id`, `due_date`, `depends_on`; response fields on Charter (`versions`, `approved_version`, `amended_since_approval`), Gate (status, transition, preconditions, submitter / decider, decision history), Task and CaseActivityItem (`target_type`, `audit_action`, `links`) | contract | Contract; API §12; Data Model §6.4–§6.6; SRS-FR-CASE-002 |
+| CR-N-02 | Question priority | Registry `investigation_question_priority` PRIMARY, SECONDARY | registry | `schemas/enums.yaml`; contract; Data Model §6.2, Annex A |
+| CR-N-03 | Gate status; gate → case status | Registry `gate_status`; G0 DRAFT → AUTHORIZED, G1 AUTHORIZED → ACTIVE, G4 ACTIVE → REVIEW, G6 ACTIVE / REVIEW → CLOSED; G2 / G3 / G5 no status change; status changes only through an approved gate. MONITORING and reopening **deferred to v0.2** (not reachable via the API in v0.1.x) | registry + adopted | `schemas/enums.yaml`; contract `Gate`; Data Model §6.1, §6.5; Framework §5.9; API §12; SRS-FR-CASE-003, Annex B; Methodology §3 |
+| CR-N-04 | Task contract | Registry `task_type`, `task_status`; rules as implemented (eligible member as assignee → 422; dependencies in the case, DONE only when all closed → 409; DONE / CANCELLED final; `case.update` changes any field, the assignee only the status of their own task; append-only history); Task leaves DEFER_V0_2. Links from tasks to sources / entities / hypotheses are not implemented and **deferred to v0.2** | registry + contract | `schemas/enums.yaml`; contract `Task`, `TaskCreate`, `TaskPatch`; Data Model §6.6; API §12; SRS-FR-CASE-004 |
+| CR-N-05 | Gate readiness criteria | Criteria checked as implemented (data); the rest stated as reviewer judgement | adopted | Framework §5.9; API §12; Data Model §6.5; contract `Gate.preconditions` |
+| CR-N-06 | What gates control | Gates control the case lifecycle only (activation, review, closure); collection, assessment finalisation and dissemination keep their own controls. Configuration per organisation / risk tier **deferred to v0.2** | adopted | Framework §5.9; API §12; SRS-FR-CASE-003; Control Implementation Guide CAS-02 |
+| CR-N-07 | Gate approver independence | Decider ≠ submitter for every gate; deciders are LEAD or REVIEWER members; high-impact case = risk HIGH / CRITICAL or classification RESTRICTED / SOURCE_PROTECTED, and then the G0 / G1 decider must not have authored the charter version under approval | adopted | Control Implementation Guide CAS-02; Data Model §6.5; API §12; SRS-FR-CASE-003; Framework §5.9; contract `approveCaseGate` |
+| CR-N-08 | Activity filters, auditor view | Actor / action / object filtering stays client-side; server parameters `actor`, `action`, `target_type` and an auditor view **deferred to v0.2** | text (deferral) | API §12; SRS-FR-CASE-005; contract `listCaseActivity`, `CaseActivityItem` |
+| CR-N-09 | OCR / text extraction | `requestTextExtraction`, `listEvidenceDerivedTexts`, `getDerivedText`, `reviewDerivedText`; Data Model class **DerivedText**; registry `derived_text_transformation`, `derived_text_status`, `text_page_method` and the open `derivation_type` vocabulary (OCR_TEXT, TEXT_EXTRACTION, MACHINE_TRANSLATION) | registry + contract | Contract; Data Model §7.2, §7.7, Annex A; API §13, §22; SRS-FR-DOC-002, SRS-FR-EVD-005, SRS-AI-001; Technical Stack §3, §9, §12; Control Implementation Guide EVD-02, TEC-01 |
+| CR-N-10 | Machine translation | `requestDerivedTextTranslation`, `requestEvidenceTranslation`; **offline only for every automation engine** (OCR, MT, any future AI) — evidence content never leaves the host; source text kept per page; no mandatory second reviewer, but the machine-translation label is carried into any intelligence product that uses the translation | adopted + contract | Contract; API §13, §26 (API-SEC-11); SRS-FR-DOC-003, SRS-AI-005; Methodology §10.2, §28.1; Control Implementation Guide EVD-02, TEC-01; Technical Stack §3, §9; Data Model §7.7 |
+| CR-N-11 | Derived text in search (amends CR-I5-07) | Completed DerivedText indexed as `DERIVED_TEXT` with the epistemic marker `DERIVED`; policy-filtered, never before completion, switchable per deployment | registry + contract | `search_object_type`, `search_epistemic_status`; contract; API §17; SRS-FR-SCH-001; Technical Stack §13; Information Architecture §17.2; Data Model Annex A |
+| CR-N-12 | Job types | Registry `job_type` EXPORT_PACKAGE, TEXT_EXTRACTION, MACHINE_TRANSLATION | registry | `schemas/enums.yaml`; contract `Job`, `JobType`; API §22; Data Model Annex A |
+| CR-N-13 | MFA step-up | 403 `STEP_UP_REQUIRED` (ErrorCode); session `auth_level`, `auth_time`, `step_up`; `acr` (and `next`) login parameters; baseline of 11 step-up actions (dissemination.approve, export.generate, export.download, disposition.approve, disposition.execute, legal_hold.release, entity.merge, entity.unmerge, gate.approve, protected_source.grant, protected_source.access); ACR 2 = password + TOTP within 900 s by default. Per-deployment configuration and phishing-resistant factors (WebAuthn / passkeys) for approvers **deferred to v0.2** | contract + adopted | Contract (`x-csaml-step-up` on 13 operations, `StepUpRequired`, `Session`, `authLogin`); API §4, §9, §26, §27; SRS-SEC-005, SRS-FR-SEC-001; Technical Stack §10, §38; Control Implementation Guide CAS-02 |
+| CR-N-14 | Login-callback errors | `authCallback` answers 303 to `/?login_error=<expired\|cancelled\|failed\|unavailable>` for every failed callback (replaces the documented 400 / 401 JSON; 503 also removed) | contract (fix) | Contract `authCallback`, `LoginErrorRedirect`; API §4; SRS-SEC-005 |
+
+### What changed
+
+- **Documents.** Eight documents changed and were renamed with `git mv` to `*_v0.1.4*.md` (history preserved): API Specification,
+  Data Model, SRS, Technical Stack and Repository, Information Architecture, Control Implementation Guide (from v0.1.3), Investigation
+  Methodology (from v0.1.2) and Framework Expanded (from v0.1.1; new §5.9 only). The other 15 Markdown documents are unchanged and keep
+  their current version (v0.1.2 or v0.1.1); a reference to an older version of a document inside an unchanged document means the
+  current version (see `README.md`). Technology Architecture needed no change (§16.1 "phishing-resistant MFA for approvers where
+  feasible" stays a target; the TOTP baseline and the WebAuthn deferral are recorded in Technical Stack §10 and §38).
+- **`contracts/openapi.yaml` 0.1.4.** v0.1.3 plus `contracts/extensions/case-workflow.yaml` and `n1.yaml` of the implementation
+  (merged; the extension files are no longer needed): 138 → 146 paths, 180 → 190 operations. New operations: `listCharterVersions`,
+  `getCharterVersion`, `getTask`, `updateTask`, `requestTextExtraction`, `requestEvidenceTranslation`, `listEvidenceDerivedTexts`,
+  `getDerivedText`, `requestDerivedTextTranslation`, `reviewDerivedText`. Changed operations: `authLogin` (`acr`, `next`),
+  `authCallback` (303 `LoginErrorRedirect` instead of 400 / 401 / 503), 13 high-risk operations (403 `StepUpRequired`,
+  `x-csaml-step-up`), case-workflow operations (descriptions, shapes). New schemas: `DerivedText*`, `TextExtractionRequest`,
+  `TranslationRequest`, `TaskPatch`, `CharterVersionList`, `SessionStepUp`, `StepUpRequiredError` and the registry enums
+  `InvestigationQuestionPriority`, `GateStatus`, `TaskType`, `TaskStatus`, `DerivedTextTransformation`, `DerivedTextStatus`,
+  `TextPageMethod`, `JobType`. The derived-text and translation POSTs carry the contract's CSRF requirement (`csrfHeader`), which the
+  extension had left out. New items carry `x-csaml-status: decided`, `x-csaml-release-class: DECIDED_V0_1_4` and `x-csaml-cr`.
+- **`schemas/enums.yaml` 0.1.4.** 78 → 87 enums (417 → 453 values): `investigation_question_priority`, `gate_status`, `task_type`,
+  `task_status`, `derived_text_transformation`, `derived_text_status`, `text_page_method`, `derivation_type` (open vocabulary, new
+  convention `open: true`), `job_type`; `search_object_type` + DERIVED_TEXT, `search_epistemic_status` + DERIVED. Values are exactly
+  the implementation constants. `InvestigationQuestion.priority` and `EvidenceItem.derivation_type` left `unregistered_fields`.
+- **`tools/check_consistency.py`.** Resolves v0.1.4 files, accepts `*[v0.1.4 · …]*` tags and `CR-N-xx` IDs, maps the new Annex A rows
+  and checks v0.1.4 status blocks.
+
+### Release gates (2026-10-10)
+
+| Gate | Result |
+|---|---|
+| G1–G3 Domain consistency, safety invariants, traceability | `tools/check_consistency.py`: 0 errors |
+| G4 Machine contract | Redocly lint (recommended): 0 errors, 4 warnings — the three `/auth/*` redirect operations (no 2xx) and `GET /health` (no 4xx), unchanged from v0.1.3 |
+| G5 Decisions | All 14 change requests decided (this section) |
+| G6 Known limitations | Listed below |
+
+### Implementation follow-up (reference implementation)
+
+Re-import contract and registry v0.1.4 byte-for-byte and retire `contracts/extensions/case-workflow.yaml` and `n1.yaml` (the
+`x-csaml-n1-behaviour` list is now expressed in the contract: `x-csaml-step-up`, `Session`, `authLogin`, `authCallback`,
+`SearchObjectType`, `SearchEpistemicStatus`, `JobType`). No behaviour change is required.
+
+### Deferred to v0.2
+
+| Item | From |
+|---|---|
+| MONITORING and reopening of cases (triggers, gate or review) | CR-N-03 |
+| Links from tasks to sources, entities and hypotheses | CR-N-04 |
+| Gate configuration per organisation and per risk tier (CIG P1–P3); separate legal / privacy approver roles per gate | CR-N-06, CR-N-07 |
+| Server-side activity filters (`actor`, `action`, `target_type`) and an auditor view | CR-N-08 |
+| Per-deployment step-up action list and phishing-resistant factors (WebAuthn / passkeys) for approvers | CR-N-13 |
+| Office-format (DOCX / XLSX) text extraction | CR-N-09 |
+
+### Still open after v0.1.4
+
+| Item | Target |
+|---|---|
+| Re-review of the search timing channel (CR-I5-08) | Before real (non-synthetic) data is processed |
+| ANONYMIZE and whole-case DELETE dispositions (CR-I7-05) | v0.2 |
+| Indexing of original evidence file content; hypotheses, assessments, indicators in search | Phase 2 / v0.2 |
+| Administration/audit API (other than retention and health), protected sources, `GET /capabilities` | v0.2 (per epic) |
+| Sort allowlists | v0.2 |
+| The v0.2 deferrals above | v0.2 |
+| External review of CR-I4-03 (AML specialist) and CR-I1-10 (security) | Before external reliance |
+| Items of the v0.1.3 "Still open" table not listed here | Unchanged (gate and task status value sets and task contracts are closed by CR-N-03 / CR-N-04) |
+
 ## v0.1.3 — 2026-10-09 — Change requests from implementation increments I5–I7
 
 **Status:** **Approved Internal Specification Baseline** — tag `v0.1.3-spec`, 2026-10-09, product owner. Supersedes `v0.1.2-spec`.

@@ -2,20 +2,21 @@
 
 Information Architecture Specification
 
-**Version 0.1.3**
+**Version 0.1.4**
 
 Information organisation, taxonomy, navigation, labeling and findability for the CS-AML Platform
 
-> **Document status — v0.1.3**
-> Version: 0.1.3 — Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec). Supersedes v0.1.1 (2026-10-08, tag v0.1.1-spec); unchanged in v0.1.2. *[v0.1.3]*
+> **Document status — v0.1.4**
+> Version: 0.1.4 — Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec). Supersedes v0.1.3 (2026-10-09, tag v0.1.3-spec). *[v0.1.4]*
 > Supersedes: CS-AML Information Architecture Specification v0.1. The DOCX/PDF files in this repository are the unchanged v0.1 baseline (legacy); this Markdown file is the canonical source.
-> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.3; decision register and release gates in `CHANGELOG.md`). The v0.1.3 changes come from change requests raised while implementing increments I5–I7; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
+> Validation: approved by the product owner as the internal specification baseline on 2026-10-08 (v0.1.1) and 2026-10-09 (v0.1.3) and 2026-10-10 (v0.1.4; decision register and release gates in `CHANGELOG.md`). The v0.1.3 and v0.1.4 changes come from change requests raised while implementing increments I5–I7 and the post-MVP follow-ups; this is not an independent audit. Acceptance criteria in this document are targets, not evidence that tests have passed.
 > CS-AML is not an external standard or certification. References to FATF, Wolfsberg, PPATK, UNODC or other bodies do not imply their endorsement.
 > Changes in 0.1.1: see `CHANGELOG.md` at the repository root (audit findings A01–A16).
 > Changes in 0.1.3: change requests CR-I5-01…CR-I7-08 approved by the product owner on 2026-10-09 (`CHANGELOG.md`, section v0.1.3). Each change is tagged `*[v0.1.3 · CR-xx-yy]*`.
+> Changes in 0.1.4: change requests CR-N-01…CR-N-14 approved by the product owner on 2026-10-10 (`CHANGELOG.md`, section v0.1.4). Each change is tagged `*[v0.1.4 · CR-N-xx]*`.
 
 > **Status**  
-> Approved Internal Specification Baseline (2026-10-09, tag v0.1.3-spec) — normative information-architecture baseline for MVP 0.1. *[v0.1.1 · A01]* This document defines how information is organised, named, grouped, navigated, linked, searched and found. Interaction behaviour remains governed by the separate CS-AML UX Specification.
+> Approved Internal Specification Baseline (2026-10-10, tag v0.1.4-spec) — normative information-architecture baseline for MVP 0.1. *[v0.1.1 · A01]* This document defines how information is organised, named, grouped, navigated, linked, searched and found. Interaction behaviour remains governed by the separate CS-AML UX Specification.
 
 | **Document** | **Primary ownership** |
 |----|----|
@@ -308,7 +309,7 @@ Canonical object pages SHOULD use a consistent information hierarchy regardless 
 | Disputed | Material conflicting evidence exists. |
 | Unresolved | Available information is insufficient to decide. |
 
-Display labels map to Data Model wire values: Confirmed → `RESOLVED`; Disputed → `CONFLICTED`; Unresolved → `UNRESOLVED`; plus `MERGED` and `SPLIT`. Candidate and Probable describe a pending or `POSSIBLE_MATCH` ResolutionDecision between records, not a stored entity state. Entity state changes only through ResolutionDecisions (Data Model v0.1.3 §8.4). *[v0.1.1 · ER]*
+Display labels map to Data Model wire values: Confirmed → `RESOLVED`; Disputed → `CONFLICTED`; Unresolved → `UNRESOLVED`; plus `MERGED` and `SPLIT`. Candidate and Probable describe a pending or `POSSIBLE_MATCH` ResolutionDecision between records, not a stored entity state. Entity state changes only through ResolutionDecisions (Data Model v0.1.4 §8.4). *[v0.1.1 · ER]*
 
 # 10. Relationship, Ownership and Control Architecture
 
@@ -573,6 +574,8 @@ Assessment · Procurement ownership question · Moderate confidence
 - Case-context search MAY show case relevance alongside canonical object identity.
 
 - Every result carries a canonical back-link (API resource and the UI route in a readable case context); an extract result opens its canonical extract resource (`/evidence-extracts/{extractId}`) within its evidence item. Claims are labelled as claims, never as facts; relevance is labelled as text match, never as risk. *[v0.1.3 · CR-I5-01, CR-I5-03, CR-I5-07]*
+
+- Derived-text results (object type `DERIVED_TEXT`, marker `DERIVED`) are labelled machine-derived ("not the original evidence") with their review state, and link to the derived text and to the original evidence page. Machine translations are shown side by side with their source text. *[v0.1.4 · CR-N-11, CR-N-10]*
 
 ## 17.3 Facets
 
